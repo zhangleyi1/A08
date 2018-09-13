@@ -1,0 +1,28 @@
+Index: build/tools/releasetools/add_img_to_target_files.py
+===================================================================
+--- build/tools/releasetools/add_img_to_target_files.py	(revision 170526)
++++ build/tools/releasetools/add_img_to_target_files.py	(revision 170527)
+@@ -393,8 +393,8 @@
+   AddCache(output_zip)
+   banner("prodnv")
+   AddCache(output_zip)
+-  banner("devicelog")
+-  AddDevicelog(output_zip)
++#  banner("devicelog")
++#  AddDevicelog(output_zip)
+   # For devices using A/B update, copy over images from RADIO/ to IMAGES/ and
+   # make sure we have all the needed images ready under IMAGES/.
+   ab_partitions = os.path.join(OPTIONS.input_tmp, "META", "ab_partitions.txt")
+Index: build/tools/releasetools/ota_from_target_files.py
+===================================================================
+--- build/tools/releasetools/ota_from_target_files.py	(revision 170526)
++++ build/tools/releasetools/ota_from_target_files.py	(revision 170527)
+@@ -149,7 +149,7 @@
+ OPTIONS.two_step = False
+ OPTIONS.no_signing = False
+ #adups fota
+-OPTIONS.block_based = True
++OPTIONS.block_based = False
+ OPTIONS.updater_binary = None
+ OPTIONS.oem_source = None
+ OPTIONS.oem_no_mount = False

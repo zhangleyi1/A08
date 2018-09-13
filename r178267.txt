@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml	(revision 178266)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml	(revision 178267)
+@@ -15,7 +15,7 @@
+     <string name="camera_mode_vgesture">Vgesture</string>
+     <string name="camera_mode_qrcode">Qr Code</string>
+     <string name="camera_mode_smileshutter">Smile Shutter</string>
+-    <string name="camera_mode_photograph">PhotoGraph</string>
++    <string name="camera_mode_photograph">Touching Photograph</string>
+     <string name="mode_timelapse">TimeLapse</string>
+     <string name="camera_mode_slowmotion">SlowMotion</string>
+     <string name="slide_panel_capture">Photo</string>

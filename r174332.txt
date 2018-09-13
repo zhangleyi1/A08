@@ -1,0 +1,13 @@
+Index: packages/apps/Messaging/res/xml/mms_config.xml
+===================================================================
+--- packages/apps/Messaging/res/xml/mms_config.xml	(revision 174331)
++++ packages/apps/Messaging/res/xml/mms_config.xml	(revision 174332)
+@@ -47,7 +47,7 @@
+          will be converted into a single mms message. For example, if the mms_config.xml file
+          specifies <int name="smsToMmsTextThreshold">7</int>, then on the 8th sms segment, the
+          message will be converted to an mms. -->
+-    <int name="smsToMmsTextThreshold">7</int>
++    <int name="smsToMmsTextThreshold">-1</int>
+ 
+     <!-- Maximum length for message text. Use a value of -1
+          to indicate default value -->

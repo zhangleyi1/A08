@@ -1,0 +1,28 @@
+Index: vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/activities/PeopleActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/activities/PeopleActivity.java	(revision 172140)
++++ vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/activities/PeopleActivity.java	(revision 172141)
+@@ -1393,11 +1393,11 @@
+         makeMenuItemVisible(menu, R.id.menu_settings,
+                 showMiscOptions && !ContactsPreferenceActivity.isEmpty(this));
+         
++        makeMenuItemVisible(menu, R.id.menu_share, showSelectedContactOptions);
++        makeMenuItemVisible(menu, R.id.menu_delete, showSelectedContactOptions);
+         final boolean isAllContactsSelected = mActionBarAdapter.isSelectionMode()
+                 && (mAllFragment.getSelectedContactIds().size() + 2 == mAllFragment.getListView().getCount());
+         makeMenuItemVisible(menu, R.id.menu_select_all, showSelectedContactOptions && !isAllContactsSelected);
+-        makeMenuItemVisible(menu, R.id.menu_share, showSelectedContactOptions);
+-        makeMenuItemVisible(menu, R.id.menu_delete, showSelectedContactOptions);
+         final boolean showLinkContactsOptions = mActionBarAdapter.isSelectionMode()
+                 && mAllFragment.getSelectedContactIds().size() > 1;
+         makeMenuItemVisible(menu, R.id.menu_join, showLinkContactsOptions);
+@@ -1510,6 +1510,9 @@
+                  * @}
+                  */
+                 return true;
++            case R.id.menu_select_all:
++                mAllFragment.selectallCheckBoxes();
++                return true;
+             case R.id.menu_join:
+                 /**
+                  * SPRD:

@@ -1,0 +1,13 @@
+Index: packages/apps/Settings/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values-zh-rCN/strings.xml	(revision 169973)
++++ packages/apps/Settings/res/values-zh-rCN/strings.xml	(revision 169974)
+@@ -3258,7 +3258,7 @@
+     <string name="gesture_setting_gesture_music">"音乐"</string>
+     <string name="gesture_setting_gesture_music_summary">"使用手势来控制音乐播放"\n"·绘制向上箭头暂停"\n"·绘制向下箭头播放"\n"·绘制向左箭头上一首"\n"·绘制向右箭头下一首"</string>
+     <string name="gesture_setting_gesture_flashlight">"手电筒"</string>
+-    <string name="gesture_setting_gesture_flashlight_summary">"绘制一个" \'V\' "切换手电筒"</string>
++    <string name="gesture_setting_gesture_flashlight_summary">"绘制一个" \'V\' "打开手电筒"</string>
+     <string name="gesture_setting_vibrate_title">"附加功能"</string>
+     <string name="gesture_setting_gesture_vibrate">"触觉反馈"</string>
+     <string name="gesture_setting_gesture_vibrate_summary">"当检测到手势时振动"</string>

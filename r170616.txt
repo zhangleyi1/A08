@@ -1,0 +1,13 @@
+Index: device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 170615)
++++ device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 170616)
+@@ -28,7 +28,7 @@
+ BOARD_KERNEL_PAGESIZE := 2048
+ BOARD_KERNEL_SEPARATED_DT := true
+ 
+-TARGET_DM_VERITY := false
++TARGET_DM_VERITY := true
+ 
+ STORAGE_INTERNAL := emulated
+ STORAGE_PRIMARY := internal

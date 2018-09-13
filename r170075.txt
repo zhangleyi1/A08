@@ -1,0 +1,12 @@
+Index: packages/services/Telephony/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values-zh-rCN/strings.xml	(revision 170074)
++++ packages/services/Telephony/res/values-zh-rCN/strings.xml	(revision 170075)
+@@ -563,4 +563,7 @@
+ 	<string name="police">报警</string>
+ 	<string name="emergency">急救</string>
+ 	<string name="emergency_call_list">紧急电话</string>
++	<string name="close_volte_info">"禁用VoLTE将使呼叫和短信无法使用。你确定？"</string>
++	<string name="confirm">"确认"</string>
++	<string name="votle_cancel">"取消"</string>
+ </resources>

@@ -1,0 +1,59 @@
+Index: packages/apps/Provision/AndroidManifest.xml
+===================================================================
+--- packages/apps/Provision/AndroidManifest.xml	(revision 167531)
++++ packages/apps/Provision/AndroidManifest.xml	(revision 167532)
+@@ -18,6 +18,8 @@
+         package="com.android.provision">
+ 
+     <original-package android:name="com.android.provision" />
++    <uses-permission android:name="android.permission.STATUS_BAR" />  
++    <uses-permission android:name="android.permission.EXPAND_STATUS_BAR"/>  
+ 
+     <!-- For miscellaneous settings -->
+     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+@@ -35,6 +37,7 @@
+         </activity>
+ 
+         <activity android:name="FotaInfoActivity"
++                android:excludeFromRecents="true"
+                 android:theme="@android:style/Theme.Holo.Dialog.NoActionBar"
+                 android:exported="true" >
+         </activity>
+Index: packages/apps/Provision/src/com/android/provision/FotaInfoActivity.java
+===================================================================
+--- packages/apps/Provision/src/com/android/provision/FotaInfoActivity.java	(revision 167531)
++++ packages/apps/Provision/src/com/android/provision/FotaInfoActivity.java	(revision 167532)
+@@ -7,10 +7,13 @@
+ import android.view.View;
+ import android.view.WindowManager;
+ import android.widget.Button;
++import android.app.StatusBarManager;
++import android.content.Context;
+ 
+ public class FotaInfoActivity extends Activity {
+ 
+     private Button nextBtn;
++    private StatusBarManager mStatusBarManager;
+ 
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+@@ -31,6 +34,8 @@
+                 finish();
+             }
+         });
++        mStatusBarManager = (StatusBarManager)getSystemService(Context.STATUS_BAR_SERVICE);
++        mStatusBarManager.disable(StatusBarManager.DISABLE_EXPAND);
+     }
+ 
+     @Override
+@@ -40,4 +45,10 @@
+         }
+         return super.onKeyDown(keyCode, event);
+     }
++
++    @Override
++    protected void onPause() {
++        super.onPause();
++        mStatusBarManager.disable(StatusBarManager.DISABLE_NONE);  
++    }
+ }

@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/Settings/res/values/strings_wifi.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Settings/res/values/strings_wifi.xml	(revision 173782)
++++ vendor/sprd/platform/packages/apps/Settings/res/values/strings_wifi.xml	(revision 173783)
+@@ -96,7 +96,7 @@
+     <string name="softap_need_mobile_data_enabled">"Portable Wi-Fi hotspot needs mobile data connect,may produce additional costs."</string>
+     <string name="wifi_max_connect">Max Connections</string>
+     <string name="wifi_channel">Wi-Fi Channel</string>
+-    <string name="wifi_tether_connect_title"> Connected Users</string>
++    <string name="wifi_tether_connect_title">&#160;Connected Users</string>
+     <string name="wifi_tether_block_title"> Blocked Users</string>
+     <string name="hotspot_add_blockedstations_limit">Blocked Stations has reached the maximum limit, can not to add more.</string>
+     <string name="hotspot_mode">Hotspot Control Mode</string>

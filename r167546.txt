@@ -1,0 +1,37 @@
+Index: frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+===================================================================
+--- frameworks/base/packages/SettingsProvider/res/values/defaults.xml	(revision 167545)
++++ frameworks/base/packages/SettingsProvider/res/values/defaults.xml	(revision 167546)
+@@ -176,7 +176,7 @@
+     <bool name="def_dtmf_tones_enabled">true</bool>
+     <!-- Default for UI touch sounds enabled -->
+     <bool name="def_sound_effects_enabled">true</bool>
+-	<bool name="def_motion_sound_effects_enabled">true</bool>
++	<bool name="def_motion_sound_effects_enabled">false</bool>
+     <!-- Development settings -->
+     <bool name="def_stay_on_while_plugged_in">false</bool>
+ 
+Index: vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfileProvider.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfileProvider.java	(revision 167545)
++++ vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfileProvider.java	(revision 167546)
+@@ -163,7 +163,7 @@
+         int defChargingSounds = Settings.Global.getInt(resolver, Settings.Global.CHARGING_SOUNDS_ENABLED, 1);
+         int defLockSounds = Settings.System.getInt(resolver,Settings.System.LOCKSCREEN_SOUNDS_ENABLED, 1);
+         int defHapticFeedback = AudioProfile.IS_HAPTIC_FEEDBACK;
+-		int defMotionSoundEffects = AudioProfile.IS_MOTION_SOUNDS_EFFECTS;
++		int defMotionSoundEffects = AudioProfile.NOT_MOTION_SOUNDS_EFFECTS;
+ 		
+         Uri defUri = RingtoneManager.getActualDefaultRingtoneUri(mContext, RingtoneManager.TYPE_RINGTONE);
+         String defRingUri = "";
+Index: vendor/sprd/platform/packages/apps/AudioProfile/res/xml/audio_profile_sound_settings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/AudioProfile/res/xml/audio_profile_sound_settings.xml	(revision 167545)
++++ vendor/sprd/platform/packages/apps/AudioProfile/res/xml/audio_profile_sound_settings.xml	(revision 167546)
+@@ -80,5 +80,5 @@
+ 	<com.sprd.audioprofile.AudioProfileCheckBoxPrefrence
+             android:key="motion_sound_effect"
+             android:title="@string/motion_sound_effect_title"
+-            android:defaultValue="true" />
++            android:defaultValue="false" />
+ </PreferenceScreen>

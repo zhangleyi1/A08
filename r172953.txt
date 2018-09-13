@@ -1,0 +1,97 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java	(revision 172952)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java	(revision 172953)
+@@ -367,6 +367,27 @@
+                         flashLightIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                         context.startActivity(flashLightIntent);
+                         break;
++                    case KeyEvent.KEYCODE_M:
++                        //handleGesture(gestureKeycode);
++                        int valueVibrateMusic = Settings.System.getInt(mContext.getContentResolver(), Settings.System.KEY_GESTURE_TYPE_VIBRATE, 0);
++                        if (valueVibrateMusic == 1) {
++                            final Vibrator v = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
++                            if (v != null) {
++                                v.vibrate(500, new AudioAttributes.Builder()
++                                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
++                                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION).build());
++                            }
++                        }
++
++                        if( -1 != getLockScreenMode()) {
++                            Log.i(TAG, "mGestureBroadcastReceiver: to makeExpandedInvisibleByGesture");
++                            mPhoneStatusBar.makeExpandedInvisibleByGesture();
++                        }
++                        Intent musicIntent = new Intent();
++                        musicIntent.setClassName("com.android.music", "com.android.music.MusicBrowserActivity");
++                        musicIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++                        context.startActivity(musicIntent);
++                        break;
+                     default:
+                        break;
+                 }
+Index: frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java	(revision 172952)
++++ frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java	(revision 172953)
+@@ -5638,7 +5638,7 @@
+         if((keyCode == KeyEvent.KEYCODE_DPAD_UP) || (keyCode == KeyEvent.KEYCODE_P)
+             || (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) || (keyCode == KeyEvent.KEYCODE_DPAD_LEFT)
+             || (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) || (keyCode == KeyEvent.KEYCODE_O)
+-            || (keyCode == KeyEvent.KEYCODE_V)) {
++            || (keyCode == KeyEvent.KEYCODE_V) || (keyCode == KeyEvent.KEYCODE_M)) {
+             ret = true;
+         }
+         
+Index: packages/apps/Settings/src/com/android/settings/Util.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/Util.java	(revision 172952)
++++ packages/apps/Settings/src/com/android/settings/Util.java	(revision 172953)
+@@ -20,7 +20,7 @@
+     public static final int FALG_GESTURE_ENABLE                             = 0x01;
+     public static final int KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_UNLOCK     = 0x20;
+     public static final int KEY_GESTURE_TYPE_CAMERA                         = 0x80;
+-    public static final int KEY_GESTURE_TYPE_MUSIC                          = 0x1E;
++    public static final int KEY_GESTURE_TYPE_MUSIC                          = 0x11E;
+     public static final int KEY_GESTURE_TYPE_FLASHLIGHT                     = 0x40;
+     public static final int FLAG_DEFAULT_VALUES                             = 0X01;
+ 
+Index: packages/apps/Settings/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values-zh-rCN/strings.xml	(revision 172952)
++++ packages/apps/Settings/res/values-zh-rCN/strings.xml	(revision 172953)
+@@ -3256,7 +3256,7 @@
+     <string name="gesture_setting_gesture_camera">"相机"</string>
+     <string name="gesture_setting_gesture_camera_summary">"画一个圆圈来激活相机"</string>
+     <string name="gesture_setting_gesture_music">"音乐"</string>
+-    <string name="gesture_setting_gesture_music_summary">"使用手势来控制音乐播放"\n"·绘制向上箭头暂停"\n"·绘制向下箭头播放"\n"·绘制向左箭头上一首"\n"·绘制向右箭头下一首"</string>
++    <string name="gesture_setting_gesture_music_summary">"使用手势来控制音乐播放"\n"绘制一个\'M\'打开音乐播放器\n·绘制向上箭头暂停"\n"·绘制向下箭头播放"\n"·绘制向左箭头上一首"\n"·绘制向右箭头下一首"</string>
+     <string name="gesture_setting_gesture_flashlight">"手电筒"</string>
+     <string name="gesture_setting_gesture_flashlight_summary">"绘制一个" \'V\' "打开手电筒"</string>
+     <string name="gesture_setting_vibrate_title">"附加功能"</string>
+Index: packages/apps/Settings/res/values/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values/strings.xml	(revision 172952)
++++ packages/apps/Settings/res/values/strings.xml	(revision 172953)
+@@ -7689,7 +7689,7 @@
+     <string name="gesture_setting_gesture_camera">Camera</string>
+     <string name="gesture_setting_gesture_camera_summary">Draw a circle to activate camera</string>
+     <string name="gesture_setting_gesture_music">Music</string>
+-    <string name="gesture_setting_gesture_music_summary">Use gestures to control music playback\n·Draw up arrow for pause\n·Draw down arrow for play\n·Draw left arrow for previous track\n·Draw right arrow for next tract</string>
++    <string name="gesture_setting_gesture_music_summary">Use gestures to control music playback\nDraw a \'M\' to activate music\n·Draw up arrow for pause\n·Draw down arrow for play\n·Draw left arrow for previous track\n·Draw right arrow for next tract</string>
+     <string name="gesture_setting_gesture_flashlight">Flashlight</string>
+     <string name="gesture_setting_gesture_flashlight_summary">Draw a \'V\' to toggle flashlight</string>
+     <string name="gesture_setting_vibrate_title">Extras</string>
+Index: packages/apps/Settings/res/values-in/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values-in/strings.xml	(revision 172952)
++++ packages/apps/Settings/res/values-in/strings.xml	(revision 172953)
+@@ -3108,7 +3108,7 @@
+     <string name="gesture_setting_gesture_camera">"kamera"</string>
+     <string name="gesture_setting_gesture_camera_summary">"Menggambar lingkaran untuk mengaktifkan kamera"</string>
+     <string name="gesture_setting_gesture_music">"musik"</string>
+-    <string name="gesture_setting_gesture_music_summary">"Menggunakan gerakan untuk mengontrol pemutaran musik"\n"·Menggambar panah untuk menghentikan sementara"\n"·Menarik ke bawah panah untuk bermain"\n"·Menggambar panah di sebelah kiri"\n"·Menggambar panah kanan lagu berikutnya"</string>
++    <string name="gesture_setting_gesture_music_summary">"Menggunakan gerakan untuk mengontrol pemutaran musik"\nGambar \'M\' untuk membuka Pemutar Musik\n"·Menggambar panah untuk menghentikan sementara"\n"·Menarik ke bawah panah untuk bermain"\n"·Menggambar panah di sebelah kiri"\n"·Menggambar panah kanan lagu berikutnya"</string>
+     <string name="gesture_setting_gesture_flashlight">"senter"</string>
+     <string name="gesture_setting_gesture_flashlight_summary">"menggambar" \'V\' "terbuka senter"</string>
+     <string name="gesture_setting_vibrate_title">"fitur tambahan"</string>

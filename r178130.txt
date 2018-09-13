@@ -1,0 +1,12 @@
+Index: vendor/sprd/feature_configs/base/overlay/packages/services/Telephony/res/values-in/strings.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/packages/services/Telephony/res/values-in/strings.xml	(revision 178129)
++++ vendor/sprd/feature_configs/base/overlay/packages/services/Telephony/res/values-in/strings.xml	(revision 178130)
+@@ -19,6 +19,7 @@
+ <string name="fdn_name_maxlength">"Silahkan masukkan nama tidak dapat melebihi 14 digit"</string>
+ <string name="fdn_number_maxlength">"Silahkan masukkan nama tidak dapat melebihi 20 digit"</string>
+ <string name="network_open">"Koneksi data telah terbuka."</string>
++<string name="preferred_data_roaming_dialogtitle_smartfren">Roaming Data</string>
+ <string name="preferred_data_roaming_this_trip_smartfren">Izinkan akses data hanya untuk perjalanan kali ini saja</string>
+ <string name="preferred_data_roaming_all_trip_smartfren">Izinkan akses data untuk semua perjalanan</string>
+ <string name="preferred_data_roaming_disable_smartfren">Tolak akses data roaming</string>

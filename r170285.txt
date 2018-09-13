@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/SignalClusterViewEx.java
+===================================================================
+--- vendor/sprd/platform/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/SignalClusterViewEx.java	(revision 170284)
++++ vendor/sprd/platform/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/SignalClusterViewEx.java	(revision 170285)
+@@ -691,7 +691,7 @@
+                     (mEthernetVisible ? "VISIBLE" : "GONE")));
+ 
+         // SPRD: Add for VoWifi in bug 629758.
+-        if (mWifiVisible && !mVoWifiVisible) {
++        if (mWifiVisible) {
+             //SPRD: Bug #474463 Add wifi inOut icon in status bar Feature BEG-->
+             mWifiIn.setVisibility(isWifiIn ? View.VISIBLE : View.INVISIBLE);
+             mWifiOut.setVisibility(isWifiOut ? View.VISIBLE: View.INVISIBLE);

@@ -1,0 +1,47 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DreamUISettingPartBasic.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DreamUISettingPartBasic.java	(revision 176411)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DreamUISettingPartBasic.java	(revision 176412)
+@@ -253,12 +253,16 @@
+         DataStorageStruct data = (DataStorageStruct) mDataModule
+                 .getSupportSettingsList().get(key);
+         if(data != null){
+-			if("pref_camera_ai_detect_key".equals(key)){	
+-				CharSequence[] mEntryValues=new CharSequence[2];
+-				for(int i=0;i<2;i++){
+-					mEntryValues[i]=data.mEntries[i];
++			if("pref_camera_ai_detect_key".equals(key)){
++				int length=data.mEntries.length;
++				Log.e(TAG, "getListEntries: length =" + length);
++				if(length==3){
++					CharSequence[] mEntrys=new CharSequence[length-1];
++					for(int i=0;i<length-1;i++){
++						mEntrys[i]=data.mEntries[i];
++					}
++					return mEntrys;
+ 				}
+-				return  mEntryValues;
+ 			}
+             return data.mEntries;
+         }
+@@ -269,12 +273,15 @@
+         DataStorageStruct data = (DataStorageStruct) mDataModule
+                 .getSupportSettingsList().get(key);
+         if(data != null){
+-			if("pref_camera_ai_detect_key".equals(key)){	
+-				CharSequence[] mEntryValues=new CharSequence[2];
+-				for(int i=0;i<2;i++){
+-					mEntryValues[i]=data.mEntryValues[i];
++			if("pref_camera_ai_detect_key".equals(key)){
++				int length=data.mEntryValues.length;
++				if(length==3){
++					CharSequence[] mEntryValues=new CharSequence[length-1];
++					for(int i=0;i<length-1;i++){
++						mEntryValues[i]=data.mEntryValues[i];
++					}
++					return  mEntryValues;
+ 				}
+-				return  mEntryValues;
+ 			}
+             return data.mEntryValues;
+         }

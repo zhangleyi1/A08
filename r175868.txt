@@ -1,0 +1,26 @@
+Index: packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java	(revision 175867)
++++ packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java	(revision 175868)
+@@ -248,7 +248,7 @@
+         int len = input.length();
+         if (input.equals(MMI_CUSTOM_FACTORY) || input.equals(MMI_CUSTOM_PORT)) {
+             final Intent intent = new Intent(SECRET_CODE_ACTION,
+-                    Uri.parse("android_secret_code://" + input.substring(1, len - 1)));
++                    Uri.parse("android_secret_code_port://" + input.substring(1, len - 1)));
+             intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+             context.sendBroadcast(intent);
+             return true;
+Index: vendor/sprd/platform/packages/apps/KeyGen/AndroidManifest.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/KeyGen/AndroidManifest.xml	(revision 175867)
++++ vendor/sprd/platform/packages/apps/KeyGen/AndroidManifest.xml	(revision 175868)
+@@ -21,7 +21,7 @@
+ 
+                 <data
+                     android:host="76278"
+-                    android:scheme="android_secret_code" />
++                    android:scheme="android_secret_code_port" />
+             </intent-filter>
+         </receiver>
+     </application>

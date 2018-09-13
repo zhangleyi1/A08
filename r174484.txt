@@ -1,0 +1,15 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/keyguard/KeyguardViewMediator.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/keyguard/KeyguardViewMediator.java	(revision 174483)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/keyguard/KeyguardViewMediator.java	(revision 174484)
+@@ -1764,7 +1764,9 @@
+                 if (mStatusBarKeyguardViewManager.isUnlockWithWallpaper()) {
+                     flags |= WindowManagerPolicy.KEYGUARD_GOING_AWAY_FLAG_WITH_WALLPAPER;
+                 }
+-
++				//add for bug 100822 start by zhangchi
++				flags |= WindowManagerPolicy.KEYGUARD_GOING_AWAY_FLAG_NO_WINDOW_ANIMATIONS;
++				//add for bug 100822 end by zhangchi
+                 // Don't actually hide the Keyguard at the moment, wait for window
+                 // manager until it tells us it's safe to do so with
+                 // startKeyguardExitAnimation.

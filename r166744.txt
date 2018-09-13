@@ -1,0 +1,122 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/version.mk
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/version.mk	(revision 166743)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/version.mk	(revision 166744)
+@@ -86,7 +86,7 @@
+ ifneq "" "$(filter eng.%,$(BUILD_NUMBER))"
+   git_hash := $(shell git --git-dir $(LOCAL_PATH)/.git log -n 1 --pretty=format:%h)
+   date_string := $(shell date +%m%d%y_%H%M%S)
+-  version_name_package := $(base_version_major).$(base_version_minor).$(base_version_build) (eng.$(USER).$(git_hash).$(date_string)-$(base_version_arch)$(base_version_density))
++  version_name_package := $(base_version_major).$(base_version_minor).$(base_version_build)
+ else
+   version_name_package := $(base_version_major).$(base_version_minor).$(base_version_build) ($(BUILD_NUMBER)-$(base_version_arch)$(base_version_density))
+ endif
+Index: vendor/sprd/platform/packages/apps/EngineerMode/src/com/sprd/engineermode/debuglog/VersionInfoActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/EngineerMode/src/com/sprd/engineermode/debuglog/VersionInfoActivity.java	(revision 166743)
++++ vendor/sprd/platform/packages/apps/EngineerMode/src/com/sprd/engineermode/debuglog/VersionInfoActivity.java	(revision 166744)
+@@ -91,12 +91,12 @@
+             Log.d(TAG,"no requirment version");
+             return;
+         }
+-        
++
+         mCmdType = extras.getString(KEY_CMD_TYPE, null);
+         Log.d(TAG,"require version "+mCmdType);
+         if (mCmdType == null) {
+             return;
+-        } 
++        }
+ 
+         HandlerThread ht = new HandlerThread(TAG);
+         ht.start();
+@@ -138,7 +138,7 @@
+             mVersionHandler.getLooper().quit();
+         }
+         super.onDestroy();
+-    }    
++    }
+ 
+     /*BEGIN BUG559596 zhijie.yang 2016/05/05 modify the filepath of gps version*/
+     /**
+@@ -190,7 +190,7 @@
+         for(int i = 0; i < str.length - 1; i++) {
+             if (cmdType == GET_MODEM_VERSION && str[i].contains("Platform Version")) {
+                 String str1[] = str[i].split("\\:");
+-                result = "Modem Version:"+"\n"+str1[1]+"\n"+"Release Date:"+"\n"+str[str.length - 2]+"\n";
++                result = "Modem Version:"+"\n"+str1[1];//+"\n"+"Release Date:"+"\n"+str[str.length - 2]+"\n";
+             }
+             // there are two space between BASE and Version
+             else if (cmdType == GET_PS_VERSION && str[i].contains("BASE  Version")) {
+@@ -252,18 +252,18 @@
+                     result = IATUtils.sendATCmd(engconstents.ENG_AT_CGMR, "atchannel1");
+                     Log.d(TAG,"Mode Version result is "+result);
+                     if (result.contains(IATUtils.AT_OK)) {
+-                        mVersion = recombinResult(GET_MODEM_VERSION,result);               
++                        mVersion = recombinResult(GET_MODEM_VERSION,result);
+                     } else {
+-                        Toast.makeText(VersionInfoActivity.this, "Get Modem Version Fail", Toast.LENGTH_SHORT).show(); 
++                        Toast.makeText(VersionInfoActivity.this, "Get Modem Version Fail", Toast.LENGTH_SHORT).show();
+                     }
+                     break;
+                 case GET_PS_VERSION:
+                     result = IATUtils.sendATCmd(engconstents.ENG_AT_CGMR, "atchannel1");
+                     Log.d(TAG,"PS Version result is "+result);
+-                    if (result.contains(IATUtils.AT_OK)) {   
+-                        mVersion = recombinResult(GET_PS_VERSION,result);    
++                    if (result.contains(IATUtils.AT_OK)) {
++                        mVersion = recombinResult(GET_PS_VERSION,result);
+                     } else {
+-                        Toast.makeText(VersionInfoActivity.this, "Get PS Version Fail", Toast.LENGTH_SHORT).show(); 
++                        Toast.makeText(VersionInfoActivity.this, "Get PS Version Fail", Toast.LENGTH_SHORT).show();
+                     }
+                     break;
+                 case GET_DSP_VERSION:
+@@ -270,7 +270,7 @@
+                     String[] str;
+                     String[] str1;
+                     //GSM DSP Version
+-                    dspVersionResult = "GSM DSP Version Info:" + "\n"; 
++                    dspVersionResult = "GSM DSP Version Info:" + "\n";
+                     result = IATUtils.sendATCmd(engconstents.ENG_AT_DSPVERSION+"0", "atchannel1");
+ 
+                     str = result.split("\n");
+@@ -283,7 +283,7 @@
+                     Log.d(TAG,"DSPVersion GSM is "+result);
+ 
+                     //TD DSP Version
+-                    dspVersionResult = "TD DSP Version Info:" + "\n"; 
++                    dspVersionResult = "TD DSP Version Info:" + "\n";
+                     result = IATUtils.sendATCmd(engconstents.ENG_AT_DSPVERSION+"1", "atchannel1");
+                     str = result.split("\n");
+                     if (result.contains("OK")) {
+@@ -295,7 +295,7 @@
+                     Log.d(TAG,"DSPVersion TD is "+result);
+ 
+                     //WCDMA DSP Version
+-                    dspVersionResult = "WCDMA DSP Version Info:" + "\n"; 
++                    dspVersionResult = "WCDMA DSP Version Info:" + "\n";
+                     result = IATUtils.sendATCmd(engconstents.ENG_AT_DSPVERSION+"2", "atchannel1");
+                     str = result.split("\n");
+                     if (result.contains("OK")) {
+@@ -307,7 +307,7 @@
+                     Log.d(TAG,"DSPVersion WCDMA is "+result);
+ 
+                     //LTE DSP Version
+-                    dspVersionResult = "LTE DSP Version Info:" + "\n"; 
++                    dspVersionResult = "LTE DSP Version Info:" + "\n";
+                     result = IATUtils.sendATCmd(engconstents.ENG_AT_DSPVERSION+"3", "atchannel1");
+                     str = result.split("\n");
+                     if (result.contains("OK")) {
+@@ -329,9 +329,9 @@
+                             LocalSocketAddress.Namespace.ABSTRACT, "wcn at+spatgetcp2info");
+                     Log.d(TAG,"CP2 Version is "+result);
+                     if (result != null) {
+-                        mVersion = recombinResult(GET_CP2_VERSION,result);    
++                        mVersion = recombinResult(GET_CP2_VERSION,result);
+                     } else {
+-                        Toast.makeText(VersionInfoActivity.this, "Get CP2 Version Fail", Toast.LENGTH_SHORT).show(); 
++                        Toast.makeText(VersionInfoActivity.this, "Get CP2 Version Fail", Toast.LENGTH_SHORT).show();
+                     }
+                     break;
+                 case GET_TP_VERSION:

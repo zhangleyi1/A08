@@ -1,0 +1,98 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/settings/BrightnessController.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/settings/BrightnessController.java	(revision 177944)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/settings/BrightnessController.java	(revision 177945)
+@@ -38,6 +38,7 @@
+ import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC;
+ import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL;
+ import android.view.View;
++import android.content.Intent;
+ 
+ public class BrightnessController implements ToggleSlider.Listener {
+     private static final String TAG = "StatusBar.BrightnessController";
+@@ -173,11 +174,18 @@
+                    
+                 }
+                 updateIcon(automatic);
++
++                sendNotifyinfo(context);
+                 
+             }
+         });
+     }
+ 
++    private void sendNotifyinfo(Context context) {
++        Intent intent = new Intent("com.android.techainsh.automatic");
++        context.sendBroadcast(intent);
++    }
++
+     public void addStateChangedCallback(BrightnessStateChangeCallback cb) {
+         mChangeCallbacks.add(cb);
+     }
+Index: packages/apps/Settings/src/com/android/settings/DisplaySettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/DisplaySettings.java	(revision 177944)
++++ packages/apps/Settings/src/com/android/settings/DisplaySettings.java	(revision 177945)
+@@ -70,8 +70,10 @@
+ import static android.provider.Settings.System.NEVER_SLEEP_ON;
+ 
+ import static com.android.settingslib.RestrictedLockUtils.EnforcedAdmin;
++import android.content.BroadcastReceiver;
++import android.content.IntentFilter;
++import android.content.Intent;
+ 
+-
+ public class DisplaySettings extends SettingsPreferenceFragment implements
+         Preference.OnPreferenceChangeListener, Indexable {
+     private static final String TAG = "DisplaySettings";
+@@ -114,6 +116,8 @@
+     private ListPreference mTouchLightTimeoutPreference;
+     private static final String BUTTON_TOUCH_LIGHT_TIMEOUT = "touch_light_timeout";
+     /* @} */
++    private IntentFilter mIntentFilter = new IntentFilter();
++    private MyBroadcastReceiver mBroadcastReceiver = new MyBroadcastReceiver();
+ 
+     @Override
+     protected int getMetricsCategory() {
+@@ -288,6 +292,9 @@
+             mNightModePreference.setValue(String.valueOf(currentNightMode));
+             mNightModePreference.setOnPreferenceChangeListener(this);
+         }
++
++        mIntentFilter.addAction("com.android.techainsh.automatic");
++
+     }
+ 
+     private static boolean allowAllRotations(Context context) {
+@@ -309,6 +316,13 @@
+    }
+    /* @} */
+ 
++   private class MyBroadcastReceiver extends BroadcastReceiver {
++        @Override
++        public void onReceive(Context context, Intent intent) {
++            updateState();
++        }
++    }
++
+     private static boolean isLiftToWakeAvailable(Context context) {
+         /* SPRD: Bug 511228 Smart Controls in Settings @{ */
+         if (Utils.isSupportSmartControl(context)) {
+@@ -411,6 +425,7 @@
+         updateTimeoutPreferenceDescription(currentTimeout);
+ 
+         disablePreferenceIfManaged(KEY_WALLPAPER, UserManager.DISALLOW_SET_WALLPAPER);
++        getActivity().registerReceiver(mBroadcastReceiver, mIntentFilter);
+     }
+ 
+    /* SPRD: add  unregisterRotationPolicyListener for bug 639969@{ */
+@@ -421,6 +436,9 @@
+                     mRotationPolicyListener);
+         }
+         super.onPause();
++
++        getActivity().unregisterReceiver(mBroadcastReceiver);
++
+     }
+     /* @} */
+     private void updateState() {

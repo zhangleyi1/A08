@@ -1,0 +1,28 @@
+Index: vendor/sprd/plugins/packages/apps/Launcher3/Android.mk
+===================================================================
+--- vendor/sprd/plugins/packages/apps/Launcher3/Android.mk	(revision 173755)
++++ vendor/sprd/plugins/packages/apps/Launcher3/Android.mk	(revision 173756)
+@@ -1,2 +1,2 @@
+-LOCAL_PATH := $(call my-dir)
+-include $(call all-makefiles-under,$(LOCAL_PATH))
++#LOCAL_PATH := $(call my-dir)
++#include $(call all-makefiles-under,$(LOCAL_PATH))
+Index: vendor/sprd/feature_configs/base/config.mk
+===================================================================
+--- vendor/sprd/feature_configs/base/config.mk	(revision 173755)
++++ vendor/sprd/feature_configs/base/config.mk	(revision 173756)
+@@ -29,8 +29,6 @@
+     LimitOwnerInfoLength \
+     MultiPartCallPlugin \
+     LauncherDrmAddon \
+-   # DynamicCalendarIcon \
+-   # DynamicDeskClockIcon \
+     SystemUIAudioProfile \
+     SystemClockPlugin \
+     SimLockSupport \
+@@ -54,5 +52,3 @@
+     NoteBook \
+     CellBroadcastReceiver \
+     Omacp 
+-    #UnreadInfo \
+-    #	SprdCuccAppSortAddon 

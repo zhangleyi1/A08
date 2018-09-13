@@ -1,0 +1,97 @@
+Index: vendor/sprd/modules/gps/GreenEye2/device-sprd-gps.mk
+===================================================================
+--- vendor/sprd/modules/gps/GreenEye2/device-sprd-gps.mk	(revision 181318)
++++ vendor/sprd/modules/gps/GreenEye2/device-sprd-gps.mk	(revision 181319)
+@@ -42,9 +42,8 @@
+ 	vendor/sprd/modules/gps/GreenEye2/lib32/liblcsagent.so:/system/lib/liblcsagent.so \
+ 	vendor/sprd/modules/gps/GreenEye2/lib32/liblcscp.so:/system/lib/liblcscp.so \
+ 	vendor/sprd/modules/gps/GreenEye2/lib32/liblcswbxml2.so:/system/lib/liblcswbxml2.so \
+-    vendor/sprd/modules/gps/GreenEye2/lib32/liblcsmgt.so:/system/lib/liblcsmgt.so \
+-	vendor/sprd/modules/gps/GreenEye2/lib32/liblte.so:/system/lib/liblte.so \
+-	vendor/sprd/modules/gps/GreenEye2/lib32/gpsd:/system/bin/gpsd
++        vendor/sprd/modules/gps/GreenEye2/lib32/liblcsmgt.so:/system/lib/liblcsmgt.so \
++	vendor/sprd/modules/gps/GreenEye2/lib32/liblte.so:/system/lib/liblte.so 
+ 
+ ifeq ($(SPRD_GNSS_ARCH), arm64)
+ PRODUCT_COPY_FILES += \
+@@ -56,6 +55,8 @@
+ 	vendor/sprd/modules/gps/GreenEye2/lib64/liblte.so:/system/lib64/liblte.so \
+ 	vendor/sprd/modules/gps/GreenEye2/lib64/liblcsmgt.so:/system/lib64/liblcsmgt.so \
+ 	vendor/sprd/modules/gps/GreenEye2/lib64/gpsd:/system/bin/gpsd
+-endif #arm64
++else #arm32 
++PRODUCT_COPY_FILES += vendor/sprd/modules/gps/GreenEye2/lib32/gpsd:/system/bin/gpsd
++endif  #arm64
+ 
+ endif
+Index: vendor/sprd/modules/gps/GreenEye2/gnssmodem.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/gps/GreenEye2/config.xml
+===================================================================
+--- vendor/sprd/modules/gps/GreenEye2/config.xml	(revision 181318)
++++ vendor/sprd/modules/gps/GreenEye2/config.xml	(revision 181319)
+@@ -18,7 +18,6 @@
+ 	<PROPERTY NAME="SLEEP-TIMER" VALUE="300"/>
+ 	<PROPERTY NAME="STOP-TIMER" VALUE="1"/>
+ 	<PROPERTY NAME="CMCC-ENABLE" VALUE="TRUE"/>
+-	<PROPERTY NAME="SENSOR-ENABLE" VALUE="FALSE"/>
+ 	<PROPERTY NAME="TSX-ENABLE" VALUE="FALSE"/>
+ 	<PROPERTY NAME="RF-TOOL" VALUE="FALSE"/>
+ 	<PROPERTY NAME="SUPL-PATH" VALUE="/system/etc/supl.xml"/>
+Index: vendor/sprd/modules/gps/GreenEye2/gnssbdmodem.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/gps/GreenEye2/lib32/liblcswbxml2.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/gps/GreenEye2/lib32/liblcsagent.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/gps/GreenEye2/lib32/libsupl.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/gps/GreenEye2/lib32/liblcscp.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/gps/GreenEye2/lib32/gps.default.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/gps/GreenEye2/lib32/gpsd
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/gps/GreenEye2/lib32/liblcsmgt.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/gps/versioninfo.txt
+===================================================================
+--- vendor/sprd/modules/gps/versioninfo.txt	(revision 181318)
++++ vendor/sprd/modules/gps/versioninfo.txt	(revision 181319)
+@@ -1,2 +1,17 @@
++﻿W17.37.1:
++
++
++
++firmware:
++
+ GE:GPS_CG_15A_W16.34.2P1
+-GE2:GE2_16A_W17.18.2/AGPS:W17.7.2 
++GE2:GE2_16A_W17.36.4_GLO@GE2_16A_W17.36.4_BDS@GE2_16A_W17.36.4
++
++AGPS:
++AGPS_W17.37.1_W17.9.5
++
++
++
++从该版本开始,GNSS的firmware和AGPS,libgps将分别出版本
++
++W17.37.1更新的版本:AGPS

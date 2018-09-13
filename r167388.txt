@@ -1,0 +1,16 @@
+Index: u-boot64/common/cmd_download.c
+===================================================================
+--- u-boot64/common/cmd_download.c	(revision 167387)
++++ u-boot64/common/cmd_download.c	(revision 167388)
+@@ -92,9 +92,9 @@
+ 	//dl_cmd_register(BSL_CMD_READ_CHIP_TYPE, dl_cmd_mcu_read_chiptype);
+ 	dl_cmd_register(BSL_CMD_READ_MCP_TYPE, dl_cmd_read_mcptype);
+ 	dl_cmd_register(BSL_CMD_CHECK_ROOTFLAG, dl_cmd_check_rootflag);
++	dl_cmd_register(BSL_CMD_ENABLE_WRITE_FLASH, dl_enable_write_flash);
+ 	dl_cmd_register(BSL_CMD_READ_UID, dl_cmd_get_uid);
+-	dl_cmd_register(BSL_CMD_ENABLE_WRITE_FLASH, dl_enable_write_flash);
+-	
++
+ 	usb_init(0);
+ 	dl_send_ack (BSL_INCOMPATIBLE_PARTITION);
+ 	/* enter command handler */

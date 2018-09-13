@@ -1,0 +1,13 @@
+Index: packages/apps/Launcher3/res/values/dimens.xml
+===================================================================
+--- packages/apps/Launcher3/res/values/dimens.xml	(revision 173808)
++++ packages/apps/Launcher3/res/values/dimens.xml	(revision 173809)
+@@ -83,7 +83,7 @@
+     <dimen name="all_apps_grid_section_text_size">24sp</dimen>
+     <dimen name="all_apps_search_bar_height">60dp</dimen>
+     <dimen name="all_apps_search_bar_prediction_bar_padding">8dp</dimen>
+-    <dimen name="all_apps_icon_top_bottom_padding">8dp</dimen>
++    <dimen name="all_apps_icon_top_bottom_padding">12dp</dimen>
+     <dimen name="all_apps_icon_width_gap">24dp</dimen>
+     <!-- The top padding should account for the existing all_apps_list_top_bottom_padding -->
+     <dimen name="all_apps_prediction_icon_top_padding">8dp</dimen>

@@ -1,0 +1,13 @@
+Index: packages/services/Telecomm/src/com/android/server/telecom/components/UserCallIntentProcessor.java
+===================================================================
+--- packages/services/Telecomm/src/com/android/server/telecom/components/UserCallIntentProcessor.java	(revision 170048)
++++ packages/services/Telecomm/src/com/android/server/telecom/components/UserCallIntentProcessor.java	(revision 170049)
+@@ -140,7 +140,7 @@
+ 
+         intent.putExtra(CallIntentProcessor.KEY_IS_PRIVILEGED_DIALER,
+                 isDefaultOrSystemDialer(callingPackageName));
+-
++		android.util.Log.i("flmflm:", "package name :" + callingPackageName);
+         // Save the user handle of current user before forwarding the intent to primary user.
+         intent.putExtra(CallIntentProcessor.KEY_INITIATING_USER, mUserHandle);
+ 

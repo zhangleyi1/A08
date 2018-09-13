@@ -1,0 +1,13 @@
+Index: kernel/drivers/input/touchscreen/msg5846/mstar_drv_common.h
+===================================================================
+--- kernel/drivers/input/touchscreen/msg5846/mstar_drv_common.h	(revision 178873)
++++ kernel/drivers/input/touchscreen/msg5846/mstar_drv_common.h	(revision 178874)
+@@ -248,7 +248,7 @@
+  * If this compile option is not defined, the SW ID mechanism for updating firmware will be disabled.
+  * By default, this compile option is disabled.
+  */
+-#define CONFIG_UPDATE_FIRMWARE_BY_SW_ID
++//#define CONFIG_UPDATE_FIRMWARE_BY_SW_ID
+ 
+ // ------------------- #ifdef CONFIG_UPDATE_FIRMWARE_BY_SW_ID ------------------- //
+ #ifdef CONFIG_UPDATE_FIRMWARE_BY_SW_ID

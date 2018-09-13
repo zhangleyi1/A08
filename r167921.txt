@@ -1,0 +1,15 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java	(revision 167920)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java	(revision 167921)
+@@ -348,8 +348,8 @@
+                         break;
+                     case KeyEvent.KEYCODE_V:
+                         //handleGesture(gestureKeycode);
+-                        int value = Settings.System.getInt(mContext.getContentResolver(), Settings.System.KEY_GESTURE_TYPE_VIBRATE, 0);
+-                        if (value == 1) {
++                        int valueVibrate = Settings.System.getInt(mContext.getContentResolver(), Settings.System.KEY_GESTURE_TYPE_VIBRATE, 0);
++                        if (valueVibrate == 1) {
+                             final Vibrator v = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
+                             if (v != null) {
+                                 v.vibrate(500, new AudioAttributes.Builder()

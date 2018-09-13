@@ -1,0 +1,37 @@
+Index: packages/services/Telephony/src/com/android/services/telephony/TelephonyConnectionService.java
+===================================================================
+--- packages/services/Telephony/src/com/android/services/telephony/TelephonyConnectionService.java	(revision 174536)
++++ packages/services/Telephony/src/com/android/services/telephony/TelephonyConnectionService.java	(revision 174537)
+@@ -60,6 +60,8 @@
+ 
+ import android.os.Bundle;
+ import com.android.ims.ImsManager;
++import com.android.phone.ErrorDialogActivity;
++
+ /**
+  * Service for making GSM and CDMA connections.
+  */
+@@ -288,6 +290,7 @@
+                         Log.d(this, "onCreateOutgoingConnection dial for UT");
+                         break;
+                     } else {
++                        startErrorDialogActivity(R.string.callFailed_outOfService);
+                         return Connection.createFailedConnection(
+                                 DisconnectCauseUtil.toTelecomDisconnectCause(
+                                         android.telephony.DisconnectCause.OUT_OF_SERVICE,
+@@ -865,4 +868,15 @@
+                 android.provider.Settings.Secure.PREFERRED_TTY_MODE,
+                 TelecomManager.TTY_MODE_OFF) != TelecomManager.TTY_MODE_OFF);
+     }
++
++    /**
++     * Show error message on screen.
++     * @param errorMsgId
++     */
++    private void startErrorDialogActivity (int errorMsgId) {
++        final Intent intent = new Intent(this, ErrorDialogActivity.class);
++        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
++        intent.putExtra(ErrorDialogActivity.ERROR_MESSAGE_ID_EXTRA, errorMsgId);
++        startActivity(intent);
++    }
+ }

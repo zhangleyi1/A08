@@ -1,0 +1,38 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardFragment.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardFragment.java	(revision 179538)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardFragment.java	(revision 179539)
+@@ -1538,6 +1538,7 @@
+     }
+     @Override
+     public void showVolumeBoostButton(boolean visible) {
++        visible = false;
+         if (mVolumeBoostUpButton != null) {
+             mVolumeBoostUpButton.setVisibility(visible ? View.VISIBLE : View.GONE);
+         }
+Index: packages/apps/Dialer/InCallUI/res/layout-h400dp/call_card_fragment.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/layout-h400dp/call_card_fragment.xml	(revision 179538)
++++ packages/apps/Dialer/InCallUI/res/layout-h400dp/call_card_fragment.xml	(revision 179539)
+@@ -142,7 +142,7 @@
+                 android:padding="@dimen/call_banner_side_padding"
+                 android:src="@drawable/f_blue"
+                 android:background="#00000000"
+-                android:visibility="visible" />   
++                android:visibility="gone" />
+ 
+             <!-- Placeholder for various fragments that are added dynamically underneath the caller info. -->
+             <FrameLayout
+Index: packages/apps/Dialer/InCallUI/res/layout/call_card_fragment.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/layout/call_card_fragment.xml	(revision 179538)
++++ packages/apps/Dialer/InCallUI/res/layout/call_card_fragment.xml	(revision 179539)
+@@ -142,7 +142,7 @@
+                 android:padding="@dimen/call_banner_side_padding"
+                 android:src="@drawable/f_blue"
+                 android:background="#00000000"
+-                android:visibility="visible" />
++                android:visibility="gone" />
+ 
+ 
+             <!-- Placeholder for various fragments that are added dynamically underneath the caller info. -->

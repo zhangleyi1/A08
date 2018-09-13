@@ -1,0 +1,30 @@
+Index: vendor/sprd/proprietories-source/sprd_secure_boot_tool/key.txt
+===================================================================
+--- vendor/sprd/proprietories-source/sprd_secure_boot_tool/key.txt	(revision 174491)
++++ vendor/sprd/proprietories-source/sprd_secure_boot_tool/key.txt	(revision 174492)
+@@ -1,3 +1,3 @@
+-key1 [[[12345678]]] key1
+-key2 [[[12345678]]] key2
+-key3 [[[12345678]]] key3
++key1 [[[m1m5n824]]] key1
++key2 [[[eghv54d2]]] key2
++key3 [[[ir2tgn45]]] key3
+Index: vendor/sprd/proprietories-source/sprd_secure_boot_tool/sig_key.ini
+===================================================================
+--- vendor/sprd/proprietories-source/sprd_secure_boot_tool/sig_key.ini	(revision 174491)
++++ vendor/sprd/proprietories-source/sprd_secure_boot_tool/sig_key.ini	(revision 174492)
+@@ -1,7 +1,7 @@
+ # KEY define
+-PASSW1=12345678
+-PASSW2=12345678
+-PASSW3=12345678
++PASSW1=m1m5n824
++PASSW2=eghv54d2
++PASSW3=ir2tgn45
+ BSCKEY1=key1
+ BSCKEY2=key2
+ VLRKEY=key3
+Index: vendor/sprd/proprietories-source/sprd_secure_boot_tool/key.db
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream

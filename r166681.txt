@@ -1,0 +1,508 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/policy/TelephonyIcons.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/policy/TelephonyIcons.java	(revision 166680)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/policy/TelephonyIcons.java	(revision 166681)
+@@ -32,27 +32,33 @@
+           R.drawable.stat_sys_signal_1,
+           R.drawable.stat_sys_signal_2,
+           R.drawable.stat_sys_signal_3,
+-          R.drawable.stat_sys_signal_4 },
+-        { R.drawable.stat_sys_signal_0_fully,
+-          R.drawable.stat_sys_signal_1_fully,
+-          R.drawable.stat_sys_signal_2_fully,
+-          R.drawable.stat_sys_signal_3_fully,
+-          R.drawable.stat_sys_signal_4_fully }
++          R.drawable.stat_sys_signal_4,
++		  R.drawable.stat_sys_signal_5
++		  },
++        { R.drawable.stat_sys_signal_0,
++          R.drawable.stat_sys_signal_1,
++          R.drawable.stat_sys_signal_2,
++          R.drawable.stat_sys_signal_3,
++          R.drawable.stat_sys_signal_4,
++		  R.drawable.stat_sys_signal_5}
+     };
+ 
+     static final int QS_TELEPHONY_NO_NETWORK = R.drawable.ic_qs_signal_no_signal;
+ 
+     static final int[][] QS_TELEPHONY_SIGNAL_STRENGTH = {
+-        { R.drawable.ic_qs_signal_0,
+-          R.drawable.ic_qs_signal_1,
+-          R.drawable.ic_qs_signal_2,
+-          R.drawable.ic_qs_signal_3,
+-          R.drawable.ic_qs_signal_4 },
+-        { R.drawable.ic_qs_signal_full_0,
+-          R.drawable.ic_qs_signal_full_1,
+-          R.drawable.ic_qs_signal_full_2,
+-          R.drawable.ic_qs_signal_full_3,
+-          R.drawable.ic_qs_signal_full_4 }
++        { R.drawable.stat_sys_signal_0,
++          R.drawable.stat_sys_signal_1,
++          R.drawable.stat_sys_signal_2,
++          R.drawable.stat_sys_signal_3,
++          R.drawable.stat_sys_signal_4,
++		  R.drawable.stat_sys_signal_5
++		  },
++        { R.drawable.stat_sys_signal_0,
++          R.drawable.stat_sys_signal_1,
++          R.drawable.stat_sys_signal_2,
++          R.drawable.stat_sys_signal_3,
++          R.drawable.stat_sys_signal_4,
++		  R.drawable.stat_sys_signal_5}
+     };
+ 
+     static final int[][] TELEPHONY_SIGNAL_STRENGTH_ROAMING = {
+@@ -60,12 +66,15 @@
+           R.drawable.stat_sys_signal_1,
+           R.drawable.stat_sys_signal_2,
+           R.drawable.stat_sys_signal_3,
+-          R.drawable.stat_sys_signal_4 },
+-        { R.drawable.stat_sys_signal_0_fully,
+-          R.drawable.stat_sys_signal_1_fully,
+-          R.drawable.stat_sys_signal_2_fully,
+-          R.drawable.stat_sys_signal_3_fully,
+-          R.drawable.stat_sys_signal_4_fully }
++          R.drawable.stat_sys_signal_4,
++		  R.drawable.stat_sys_signal_5
++		  },
++        { R.drawable.stat_sys_signal_0,
++          R.drawable.stat_sys_signal_1,
++          R.drawable.stat_sys_signal_2,
++          R.drawable.stat_sys_signal_3,
++          R.drawable.stat_sys_signal_4,
++		  R.drawable.stat_sys_signal_5}
+     };
+ 
+     //CarrierNetworkChange
+@@ -104,10 +113,12 @@
+             { R.drawable.stat_sys_data_fully_connected_g,
+               R.drawable.stat_sys_data_fully_connected_g,
+               R.drawable.stat_sys_data_fully_connected_g,
+-              R.drawable.stat_sys_data_fully_connected_g },
++			  R.drawable.stat_sys_data_fully_connected_g,
++              R.drawable.stat_sys_data_fully_connected_g, },
+             { R.drawable.stat_sys_data_fully_connected_g,
+               R.drawable.stat_sys_data_fully_connected_g,
+               R.drawable.stat_sys_data_fully_connected_g,
++              R.drawable.stat_sys_data_fully_connected_g,
+               R.drawable.stat_sys_data_fully_connected_g }
+         };
+ 
+@@ -117,10 +128,12 @@
+             { R.drawable.stat_sys_data_fully_connected_3g,
+               R.drawable.stat_sys_data_fully_connected_3g,
+               R.drawable.stat_sys_data_fully_connected_3g,
++			  R.drawable.stat_sys_data_fully_connected_3g,
+               R.drawable.stat_sys_data_fully_connected_3g },
+             { R.drawable.stat_sys_data_fully_connected_3g,
+               R.drawable.stat_sys_data_fully_connected_3g,
+               R.drawable.stat_sys_data_fully_connected_3g,
++              R.drawable.stat_sys_data_fully_connected_3g,
+               R.drawable.stat_sys_data_fully_connected_3g }
+         };
+ 
+@@ -130,10 +143,12 @@
+             { R.drawable.stat_sys_data_fully_connected_e,
+               R.drawable.stat_sys_data_fully_connected_e,
+               R.drawable.stat_sys_data_fully_connected_e,
++			  R.drawable.stat_sys_data_fully_connected_e,
+               R.drawable.stat_sys_data_fully_connected_e },
+             { R.drawable.stat_sys_data_fully_connected_e,
+               R.drawable.stat_sys_data_fully_connected_e,
+               R.drawable.stat_sys_data_fully_connected_e,
++              R.drawable.stat_sys_data_fully_connected_e,
+               R.drawable.stat_sys_data_fully_connected_e }
+         };
+ 
+@@ -144,10 +159,12 @@
+             { R.drawable.stat_sys_data_fully_connected_h,
+               R.drawable.stat_sys_data_fully_connected_h,
+               R.drawable.stat_sys_data_fully_connected_h,
++			  R.drawable.stat_sys_data_fully_connected_h,
+               R.drawable.stat_sys_data_fully_connected_h },
+             { R.drawable.stat_sys_data_fully_connected_h,
+               R.drawable.stat_sys_data_fully_connected_h,
+               R.drawable.stat_sys_data_fully_connected_h,
++              R.drawable.stat_sys_data_fully_connected_h,
+               R.drawable.stat_sys_data_fully_connected_h }
+     };
+ 
+@@ -159,10 +176,12 @@
+             { R.drawable.stat_sys_data_fully_connected_1x,
+               R.drawable.stat_sys_data_fully_connected_1x,
+               R.drawable.stat_sys_data_fully_connected_1x,
++			  R.drawable.stat_sys_data_fully_connected_1x,
+               R.drawable.stat_sys_data_fully_connected_1x },
+             { R.drawable.stat_sys_data_fully_connected_1x,
+               R.drawable.stat_sys_data_fully_connected_1x,
+               R.drawable.stat_sys_data_fully_connected_1x,
++              R.drawable.stat_sys_data_fully_connected_1x,
+               R.drawable.stat_sys_data_fully_connected_1x }
+             };
+ 
+@@ -173,10 +192,12 @@
+             { R.drawable.stat_sys_data_fully_connected_4g,
+               R.drawable.stat_sys_data_fully_connected_4g,
+               R.drawable.stat_sys_data_fully_connected_4g,
++			  R.drawable.stat_sys_data_fully_connected_4g,
+               R.drawable.stat_sys_data_fully_connected_4g },
+             { R.drawable.stat_sys_data_fully_connected_4g,
+               R.drawable.stat_sys_data_fully_connected_4g,
+               R.drawable.stat_sys_data_fully_connected_4g,
++              R.drawable.stat_sys_data_fully_connected_4g,
+               R.drawable.stat_sys_data_fully_connected_4g }
+         };
+ 
+@@ -187,10 +208,12 @@
+             { R.drawable.stat_sys_data_fully_connected_lte,
+                     R.drawable.stat_sys_data_fully_connected_lte,
+                     R.drawable.stat_sys_data_fully_connected_lte,
++                    R.drawable.stat_sys_data_fully_connected_lte,
+                     R.drawable.stat_sys_data_fully_connected_lte },
+             { R.drawable.stat_sys_data_fully_connected_lte,
+                     R.drawable.stat_sys_data_fully_connected_lte,
+                     R.drawable.stat_sys_data_fully_connected_lte,
++                    R.drawable.stat_sys_data_fully_connected_lte,
+                     R.drawable.stat_sys_data_fully_connected_lte }
+     };
+ 
+@@ -199,10 +222,12 @@
+             { R.drawable.stat_sys_data_fully_connected_4g_plus,
+               R.drawable.stat_sys_data_fully_connected_4g_plus,
+               R.drawable.stat_sys_data_fully_connected_4g_plus,
++              R.drawable.stat_sys_data_fully_connected_4g_plus,
+               R.drawable.stat_sys_data_fully_connected_4g_plus },
+             { R.drawable.stat_sys_data_fully_connected_4g_plus,
+               R.drawable.stat_sys_data_fully_connected_4g_plus,
+               R.drawable.stat_sys_data_fully_connected_4g_plus,
++              R.drawable.stat_sys_data_fully_connected_4g_plus,
+               R.drawable.stat_sys_data_fully_connected_4g_plus }
+     };
+ 
+
+Property changes on: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/policy/TelephonyIcons.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/policy/TelephonyIcons.java:r165591
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_0.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_0.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_0.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_0.png	(revision 166681)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_0.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_4.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_4.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_4.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_4.png	(revision 166681)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_4.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_1.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_1.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_1.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_1.png	(revision 166681)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_1.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5.png	(revision 166681)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5_sprd1_null.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5_sprd1_null.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5_sprd1_null.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5_sprd1_null.png	(revision 166681)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5_sprd1_null.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_2.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_2.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_2.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_2.png	(revision 166681)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_2.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_null.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_null.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_null.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_null.png	(revision 166681)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_null.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_3.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_3.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_3.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_3.png	(revision 166681)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_3.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_standby.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_standby.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_standby.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_standby.png	(revision 166681)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_standby.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_0.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_0.png
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_0.png	(revision 0)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_0.png	(revision 166681)
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_0.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_1.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_1.png
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_1.png	(revision 0)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_1.png	(revision 166681)
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_1.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_2.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_2.png
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_2.png	(revision 0)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_2.png	(revision 166681)
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_2.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_3.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_3.png
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_3.png	(revision 0)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_3.png	(revision 166681)
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_3.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_4.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_4.png
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_4.png	(revision 0)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_4.png	(revision 166681)
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_4.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5.png
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5.png	(revision 0)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5.png	(revision 166681)
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_standby.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_standby.png
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_standby.png	(revision 0)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_standby.png	(revision 166681)
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_standby.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5_sprd1_null.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5_sprd1_null.png
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5_sprd1_null.png	(revision 0)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5_sprd1_null.png	(revision 166681)
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5_sprd1_null.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_null.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_null.png
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_null.png	(revision 0)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_null.png	(revision 166681)
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_null.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml	(revision 166680)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml	(revision 166681)
+@@ -21,8 +21,8 @@
+    -->
+     <View
+         android:id="@+id/mobile_type_spacer"
+-        android:layout_width="2dp"
+-        android:layout_height="2dp"
++        android:layout_width="0dp"
++        android:layout_height="0dp"
+         android:visibility="gone"
+         />
+ 
+@@ -32,14 +32,16 @@
+         android:layout_height="wrap_content" >
+ 		 <ImageView
+         android:id="@+id/mobile_type"
+-        android:layout_width="9dp"
+-        android:layout_height="9dp" />
++        android:layout_width="7dp"
++        android:layout_height="7dp" 
++		android:layout_gravity="center|top"
++		/>
+ 
+         <com.android.systemui.statusbar.AnimatedImageView
+             android:theme="@style/DualToneLightTheme"
+             android:id="@+id/mobile_signal"
+-            android:layout_height="14.5dp"
+-            android:layout_width="wrap_content"
++            android:layout_height="18.5dp"
++            android:layout_width="32dp"
+             systemui:hasOverlappingRendering="false"
+             />
+ 
+@@ -46,8 +48,8 @@
+         <com.android.systemui.statusbar.AnimatedImageView
+             android:theme="@style/DualToneDarkTheme"
+             android:id="@+id/mobile_signal_dark"
+-            android:layout_height="14.5dp"
+-            android:layout_width="wrap_content"
++            android:layout_height="18.5dp"
++            android:layout_width="32dp"
+             android:alpha="0.0"
+             systemui:hasOverlappingRendering="false"
+             />
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml:r165591

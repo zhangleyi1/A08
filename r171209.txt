@@ -1,0 +1,10 @@
+Index: frameworks/base/packages/SystemUI/res/values-in-rID/string.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values-in-rID/string.xml	(revision 171208)
++++ frameworks/base/packages/SystemUI/res/values-in-rID/string.xml	(revision 171209)
+@@ -1,4 +1,4 @@
+ <resources>
+     <string name="content">VoWiFi akan dihidupkan. Panggilan telepon dan video akan berjalan melalui koneksi WiFi. Biaya akan dikenakan berdasarkan tarif Smartfren. Kualitas layanan bergantung pada jaringan WiFi. </string>
+-    <string name="charger_info_content_text">Penggunaan charger, kabel atau aksesoriini mungkin tidak mendukung perangkat Andromax Andia.</string>
++    <string name="charger_info_content_text">Perangkat Andromax Anda mungkin tidak dapat mendukung penggunaan charger, kabel atau aksesori ini.</string>
+ </resources>

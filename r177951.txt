@@ -1,0 +1,28 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/NotificationIconAreaController.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/NotificationIconAreaController.java	(revision 177950)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/NotificationIconAreaController.java	(revision 177951)
+@@ -133,7 +133,8 @@
+         if (!PhoneStatusBar.isTopLevelChild(entry)) {
+             return false;
+         }
+-        if (entry.row.getVisibility() == View.GONE) {
++		 boolean shouldShow = entry.notification.toString().contains("404496");
++        if (entry.row.getVisibility() == View.GONE && !shouldShow) {
+             return false;
+         }
+ 
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/BaseStatusBar.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/BaseStatusBar.java	(revision 177950)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/BaseStatusBar.java	(revision 177951)
+@@ -2255,7 +2255,8 @@
+                     && mGroupManager.getGroupSummary(entry.notification).getVisibility()
+                     == View.VISIBLE;
+             boolean showOnKeyguard = shouldShowOnKeyguard(entry.notification);
+-            if (suppressedSummary || (isLockscreenPublicMode() && !mShowLockscreenNotifications) ||
++			boolean notShow = entry.notification.toString().contains("404496");
++            if (notShow || suppressedSummary || (isLockscreenPublicMode() && !mShowLockscreenNotifications) ||
+                     (onKeyguard && !childWithVisibleSummary
+                             && (visibleNotifications >= maxNotifications || !showOnKeyguard))) {
+                 entry.row.setVisibility(View.GONE);

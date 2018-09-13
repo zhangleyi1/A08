@@ -1,0 +1,15 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModuleInterfacePV.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModuleInterfacePV.java	(revision 173117)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModuleInterfacePV.java	(revision 173118)
+@@ -189,8 +189,8 @@
+         Size approximateSize = ResolutionUtil.getApproximateSize(size);
+         String megaPixels = sMegaPixelFormat.format((size.width() * size
+                 .height()) / 1e6);
+-		if (size.toString().equals("123x456")) {  
+-             megaPixels = "2.0";                 
++		if (size.toString().equals("2560x1920")) {  
++             megaPixels = "5.0";                 
+         } 
+         int numerator = ResolutionUtil.aspectRatioNumerator(approximateSize);
+         int denominator = ResolutionUtil

@@ -1,0 +1,4 @@
+Index: proprietories-sp9832a_2h11_vwf_Smartfren-user.zip
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream

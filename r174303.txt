@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModulePhoto.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModulePhoto.java	(revision 174302)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModulePhoto.java	(revision 174303)
+@@ -688,7 +688,7 @@
+         if (mSupportedAntibandAutoEnable && isSupportedAntibandAutoInited) {
+             data.mEntries = mContext.getResources().getTextArray(
+                     R.array.pref_camera_antibanding_entries_addauto);
+-            data.mDefaultValue = data.mEntryValues[2].toString();
++            data.mDefaultValue = data.mEntryValues[0].toString();
+         }
+     }
+ 

@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/KeyGen/src/com/sprd/keygen/MainActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/KeyGen/src/com/sprd/keygen/MainActivity.java	(revision 173083)
++++ vendor/sprd/platform/packages/apps/KeyGen/src/com/sprd/keygen/MainActivity.java	(revision 173084)
+@@ -22,7 +22,7 @@
+ public class MainActivity extends Activity implements View.OnClickListener {
+     private static final String TAG = "TestKeyGen";
+ 
+-    private String mPhone = "A36c5H";
++    private String mPhone = "A36C5H";
+     private String mPreUATData = "23052017";
+     private String mIMEI1 = "753951298651313";
+     private String mIMEI2 = "753951963258746";

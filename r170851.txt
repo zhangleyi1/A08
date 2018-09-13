@@ -1,0 +1,33 @@
+Index: packages/apps/Settings/res/values-zh-rCN/strings_ex.xml
+===================================================================
+--- packages/apps/Settings/res/values-zh-rCN/strings_ex.xml	(revision 170850)
++++ packages/apps/Settings/res/values-zh-rCN/strings_ex.xml	(revision 170851)
+@@ -26,5 +26,6 @@
+ 
+     <!-- SPRD: modify for bug 628409 @{ -->
+     <string name="reset_networks_progress">"重置中..."</string>
++	<string name="Call_Settings">通话设置</string>
+     <!-- @} -->
+ </resources>
+Index: packages/apps/Settings/res/values/strings_ex.xml
+===================================================================
+--- packages/apps/Settings/res/values/strings_ex.xml	(revision 170850)
++++ packages/apps/Settings/res/values/strings_ex.xml	(revision 170851)
+@@ -25,5 +25,6 @@
+ 
+     <!-- SPRD: modify for bug 628409 @{ -->
+     <string name="reset_networks_progress">reseting\u2026</string>
++	<string name="Call_Settings">Call Settings</string>
+     <!-- @} -->
+ </resources>
+Index: packages/apps/Settings/res/values-zh-rTW/strings_ex.xml
+===================================================================
+--- packages/apps/Settings/res/values-zh-rTW/strings_ex.xml	(revision 170850)
++++ packages/apps/Settings/res/values-zh-rTW/strings_ex.xml	(revision 170851)
+@@ -25,5 +25,6 @@
+     <string name="toggle_data_error_airplane">"手機處於飛航模式，您不能使用數據網路業務。"</string>
+     <!-- SPRD: modify for bug 628409 @{ -->
+     <string name="reset_networks_progress">"重置中..."</string>
++	<string name="Call_Settings">通話設置</string>
+     <!-- @} -->
+ </resources>

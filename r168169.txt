@@ -1,0 +1,13 @@
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/dataconnection/DcTracker.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/dataconnection/DcTracker.java	(revision 168168)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/dataconnection/DcTracker.java	(revision 168169)
+@@ -165,7 +165,7 @@
+     private static final int NUMBER_SENT_PACKETS_OF_HANG = 10;
+ 
+     // Default for the data stall alarm while non-aggressive stall detection
+-    private static final int DATA_STALL_ALARM_NON_AGGRESSIVE_DELAY_IN_MS_DEFAULT = 1000 * 60 * 6;
++    private static final int DATA_STALL_ALARM_NON_AGGRESSIVE_DELAY_IN_MS_DEFAULT = 1000 * 60 * 120;
+     // Default for the data stall alarm for aggressive stall detection
+     private static final int DATA_STALL_ALARM_AGGRESSIVE_DELAY_IN_MS_DEFAULT = 1000 * 60;
+     // Tag for tracking stale alarms

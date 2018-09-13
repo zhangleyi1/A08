@@ -1,0 +1,40 @@
+Index: vendor/sprd/platform/system/vold/src/UtilsEx.cpp
+===================================================================
+--- vendor/sprd/platform/system/vold/src/UtilsEx.cpp	(revision 170186)
++++ vendor/sprd/platform/system/vold/src/UtilsEx.cpp	(revision 170187)
+@@ -59,7 +59,7 @@
+     /* SPRD: replace storage path to /storage and add for unmount sdcard performance @{
+      */
+     sleep(1);
+-    Process::killProcessesWithOpenFiles(cpath2, SIGINT);
++    Process::killProcessesWithOpenFiles(cpath2, SIGKILL);
+     sleep(1);
+     if (!umount2(cpath, UMOUNT_NOFOLLOW) || errno == EINVAL || errno == ENOENT) {
+         return OK;
+@@ -66,7 +66,7 @@
+     }
+     LOG(WARNING) << "After SIGINT. Failed to unmount " << path;
+ 
+-    Process::killProcessesWithOpenFiles(cpath2, SIGTERM);
++    Process::killProcessesWithOpenFiles(cpath2, SIGKILL);
+     sleep(1);
+     if (!umount2(cpath, UMOUNT_NOFOLLOW) || errno == EINVAL || errno == ENOENT) {
+         return OK;
+@@ -74,7 +74,7 @@
+     LOG(WARNING) << "After SIGTERM. Failed to unmount " << path;
+ 
+     Process::killProcessesWithOpenFiles(cpath2, SIGKILL);
+-    sleep(5);
++    sleep(2);
+     if (!umount2(cpath, UMOUNT_NOFOLLOW) || errno == EINVAL || errno == ENOENT) {
+         return OK;
+     }
+@@ -81,7 +81,7 @@
+     LOG(WARNING) << "After SIGKILL. Failed to unmount " << path;
+ 
+     Process::killProcessesWithOpenFiles(cpath2, SIGKILL);
+-    sleep(5);
++    sleep(2);
+     if (!umount2(cpath, UMOUNT_NOFOLLOW) || errno == EINVAL || errno == ENOENT) {
+         return OK;
+     }

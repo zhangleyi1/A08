@@ -1,0 +1,13 @@
+Index: packages/apps/Settings/src/com/android/settings/deviceinfo/SimStatus.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/deviceinfo/SimStatus.java	(revision 176635)
++++ packages/apps/Settings/src/com/android/settings/deviceinfo/SimStatus.java	(revision 176636)
+@@ -396,8 +396,6 @@
+ 
+             if (-1 == signalDbm) {
+                 signalDbm = 0;
+-            } else {
+-                signalDbm += 1;
+             }
+ 
+             if (-1 == signalAsu) {

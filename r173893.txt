@@ -1,0 +1,4 @@
+Index: external/icu/icu4c/source/stubdata/icudt56l.dat
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream

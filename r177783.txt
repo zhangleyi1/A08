@@ -1,0 +1,71 @@
+Index: kernel/drivers/input/touchscreen/msg5846/mstar_drv_fw_control.c
+===================================================================
+--- kernel/drivers/input/touchscreen/msg5846/mstar_drv_fw_control.c	(revision 177782)
++++ kernel/drivers/input/touchscreen/msg5846/mstar_drv_fw_control.c	(revision 177783)
+@@ -875,6 +875,7 @@
+ 	                    
+ 	                    DBG(&g_I2cClient->dev, "Light up screen by UP_DIRECT gesture wakeup.\n");
+ 
++#if 0
+ 	//                    input_report_key(g_InputDevice, KEY_UP, 1);
+ 	                    input_report_key(g_InputDevice, KEY_POWER, 1);
+ 	                    input_sync(g_InputDevice);
+@@ -881,6 +882,7 @@
+ 	//                    input_report_key(g_InputDevice, KEY_UP, 0);
+ 	                    input_report_key(g_InputDevice, KEY_POWER, 0);
+ 	                    input_sync(g_InputDevice);
++#endif
+ 					}
+ 					 else
+ 					 {
+@@ -897,7 +899,7 @@
+ 	                    _gGestureWakeupValue[0] = GESTURE_WAKEUP_MODE_DOWN_DIRECT_FLAG;
+ 
+ 	                    DBG(&g_I2cClient->dev, "Light up screen by DOWN_DIRECT gesture wakeup.\n");
+-
++#if 0
+ 	//                    input_report_key(g_InputDevice, KEY_DOWN, 1);
+ 	                    input_report_key(g_InputDevice, KEY_POWER, 1);
+ 	                    input_sync(g_InputDevice);
+@@ -904,6 +906,7 @@
+ 	//                    input_report_key(g_InputDevice, KEY_DOWN, 0);
+ 	                    input_report_key(g_InputDevice, KEY_POWER, 0);
+ 	                    input_sync(g_InputDevice);
++#endif
+ 					 }
+ 					 else
+ 					 {
+@@ -920,7 +923,7 @@
+ 	                    _gGestureWakeupValue[0] = GESTURE_WAKEUP_MODE_LEFT_DIRECT_FLAG;
+ 
+ 	                    DBG(&g_I2cClient->dev, "Light up screen by LEFT_DIRECT gesture wakeup.\n");
+-
++#if 0
+ 	//                  input_report_key(g_InputDevice, KEY_LEFT, 1);
+ 	                    input_report_key(g_InputDevice, KEY_POWER, 1);
+ 	                    input_sync(g_InputDevice);
+@@ -927,6 +930,7 @@
+ 	//                    input_report_key(g_InputDevice, KEY_LEFT, 0);
+ 	                    input_report_key(g_InputDevice, KEY_POWER, 0);
+ 	                    input_sync(g_InputDevice);
++#endif
+ 					}
+ 					 else
+ 					 {
+@@ -943,7 +947,7 @@
+ 	                    _gGestureWakeupValue[0] = GESTURE_WAKEUP_MODE_RIGHT_DIRECT_FLAG;
+ 
+ 	                    DBG(&g_I2cClient->dev, "Light up screen by RIGHT_DIRECT gesture wakeup.\n");
+-
++#if 0
+ 	//                    input_report_key(g_InputDevice, KEY_RIGHT, 1);
+ 	                    input_report_key(g_InputDevice, KEY_POWER, 1);
+ 	                    input_sync(g_InputDevice);
+@@ -950,6 +954,7 @@
+ 	//                    input_report_key(g_InputDevice, KEY_RIGHT, 0);
+ 	                    input_report_key(g_InputDevice, KEY_POWER, 0);
+ 	                    input_sync(g_InputDevice);
++#endif
+ 					}
+ 					 else
+ 					 {

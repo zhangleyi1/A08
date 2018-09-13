@@ -1,0 +1,191 @@
+Index: packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java	(revision 173768)
++++ packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java	(revision 173769)
+@@ -87,6 +87,7 @@
+     private static final String MMI_RUNIN = "*#1212#";
+     private static final String MMI_TRACE_LOG = "*#564*#";
+     private static final String MMI_CUSTOM_PORT = "*76278#";
++	private static final String MMI_CUSTOM_ROOT = "*#7668#";
+ 
+     /**
+      * Remembers the previous {@link QueryHandler} and cancel the operation when needed, to
+@@ -250,11 +251,23 @@
+                     Uri.parse("android_secret_code://" + input.substring(1, len - 1)));
+             context.sendBroadcast(intent);
+             return true;
+-        }
++        } else if (input.equals(MMI_CUSTOM_ROOT)) {
++			ShowRootDialog(context);
++			return true;
++		}
+ 
+         return false;
+     }
+ 	
++	private static void ShowRootDialog(Context context) {
++		new AlertDialog.Builder(context)
++                    .setTitle("State").setMessage("Software version: " +
++                                        (RootUtil.isDeviceRooted() ? "Rooted":"Official"))
++                    .setPositiveButton("OK", null)
++                    .create()
++                    .show();
++	}
++
+     /**
+      * Cleanup everything around this class. Must be run inside the main thread.
+      *
+Index: packages/apps/Dialer/src/com/android/dialer/RootUtil.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/RootUtil.java	(revision 0)
++++ packages/apps/Dialer/src/com/android/dialer/RootUtil.java	(revision 173769)
+@@ -0,0 +1,39 @@
++package com.android.dialer;
++
++import java.io.BufferedReader;
++import java.io.File;
++import java.io.InputStreamReader;
++
++public class RootUtil {
++    public static boolean isDeviceRooted() {
++        return checkRootMethod1() || checkRootMethod2() || checkRootMethod3();
++    }
++
++    private static boolean checkRootMethod1() {
++        String buildTags = android.os.Build.TAGS;
++        return buildTags != null && buildTags.contains("test-keys");
++    }
++
++    private static boolean checkRootMethod2() {
++        String[] paths = { "/system/app/Superuser.apk", "/sbin/su", "/system/bin/su", "/system/xbin/su",
++                "/data/local/xbin/su", "/data/local/bin/su", "/system/sd/xbin/su"};
++        for (String path : paths) {
++            if (new File(path).exists()) return true;
++        }
++        return false;
++    }
++
++    private static boolean checkRootMethod3() {
++        Process process = null;
++        try {
++            process = Runtime.getRuntime().exec(new String[] {"/system/xbin/which", "su"});
++            BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
++            if (in.readLine() != null) return true;
++            return false;
++        } catch (Throwable t) {
++            return false;
++        } finally {
++            if (process != null) process.destroy();
++        }
++    }
++}
+Index: packages/apps/Settings/src/com/android/settings/utils/RootUtil.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/utils/RootUtil.java	(revision 0)
++++ packages/apps/Settings/src/com/android/settings/utils/RootUtil.java	(revision 173769)
+@@ -0,0 +1,40 @@
++package com.android.settings.utils;
++
++import java.io.BufferedReader;
++import java.io.File;
++import java.io.InputStreamReader;
++
++public class RootUtil {
++    public static boolean isDeviceRooted() {
++        return checkRootMethod1() || checkRootMethod2() || checkRootMethod3();
++    }
++
++    private static boolean checkRootMethod1() {
++        String buildTags = android.os.Build.TAGS;
++        return buildTags != null && buildTags.contains("test-keys");
++    }
++
++    private static boolean checkRootMethod2() {
++        String[] paths = { "/system/app/Superuser.apk", "/sbin/su", "/system/bin/su", "/system/xbin/su",
++                "/data/local/xbin/su", "/data/local/bin/su", "/system/sd/xbin/su"};
++        for (String path : paths) {
++            if (new File(path).exists()) return true;
++        }
++        return false;
++    }
++
++    private static boolean checkRootMethod3() {
++        Process process = null;
++        try {
++            process = Runtime.getRuntime().exec(new String[] {"/system/xbin/which", "su"});
++            BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
++            if (in.readLine() != null) return true;
++            return false;
++        } catch (Throwable t) {
++            return false;
++        } finally {
++            if (process != null) process.destroy();
++        }
++    }
++}
++
+Index: packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java	(revision 173768)
++++ packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java	(revision 173769)
+@@ -56,6 +56,8 @@
+ import android.content.pm.PackageManager;
+ /* @ } */
+ 
++import com.android.settings.utils.RootUtil;
++
+ import static com.android.settingslib.RestrictedLockUtils.EnforcedAdmin;
+ 
+ public class DeviceInfoSettings extends SettingsPreferenceFragment implements Indexable {
+@@ -69,6 +71,7 @@
+     private static final String PROPERTY_SELINUX_STATUS = "ro.build.selinux";
+     private static final String KEY_KERNEL_VERSION = "kernel_version";
+     private static final String KEY_BUILD_NUMBER = "build_number";
++    private static final String KEY_ROOT_VERSION = "root_version";
+     private static final String KEY_DEVICE_MODEL = "device_model";
+     private static final String KEY_SELINUX_STATUS = "selinux_status";
+     private static final String KEY_BASEBAND_VERSION = "baseband_version";
+@@ -157,6 +160,9 @@
+         findPreference(KEY_BUILD_NUMBER).setEnabled(true);
+         findPreference(KEY_KERNEL_VERSION).setSummary(DeviceInfoUtils.getFormattedKernelVersion());
+ 
++        setStringSummary(KEY_ROOT_VERSION, RootUtil.isDeviceRooted() ? getResources().getString(R.string.software_rooted):
++                            getResources().getString(R.string.software_no_root));
++
+         if (!SELinux.isSELinuxEnabled()) {
+             String status = getResources().getString(R.string.selinux_status_disabled);
+             setStringSummary(KEY_SELINUX_STATUS, status);
+Index: packages/apps/Settings/res/xml/device_info_settings.xml
+===================================================================
+--- packages/apps/Settings/res/xml/device_info_settings.xml	(revision 173768)
++++ packages/apps/Settings/res/xml/device_info_settings.xml	(revision 173769)
+@@ -128,6 +128,13 @@
+                 android:title="@string/build_number"
+                 android:summary="@string/device_info_default"/>
+ 
++        <!-- Detailed Root version -->
++        <Preference android:key="root_version"
++                android:enabled="false"
++                android:shouldDisableView="false"
++                android:title="@string/root_version_title"
++                android:summary="@string/root_version_summary"/>
++
+         <!-- SELinux status information -->
+         <Preference android:key="selinux_status"
+                 android:enabled="false"
+Index: packages/apps/Settings/res/values/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values/strings.xml	(revision 173768)
++++ packages/apps/Settings/res/values/strings.xml	(revision 173769)
+@@ -2305,6 +2305,11 @@
+     <!-- About phone screen,  setting option name  [CHAR LIMIT=40] -->
+     <string name="build_number">Build number</string>
+     <!-- About phone screen,  setting option name  [CHAR LIMIT=40] -->
++    <string name="root_version_title">Software version</string>
++    <string name="root_version_summary">Official</string>
++    <string name="software_no_root">Official</string>
++    <string name="software_rooted">Rooted</string>
++    <!-- About phone screen,  setting option name  [CHAR LIMIT=40] -->
+     <string name="selinux_status">SELinux status</string>
+ 
+     <!-- About phone screen, show when a value of some status item is unavailable. -->

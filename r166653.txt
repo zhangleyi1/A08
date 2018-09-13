@@ -1,0 +1,16 @@
+Index: packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java	(revision 166652)
++++ packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java	(revision 166653)
+@@ -209,6 +209,11 @@
+             removePreference(KEY_SYSTEM_UPDATE_SETTINGS);
+         }
+ 
++        if (findPreference(KEY_REDSTONE_FOTA_UPDATE_SETTINGS) != null)
++            parentPreference.removePreference(findPreference(KEY_REDSTONE_FOTA_UPDATE_SETTINGS));
++        if (findPreference(KEY_SYSTEM_UPDATE_SETTINGS) != null)
++            parentPreference.removePreference(findPreference(KEY_SYSTEM_UPDATE_SETTINGS));
++
+         // Read platform settings for additional system update setting
+         removePreferenceIfBoolFalse(KEY_UPDATE_SETTING,
+                 R.bool.config_additional_system_update_setting_enable);

@@ -1,0 +1,37 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/NotificationPanelView.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/NotificationPanelView.java	(revision 166735)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/NotificationPanelView.java	(revision 166736)
+@@ -1351,7 +1351,7 @@
+      * @return Whether we should intercept a gesture to open Quick Settings.
+      */
+     private boolean shouldQuickSettingsIntercept(float x, float y, float yDiff) {
+-        if (!mQsExpansionEnabled || mCollapsedOnDown) {
++        if (!mQsExpansionEnabled || mCollapsedOnDown||true) {
+             return false;
+         }
+         View header = mKeyguardShowing ? mKeyguardStatusBar : mQsContainer.getHeader();
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java	(revision 166735)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java	(revision 166736)
+@@ -4498,9 +4498,17 @@
+             }
+             return true;
+         } else {
+-
++		//fix for bug 90673 by zhangchi start {
+             // No notifications - abort gesture.
+-            return false;
++          //  return false;
++			
++			EventLogTags.writeSysuiLockscreenGesture(
++                    EventLogConstants.SYSUI_LOCKSCREEN_GESTURE_SWIPE_DOWN_FULL_SHADE,
++                    (int) (dragLengthY / mDisplayMetrics.density),
++                    0 /* velocityDp - N/A */);
++            goToLockedShade(startingChild);
++			return true;
++		//fix for bug 90673 by zhangchi end }
+         }
+     }
+ 

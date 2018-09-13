@@ -1,0 +1,34 @@
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml	(revision 166618)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml	(revision 166619)
+@@ -14,11 +14,11 @@
+         android:layout_marginEnd="3dp"
+         />
+ 
+-    <ImageView
++   <!-- <ImageView
+         android:id="@+id/mobile_type"
+         android:layout_width="wrap_content"
+         android:layout_height="14.5dp" />
+-
++   -->
+     <View
+         android:id="@+id/mobile_type_spacer"
+         android:layout_width="2dp"
+@@ -30,6 +30,10 @@
+         android:id="@+id/mobile_signal_type"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content" >
++		 <ImageView
++        android:id="@+id/mobile_type"
++        android:layout_width="9dp"
++        android:layout_height="9dp" />
+ 
+         <com.android.systemui.statusbar.AnimatedImageView
+             android:theme="@style/DualToneLightTheme"
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml:r165462

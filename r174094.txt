@@ -1,0 +1,39 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/InvariantDeviceProfile.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/InvariantDeviceProfile.java	(revision 174093)
++++ packages/apps/Launcher3/src/com/android/launcher3/InvariantDeviceProfile.java	(revision 174094)
+@@ -33,7 +33,7 @@
+ public class InvariantDeviceProfile {
+ 
+     // This is a static that we use for the default icon size on a 4/5-inch phone
+-    private static float DEFAULT_ICON_SIZE_DP = 60;
++    private static float DEFAULT_ICON_SIZE_DP = 48;//60
+ 
+     private static final float ICON_SIZE_DEFINED_IN_APP_DP = 48;
+ 
+Index: packages/apps/Launcher3/src/com/android/launcher3/DeviceProfile.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/DeviceProfile.java	(revision 174093)
++++ packages/apps/Launcher3/src/com/android/launcher3/DeviceProfile.java	(revision 174094)
+@@ -286,7 +286,7 @@
+         }
+         int numPredictiveAppCols = Math.max(inv.minAllAppsPredictionColumns, numAppsCols);
+         allAppsNumCols = inv.numColumns;
+-        allAppsNumPredictiveCols = numPredictiveAppCols;
++        allAppsNumPredictiveCols = allAppsNumCols/*numPredictiveAppCols*/;
+     }
+ 
+     /** Returns the amount of extra space to allocate to the search bar for vertical padding. */
+Index: packages/apps/Launcher3/res/values/dimens.xml
+===================================================================
+--- packages/apps/Launcher3/res/values/dimens.xml	(revision 174093)
++++ packages/apps/Launcher3/res/values/dimens.xml	(revision 174094)
+@@ -83,7 +83,7 @@
+     <dimen name="all_apps_grid_section_text_size">24sp</dimen>
+     <dimen name="all_apps_search_bar_height">60dp</dimen>
+     <dimen name="all_apps_search_bar_prediction_bar_padding">8dp</dimen>
+-    <dimen name="all_apps_icon_top_bottom_padding">12dp</dimen>
++    <dimen name="all_apps_icon_top_bottom_padding">14dp</dimen>
+     <dimen name="all_apps_icon_width_gap">24dp</dimen>
+     <!-- The top padding should account for the existing all_apps_list_top_bottom_padding -->
+     <dimen name="all_apps_prediction_icon_top_padding">8dp</dimen>

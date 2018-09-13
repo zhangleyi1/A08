@@ -1,0 +1,12 @@
+Index: bootable/recovery/screen_ui.cpp
+===================================================================
+--- bootable/recovery/screen_ui.cpp	(revision 167741)
++++ bootable/recovery/screen_ui.cpp	(revision 167742)
+@@ -345,6 +345,7 @@
+         draw_screen_locked();    // Must redraw the whole screen
+         pagesIdentical = true;
+     } else {
++	draw_background_locked();
+         draw_foreground_locked();  // Draw only the progress bar and overlays
+     }
+     gr_flip();

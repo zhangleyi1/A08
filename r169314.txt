@@ -1,0 +1,26 @@
+Index: u-boot64/board/spreadtrum/sp9832a_2h11_volte/sprd_kp.c
+===================================================================
+--- u-boot64/board/spreadtrum/sp9832a_2h11_volte/sprd_kp.c	(revision 169313)
++++ u-boot64/board/spreadtrum/sp9832a_2h11_volte/sprd_kp.c	(revision 169314)
+@@ -54,15 +54,16 @@
+ 
+ unsigned int check_key_boot(unsigned char key)
+ {
+-#if 0
++
+ 	if(KEY_VOLUMEUP == key)
+-		return CMD_FACTORYTEST_MODE;
+-	else 
+-#endif
+-	if(KEY_HOME == key)
++		//return CMD_FACTORYTEST_MODE;
++		return CMD_RECOVERY_MODE;
++	else if(KEY_HOME == key)
+ 		return CMD_FASTBOOT_MODE;
++#if 0
+ 	else if(KEY_VOLUMEDOWN== key)
+ 		return CMD_RECOVERY_MODE;
++#endif
+ 	else
+ 		return 0;
+ }

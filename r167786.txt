@@ -1,0 +1,13 @@
+Index: device/sprd/scx35l/common/sepolicy/file_contexts
+===================================================================
+--- device/sprd/scx35l/common/sepolicy/file_contexts	(revision 167785)
++++ device/sprd/scx35l/common/sepolicy/file_contexts	(revision 167786)
+@@ -63,7 +63,7 @@
+ /dev/block/mmcblk0boot1  u:object_r:mmcblk_device:s0
+ # for frp device
+ /dev/block/mmcblk0p17    u:object_r:frp_block_device:s0
+-/dev/block/mmcblk0p18    u:object_r:mmcblk_device:s0
++/dev/block/mmcblk0p18   u:object_r:frp_block_device:s0
+ /dev/block/mmcblk0p19    u:object_r:mmcblk_device:s0
+ /dev/block/mmcblk0p20    u:object_r:mmcblk_device:s0
+ /dev/block/mmcblk0p21    u:object_r:mmcblk_device:s0

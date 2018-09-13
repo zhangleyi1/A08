@@ -1,0 +1,13 @@
+Index: vendor/sprd/modules/sensors/pls/liteon/Pls_LTR558ALS.cpp
+===================================================================
+--- vendor/sprd/modules/sensors/pls/liteon/Pls_LTR558ALS.cpp	(revision 166556)
++++ vendor/sprd/modules/sensors/pls/liteon/Pls_LTR558ALS.cpp	(revision 166557)
+@@ -28,7 +28,7 @@
+ #include "../PlsSensor.h"
+ #include "../../sensors.h"
+ 
+-#define LTR558_DEVICE_NAME "/dev/ltr_558als"
++#define LTR558_DEVICE_NAME "/dev/stk3x1x_pls"
+ #define LTR_IOCTL_MAGIC 0x1C
+ #define LTR_IOCTL_GET_PFLAG _IOR(LTR_IOCTL_MAGIC, 1, int)
+ #define LTR_IOCTL_GET_LFLAG _IOR(LTR_IOCTL_MAGIC, 2, int)

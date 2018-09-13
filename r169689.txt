@@ -1,0 +1,12 @@
+Index: vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/sprd/providers/util/PolyPinyinUtility.java
+===================================================================
+--- vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/sprd/providers/util/PolyPinyinUtility.java	(revision 169688)
++++ vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/sprd/providers/util/PolyPinyinUtility.java	(revision 169689)
+@@ -552,6 +552,7 @@
+             new PolyData('\u811a', "JIAO:JUE"),
+             new PolyData('\u812f', "FU:PU"),
+             new PolyData('\u8144', "CHUI:ZHUI"),
++			new PolyData('\u814a', "LA:XI"),
+             new PolyData('\u814c', "A:YAN"),
+             new PolyData('\u814f', "CHUO:DUO"),
+             new PolyData('\u815e', "ZHUAN:DUN"),

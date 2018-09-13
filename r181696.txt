@@ -1,0 +1,12 @@
+Index: kernel/security/rootrecorder/root_recorder.c
+===================================================================
+--- kernel/security/rootrecorder/root_recorder.c	(revision 181695)
++++ kernel/security/rootrecorder/root_recorder.c	(revision 181696)
+@@ -98,6 +98,7 @@
+     {"init", "init", 0, 0, 0, 0},
+     {"zygote", "zygote", 0, 0, 0, 0},
+     {"ju_ipsec_server", "init", 1, 0, 0, 0},
++    {"sgdisk", "vold", 0, 0, 0, 0},
+ 	{"vold", "init", 1, 0, 0, 0},
+ 	{"netd", "init", 1, 0, 0, 0},
+ 	{"debuggerd", "debuggerd", 0, 0, 0, 0},

@@ -1,0 +1,13 @@
+Index: device/sprd/scx35l/sp9832a_2h11/BoardConfig.mk
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/BoardConfig.mk	(revision 166723)
++++ device/sprd/scx35l/sp9832a_2h11/BoardConfig.mk	(revision 166724)
+@@ -31,7 +31,7 @@
+ 
+ # select camera 2M,3M,5M,8M
+ CAMERA_SUPPORT_SIZE := 5M
+-FRONT_CAMERA_SUPPORT_SIZE := 2M
++FRONT_CAMERA_SUPPORT_SIZE := 5M
+ TARGET_BOARD_NO_FRONT_SENSOR := false
+ TARGET_BOARD_FRONT_CAMERA_ROTATION := false
+ TARGET_BOARD_CAMERA_FLASH_CTRL := true

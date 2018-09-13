@@ -1,0 +1,24 @@
+Index: packages/apps/Dialer/src/com/android/dialer/list/SearchFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/list/SearchFragment.java	(revision 173446)
++++ packages/apps/Dialer/src/com/android/dialer/list/SearchFragment.java	(revision 173447)
+@@ -344,9 +344,9 @@
+                         getSlotState();
+ 
+                         ContactListItemView view = (ContactListItemView)getListView().getChildAt(position + 1);
+-
+                         if (twoSimState) {
+-                            view.getGsmButtonView().setOnClickListener(new View.OnClickListener() {
++                        	if(view.getGsmButtonView() != null){
++                        		view.getGsmButtonView().setOnClickListener(new View.OnClickListener() {
+                                 @Override
+                                 public void onClick(View v) {
+                                     if (!oneSimState && twoSimState) {
+@@ -356,6 +356,7 @@
+                                     }
+                                 }
+                             });
++                        	}  
+                         }
+ 
+                         if (oneSimState || twoSimState) {

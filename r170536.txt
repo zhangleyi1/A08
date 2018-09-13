@@ -1,0 +1,11 @@
+Index: vendor/sprd/proprietories-source/sprd_secure_boot_tool/BscGen
+===================================================================
+--- vendor/sprd/proprietories-source/sprd_secure_boot_tool/BscGen	(revision 170535)
++++ vendor/sprd/proprietories-source/sprd_secure_boot_tool/BscGen	(revision 170536)
+
+Property changes on: vendor/sprd/proprietories-source/sprd_secure_boot_tool/BscGen
+___________________________________________________________________
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property

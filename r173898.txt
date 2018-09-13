@@ -1,0 +1,19 @@
+Index: packages/apps/Launcher3/ext/res/raw/collision.ogg
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/ext/res/raw/collision.aac
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/ext/res/raw/collision.aac
+===================================================================
+--- packages/apps/Launcher3/ext/res/raw/collision.aac	(revision 0)
++++ packages/apps/Launcher3/ext/res/raw/collision.aac	(revision 173898)
+
+Property changes on: packages/apps/Launcher3/ext/res/raw/collision.aac
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property

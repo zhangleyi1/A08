@@ -1,0 +1,143 @@
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 171947)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 171948)
+@@ -52,6 +52,8 @@
+ import android.os.SystemProperties;
+ import android.os.UserHandle;
+ import android.os.UserManager;
++import android.os.AsyncTask;
++
+ import android.preference.ListPreference;
+ import android.preference.Preference;
+ import android.preference.PreferenceActivity;
+@@ -113,6 +115,7 @@
+     private static final String BUTTON_CDMA_LTE_DATA_SERVICE_KEY = "cdma_lte_data_service_key";
+     private static final String BUTTON_ENABLED_NETWORKS_KEY = "enabled_networks_key";
+     private static final String BUTTON_4G_LTE_KEY = "enhanced_4g_lte";
++	private static final String BUTTON_GSM_ROAMING_KEY = "gsm_roaming_key";
+     private static final String BUTTON_CELL_BROADCAST_SETTINGS = "cell_broadcast_settings";
+     private static final String BUTTON_APN_EXPAND_KEY = "button_apn_key";
+     private static final String BUTTON_OPERATOR_SELECTION_EXPAND_KEY = "button_carrier_sel_key";
+@@ -143,6 +146,7 @@
+     private SharedPreferences mSharedPrefs;
+     /* @} */
+     private SwitchPreference mButton4glte;
++	  private SwitchPreference mButtonGsmRoaming;
+     private Preference mLteDataServicePref;
+     //SPRD: 474686 Feature for Uplmn
+     private Preference mUplmnPref;
+@@ -360,7 +364,9 @@
+         /* @} */
+         else if (preference == mMobileDataSwitch) {
+             return false;
+-        }
++        }else if(preference == mButtonGsmRoaming){
++			return true;
++		}
+         else {
+             // if the button is anything but the simple toggle preference,
+             // we'll need to disable all preferences to reject all click
+@@ -566,6 +572,8 @@
+ 
+         mButton4glte = (SwitchPreference)findPreference(BUTTON_4G_LTE_KEY);
+         mButton4glte.setOnPreferenceChangeListener(this);
++		mButtonGsmRoaming = (SwitchPreference)findPreference(BUTTON_GSM_ROAMING_KEY);
++        mButtonGsmRoaming.setOnPreferenceChangeListener(this);
+ 
+         try {
+             Context con = createPackageContext("com.android.systemui", 0);
+@@ -724,7 +732,15 @@
+         boolean enh4glteMode = ImsManager.isEnhanced4gLteModeSettingEnabledByUser(this)
+                 && ImsManager.isNonTtyOrTtyOnVolteEnabled(this);
+         mButton4glte.setChecked(enh4glteMode);
++		
++        int iGsmRoamingSetting = android.provider.Settings.Global.getInt(
++                mPhone.getContext().getContentResolver(),
++                android.provider.Settings.Global.GSM_ROAMING_ENABLED + mPhone.getSubId(), 0);
++        boolean gsmRoamingOn = (1 == iGsmRoamingSetting);
++        android.util.Log.e("Tony","onResume gsmRoamingOn = " + gsmRoamingOn + ",mPhone.getSubId() = " + mPhone.getSubId());
++        mButtonGsmRoaming.setChecked(gsmRoamingOn);
+         mSubscriptionManager.addOnSubscriptionsChangedListener(mOnSubscriptionsChangeListener);
++		
+ 
+         //SPRD: Bug636916,FEATURE_MOBILE_DATA_BUTTON
+         TeleServicePluginsHelper.getInstance(this).needRegisterMobileData(this);
+@@ -769,6 +785,7 @@
+                             .getBoolean(R.bool.config_show_4GLTE_button))) {
+                 prefSet.addPreference(mButton4glte);
+             }
++			prefSet.addPreference(mButtonGsmRoaming);
+              /* @} */
+             /* SPRD: FEATURE_PLMN_LOCK @{ */
+             SubscriptionInfoHelper subInfoHelper = new SubscriptionInfoHelper(context, getIntent());
+@@ -1374,7 +1391,26 @@
+             mMobileDataSwitch = TeleServicePluginsHelper.getInstance(this).
+                     needSetDataEnable(mMobileDataSwitch,phoneSubId);
+ 
+-        }
++        }else if(preference == mButtonGsmRoaming){
++			SwitchPreference gsmRoamingPreference = (SwitchPreference) preference;
++            boolean gsmRaomingOn = !gsmRoamingPreference.isChecked();
++            gsmRoamingPreference.setChecked(gsmRaomingOn);
++            android.provider.Settings.Global.putInt(
++                    mPhone.getContext().getContentResolver(),
++                    android.provider.Settings.Global.GSM_ROAMING_ENABLED + phoneSubId, gsmRoamingPreference.isChecked() ? 1: 0);
++            android.util.Log.e("Tony","gsmRaomingOn = " + gsmRaomingOn + ",phoneSubId = " + phoneSubId);
++            if(gsmRaomingOn && null != Integer.valueOf(phoneSubId) && phoneSubId > 0) {
++                //send AT command for gsm roaming
++                new AsyncTask<Void, Void, Void>() {
++                    @Override
++                    protected Void doInBackground(Void... voids) {
++                        final TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
++                        tm.setNetworkSelectionModeAutomatic(phoneSubId);
++                        return null;
++                    }
++                }.execute();
++            }
++		}
+ 
+         updateBody();
+         // always let the preference setting proceed.
+Index: packages/services/Telephony/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values-zh-rCN/strings.xml	(revision 171947)
++++ packages/services/Telephony/res/values-zh-rCN/strings.xml	(revision 171948)
+@@ -566,4 +566,6 @@
+ 	<string name="close_volte_info">"禁用VoLTE将使呼叫和短信无法使用。你确定？"</string>
+ 	<string name="confirm">"确认"</string>
+ 	<string name="votle_cancel">"取消"</string>
++	<string name="gsm_roaming_mode_title">"GSM漫游"</string>
++    <string name="gsm_roaming_mode_summary">"国际漫游模式"</string>
+ </resources>
+Index: packages/services/Telephony/res/values/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values/strings.xml	(revision 171947)
++++ packages/services/Telephony/res/values/strings.xml	(revision 171948)
+@@ -1341,4 +1341,9 @@
+ 	<string name="police">Police</string>
+ 	<string name="emergency">Emergency</string>
+ 	<string name="emergency_call_list">Emergency Call List</string>
++	<!-- Gsm Roaming title [CHAR LIMIT=30] -->
++    <string name="gsm_roaming_mode_title">Gsm Roaming</string>
++    <!-- Gsm Roaming summary [CHAR LIMIT=80] -->
++    <string name="gsm_roaming_mode_summary">International roaming mode</string>
++	
+ </resources>
+Index: packages/services/Telephony/res/xml/network_setting.xml
+===================================================================
+--- packages/services/Telephony/res/xml/network_setting.xml	(revision 171947)
++++ packages/services/Telephony/res/xml/network_setting.xml	(revision 171948)
+@@ -75,7 +75,11 @@
+         android:entries="@array/enabled_networks_choices"
+         android:entryValues="@array/enabled_networks_values"
+         android:dialogTitle="@string/preferred_network_mode_dialogtitle" />
+-
++	<SwitchPreference
++        android:key="gsm_roaming_key"
++        android:title="@string/gsm_roaming_mode_title"
++        android:persistent="false"
++        android:summary="@string/gsm_roaming_mode_summary"/>
+     <SwitchPreference
+         android:key="enhanced_4g_lte"
+         android:title="@string/enhanced_4g_lte_mode_title"

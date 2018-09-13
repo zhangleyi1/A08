@@ -1,0 +1,13 @@
+Index: device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 183003)
++++ device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 183004)
+@@ -31,7 +31,7 @@
+ TARGET_DM_VERITY := False
+ 
+ STORAGE_INTERNAL := emulated
+-STORAGE_PRIMARY := internal
++STORAGE_PRIMARY := external
+ 
+ VOLTE_SERVICE_ENABLE := true
+ 

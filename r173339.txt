@@ -1,0 +1,21 @@
+Index: packages/apps/Dialer/src/com/android/dialer/calllog/PhoneCallDetailsHelper.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/calllog/PhoneCallDetailsHelper.java	(revision 173338)
++++ packages/apps/Dialer/src/com/android/dialer/calllog/PhoneCallDetailsHelper.java	(revision 173339)
+@@ -110,6 +110,8 @@
+ 
+         // Show the video icon if the call had video enabled.
+         /* SPRD: Support For Reliance CallLog Icon Display in bug645018. @{*/
++		//remove Video icon for 98619
++		/*
+         if (!mShowCallLogEx) {
+             views.callTypeIcons.setShowVideo(
+                     (details.features & Calls.FEATURES_VIDEO) == Calls.FEATURES_VIDEO);
+@@ -116,6 +118,7 @@
+             views.callTypeIcons.requestLayout();
+             views.callTypeIcons.setVisibility(View.VISIBLE);
+         }
++		*/
+         /* @} */
+ 
+         // Show the total call count only if there are more than the maximum number of icons.

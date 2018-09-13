@@ -1,0 +1,12 @@
+Index: vendor/sprd/platform/packages/apps/Settings/res/values-in/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Settings/res/values-in/strings.xml	(revision 171246)
++++ vendor/sprd/platform/packages/apps/Settings/res/values-in/strings.xml	(revision 171247)
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+-<string name="battery_percentage">Persentase dari biaya</string>
++<string name="battery_percentage">Persentase dari Batterai</string>
+ <string name="recovery_update_title">Memperbaharui sistem jaringan lunak</string>
+ <string name="recovery_update_message">"Pembaruan sistem perangkat lunak ada resiko keamanan, dapat membawa kebocoran informasi privasi, kehilangan data dan kehilangan masalah properti dan keselamatan lainnya. Untuk mengkonfirmasi pembaruan silahkan klik berikutnya, jika tidak melanjutkan memperbarui, klik batal."</string>
+ <string name="recovery_sdacrd_status">"Tidak ada kartu SD"</string>

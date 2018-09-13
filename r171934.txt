@@ -1,0 +1,13 @@
+Index: packages/apps/Messaging/res/values/dimens.xml
+===================================================================
+--- packages/apps/Messaging/res/values/dimens.xml	(revision 171933)
++++ packages/apps/Messaging/res/values/dimens.xml	(revision 171934)
+@@ -18,7 +18,7 @@
+ 
+     <dimen name="action_bar_height">56dp</dimen>
+     <dimen name="action_bar_elevation">8dp</dimen>
+-    <dimen name="action_bar_text_size">20sp</dimen>
++    <dimen name="action_bar_text_size">17sp</dimen>
+     <dimen name="conversation_message_text_size">16sp</dimen>
+     <dimen name="conversation_status_text_size">12sp</dimen>
+ 	<dimen name="conversation_sim_name_text_size">16sp</dimen>

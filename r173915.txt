@@ -1,0 +1,12 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/app/CameraAppUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/app/CameraAppUI.java	(revision 173914)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/app/CameraAppUI.java	(revision 173915)
+@@ -1813,7 +1813,6 @@
+                 .addAspectRatioChangedListener(new PreviewStatusListener.PreviewAspectRatioChangedListener() {
+                     @Override
+                     public void onPreviewAspectRatioChanged(float aspectRatio) {
+-                        mModeOptionsOverlay.requestLayout();
+                         mBottomBar.requestLayout();
+                         /* SPRD: Fix bug 613015 add SurfaceView support @{ */
+                         if (null != mSurfaceView) {

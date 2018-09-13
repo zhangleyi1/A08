@@ -1,0 +1,25 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/data/FilmstripItemBase.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/data/FilmstripItemBase.java	(revision 176143)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/data/FilmstripItemBase.java	(revision 176144)
+@@ -63,9 +63,7 @@
+         mGlideManager = glideManager;
+         mData = data;
+         mAttributes = attributes;
+-
+         mMetaData = new Metadata();
+-
+         mSuggestedSize = GlideFilmstripManager.TINY_THUMB_SIZE;
+     }
+ 
+@@ -100,8 +98,8 @@
+     public Optional<MediaDetails> getMediaDetails() {
+         MediaDetails mediaDetails = new MediaDetails();
+         mediaDetails.addDetail(MediaDetails.INDEX_TITLE, mData.getTitle());
+-        mediaDetails.addDetail(MediaDetails.INDEX_WIDTH, getDimensions().getWidth());
+-        mediaDetails.addDetail(MediaDetails.INDEX_HEIGHT, getDimensions().getHeight());
++        mediaDetails.addDetail(MediaDetails.INDEX_WIDTH, mData.getDimensions().getWidth());
++        mediaDetails.addDetail(MediaDetails.INDEX_HEIGHT, mData.getDimensions().getHeight());
+         mediaDetails.addDetail(MediaDetails.INDEX_PATH, mData.getFilePath());
+         mediaDetails.addDetail(MediaDetails.INDEX_DATETIME,
+               mDateFormatter.format(mData.getLastModifiedDate()));

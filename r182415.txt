@@ -1,0 +1,109 @@
+Index: frameworks/base/packages/SystemUI/AndroidManifest.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/AndroidManifest.xml	(revision 182414)
++++ frameworks/base/packages/SystemUI/AndroidManifest.xml	(revision 182415)
+@@ -546,7 +546,7 @@
+         </activity>
+ 
+         <activity android:name=".ChargerFullActivity"
+-            android:theme="@android:style/Theme.Holo.Dialog.NoActionBar">
++            android:theme="@style/Transparent">
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+             </intent-filter>
+Index: frameworks/base/packages/SystemUI/res/layout/charger_full_activity.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/layout/charger_full_activity.xml	(revision 182414)
++++ frameworks/base/packages/SystemUI/res/layout/charger_full_activity.xml	(revision 182415)
+@@ -4,7 +4,7 @@
+     android:layout_height="match_parent"
+     android:layout_width="match_parent"
+     android:padding="@dimen/charger_full_activith_padding"
+-    android:background="@android:color/white">
++    android:background="@drawable/activity_full_charger_bg">
+ 
+     <TextView
+         android:layout_width="match_parent"
+@@ -19,18 +19,20 @@
+         android:layout_height="wrap_content"
+         android:id="@+id/content"
+         android:layout_below="@id/title"
+-        android:layout_marginTop="10dp"
++        android:layout_marginTop="5dp"
+         android:textSize="@dimen/charger_full_activith_content_size"
+         android:textColor="@android:color/black"
+         android:text="@string/charger_full_activith_content"/>
+ 
+     <Button
+-        android:layout_width="wrap_content"
+-        android:layout_height="wrap_content"
++        android:layout_width="50dp"
++        android:layout_height="35dp"
++        android:gravity="center_horizontal"
+         android:id="@+id/ok_btn"
++        android:layout_marginTop="10dp"
+         android:layout_alignParentRight="true"
+         android:layout_below="@id/content"
+-        android:background="@android:color/white"
++        android:padding="5dp"
+         android:textColor="@android:color/black"
+-        android:text="@android:string/ok"/>
++        android:text="@string/charge_ok_btn_text"/>
+ </RelativeLayout>
+Index: frameworks/base/packages/SystemUI/res/drawable/activity_full_charger_bg.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/activity_full_charger_bg.xml	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/activity_full_charger_bg.xml	(revision 182415)
+@@ -0,0 +1,10 @@
++<?xml version="1.0" encoding="utf-8"?>
++<shape xmlns:android="http://schemas.android.com/apk/res/android" >
++
++    <corners
++        android:radius="25dp"/>
++
++    <solid
++        android:color="@android:color/white"/>
++
++</shape>
+Index: frameworks/base/packages/SystemUI/res/values/colors.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/colors.xml	(revision 182414)
++++ frameworks/base/packages/SystemUI/res/values/colors.xml	(revision 182415)
+@@ -183,4 +183,5 @@
+     <color name="charger_info_line_color">#FF0000</color>
+     <color name="charger_btn_color">#EAC42C</color>
+     <color name="charger_ok_btn_text_color">#000000</color>
++    <color name="transparent_background">#00000000</color>
+ </resources>
+Index: frameworks/base/packages/SystemUI/res/values/dimens.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 182414)
++++ frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 182415)
+@@ -672,7 +672,7 @@
+     <dimen name="charger_ok_margin_top">20dp</dimen>
+     <dimen name="charger_ok_margin_button">20dp</dimen>
+ 
+-    <dimen name="charger_full_activith_padding">25dp</dimen>
++    <dimen name="charger_full_activith_padding">15dp</dimen>
+     <dimen name="charger_full_activith_title_size">25dp</dimen>
+     <dimen name="charger_full_activith_content_size">18dp</dimen>
+ </resources>
+Index: frameworks/base/packages/SystemUI/res/values/styles.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/styles.xml	(revision 182414)
++++ frameworks/base/packages/SystemUI/res/values/styles.xml	(revision 182415)
+@@ -386,4 +386,14 @@
+         <item name="android:windowHideAnimation">@anim/float_panel_exit</item>
+     </style>
+     <!-- SPRD: add for FloatPanelView @}-->
++
++
++    <style name="Transparent" parent="android:style/Theme.Dialog">
++        <item name="android:windowBackground">@color/transparent_background</item>
++        <item name="android:windowNoTitle">true</item>
++        <item name="android:windowIsTranslucent">true</item>
++        <item name="android:layout_marginLeft">10dp</item>
++        <item name="android:layout_marginRight">10dp</item>
++        <!--<item name="android:paddingTop"></item>-->
++    </style>
+ </resources>

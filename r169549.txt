@@ -1,0 +1,14 @@
+Index: vendor/sprd/platform/frameworks/base/packages/Keyguard/src/com/android/keyguard/CarrierTextLayout.java
+===================================================================
+--- vendor/sprd/platform/frameworks/base/packages/Keyguard/src/com/android/keyguard/CarrierTextLayout.java	(revision 169548)
++++ vendor/sprd/platform/frameworks/base/packages/Keyguard/src/com/android/keyguard/CarrierTextLayout.java	(revision 169549)
+@@ -135,6 +135,9 @@
+                     mServiceState = mServiceStates.get(phoneId);
+                 }
+                 State simState = mKeyguardUpdateMonitor.getSimState(subId);
++                if ((simState == IccCardConstants.State.NETWORK_LOCKED) && i == 1) {
++                    break;
++                }
+                 CharSequence carrierName = formatCarrierName(subs.get(i).getCarrierName());
+                 if (carrierName != null && !showEmergencyOnly && carrierName.toString()
+                     .contains(emergencyCall)) {

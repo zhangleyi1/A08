@@ -1,0 +1,40 @@
+Index: frameworks/base/core/java/android/hardware/Camera.java
+===================================================================
+--- frameworks/base/core/java/android/hardware/Camera.java	(revision 170049)
++++ frameworks/base/core/java/android/hardware/Camera.java	(revision 170050)
+@@ -41,6 +41,7 @@
+ import android.text.TextUtils;
+ import android.view.Surface;
+ import android.view.SurfaceHolder;
++import android.os.SystemProperties;
+ 
+ import java.io.IOException;
+ import java.lang.ref.WeakReference;
+@@ -231,6 +232,7 @@
+      * Returns the number of physical cameras available on this device.
+      */
+     public native static int getNumberOfCameras();
++	
+ 
+     /**
+      * Returns the information about a particular camera.
+@@ -473,9 +475,16 @@
+         } else {
+             mEventHandler = null;
+         }
+-
+-        return native_setup(new WeakReference<Camera>(this), cameraId, halVersion,
+-                ActivityThread.currentOpPackageName());
++		String FactoryCameraID=SystemProperties.get("FactoryCameraID","null");
++		if("null".equals(FactoryCameraID)){
++			return native_setup(new WeakReference<Camera>(this), cameraId, halVersion,
++			   ActivityThread.currentOpPackageName());
++		}else{
++          int factoryCameraId=Integer.valueOf(FactoryCameraID);
++		  return native_setup(new WeakReference<Camera>(this), factoryCameraId, halVersion,
++			   ActivityThread.currentOpPackageName());
++		}
++        
+     }
+ 
+     /**

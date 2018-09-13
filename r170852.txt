@@ -1,0 +1,12 @@
+Index: packages/services/Telephony/AndroidManifest.xml
+===================================================================
+--- packages/services/Telephony/AndroidManifest.xml	(revision 170851)
++++ packages/services/Telephony/AndroidManifest.xml	(revision 170852)
+@@ -634,6 +634,7 @@
+             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout">
+             <intent-filter>
+                 <action android:name="android.telecom.action.CHANGE_PHONE_ACCOUNTS" />
++				<action android:name="android.intent.action.MAIN" />
+                 <category android:name="android.intent.category.DEFAULT" />
+             </intent-filter>
+         </activity>

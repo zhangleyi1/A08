@@ -1,0 +1,10 @@
+Index: device/sprd/scx35l/common/sepolicy/kernel.te
+===================================================================
+--- device/sprd/scx35l/common/sepolicy/kernel.te	(revision 169485)
++++ device/sprd/scx35l/common/sepolicy/kernel.te	(revision 169486)
+@@ -10,3 +10,5 @@
+ allow kernel block_device:dir search;
+ allow kernel mmcblk_device:blk_file { open read write };
+ allow kernel self:capability { dac_override dac_read_search };
++allow kernel prod_file:file { create open read write };
++allow kernel prod_file:dir { add_name create search open read write append };

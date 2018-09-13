@@ -1,0 +1,45 @@
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/MccTable.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/MccTable.java	(revision 170375)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/MccTable.java	(revision 170376)
+@@ -350,8 +350,19 @@
+      * @return locale for the mcc or null if none
+      */
+     public static Locale getLocaleFromMcc(Context context, int mcc, String simLanguage) {
+-        String language = (simLanguage == null) ? MccTable.defaultLanguageForMcc(mcc) : simLanguage;
++       // String language = (simLanguage == null) ? MccTable.defaultLanguageForMcc(mcc) : simLanguage;
++		 String language = MccTable.defaultLanguageForMcc(mcc);
+         String country = MccTable.countryCodeForMcc(mcc);
++		 if(language.equals("en")){
++            country = "US";
++        }else if(language.equals("zh")){
++            country = "CN";
++        }else if(language.equals("in")){
++            country = "ID";
++        }else{
++            language = "en";
++            country = "US";
++        }
+ 
+         Slog.d(LOG_TAG, "getLocaleFromMcc(" + language + ", " + country + ", " + mcc);
+         final Locale locale = getLocaleForLanguageCountry(context, language, country);
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/SubscriptionInfoUpdater.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/SubscriptionInfoUpdater.java	(revision 170375)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/SubscriptionInfoUpdater.java	(revision 170376)
+@@ -440,6 +440,15 @@
+             } else {
+                 logd("EVENT_RECORDS_LOADED Operator name is null");
+             }
++         int otherSubId = SubscriptionManager.DEFAULT_SUBSCRIPTION_ID;
++            int[] otherSubIds = SubscriptionController.getInstance().getSubId(1 - slotId);
++            if (otherSubIds != null && otherSubIds.length > 0) {
++                otherSubId = otherSubIds[0];
++            }
++            String otherOperator = tm.getSimOperatorNumericForPhone(1 - slotId);
++            if (!TextUtils.isEmpty(otherOperator)) {
++                SubscriptionController.getInstance().setMccMnc(otherOperator, otherSubId);
++            }
+ 
+             String msisdn = tm.getLine1Number(subId);
+             ContentResolver contentResolver = mContext.getContentResolver();

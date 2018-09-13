@@ -1,0 +1,22 @@
+Index: frameworks/base/core/res/res/values/config.xml
+===================================================================
+--- frameworks/base/core/res/res/values/config.xml	(revision 175963)
++++ frameworks/base/core/res/res/values/config.xml	(revision 175964)
+@@ -1017,7 +1017,7 @@
+          brightness changes occur in response to an observed change in light level that exceeds the
+          hysteresis threshold. -->
+     <integer name="config_autoBrightnessBrighteningLightDebounce">4000</integer>
+-    <integer name="config_autoBrightnessDarkeningLightDebounce">8000</integer>
++    <integer name="config_autoBrightnessDarkeningLightDebounce">2500</integer>
+ 
+     <!-- Light sensor event rate in milliseconds for automatic brightness control. -->
+     <integer name="config_autoBrightnessLightSensorRate">250</integer>
+@@ -1044,7 +1044,7 @@
+     <bool name="config_autoBrightnessResetAmbientLuxAfterWarmUp">true</bool>
+ 
+     <!-- Period of time in which to consider light samples in milliseconds. -->
+-    <integer name="config_autoBrightnessAmbientLightHorizon">10000</integer>
++    <integer name="config_autoBrightnessAmbientLightHorizon">5000</integer>
+ 
+     <!-- Screen brightness used to dim the screen when the user activity
+          timeout expires.  May be less than the minimum allowed brightness setting

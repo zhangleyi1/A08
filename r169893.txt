@@ -1,0 +1,13 @@
+Index: vendor/sprd/modules/sensors/acc/st/Acc_Lis3dh.cpp
+===================================================================
+--- vendor/sprd/modules/sensors/acc/st/Acc_Lis3dh.cpp	(revision 169892)
++++ vendor/sprd/modules/sensors/acc/st/Acc_Lis3dh.cpp	(revision 169893)
+@@ -37,7 +37,7 @@
+ #define LIS3DH_ACC_IOCTL_GET_ENABLE _IOR(LIS3DH_ACC_IOCTL_BASE, 3, int)
+ 
+ #define ACC_UNIT_CONVERSION(value) ((value)*GRAVITY_EARTH / (1024.0f))
+-
++static int64_t  previous_timestamp2 = 0;
+ #define MAX_ENABLED 32767
+ /*****************************************************************************/
+ static struct sensor_t sSensorList[] = {

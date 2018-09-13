@@ -1,0 +1,18 @@
+Index: packages/apps/Settings/src/com/android/settings/DevelopmentSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/DevelopmentSettings.java	(revision 167643)
++++ packages/apps/Settings/src/com/android/settings/DevelopmentSettings.java	(revision 167644)
+@@ -1020,8 +1020,13 @@
+     }
+ 
+     private void updateBugreportOptions() {
++	if (mEnableAdb.isChecked()) {
+         mBugreport.setEnabled(true);
+         mBugreportInPower.setEnabled(true);
++		    } else {
++            mBugreport.setEnabled(false);
++            mBugreportInPower.setEnabled(false);
++        }
+         setBugreportStorageProviderStatus();
+     }
+ 

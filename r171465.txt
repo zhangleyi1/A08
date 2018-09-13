@@ -1,0 +1,13 @@
+Index: packages/apps/Email/src/com/android/email/activity/setup/AccountSetupOutgoingFragment.java
+===================================================================
+--- packages/apps/Email/src/com/android/email/activity/setup/AccountSetupOutgoingFragment.java	(revision 171464)
++++ packages/apps/Email/src/com/android/email/activity/setup/AccountSetupOutgoingFragment.java	(revision 171465)
+@@ -66,7 +66,7 @@
+     private final static String STATE_KEY_LOADED = "AccountSetupOutgoingFragment.loaded";
+ 
+     private static final int SMTP_PORT_NORMAL = 587;
+-    private static final int SMTP_PORT_SSL    = 465;
++    private static final int SMTP_PORT_SSL    = 587;
+ 
+     private EditText mUsernameView;
+     private AuthenticationView mAuthenticationView;

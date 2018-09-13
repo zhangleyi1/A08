@@ -1,0 +1,55 @@
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactListItemView.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactListItemView.java	(revision 177187)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactListItemView.java	(revision 177188)
+@@ -844,11 +844,12 @@
+ */
+ 
+         int margin = 0;
++        int leftPadding = mPhotoViewWidth + mGapBetweenImageAndText - 5;
+         if (isVisible(mGsmButton)) {
+             if (mPhotoPosition == PhotoPosition.LEFT) {
+-                mGsmButton.layout(leftBound,
++                mGsmButton.layout(leftBound + leftPadding,
+                         topBound + getPaddingTop() + mPhotoViewHeight + margin,
+-                        leftBound + mGsmButtonWidth,
++                        leftBound + mGsmButtonWidth + leftPadding,
+                         //getPaddingTop() + topBound + mPhotoViewHeight + mGsmButtonHeight);
+                         topBound + getPaddingTop() + mPhotoViewHeight + mGsmButtonHeight);
+                 margin += 50;
+@@ -858,9 +859,9 @@
+ 
+         if (isVisible(mSmsButton)) {
+             if (mPhotoPosition == PhotoPosition.LEFT) {
+-                mSmsButton.layout(leftBound + mGsmButtonWidth + margin,
++                mSmsButton.layout(leftBound + mGsmButtonWidth + leftPadding + margin,
+                         topBound + getPaddingTop() + mPhotoViewHeight,
+-                        leftBound + mGsmButtonWidth + mSmsButtonWidth + margin,
++                        leftBound + mGsmButtonWidth + mSmsButtonWidth + margin + leftPadding,
+                         topBound + getPaddingTop() + mPhotoViewHeight + mSmsButtonHeight);
+                 margin += 50;
+             } else {
+@@ -870,9 +871,9 @@
+ 
+         if (isVisible(mVideoCallButton)) {
+             if (mPhotoPosition == PhotoPosition.LEFT) {
+-                mVideoCallButton.layout(leftBound + mGsmButtonWidth + mSmsButtonWidth + margin,
++                mVideoCallButton.layout(leftBound + leftPadding + mGsmButtonWidth + mSmsButtonWidth + margin,
+                         topBound + getPaddingTop() + mPhotoViewHeight,
+-                        leftBound + mGsmButtonWidth + mSmsButtonWidth + mVideoCallButtonWidth + margin,
++                        leftBound + mGsmButtonWidth + mSmsButtonWidth + mVideoCallButtonWidth + margin + leftPadding,
+                         topBound + getPaddingTop() + mPhotoViewHeight + mVideoCallButtonHeight);
+                 margin += 50;
+             } else {
+@@ -882,9 +883,9 @@
+ 
+         if (isVisible(mLteButton)) {
+             if (mPhotoPosition == PhotoPosition.LEFT) {
+-                mLteButton.layout(leftBound + mGsmButtonWidth + mSmsButtonWidth + mVideoCallButtonWidth + margin,
++                mLteButton.layout(leftBound + leftPadding + mGsmButtonWidth + mSmsButtonWidth + mVideoCallButtonWidth + margin,
+                         topBound + getPaddingTop() + mPhotoViewHeight,
+-                        leftBound + mGsmButtonWidth + mSmsButtonWidth + mVideoCallButtonWidth + mLteButtonWidth + margin,
++                        leftBound + mGsmButtonWidth + mSmsButtonWidth + mVideoCallButtonWidth + mLteButtonWidth + margin + leftPadding,
+                         topBound + getPaddingTop() + mPhotoViewHeight + mLteButtonHeight);
+             } else {
+ 

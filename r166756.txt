@@ -1,0 +1,19 @@
+Index: packages/apps/Dialer/InCallUI/res/values/strings.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/values/strings.xml	(revision 166755)
++++ packages/apps/Dialer/InCallUI/res/values/strings.xml	(revision 166756)
+@@ -527,11 +527,13 @@
+     <string name="closed_now">Closed now</string>
+     <!-- SPRD:add for Volte. -->
+     <string name="invite_call">"Invite"</string>
+-	<string name="notification_action_sms_rejust">"SmsRejust"</string>
++	<string name="voice_call_wifi">Wi-Fi call</string>
++    <string name="video_call_wifi">Wi-Fi Video call</string>
+     <!-- SPRD:add for Vowifi. -->
+     <string name="poor_voice_quality">"Poor voice quality"</string>
+     <string name="fair_voice_quality">"Fair voice quality"</string>
+     <string name="good_voice_quality">"Good voice quality"</string>
++	<string name="notification_action_sms_rejust">"SmsRejust"</string>
+     <!-- SPRD:add for conference videocall -->
+     <string name="hide_preview_video">Hide Preview Video</string>
+     <string name="display_preview_video">Display Preview Video</string>

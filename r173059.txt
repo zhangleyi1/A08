@@ -1,0 +1,14 @@
+Index: vendor/google/products/gms-mandatory.mk
+===================================================================
+--- vendor/google/products/gms-mandatory.mk	(revision 173058)
++++ vendor/google/products/gms-mandatory.mk	(revision 173059)
+@@ -70,9 +70,6 @@
+ # GMS sample application packages
+ # GmsSampleLayout customizes the default home screen layout of Launcher3
+ # OpaSuwIntegrationSample adds Google Assistant/Now opt-in screen to Android 7.0 SetupWizard
+-PRODUCT_PACKAGES += \
+-    GmsSampleLayout \
+-    OpaSuwIntegrationSample
+ 
+ # Overrides
+ PRODUCT_PROPERTY_OVERRIDES += \

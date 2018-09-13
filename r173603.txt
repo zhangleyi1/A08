@@ -1,0 +1,28 @@
+Index: packages/apps/Messaging/src/com/android/messaging/datamodel/BugleNotifications.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/datamodel/BugleNotifications.java	(revision 173602)
++++ packages/apps/Messaging/src/com/android/messaging/datamodel/BugleNotifications.java	(revision 173603)
+@@ -1202,9 +1202,9 @@
+         final int replyLabelRes = requiresMms ? R.string.notification_reply_via_mms :
+             R.string.notification_reply_via_sms;
+ 
+-        final NotificationCompat.Action.Builder actionBuilder =
+-                new NotificationCompat.Action.Builder(R.drawable.ic_wear_reply,
+-                        context.getString(replyLabelRes), replyPendingIntent);
++       // final NotificationCompat.Action.Builder actionBuilder =
++       //         new NotificationCompat.Action.Builder(R.drawable.ic_wear_reply,
++       //                 context.getString(replyLabelRes), replyPendingIntent);
+         final String[] choices = context.getResources().getStringArray(
+                 R.array.notification_reply_choices);
+         final RemoteInput remoteInput = new RemoteInput.Builder(Intent.EXTRA_TEXT).setLabel(
+@@ -1211,8 +1211,8 @@
+                 context.getString(R.string.notification_reply_prompt)).
+                 setChoices(choices)
+                 .build();
+-        actionBuilder.addRemoteInput(remoteInput);
+-        wearableExtender.addAction(actionBuilder.build());
++       // actionBuilder.addRemoteInput(remoteInput);
++       // wearableExtender.addAction(actionBuilder.build());
+     }
+ 
+     private static void addDownloadMmsAction(final NotificationCompat.Builder notifBuilder,

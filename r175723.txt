@@ -1,0 +1,13 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 175722)
++++ packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 175723)
+@@ -234,7 +234,7 @@
+ 
+     public static final String USER_HAS_MIGRATED = "launcher.user_migrated_from_old_data";
+     private static final long UPTATE_INTERVAL_TIME = 70L;
+-    private static final int SPEED_SHRESHOLD = 2;
++    private static final int SPEED_SHRESHOLD = 7;
+ 
+     // don't modify!!!, this value need flow AudioManager.RINGER_MODE_OUTDOOR
+     private static final int RINGER_MODE_OUTDOOR = 3;

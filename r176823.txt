@@ -1,0 +1,23 @@
+Index: kernel/security/rootrecorder/root_recorder.c
+===================================================================
+--- kernel/security/rootrecorder/root_recorder.c	(revision 176822)
++++ kernel/security/rootrecorder/root_recorder.c	(revision 176823)
+@@ -79,6 +79,8 @@
+ static struct root_record sys_module_table[] = {
+ 	{"tc", "netd", 0, 0, 0, 0},
+ 	{"wlan_loader", "init", 1, 0, 0, 0},
++    {"autotest", "init", 1, 0, 0, 0},
++	{"ju_ipsec_server", "init", 1, 0, 0, 0},
+ 	{"system_server", "main", 0, 1000, 1000, 0},
+ 	{"system_server", "zygote", 0, 1000, 1000, 0},
+ 	{"main", "init", 1, 0, 9999, 0},
+@@ -90,7 +92,8 @@
+ };
+ 
+ static struct root_record sys_admin_table[] = {
+-	{"init", "init", 0, 0, 0, 0},
++    {"init", "init", 0, 0, 0, 0},
++    {"zygote", "zygote", 0, 0, 0, 0},
+ 	{"vold", "init", 1, 0, 0, 0},
+ 	{"netd", "init", 1, 0, 0, 0},
+ 	{"debuggerd", "debuggerd", 0, 0, 0, 0},

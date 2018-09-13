@@ -1,0 +1,52 @@
+Index: device/sprd/scx35l/common/emmc/recovery_emulated.secure_boot_ieb.fstab
+===================================================================
+--- device/sprd/scx35l/common/emmc/recovery_emulated.secure_boot_ieb.fstab	(revision 176963)
++++ device/sprd/scx35l/common/emmc/recovery_emulated.secure_boot_ieb.fstab	(revision 176964)
+@@ -43,7 +43,7 @@
+ /dev/block/platform/sdio_emmc/by-name/wl_modem		/wlmodem		emmc	defaults	secureboot=vlr:/uboot
+ /dev/block/platform/sdio_emmc/by-name/wl_ldsp		/wlldsp		emmc 	defaults	secureboot=vlr:/uboot
+ /dev/block/platform/sdio_emmc/by-name/wl_gdsp		/wlgdsp		emmc 	defaults	secureboot=vlr:/uboot
+-/dev/block/platform/sdio_emmc/by-name/wcnfdl	    	/wcnfdl	        emmc	defaults	secureboot=vlr:/uboot
++/dev/block/platform/sdio_emmc/by-name/wcnfdl	    	/wcnfdl	        emmc	defaults    defaults
+ /dev/block/platform/sdio_emmc/by-name/wl_warm	    	/wlwarm	        emmc	defaults	secureboot=vlr:/uboot
+ /dev/block/platform/sdio_emmc/by-name/wl_fixnv1	/wlfixnv1	    	emmc	defaults	defaults
+ /dev/block/platform/sdio_emmc/by-name/wl_fixnv2	/wlfixnv2		emmc	defaults	defaults
+Index: device/sprd/scx35l/common/emmc/recovery.secure_boot.fstab
+===================================================================
+--- device/sprd/scx35l/common/emmc/recovery.secure_boot.fstab	(revision 176963)
++++ device/sprd/scx35l/common/emmc/recovery.secure_boot.fstab	(revision 176964)
+@@ -44,7 +44,7 @@
+ /dev/block/platform/sdio_emmc/by-name/wl_modem		/wlmodem		emmc	defaults	secureboot=vlr:/uboot
+ /dev/block/platform/sdio_emmc/by-name/wl_ldsp		/wlldsp		emmc 	defaults	secureboot=vlr:/uboot
+ /dev/block/platform/sdio_emmc/by-name/wl_gdsp		/wlgdsp		emmc 	defaults	secureboot=vlr:/uboot
+-/dev/block/platform/sdio_emmc/by-name/wcnfdl	    	/wcnfdl	        emmc	defaults	secureboot=vlr:/uboot
++/dev/block/platform/sdio_emmc/by-name/wcnfdl	    	/wcnfdl	        emmc	defaults    defaults
+ /dev/block/platform/sdio_emmc/by-name/wl_warm	    	/wlwarm	        emmc	defaults	secureboot=vlr:/uboot
+ /dev/block/platform/sdio_emmc/by-name/wl_fixnv1	/wlfixnv1	    	emmc	defaults	defaults
+ /dev/block/platform/sdio_emmc/by-name/wl_fixnv2	/wlfixnv2		emmc	defaults	defaults
+Index: device/sprd/scx35l/common/emmc/recovery.secure_boot_ieb.fstab
+===================================================================
+--- device/sprd/scx35l/common/emmc/recovery.secure_boot_ieb.fstab	(revision 176963)
++++ device/sprd/scx35l/common/emmc/recovery.secure_boot_ieb.fstab	(revision 176964)
+@@ -44,7 +44,7 @@
+ /dev/block/platform/sdio_emmc/by-name/wl_modem		/wlmodem		emmc	defaults	secureboot=vlr:/uboot
+ /dev/block/platform/sdio_emmc/by-name/wl_ldsp		/wlldsp		emmc 	defaults	secureboot=vlr:/uboot
+ /dev/block/platform/sdio_emmc/by-name/wl_gdsp		/wlgdsp		emmc 	defaults	secureboot=vlr:/uboot
+-/dev/block/platform/sdio_emmc/by-name/wcnfdl	    	/wcnfdl	        emmc	defaults	secureboot=vlr:/uboot
++/dev/block/platform/sdio_emmc/by-name/wcnfdl	    	/wcnfdl	        emmc	defaults    defaults
+ /dev/block/platform/sdio_emmc/by-name/wl_warm	    	/wlwarm	        emmc	defaults	secureboot=vlr:/uboot
+ /dev/block/platform/sdio_emmc/by-name/wl_fixnv1	/wlfixnv1	    	emmc	defaults	defaults
+ /dev/block/platform/sdio_emmc/by-name/wl_fixnv2	/wlfixnv2		emmc	defaults	defaults
+Index: device/sprd/scx35l/common/emmc/recovery_emulated.secure_boot.fstab
+===================================================================
+--- device/sprd/scx35l/common/emmc/recovery_emulated.secure_boot.fstab	(revision 176963)
++++ device/sprd/scx35l/common/emmc/recovery_emulated.secure_boot.fstab	(revision 176964)
+@@ -43,7 +43,7 @@
+ /dev/block/platform/sdio_emmc/by-name/wl_modem		/wlmodem		emmc	defaults	secureboot=vlr:/uboot
+ /dev/block/platform/sdio_emmc/by-name/wl_ldsp		/wlldsp		emmc 	defaults	secureboot=vlr:/uboot
+ /dev/block/platform/sdio_emmc/by-name/wl_gdsp		/wlgdsp		emmc 	defaults	secureboot=vlr:/uboot
+-/dev/block/platform/sdio_emmc/by-name/wcnfdl	    	/wcnfdl	        emmc	defaults	secureboot=vlr:/uboot
++/dev/block/platform/sdio_emmc/by-name/wcnfdl	    	/wcnfdl	        emmc	defaults    defaults
+ /dev/block/platform/sdio_emmc/by-name/wl_warm	    	/wlwarm	        emmc	defaults	secureboot=vlr:/uboot
+ /dev/block/platform/sdio_emmc/by-name/wl_fixnv1	/wlfixnv1	    	emmc	defaults	defaults
+ /dev/block/platform/sdio_emmc/by-name/wl_fixnv2	/wlfixnv2		emmc	defaults	defaults

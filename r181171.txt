@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoModule.java	(revision 181170)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoModule.java	(revision 181171)
+@@ -964,7 +964,7 @@
+                 // the preview. This will cause the preview flicker since the
+                 // preview
+                 // will not be continuous for a short period of time.
+-                mAppController.startFlashAnimation(false);
++                //mAppController.startFlashAnimation(false);
+             }
+         }
+     }

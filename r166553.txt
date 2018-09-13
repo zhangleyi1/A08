@@ -1,0 +1,84 @@
+Index: kernel/drivers/media/sprd_dcam/flash/flash_parallel_connect_bg.c
+===================================================================
+--- kernel/drivers/media/sprd_dcam/flash/flash_parallel_connect_bg.c	(revision 166552)
++++ kernel/drivers/media/sprd_dcam/flash/flash_parallel_connect_bg.c	(revision 166553)
+@@ -32,7 +32,7 @@
+ unsigned int ib_trim_cal_data = 0;
+ static int init_flag = 1;
+ 
+-int sprd_flash_on(void)
++int sprd_front_flash_on(void)
+ {
+ 	if (init_flag && sci_efuse_ib_trim_get(&ib_trim_cal_data)) {
+ 	/*
+@@ -75,7 +75,7 @@
+ 	return 0;
+ }
+ 
+-int sprd_flash_high_light(void)
++int sprd_front_flash_high_light(void)
+ {
+ 	printk("parallel sprd_flash_high_light \n");
+ 	/*SET HIGH LIGHT*/
+@@ -86,7 +86,7 @@
+ 	return 0;
+ }
+ 
+-int sprd_flash_close(void)
++int sprd_front_flash_close(void)
+ {
+ 	printk("parallel sprd_flash_close \n");
+ 
+@@ -102,7 +102,7 @@
+ 	return 0;
+ }
+ 
+-int sprd_flash_cfg(struct sprd_flash_cfg_param *param, void *arg)
++int sprd_front_flash_cfg(struct sprd_flash_cfg_param *param, void *arg)
+ {
+ 	return 0;
+ }
+Index: kernel/drivers/media/sprd_dcam/flash/flash_sgm3140.c
+===================================================================
+--- kernel/drivers/media/sprd_dcam/flash/flash_sgm3140.c	(revision 166552)
++++ kernel/drivers/media/sprd_dcam/flash/flash_sgm3140.c	(revision 166553)
+@@ -24,22 +24,21 @@
+ #define SPRD_FLASH_ON		1
+ #define SPRD_FLASH_OFF		0
+ 
+-#ifndef GPIO_CAM_FLASH_EN
+-#define GPIO_CAM_FLASH_EN 92
+-#endif
+-#ifndef GPIO_CAM_FLASH_MODE
+-#define GPIO_CAM_FLASH_MODE 123
+-#endif
++#undef GPIO_CAM_FLASH_EN
++#undef GPIO_CAM_FLASH_MODE
+ 
++#define GPIO_CAM_FLASH_EN 143
++#define GPIO_CAM_FLASH_MODE 95
++
+ int sprd_flash_on(void)
+ {
+ 	printk("sprd_flash_on \n");
+ 	gpio_request(GPIO_CAM_FLASH_EN,"cam_flash_en");
+-	gpio_direction_output(GPIO_CAM_FLASH_EN, SPRD_FLASH_ON);
++	gpio_direction_output(GPIO_CAM_FLASH_EN, SPRD_FLASH_OFF);
+ 	gpio_free(GPIO_CAM_FLASH_EN);
+ 
+ 	gpio_request(GPIO_CAM_FLASH_MODE,"cam_flash_mode");
+-	gpio_direction_output(GPIO_CAM_FLASH_MODE, SPRD_FLASH_OFF);
++	gpio_direction_output(GPIO_CAM_FLASH_MODE, SPRD_FLASH_ON);
+ 	gpio_free(GPIO_CAM_FLASH_MODE);
+ 	return 0;
+ }
+Index: kernel/drivers/media/sprd_dcam/flash/Makefile
+===================================================================
+--- kernel/drivers/media/sprd_dcam/flash/Makefile	(revision 166552)
++++ kernel/drivers/media/sprd_dcam/flash/Makefile	(revision 166553)
+@@ -1,4 +1,4 @@
+-obj-y += front_flash_common.o
++
+ obj-$(CONFIG_CAMERA_FLASH_SGM3140) += flash_sgm3140.o
+ obj-$(CONFIG_CAMERA_FLASH_PARALLEL_BG) += flash_parallel_connect_bg.o
+ obj-$(CONFIG_CAMERA_FLASH_GPIO_8132) += flash_gpio_8132.o

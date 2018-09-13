@@ -1,0 +1,24 @@
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 169806)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 169807)
+@@ -1235,8 +1235,6 @@
+             }
+             boolean enhanced4gMode = !enhanced4gModePref.isChecked();
+ 			if (DBG) log("enhanced4gModePref.setChecked1 :  "+enhanced4gMode); 
+-            enhanced4gModePref.setChecked(enhanced4gMode);
+-			ImsManager.setEnhanced4gLteModeSetting(this, enhanced4gModePref.isChecked());
+             if (!enhanced4gMode) {                
+ 				AlertDialog.Builder dialog = new AlertDialog.Builder(this);                
+ 				dialog.setMessage(R.string.close_volte_info);                
+@@ -1244,7 +1242,9 @@
+ 					new OnClickListener() {                        
+ 					@Override                        
+ 						public void onClick(DialogInterface dialog, int which) {                           
+-						// TODO Auto-generated method stub                                                  
++						// TODO Auto-generated method stub 
++						enhanced4gModePref.setChecked(enhanced4gMode);
++						ImsManager.setEnhanced4gLteModeSetting(this, enhanced4gModePref.isChecked());
+ 						}                    
+ 				});                
+ 				dialog.setNegativeButton(R.string.votle_cancel,                    

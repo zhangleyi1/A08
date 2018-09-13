@@ -1,0 +1,73 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 177675)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 177676)
+@@ -594,8 +594,9 @@
+     private void showLteButton(boolean flag) {
+         mFloatingActionButtonController.setVisible(flag);
+         mGsmCallBtn.setVisibility(flag ? View.GONE:View.VISIBLE);
++        mVideoCallBtn.setVisibility(flag ? View.GONE:View.VISIBLE);
+ 
+-        if (ImsManager.isVolteEnabledByPlatform(getActivity())) {
++        if (ImsManager.isVolteEnabledByPlatform(getActivity()) && flag) {
+            if (CallUtil.isVideoEnabled(getActivity())) {
+                boolean ret = Settings.System.getInt(getActivity().getContentResolver(), "show_video_call_status", 0) == 1;
+                 if (ret) {
+@@ -1267,7 +1268,7 @@
+             return;
+         }
+     }
+-	private static final String PHONE_PACKAGE = "com.android.callsettings";
++    private static final String PHONE_PACKAGE = "com.android.callsettings";
+     private static final String FAST_DIAL_SETTING_CLASS_NAME =
+             "com.android.callsettings.fastdial.FastDialSettingActivity";
+ 
+@@ -1404,22 +1405,22 @@
+                 if (intent != null) {
+                    List<PhoneAccountHandle> subscriptionAccountHandles = PhoneAccountUtils
+                         .getSubscriptionPhoneAccounts(getActivity());
+-                	if (subscriptionAccountHandles != null
++                    if (subscriptionAccountHandles != null
+                         && subscriptionAccountHandles.size() > 1) {
+-                    	PhoneAccountHandle accout = subscriptionAccountHandles
++                        PhoneAccountHandle accout = subscriptionAccountHandles
+                             .get(defaultSimSlot - 1);
+-                    	intent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE,accout);
+-                	}
++                        intent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE,accout);
++                    }
+                     DialerUtils.startActivityWithErrorToast(getActivity(), intent);
+                     digits.clear();
+                     return true;
+-				} else if (digits.length() <= 1) {
++                } else if (digits.length() <= 1) {
+                     final Intent fastDial = new Intent(Intent.ACTION_MAIN);
+                     fastDial.setClassName(PHONE_PACKAGE, FAST_DIAL_SETTING_CLASS_NAME);
+                     fastDial.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                     startActivity(fastDial);
+                     digits.clear();
+-                    return true;	
++                    return true;    
+                 }
+             /* @} */
+         }
+@@ -1566,7 +1567,7 @@
+                                 .setCallInitiationType(LogState.INITIATION_DIALPAD)
+                               //  .setPhoneAccountHandle(account)
+                             .build();
+-						Log.d("jiml", "DialpadFragment number is " + number);	
++                        Log.d("jiml", "DialpadFragment number is " + number);   
+                         DialerUtils.startActivityWithErrorToast(getActivity(), intent);
+                     }
+ 
+@@ -1770,8 +1771,8 @@
+ 
+             showLteButton(false);
+             mDialpadChooser.setVisibility(View.VISIBLE);
+-			mGsmCallBtn.setVisibility( View.GONE);
+-			mSwitchBtn.setVisibility(View.GONE);
++            mGsmCallBtn.setVisibility( View.GONE);
++            mSwitchBtn.setVisibility(View.GONE);
+             // Instantiate the DialpadChooserAdapter and hook it up to the
+             // ListView.  We do this only once.
+             if (mDialpadChooserAdapter == null) {

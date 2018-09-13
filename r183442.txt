@@ -1,0 +1,14 @@
+Index: vendor/sprd/modules/libcamera/oem2v0/src/cmr_preview.c
+===================================================================
+--- vendor/sprd/modules/libcamera/oem2v0/src/cmr_preview.c	(revision 183441)
++++ vendor/sprd/modules/libcamera/oem2v0/src/cmr_preview.c	(revision 183442)
+@@ -9163,7 +9163,8 @@
+ 
+ 	prev_cxt = &handle->prev_cxt[camera_id];
+ 	prev_cxt->prev_skip_num = prev_cxt->prev_frm_cnt + skip_num;
+-	prev_cxt->video_skip_num = prev_cxt->video_frm_cnt + skip_num;
++	//prev_cxt->video_skip_num = prev_cxt->video_frm_cnt + skip_num;
++	prev_cxt->video_skip_num = prev_cxt->video_frm_cnt;
+ 	prev_cxt->prev_preflash_skip_en = 1;
+ 
+ 	return ret;

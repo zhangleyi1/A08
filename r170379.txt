@@ -1,0 +1,38 @@
+Index: frameworks/base/core/java/android/hardware/Camera.java
+===================================================================
+--- frameworks/base/core/java/android/hardware/Camera.java	(revision 170378)
++++ frameworks/base/core/java/android/hardware/Camera.java	(revision 170379)
+@@ -42,7 +42,6 @@
+ import android.view.Surface;
+ import android.view.SurfaceHolder;
+ import android.os.SystemProperties;
+-
+ import java.io.IOException;
+ import java.lang.ref.WeakReference;
+ import java.util.ArrayList;
+@@ -178,6 +177,7 @@
+ 
+     private static final int NO_ERROR = 0;
+ 
++
+     /**
+      * @deprecated This broadcast is no longer delivered by the system; use
+      * {@link android.app.job.JobInfo.Builder JobInfo.Builder}.{@link android.app.job.JobInfo.Builder#addTriggerContentUri}
+@@ -475,15 +475,9 @@
+         } else {
+             mEventHandler = null;
+         }
+-		String FactoryCameraID=SystemProperties.get("FactoryCameraID","null");
+-		if("null".equals(FactoryCameraID)){
+-			return native_setup(new WeakReference<Camera>(this), cameraId, halVersion,
++		
++		return native_setup(new WeakReference<Camera>(this), cameraId, halVersion,
+ 			   ActivityThread.currentOpPackageName());
+-		}else{
+-          int factoryCameraId=Integer.valueOf(FactoryCameraID);
+-		  return native_setup(new WeakReference<Camera>(this), factoryCameraId, halVersion,
+-			   ActivityThread.currentOpPackageName());
+-		}
+         
+     }
+ 

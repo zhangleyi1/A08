@@ -1,0 +1,40 @@
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactListItemView.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactListItemView.java	(revision 178976)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactListItemView.java	(revision 178977)
+@@ -860,9 +860,9 @@
+         if (isVisible(mSmsButton)) {
+             if (mPhotoPosition == PhotoPosition.LEFT) {
+                 mSmsButton.layout(leftBound + mGsmButtonWidth + leftPadding + margin,
+-                        topBound + getPaddingTop() + mPhotoViewHeight,
++                        topBound + getPaddingTop() + mNameTextViewHeight + mDataViewHeight,//+ mPhotoViewHeight,
+                         leftBound + mGsmButtonWidth + mSmsButtonWidth + margin + leftPadding,
+-                        topBound + getPaddingTop() + mPhotoViewHeight + mSmsButtonHeight);
++                        topBound + getPaddingTop() + mNameTextViewHeight + mDataViewHeight + mSmsButtonHeight);
+                 margin += 50;
+             } else {
+ 
+@@ -872,9 +872,9 @@
+         if (isVisible(mVideoCallButton)) {
+             if (mPhotoPosition == PhotoPosition.LEFT) {
+                 mVideoCallButton.layout(leftBound + leftPadding + mGsmButtonWidth + mSmsButtonWidth + margin,
+-                        topBound + getPaddingTop() + mPhotoViewHeight,
++                        topBound + getPaddingTop() + mNameTextViewHeight + mDataViewHeight,
+                         leftBound + mGsmButtonWidth + mSmsButtonWidth + mVideoCallButtonWidth + margin + leftPadding,
+-                        topBound + getPaddingTop() + mPhotoViewHeight + mVideoCallButtonHeight);
++                        topBound + getPaddingTop() + mNameTextViewHeight + mDataViewHeight + mVideoCallButtonHeight);
+                 margin += 50;
+             } else {
+ 
+@@ -884,9 +884,9 @@
+         if (isVisible(mLteButton)) {
+             if (mPhotoPosition == PhotoPosition.LEFT) {
+                 mLteButton.layout(leftBound + leftPadding + mGsmButtonWidth + mSmsButtonWidth + mVideoCallButtonWidth + margin,
+-                        topBound + getPaddingTop() + mPhotoViewHeight,
++                        topBound + getPaddingTop() + mNameTextViewHeight + mDataViewHeight,
+                         leftBound + mGsmButtonWidth + mSmsButtonWidth + mVideoCallButtonWidth + mLteButtonWidth + margin + leftPadding,
+-                        topBound + getPaddingTop() + mPhotoViewHeight + mLteButtonHeight);
++                        topBound + getPaddingTop() + mNameTextViewHeight + mDataViewHeight + mLteButtonHeight);
+             } else {
+ 
+             }

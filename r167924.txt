@@ -1,0 +1,32 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/gps/GPS.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/gps/GPS.java	(revision 167923)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/gps/GPS.java	(revision 167924)
+@@ -163,15 +163,19 @@
+ 
+ 		// String provider = locationManager.getBestProvider(criteria, true);
+ 
+-		String provider = LocationManager.GPS_PROVIDER;
+-		Location location = mLocationManager.getLastKnownLocation(provider);
+-		if (location == null)
+-			location = mLocationManager
+-					.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+-		updateToNewLocation(location);
++		//String provider = LocationManager.GPS_PROVIDER;
++		//Location location = mLocationManager.getLastKnownLocation(provider);
++		//if (location == null)
++		//	location = mLocationManager
++		//			.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
++		//updateToNewLocation(location);
+ 
+-		mLocationManager.requestLocationUpdates(provider, 1000, 0,
+-				locationListener);
++		//mLocationManager.requestLocationUpdates(provider, 1000, 0,
++               //         locationListener);
++        Bundle extras = new Bundle();
++        extras.putBoolean("all", true);
++        mLocationManager.sendExtraCommand(LocationManager.GPS_PROVIDER,"delete_aiding_data", extras);
++        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, locationListener);
+ 		mLocationManager.addGpsStatusListener(statusListener);
+ 	}
+ 

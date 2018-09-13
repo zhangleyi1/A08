@@ -1,0 +1,13 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 178096)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 178097)
+@@ -594,7 +594,7 @@
+     private void showLteButton(boolean flag) {
+         mFloatingActionButtonController.setVisible(flag);
+         mGsmCallBtn.setVisibility(flag ? View.GONE:View.VISIBLE);
+-        mVideoCallBtn.setVisibility(flag ? View.GONE:View.VISIBLE);
++        mVideoCallBtn.setVisibility(flag ? View.VISIBLE:View.GONE);
+ 
+         if (ImsManager.isVolteEnabledByPlatform(getActivity()) && flag) {
+            if (CallUtil.isVideoEnabled(getActivity())) {

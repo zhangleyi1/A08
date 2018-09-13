@@ -1,0 +1,434 @@
+Index: system/sepolicy/system_app.te
+===================================================================
+--- system/sepolicy/system_app.te	(revision 166626)
++++ system/sepolicy/system_app.te	(revision 166627)
+@@ -73,4 +73,8 @@
+ allow system_app sysfs_zram:dir search;
+ allow system_app sysfs_zram:file r_file_perms;
+ 
++#fota start
++allow system_app { cache_file cache_recovery_file }:dir create_dir_perms;
++allow system_app { cache_file cache_recovery_file }:file create_file_perms;
++
+ control_logd(system_app)
+Index: system/sepolicy/domain.te
+===================================================================
+--- system/sepolicy/domain.te	(revision 166626)
++++ system/sepolicy/domain.te	(revision 166627)
+@@ -379,8 +379,10 @@
+ neverallow { domain -servicemanager } *:binder set_context_mgr;
+ 
+ # Only authorized processes should be writing to files in /data/dalvik-cache
++#fota start
+ neverallow {
+   domain
++  -recovery
+   -init # TODO: limit init to relabelfrom for files
+   -zygote
+   -installd
+@@ -390,6 +392,7 @@
+ 
+ neverallow {
+   domain
++  -recovery
+   -init
+   -installd
+   -postinstall_dexopt
+@@ -396,6 +399,7 @@
+   -dex2oat
+   -zygote
+ } dalvikcache_data_file:dir no_w_dir_perms;
++#fota end
+ 
+ # Only system_server should be able to send commands via the zygote socket
+ neverallow { domain -zygote -system_server } zygote:unix_stream_socket connectto;
+@@ -468,13 +472,16 @@
+ # Example type transition:
+ #  mydomain.te:file_type_auto_trans(mydomain, system_data_file, new_file_type)
+ #
++#fota start
+ neverallow {
+   domain
++  -recovery
+   -system_server
+   -system_app
+   -init
+   -installd # for relabelfrom and unlink, check for this in explicit neverallow
+ } system_data_file:file no_w_file_perms;
++#fota end
+ # do not grant anything greater than r_file_perms and relabelfrom unlink
+ # to installd
+ neverallow installd system_data_file:file ~{ r_file_perms relabelfrom unlink };
+@@ -494,8 +501,10 @@
+ 
+ # Minimize read access to shell- or app-writable symlinks.
+ # This is to prevent malicious symlink attacks.
++#fota start
+ neverallow {
+   domain
++  -recovery
+   -appdomain
+   -installd
+   -uncrypt  # TODO: see if we can remove
+@@ -503,17 +512,21 @@
+ 
+ neverallow {
+   domain
++  -recovery
+   -shell
+   userdebug_or_eng(`-uncrypt')
+   -installd
+ } shell_data_file:lnk_file read;
++#fota end
+ 
+ # In addition to the symlink reading restrictions above, restrict
+ # write access to shell owned directories. The /data/local/tmp
+ # directory is untrustworthy, and non-whitelisted domains should
+ # not be trusting any content in those directories.
++#fota start
+ neverallow {
+   domain
++  -recovery
+   -adbd
+   -dumpstate
+   -installd
+@@ -524,6 +537,7 @@
+ 
+ neverallow {
+   domain
++  -recovery
+   -adbd
+   -appdomain
+   -dumpstate
+Index: system/sepolicy/recovery.te
+===================================================================
+--- system/sepolicy/recovery.te	(revision 166626)
++++ system/sepolicy/recovery.te	(revision 166627)
+@@ -2,7 +2,11 @@
+ 
+ # Declare the domain unconditionally so we can always reference it
+ # in neverallow rules.
+-type recovery, domain, domain_deprecated;
++#fota start
++#type recovery, domain, domain_deprecated;
++type recovery, domain, domain_deprecated, mlstrustedsubject;
++typeattribute recovery mlstrustedsubject;
++#fota end
+ 
+ # But the allow rules are only included in the recovery policy.
+ # Otherwise recovery is only allowed the domain rules.
+@@ -101,6 +105,84 @@
+   # This line seems suspect, as it should not really need to
+   # set scheduling parameters for a kernel domain task.
+   allow recovery kernel:process setsched;
++
++  #fota start
++  allow recovery proc:file write;
++  allow recovery system_prop:property_service set;
++
++  allow recovery rootfs:dir { add_name create };
++  allow recovery rootfs:dir write;
++
++  allow recovery { adb_keys_file keychain_data_file }:dir { open read write getattr search rmdir remove_name };
++  allow recovery { adb_keys_file keychain_data_file }:file { getattr unlink };
++
++  #allow recovery keystore_data_file:dir { open read getattr search };
++  #allow recovery keystore_data_file:file { getattr };
++
++  allow recovery { shell_data_file bluetooth_data_file net_data_file }:dir { open read write getattr search rmdir remove_name };
++  allow recovery { shell_data_file bluetooth_data_file net_data_file }:file { getattr unlink };
++
++  allow recovery { apk_private_data_file vpn_data_file zoneinfo_data_file shared_relro_file }:dir { open read write getattr search rmdir remove_name };
++  allow recovery { apk_private_data_file vpn_data_file zoneinfo_data_file shared_relro_file }:file { getattr unlink };
++
++  allow recovery { adb_data_file dhcp_data_file misc_user_data_file systemkeys_data_file }:dir { open read write getattr search rmdir remove_name };
++  allow recovery { adb_data_file dhcp_data_file misc_user_data_file systemkeys_data_file }:file { getattr unlink };
++
++  allow recovery { wifi_data_file camera_data_file media_data_file wpa_socket }:dir { open read write getattr search rmdir remove_name };
++  allow recovery { wifi_data_file camera_data_file media_data_file wpa_socket }:file { getattr unlink };
++
++  allow recovery { audio_data_file }:dir { open read write getattr search rmdir remove_name };
++  allow recovery { audio_data_file }:file { getattr unlink };
++
++  allow recovery { anr_data_file asec_image_file backup_data_file }:dir { open read write getattr search rmdir remove_name };
++  allow recovery { anr_data_file asec_image_file backup_data_file }:file { getattr unlink };
++
++  allow recovery { radio_data_file dalvikcache_data_file }:dir { open read write getattr search rmdir remove_name };
++  allow recovery { radio_data_file dalvikcache_data_file }:file { getattr unlink };
++
++  allow recovery { drm_data_file nfc_data_file resourcecache_data_file }:dir { open read write getattr search rmdir remove_name };
++  allow recovery { drm_data_file nfc_data_file resourcecache_data_file }:file { getattr unlink };
++
++  allow recovery property_data_file:dir { open read getattr search };
++  allow recovery property_data_file:file { getattr };
++
++  allow recovery { tombstone_data_file }:dir { open read write getattr search rmdir remove_name };
++  allow recovery { tombstone_data_file }:file { getattr unlink };
++
++  allow recovery security_file:dir { open read getattr search };
++
++  allow recovery { cache_backup_file }:dir { open read write getattr search rmdir remove_name };
++  allow recovery { cache_backup_file }:file { getattr unlink };
++
++  allow recovery { wallpaper_file apk_private_tmp_file gps_data_file cache_file cache_backup_file efs_file }:file { getattr unlink};
++  allow recovery { asec_apk_file asec_public_file bluetooth_efs_file }:file { getattr unlink};
++
++  #allow recovery { rootfs }:file { create write getattr unlink };
++  allow recovery { shell_data_file radio_data_file bluetooth_data_file nfc_data_file }:lnk_file { getattr unlink read};
++
++  allow recovery { camera_data_file system_ndebug_socket system_wpa_socket wpa_socket }:sock_file { getattr unlink };
++
++  allow recovery media_rw_data_file:dir create_dir_perms;
++  allow recovery media_rw_data_file:file create_file_perms;
++  allow recovery media_rw_data_file:lnk_file { getattr unlink read};
++  
++  allow recovery app_data_file:dir create_dir_perms;
++  allow recovery app_data_file:file create_file_perms;
++  allow recovery app_data_file:lnk_file { getattr unlink read};
++  
++  allow recovery apk_data_file:dir create_dir_perms;
++  allow recovery apk_data_file:file create_file_perms;
++  allow recovery apk_data_file:lnk_file { getattr unlink read};
++
++  allow recovery system_app_data_file:dir create_dir_perms;
++  allow recovery system_app_data_file:file create_file_perms;
++  allow recovery system_app_data_file:lnk_file { getattr unlink read};
++  
++  allow recovery system_data_file:dir create_dir_perms;
++  allow recovery system_data_file:file create_file_perms;
++  allow recovery system_data_file:lnk_file { getattr unlink read};
++  allow recovery system_data_file:fifo_file { open read write getattr rw_file_perms unlink };
++  #fota end
+ ')
+ 
+ ###
+@@ -117,5 +199,7 @@
+ # domains, including recovery.
+ #
+ # TODO: tighten this up further.
+-neverallow recovery data_file_type:file { no_w_file_perms no_x_file_perms };
+-neverallow recovery data_file_type:dir no_w_dir_perms;
++#fota start
++#neverallow recovery data_file_type:file { no_w_file_perms no_x_file_perms };
++#neverallow recovery data_file_type:dir no_w_dir_perms;
++
+Index: bootable/recovery/roots.cpp
+===================================================================
+--- bootable/recovery/roots.cpp	(revision 166626)
++++ bootable/recovery/roots.cpp	(revision 166627)
+@@ -150,7 +150,7 @@
+         if (result == 0) return 0;
+  @{ */
+ /***************************************************************************/
+-#define SLEEP_SDCARD 1
++#define SLEEP_SDCARD 5
+ #define TRY_MOUNT_TIMES 8
+         int tryCount = 0;
+         char *dev_buf;
+Index: bootable/recovery/recovery.cpp
+===================================================================
+--- bootable/recovery/recovery.cpp	(revision 166626)
++++ bootable/recovery/recovery.cpp	(revision 166627)
+@@ -1719,7 +1719,11 @@
+             if(strstr(update_package, "/Android/data/com.adups.fota/files/adupsfota/update.zip") != NULL){
+                 char *SDCARD_PATH = "/Android/data/com.adups.fota/files/adupsfota";
+                 strlcat(modified_path, SDCARD_PATH, len);
+-            }
++			}
++			else if(strstr(update_package, "/Android/data/com.adups.fota/files/LocalSdUpdate.zip") != NULL){
++                char *SDCARD_PATH = "/Android/data/com.adups.fota/files";
++                strlcat(modified_path, SDCARD_PATH, len);
++			}
+             #endif
+             /* @ } */
+             strlcat(modified_path, package_name, len);
+Index: device/sprd/scx35l/sp9832a_2h11/BoardConfig.mk
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/BoardConfig.mk	(revision 166626)
++++ device/sprd/scx35l/sp9832a_2h11/BoardConfig.mk	(revision 166627)
+@@ -152,3 +152,7 @@
+ # powerhint HAL config
+ # sprdemand, interhotplug, interpowerdown
+ BOARD_POWERHINT_HAL := interhotplug
++
++#fota start
++FOTA_UPDATE_SUPPORT := true
++FOTA_UPDATE_WITH_ICON := false
+Index: device/sprd/scx35l/sp9832a_2h11/modem_bins/ltegdsp.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: device/sprd/scx35l/sp9832a_2h11/modem_bins/ltegdsp.bin
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/modem_bins/ltegdsp.bin	(revision 0)
++++ device/sprd/scx35l/sp9832a_2h11/modem_bins/ltegdsp.bin	(revision 166627)
+
+Property changes on: device/sprd/scx35l/sp9832a_2h11/modem_bins/ltegdsp.bin
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: device/sprd/scx35l/sp9832a_2h11/modem_bins/ltemodem.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: device/sprd/scx35l/sp9832a_2h11/modem_bins/ltemodem.bin
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/modem_bins/ltemodem.bin	(revision 0)
++++ device/sprd/scx35l/sp9832a_2h11/modem_bins/ltemodem.bin	(revision 166627)
+
+Property changes on: device/sprd/scx35l/sp9832a_2h11/modem_bins/ltemodem.bin
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: device/sprd/scx35l/sp9832a_2h11/modem_bins/ltenvitem.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: device/sprd/scx35l/sp9832a_2h11/modem_bins/ltenvitem.bin
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/modem_bins/ltenvitem.bin	(revision 0)
++++ device/sprd/scx35l/sp9832a_2h11/modem_bins/ltenvitem.bin	(revision 166627)
+
+Property changes on: device/sprd/scx35l/sp9832a_2h11/modem_bins/ltenvitem.bin
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: device/sprd/scx35l/sp9832a_2h11/modem_bins/wcnmodem.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: device/sprd/scx35l/sp9832a_2h11/modem_bins/wcnmodem.bin
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/modem_bins/wcnmodem.bin	(revision 0)
++++ device/sprd/scx35l/sp9832a_2h11/modem_bins/wcnmodem.bin	(revision 166627)
+
+Property changes on: device/sprd/scx35l/sp9832a_2h11/modem_bins/wcnmodem.bin
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: device/sprd/scx35l/sp9832a_2h11/modem_bins/ltedsp.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: device/sprd/scx35l/sp9832a_2h11/modem_bins/ltedsp.bin
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/modem_bins/ltedsp.bin	(revision 0)
++++ device/sprd/scx35l/sp9832a_2h11/modem_bins/ltedsp.bin	(revision 166627)
+
+Property changes on: device/sprd/scx35l/sp9832a_2h11/modem_bins/ltedsp.bin
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: device/sprd/scx35l/sp9832a_2h11/modem_bins/ltewarm.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: device/sprd/scx35l/sp9832a_2h11/modem_bins/ltewarm.bin
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/modem_bins/ltewarm.bin	(revision 0)
++++ device/sprd/scx35l/sp9832a_2h11/modem_bins/ltewarm.bin	(revision 166627)
+
+Property changes on: device/sprd/scx35l/sp9832a_2h11/modem_bins/ltewarm.bin
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: device/sprd/scx35l/sp9832a_2h11/modem_bins/pmsys.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: device/sprd/scx35l/sp9832a_2h11/modem_bins/pmsys.bin
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/modem_bins/pmsys.bin	(revision 0)
++++ device/sprd/scx35l/sp9832a_2h11/modem_bins/pmsys.bin	(revision 166627)
+
+Property changes on: device/sprd/scx35l/sp9832a_2h11/modem_bins/pmsys.bin
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: device/sprd/scx35l/sp9832a_2h11/modem_bins/wcnfdl.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: device/sprd/scx35l/sp9832a_2h11/modem_bins/wcnfdl.bin
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/modem_bins/wcnfdl.bin	(revision 0)
++++ device/sprd/scx35l/sp9832a_2h11/modem_bins/wcnfdl.bin	(revision 166627)
+
+Property changes on: device/sprd/scx35l/sp9832a_2h11/modem_bins/wcnfdl.bin
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/FotaUpdate/app/noMenu/FotaUpdate.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/FotaUpdate/app/withIcon/FotaUpdate.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/FotaUpdate/app/noIcon/FotaUpdate.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/FotaUpdate/fotaupdateinfo.sh
+===================================================================
+--- vendor/sprd/platform/packages/apps/FotaUpdate/fotaupdateinfo.sh	(revision 166626)
++++ vendor/sprd/platform/packages/apps/FotaUpdate/fotaupdateinfo.sh	(revision 166627)
+@@ -1,5 +1,6 @@
+ #!/bin/bash
+ 
++#********Do not modify this file. If you want modify this file, pls contact our FAE*******
+ echo ""
+ echo "# begin fota properties"
+ echo "ro.fota.platform=Sprd9832_7.0"
+@@ -7,13 +8,16 @@
+ echo "ro.fota.type=phone"
+ echo "ro.fota.app=5"
+ #oem info
+-echo "ro.fota.oem=Sprd9832_7.0"
++echo "ro.fota.oem=techainsh9832_7.0"
+ #model info, Settings->About phone->Model number
+ FotaDevice=$(grep "ro.product.model=" "$1"|awk -F "=" '{print $NF}' )
+-echo "ro.fota.device=$FotaDevice" | sed 's/\$//' | sed 's/\///' | sed 's/\\//'
++echo "ro.fota.device=$FotaDevice" | sed 's/\$//' | sed 's/\///' | sed 's/\\//' | sed 's/\&//'
+ #version number, Settings->About phone->Build number
+ #echo "ro.fota.version=`date +%Y%m%d-%H%M`"
+ #echo "ro.fota.version=$(grep "ro.product.model=" "$1"|awk -F "=" '{print $NF}' )`date +%Y%m%d-%H%M`"
+-FotaVersion=$(grep "ro.build.display.id=" "$1"|awk -F "=" '{print $NF}' )
+-echo "ro.fota.version=$FotaVersion" | sed 's/\$//' | sed 's/\///' | sed 's/\\//'
++FotaVersiondis=$(grep "ro.build.display.id=" "$1"|awk -F "=" '{print $NF}' )
++echo "ro.fota.version.display=$FotaVersiondis" | sed 's/\$//' | sed 's/\///' | sed 's/\\//' | sed 's/\&//'
++FotaVersion=$(grep "ro.build.display.intid=" "$1"|awk -F "=" '{print $NF}' )
++echo "ro.fota.version=$FotaVersion" | sed 's/\$//' | sed 's/\///' | sed 's/\\//' | sed 's/\&//'
+ echo "# end fota properties"
++#********Do not modify this file. If you want modify this file, pls contact our FAE*******
+Index: build/tools/releasetools/ota_from_target_files.py
+===================================================================
+--- build/tools/releasetools/ota_from_target_files.py	(revision 166626)
++++ build/tools/releasetools/ota_from_target_files.py	(revision 166627)
+@@ -148,7 +148,8 @@
+   OPTIONS.worker_threads = 1
+ OPTIONS.two_step = False
+ OPTIONS.no_signing = False
+-OPTIONS.block_based = False
++#adups fota
++OPTIONS.block_based = True
+ OPTIONS.updater_binary = None
+ OPTIONS.oem_source = None
+ OPTIONS.oem_no_mount = False

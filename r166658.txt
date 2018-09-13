@@ -1,0 +1,31 @@
+Index: frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java	(revision 166657)
++++ frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java	(revision 166658)
+
+Property changes on: frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java:r163737
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java:r163414
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java:r165579
+Index: frameworks/base/core/res/res/values/config.xml
+===================================================================
+--- frameworks/base/core/res/res/values/config.xml	(revision 166657)
++++ frameworks/base/core/res/res/values/config.xml	(revision 166658)
+@@ -980,7 +980,7 @@
+          This needs to match the constants in
+          policy/src/com/android/internal/policy/impl/PhoneWindowManager.java
+     -->
+-    <integer name="config_longPressOnHomeBehavior">0</integer>
++    <integer name="config_longPressOnHomeBehavior">2</integer>
+ 
+     <!-- Control the behavior when the user double-taps the home button.
+             0 - Nothing
+
+Property changes on: frameworks/base/core/res/res/values/config.xml
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/frameworks/base/core/res/res/values/config.xml:r165579
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/frameworks/base/core/res/res/values/config.xml:r163737
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/frameworks/base/core/res/res/values/config.xml:r163414

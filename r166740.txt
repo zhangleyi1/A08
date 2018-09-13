@@ -1,0 +1,113 @@
+Index: vendor/sprd/plugins/frameworks/base/packages/SystemUI/addons/SystemUITelephonyAddon/src/plugin/sprd/systemuifeatures/qstile/VoWifiTile.java
+===================================================================
+--- vendor/sprd/plugins/frameworks/base/packages/SystemUI/addons/SystemUITelephonyAddon/src/plugin/sprd/systemuifeatures/qstile/VoWifiTile.java	(revision 166739)
++++ vendor/sprd/plugins/frameworks/base/packages/SystemUI/addons/SystemUITelephonyAddon/src/plugin/sprd/systemuifeatures/qstile/VoWifiTile.java	(revision 166740)
+@@ -64,6 +64,7 @@
+     private boolean mVoWifiAvailable;
+     private QSTileView mQSTileView;
+     public static final int QS_VOWIFI_SERVICE = 414;
++    private WifiManager mWifiManager;
+ 
+     public VoWifiTile(Host host) {
+         super(host);
+@@ -77,6 +78,7 @@
+             }
+         };
+ 
++        mWifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
+     }
+ 
+     public QSTileView createTileView(Context context, QSIconView icon) {
+@@ -138,6 +140,8 @@
+         state.value = mVoWifiEnabled;
+ //      state.visible = true;
+ 		state.label = removeDoubleQuotes(getSSID());
++        state.label = mContext.getString(R.string.qs_vowifi_off);
++
+         mVoWifiAvailable = ImsManager.isWfcEnabledByPlatform(mContext);
+ 
+         if (DBG) Log.d(TAG, "handleUpdateState: mVoWifiEnabled = "
+@@ -145,11 +149,14 @@
+ 
+         if (mVoWifiEnabled && mVoWifiAvailable) {
+             state.icon = ResourceIcon.get(R.drawable.ic_qs_vowifi_on_sprd);
+-			state.label = removeDoubleQuotes(getSSID());
+-			state.label = mContext.getString(R.string.qs_vowifi_on);
++            if (mWifiManager != null && mWifiManager.isWifiEnabled()) {
++                state.label = mContext.getString(R.string.qs_vowifi_on);
++            } else {
++                state.label = mContext.getString(R.string.qs_vowifi_disconnected);
++            }
+         } else {
+             state.icon = ResourceIcon.get(R.drawable.ic_qs_vowifi_off_sprd);
+-			state.label = mContext.getString(R.string.qs_vowifi_off);
++            state.label = mContext.getString(R.string.qs_vowifi_off);
+         }
+     }
+ 
+
+Property changes on: vendor/sprd/plugins/frameworks/base/packages/SystemUI/addons/SystemUITelephonyAddon/src/plugin/sprd/systemuifeatures/qstile/VoWifiTile.java
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/plugins/frameworks/base/packages/SystemUI/addons/SystemUITelephonyAddon/src/plugin/sprd/systemuifeatures/qstile/VoWifiTile.java:r165643
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/values-zh-rCN/strings.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/values-zh-rCN/strings.xml	(revision 166739)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/values-zh-rCN/strings.xml	(revision 166740)
+@@ -8,14 +8,15 @@
+     <string name="data_error_incall">"数据主卡注网2G，通话中您不能切换数据网络业务。"</string>
+     <!-- SPRD: Add for VoWifi in bug 629758. -->
+     <string name="quick_settings_vowifi_label">"WLAN 通话"</string>
+-    <!-- SPRD: bug 644278 add for telcel data dialog feature -->
++<!-- SPRD: bug 644278 add for telcel data dialog feature -->
+     <string name="dialog_messages_part1">"此设备的某些应用程序需要数据连接，这可能涉及到一些费用。我们建议您开启数据连接。"</string>
+     <string name="dialog_messages_link">"上网套餐"</string>
+     <string name="dialog_messages_full">"此设备的某些应用程序需要数据连接，这可能涉及到一些费用。我们建议您使用 上网套餐。详情请咨询您的运营商。"</string>
+     <string name="dialog_messages_ok">确定</string>
+     <string name="dialog_messages_nomore">不再显示</string>
+-    <!-- @} -->
+-	<string name="qs_vowifi_off">"VoWifi"</string>
+-	<string name="qs_vowifi_on">"已链接"</string>
+-	<string name="qs_vowifi_disconnected">"未连接"</string>
++    <!-- @} -->	
++    <string name="qs_vowifi_off">"VoWiFi 关闭"</string>
++    <string name="qs_vowifi_on">"已链接"</string>
++    <string name="qs_vowifi_disconnected">"未连接"</string>
++	
+ </resources>
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/values/strings.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 166739)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 166740)
+@@ -20,7 +20,7 @@
+     <string name="accessibility_data_connection_4g_plus">4G+</string>
+     <!-- SPRD: Add for VoWifi in bug 629758. -->
+     <string name="quick_settings_vowifi_label">"Wifi Calling"</string>
+-    <!-- SPRD: bug 644278 add for telcel data dialog feature @{ -->
++<!-- SPRD: bug 644278 add for telcel data dialog feature @{ -->
+     <string name="dialog_messages_ok">OK</string>
+     <string name="dialog_messages_nomore">Do not show again</string>
+     <string name="dialog_messages_part1">"Some applications of this device require data connection which may involve some cost. We suggest that you open data connection."</string>
+@@ -27,7 +27,8 @@
+     <string name="dialog_messages_link">"Internet package"</string>
+     <string name="dialog_messages_full">Some applications of this device require data connection which may involve some cost. We suggest that you order an Internet package. Contact with your operator for details.</string>
+     <!-- @} -->
+-	<string name="qs_vowifi_off">"VoWifi"</string>
+-	<string name="qs_vowifi_on">"Connected"</string>
++	<string name="qs_vowifi_off">"VOWIFI"</string>
++        <string name="qs_vowifi_on">"Connected"</string>
+ 	<string name="qs_vowifi_disconnected">"Disconnected"</string>
++	
+ </resources>
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/values-zh-rTW/strings.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/values-zh-rTW/strings.xml	(revision 166739)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/values-zh-rTW/strings.xml	(revision 166740)
+@@ -8,4 +8,7 @@
+     <string name="data_error_incall">"數據主卡注網2G，通話中您不能切換數據網絡業務。"</string>
+     <!-- SPRD: Add for VoWifi in bug 629758. -->
+     <string name="quick_settings_vowifi_label">"Wi-Fi 通話"</string>
++	<string name="qs_vowifi_off">"VoWiFi 關閉"</string>
++	<string name="qs_vowifi_on">"已連接"</string>
++	<string name="qs_vowifi_disconnected">"未連接"</string>
+ </resources>

@@ -1,0 +1,12 @@
+Index: vendor/sprd/platform/frameworks/base/core/res/res/values/config.xml
+===================================================================
+--- vendor/sprd/platform/frameworks/base/core/res/res/values/config.xml	(revision 171588)
++++ vendor/sprd/platform/frameworks/base/core/res/res/values/config.xml	(revision 171589)
+@@ -22,6 +22,7 @@
+         <item>reboot</item>
+         <!-- SPRD: add the airplane -->
+         <item>airplane</item>
++		<item>silent</item>
+     </string-array>
+     <string translatable="false" name="feature_create_icc_policy">plugin.sprd.operatorpolicy.OperatorPolicyFactory</string>
+ 

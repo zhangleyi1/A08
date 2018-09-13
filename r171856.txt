@@ -1,0 +1,23 @@
+Index: packages/apps/Fotaplus/app/fotaplus_noIcon.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Fotaplus/app/fotaplus_icon.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Fotaplus/app/fotaplus_icon.apk
+===================================================================
+--- packages/apps/Fotaplus/app/fotaplus_icon.apk	(revision 0)
++++ packages/apps/Fotaplus/app/fotaplus_icon.apk	(revision 171856)
+
+Property changes on: packages/apps/Fotaplus/app/fotaplus_icon.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Fotaplus/app/fotaplus.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream

@@ -1,0 +1,68 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/PageIndicator.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/PageIndicator.java	(revision 173440)
++++ packages/apps/Launcher3/src/com/android/launcher3/PageIndicator.java	(revision 173441)
+@@ -40,7 +40,6 @@
+             new ArrayList<PageIndicatorMarker>();
+     private int mActiveMarkerIndex;
+ 
+-	private static boolean mFlag = true;
+ 	
+     public static class PageMarkerResources {
+         int activeId;
+Index: packages/apps/Launcher3/src/com/android/launcher3/PagedView.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/PagedView.java	(revision 173440)
++++ packages/apps/Launcher3/src/com/android/launcher3/PagedView.java	(revision 173441)
+@@ -51,8 +51,6 @@
+ 
+ import com.android.launcher3.util.LauncherEdgeEffect;
+ import com.android.launcher3.util.Thunk;
+-import com.android.launcher3.Workspace.State;
+-import com.sprd.ext.FeatureOption;
+ import com.sprd.ext.LogUtils;
+ 
+ import java.util.ArrayList;
+@@ -863,30 +861,11 @@
+                         childHeightMode = MeasureSpec.EXACTLY;
+                     }
+ 
+-                    if (FeatureOption.SPRD_PIFLOW_SUPPORT) {
+-                        int width = widthSize - horizontalPadding;
+-                        int height = heightSize - verticalPadding - mInsets.top - mInsets.bottom;
+-                        if(child instanceof CellLayout){
+-                            if(((CellLayout)child).isPiflow()&&
+-                                    ((CellLayout)child).getState()==State.NORMAL){
+-                                childWidth = getViewportWidth();
+-                                childHeight = getViewportHeight()- mInsets.top;
+-                            }else{
+-                                childWidth = width;
+-                                childHeight = height;
+-                            }
+-                        }else{
+-                            childWidth = width;
+-                            childHeight = height;
+-                        }
+-                        mNormalChildHeight = height;
+-                    } else {
+                         childWidth = getViewportWidth() - horizontalPadding
+                                 - mInsets.left - mInsets.right;
+                         childHeight = getViewportHeight() - verticalPadding
+                                 - mInsets.top - mInsets.bottom;
+                         mNormalChildHeight = childHeight;
+-                    }
+                 } else {
+                     childWidthMode = MeasureSpec.EXACTLY;
+                     childHeightMode = MeasureSpec.EXACTLY;
+@@ -943,11 +922,7 @@
+                 lp = (LayoutParams) child.getLayoutParams();
+                 int childTop;
+                 if (lp.isFullScreenPage) {
+-                    if (FeatureOption.SPRD_PIFLOW_STATUSBAR_SUPPORT) {
+-                        childTop = offsetY + mInsets.top;
+-                    } else {
+                         childTop = offsetY;
+-                    }
+                 } else {
+                     childTop = offsetY + getPaddingTop() + mInsets.top;
+                     if (mCenterPagesVertically) {

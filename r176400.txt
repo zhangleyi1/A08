@@ -1,0 +1,20 @@
+Index: packages/apps/Messaging/src/com/android/messaging/ui/conversation/ConversationMessageView.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/ui/conversation/ConversationMessageView.java	(revision 176399)
++++ packages/apps/Messaging/src/com/android/messaging/ui/conversation/ConversationMessageView.java	(revision 176400)
+@@ -243,13 +243,13 @@
+             }
+           else
+             {
+-     maxLeftoverSpace = horizontalSpace-mContactIconView.getMeasuredWidth() * 2
++     maxLeftoverSpace = horizontalSpace-mContactIconView.getMeasuredWidth()
+         - arrowWidth - getPaddingLeft() - getPaddingRight();
+             }
+         }
+       else
+         {
+-     maxLeftoverSpace = horizontalSpace-mContactIconView.getMeasuredWidth() * 2
++     maxLeftoverSpace = horizontalSpace-mContactIconView.getMeasuredWidth()
+         - arrowWidth - getPaddingLeft() - getPaddingRight();
+         }
+ 

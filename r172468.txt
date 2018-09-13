@@ -1,0 +1,16 @@
+Index: bootable/recovery/recovery.cpp
+===================================================================
+--- bootable/recovery/recovery.cpp	(revision 172467)
++++ bootable/recovery/recovery.cpp	(revision 172468)
+@@ -1846,9 +1846,9 @@
+         // http://b/17489952
+         // If this is an eng or userdebug build, automatically turn on the
+         // text display if no command is specified.
+-        if (is_ro_debuggable()) {
++        //if (is_ro_debuggable()) {
+             ui->ShowText(true);
+-        }
++        //}
+     }
+ 
+     if (!sideload_auto_reboot && (status == INSTALL_ERROR || status == INSTALL_CORRUPT)) {

@@ -1,0 +1,13 @@
+Index: packages/apps/Bluetooth/src/com/android/bluetooth/opp/BluetoothOppManager.java
+===================================================================
+--- packages/apps/Bluetooth/src/com/android/bluetooth/opp/BluetoothOppManager.java	(revision 175287)
++++ packages/apps/Bluetooth/src/com/android/bluetooth/opp/BluetoothOppManager.java	(revision 175288)
+@@ -248,7 +248,7 @@
+         if (V) Log.v(TAG, "Application data stored to SharedPreference! ");
+     }
+ 
+-    public void saveSendingFileInfo(String mimeType, String uriString, boolean isHandover) {
++    public void saveSendingFileInfo(String mimeType, String uriString, boolean isHandover, boolean fromExternal) {
+         synchronized (BluetoothOppManager.this) {
+             mMultipleFlag = false;
+             mMimeTypeOfSendingFile = mimeType;

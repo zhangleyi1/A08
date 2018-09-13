@@ -1,0 +1,55 @@
+Index: packages/apps/Settings/src/com/android/settings/wifi/WifiApDialog.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/wifi/WifiApDialog.java	(revision 173354)
++++ packages/apps/Settings/src/com/android/settings/wifi/WifiApDialog.java	(revision 173355)
+@@ -62,7 +62,7 @@
+ 
+     //NOTE: Bug #474462 Add For SoftAp advance Feature BEG-->
+     public static final int CHANNEL_DEFAULT = 11;
+-    public static final int DEFAULT_LIMIT = SystemProperties.getInt("ro.wifi.softap.maxstanum",8);
++    public static final int DEFAULT_LIMIT = SystemProperties.getInt("ro.wifi.softap.maxstanum",5);
+     //<-- Add for SoftAp Advance Feature END
+     private View mView;
+     private TextView mSsid;
+Index: vendor/sprd/platform/packages/apps/Settings/res/values-zh-rCN/arrays_wifi.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Settings/res/values-zh-rCN/arrays_wifi.xml	(revision 173354)
++++ vendor/sprd/platform/packages/apps/Settings/res/values-zh-rCN/arrays_wifi.xml	(revision 173355)
+@@ -22,9 +22,6 @@
+      <item>3</item>
+      <item>4</item>
+      <item>5</item>
+-     <item>6</item>
+-     <item>7</item>
+-     <item>8</item>
+    </string-array>
+ 
+    <string-array name="hotspot_mode">
+Index: vendor/sprd/platform/packages/apps/Settings/res/values/arrays_wifi.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Settings/res/values/arrays_wifi.xml	(revision 173354)
++++ vendor/sprd/platform/packages/apps/Settings/res/values/arrays_wifi.xml	(revision 173355)
+@@ -61,9 +61,6 @@
+         <item>3</item>
+         <item>4</item>
+         <item>5</item>
+-        <item>6</item>
+-        <item>7</item>
+-        <item>8</item>
+     </string-array>
+ 
+     <string-array name="hotspot_mode">
+Index: vendor/sprd/platform/packages/apps/Settings/res/values-zh-rTW/arrays_wifi.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Settings/res/values-zh-rTW/arrays_wifi.xml	(revision 173354)
++++ vendor/sprd/platform/packages/apps/Settings/res/values-zh-rTW/arrays_wifi.xml	(revision 173355)
+@@ -30,9 +30,6 @@
+     <item>3</item>
+     <item>4</item>
+     <item>5</item>
+-    <item>6</item>
+-    <item>7</item>
+-    <item>8</item>
+   </string-array>
+   <string-array name="hotspot_mode">
+     <item>正常模式</item>

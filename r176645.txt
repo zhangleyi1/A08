@@ -1,0 +1,130 @@
+Index: vendor/sprd/platform/packages/apps/UserManual/Android.mk
+===================================================================
+--- vendor/sprd/platform/packages/apps/UserManual/Android.mk	(revision 176644)
++++ vendor/sprd/platform/packages/apps/UserManual/Android.mk	(revision 176645)
+@@ -4,6 +4,9 @@
+ LOCAL_MODULE_TAGS := optional
+ LOCAL_SRC_FILES := $(call all-java-files-under, src)
+ 
++LOCAL_STATIC_JAVA_LIBRARIES := \
++    android-support-v4
++
+ LOCAL_PACKAGE_NAME := UserManual
+ LOCAL_CERTIFICATE := platform
+ 
+Index: vendor/sprd/platform/packages/apps/UserManual/AndroidManifest.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/UserManual/AndroidManifest.xml	(revision 176644)
++++ vendor/sprd/platform/packages/apps/UserManual/AndroidManifest.xml	(revision 176645)
+@@ -2,6 +2,13 @@
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     package="com.android.user.manual">
+ 
++	<uses-sdk
++        android:minSdkVersion="24"
++        android:targetSdkVersion="24" />
++		
++	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
++    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
++
+     <application
+         android:persistent="true"
+         android:label="@string/app_name"
+@@ -18,6 +25,16 @@
+             <meta-data android:name="com.android.settings.category"
+                 android:value="com.android.settings.category.system"/>
+         </activity>
++		
++        <provider
++              android:name="android.support.v4.content.FileProvider"
++              android:authorities="cn.lovexiaoai.myapp.fileprovider"
++              android:grantUriPermissions="true"
++              android:exported="false">
++              <meta-data
++                  android:name="android.support.FILE_PROVIDER_PATHS"
++                  android:resource="@xml/filepaths" />
++        </provider>
+ 
+     </application>
+ 
+Index: vendor/sprd/platform/packages/apps/UserManual/src/com/android/user/manual/UserManualActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/UserManual/src/com/android/user/manual/UserManualActivity.java	(revision 176644)
++++ vendor/sprd/platform/packages/apps/UserManual/src/com/android/user/manual/UserManualActivity.java	(revision 176645)
+@@ -7,6 +7,12 @@
+ import android.webkit.CookieManager;
+ import android.util.Log;
+ import java.util.Locale;
++import android.content.Intent;
++import android.net.Uri;
++import java.io.File;
++import android.support.v4.content.FileProvider;
++import android.provider.MediaStore;
++import android.database.Cursor;
+ 
+ public final class UserManualActivity extends Activity {
+     public static final String TAG = "UserManualActivity";
+@@ -29,10 +35,21 @@
+         String lan = currentLocale.getLanguage();
+         if ("in".equals(lan)) {
+             Log.d(TAG, "Indonesia");
+-            webView.loadUrl("file:///android_asset/user_manual_indonesia.htm");
++            openFile(new File("/system/media/user_manual_indonesia.doc"));
+         } else {
+             Log.d(TAG, "Others");
+             webView.loadUrl("file:///android_asset/user_manual.htm");
+         }
+     }
++
++    private void openFile(File file){
++        Intent intent = new Intent();
++        intent.setAction(Intent.ACTION_VIEW);
++        intent.addCategory("android.intent.category.DEFAULT");
++        Uri uri = FileProvider.getUriForFile(this, "cn.lovexiaoai.myapp.fileprovider", file);
++        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
++        intent.setDataAndType(uri, "application/msword");
++        startActivity(intent);
++        finish();
++    }
+ }
+Index: vendor/sprd/platform/packages/apps/UserManual/res/xml/filepaths.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/UserManual/res/xml/filepaths.xml	(revision 0)
++++ vendor/sprd/platform/packages/apps/UserManual/res/xml/filepaths.xml	(revision 176645)
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="utf-8"?>  
++<provider>  
++<!--    <external-files-path name="name" path="path" /> -->
++
++    <root-path name="storage_root" path="." />
++
++</provider>  
+Index: vendor/sprd/custom/user_manual_indonesia.doc
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/custom/user_manual_indonesia.doc
+===================================================================
+--- vendor/sprd/custom/user_manual_indonesia.doc	(revision 0)
++++ vendor/sprd/custom/user_manual_indonesia.doc	(revision 176645)
+
+Property changes on: vendor/sprd/custom/user_manual_indonesia.doc
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/custom/Android.mk
+===================================================================
+--- vendor/sprd/custom/Android.mk	(revision 176644)
++++ vendor/sprd/custom/Android.mk	(revision 176645)
+@@ -2,8 +2,8 @@
+ 
+ $(shell cp -r $(LOCAL_PATH)/bootanimation.zip $(PRODUCT_OUT)/system/media/bootanimation.zip)
+ $(shell cp -r $(LOCAL_PATH)/shutdownanimation.zip $(PRODUCT_OUT)/system/media/shutdownanimation.zip)
++$(shell cp -r $(LOCAL_PATH)/user_manual_indonesia.doc $(PRODUCT_OUT)/system/media/user_manual_indonesia.doc)
+ 
+-
+ # MySmartfren
+ include $(CLEAR_VARS)
+ LOCAL_MODULE_TAGS := optional

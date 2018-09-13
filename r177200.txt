@@ -1,0 +1,410 @@
+Index: vendor/sprd/platform/packages/apps/EngineerMode/src/com/sprd/engineermode/activity/slog/UserDefinedActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/EngineerMode/src/com/sprd/engineermode/activity/slog/UserDefinedActivity.java	(revision 177199)
++++ vendor/sprd/platform/packages/apps/EngineerMode/src/com/sprd/engineermode/activity/slog/UserDefinedActivity.java	(revision 177200)
+@@ -12,6 +12,7 @@
+ import android.content.DialogInterface;
+ import android.content.ServiceConnection;
+ import android.os.Bundle;
++import android.os.Handler;
+ import android.os.IBinder;
+ import android.os.Message;
+ import android.os.RemoteException;
+@@ -45,6 +46,7 @@
+ import com.sprd.engineermode.debuglog.slogui.SlogService;
+ import com.sprd.engineermode.utils.IATUtils;
+ import android.os.SystemProperties;
++import android.app.ProgressDialog;
+ 
+ //import android.telephony.TelephonyManagerSprd;
+ 
+@@ -157,11 +159,32 @@
+     private RadioButton rbAG_DspOutputUsb;
+     private RelativeLayout rlAG_DspPcmDumpLog;
+     private ImageView ivAG_DspPcmDumpLog;
++    private ProgressDialog mProgressDialog;
+ 
+     private boolean isSupport5mod = SystemProperties.get("persist.radio.ssda.mode").equals("csfb");
+ 
+     private static final boolean AGDSP_SUPPORT = SystemProperties.getBoolean("persist.sys.ag.enable", false);
+ 
++    private static final int UPDATE_DSP_LOG_STATUS = 1;
++    private Handler mHandler = new Handler() {
++        @Override
++        public void handleMessage(Message msg) {
++            switch (msg.what) {
++            case UPDATE_DSP_LOG_STATUS:
++                int dspOutput = msg.arg1;
++
++                if(rbOutputUart != null) {
++                    rbOutputUart.setChecked(dspOutput == 1 ? true : false);
++                }
++                if(rbOutputModemLog != null) {
++                    rbOutputModemLog.setChecked(dspOutput == 2 ? true : false);
++                }
++                break;
++            }
++            super.handleMessage(msg);
++        }
++    };
++
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+ 
+@@ -356,7 +379,7 @@
+         tvCpLogLevel.setClickable(true);
+         tvCpLogLevel.setOnClickListener(this);
+         tvCpLogLevel.setText("Log Filter  \n"
+-                + SlogInfo.self().mySharedPreferences.getString("logFilter", "Debug"));
++                + SlogInfo.getSharedPreferences().getString("logFilter", "Debug"));
+         if (!isSupport5mod) {
+             tvCpLogLevel.setVisibility(View.GONE);
+         }
+@@ -511,10 +534,11 @@
+         switch (v.getId()) {
+ 
+             case R.id.btn_commit:
+-                SlogInfo.self().setSceneStatus(SceneStatus.customer);
+-                SlogInfo.self().commitCustomerOrder();
+-                Toast.makeText(getApplicationContext(), "custom scene is open", Toast.LENGTH_LONG)
+-                        .show();
++                mProgressDialog = ProgressDialog.show(UserDefinedActivity.this,
++                        "Setting ...",
++                        getResources().getString(R.string.scene_switching_wait), true,
++                        false);
++                commitCustomerOrderAsync();
+                 break;
+ 
+             case R.id.rl_android_log:
+@@ -748,6 +772,41 @@
+ 
+     }
+ 
++    private void commitCustomerOrderAsync() {
++        new Thread(new Runnable(){
++            @Override
++            public void run() {
++                //in custom scence, caplog length set 80 byte
++                SlogInfo.self().setCustomer("SlogCore_CapLogLengthController", "80");
++                SlogInfo.self().setSceneStatus(SceneStatus.customer);
++                SlogInfo.self().commitCustomerOrder();
++                mHandler.post(new Runnable() {
++                    @Override
++                    public void run() {
++                        mHandler.postDelayed(new Runnable() {
++                            @Override
++                            public void run() {
++                                Toast.makeText(UserDefinedActivity.this.getApplicationContext(), "custom scene is open",
++                                        Toast.LENGTH_LONG).show();
++                                if(mProgressDialog!=null){
++                                    mProgressDialog.dismiss();
++                                }
++                            }
++                        }, 500);
++                    }
++                });
++            }
++        }).start();
++    }
++
++    @Override
++    public void onDestroy() {
++        if(mProgressDialog!=null){
++            mProgressDialog.dismiss();
++        }
++        super.onDestroy();
++    }
++
+     private void setIQMode() {
+         new AlertDialog.Builder(this).setTitle("IQ Mode").setItems(
+                 new String[] {
+@@ -820,7 +879,7 @@
+                         new String[] {
+                                 "Debug", "Full", "Special", "Custom"
+                         },
+-                        whichLevel(SlogInfo.self().mySharedPreferences.getString("logFilter",
++                        whichLevel(SlogInfo.getSharedPreferences().getString("logFilter",
+                                 "Debug")),
+                         new DialogInterface.OnClickListener() {
+ 
+@@ -829,7 +888,7 @@
+ 
+                                 switch (which) {
+                                     case 0:
+-                                        SlogInfo.self().mySharedPreferences
++                                        SlogInfo.getSharedPreferences()
+                                                 .edit()
+                                                 .putString("logFilter", "Debug")
+                                                 .commit();
+@@ -840,7 +899,7 @@
+                                         tvCpLogLevel.setText("Log Level Filter \n   Debug");
+                                         break;
+                                     case 1:
+-                                        SlogInfo.self().mySharedPreferences
++                                        SlogInfo.getSharedPreferences()
+                                                 .edit()
+                                                 .putString("logFilter", "Full")
+                                                 .commit();
+@@ -852,7 +911,7 @@
+                                         tvCpLogLevel.setText("Log Level Filter \n   Full");
+                                         break;
+                                     case 2:
+-                                        SlogInfo.self().mySharedPreferences
++                                        SlogInfo.getSharedPreferences()
+                                                 .edit()
+                                                 .putString("logFilter", "Special")
+                                                 .commit();
+@@ -869,7 +928,7 @@
+                                         // Toast.LENGTH_LONG).show();
+                                         break;
+                                     case 3:
+-                                        SlogInfo.self().mySharedPreferences
++                                        SlogInfo.getSharedPreferences()
+                                                 .edit()
+                                                 .putString("logFilter", "Custom")
+                                                 .commit();
+Index: vendor/sprd/platform/packages/apps/EngineerMode/src/com/sprd/engineermode/activity/slog/SlogInfo.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/EngineerMode/src/com/sprd/engineermode/activity/slog/SlogInfo.java	(revision 177199)
++++ vendor/sprd/platform/packages/apps/EngineerMode/src/com/sprd/engineermode/activity/slog/SlogInfo.java	(revision 177200)
+@@ -45,7 +45,7 @@
+     private static SlogInfo slogInfo = null;
+     public static Context x;
+ 
+-    public static SlogInfo self(){
++    public static synchronized SlogInfo self(){
+         if(slogInfo==null)
+         {
+             SlogCore.buildDic();
+@@ -495,9 +495,16 @@
+         return slogRunningTime;
+     }
+ 
+-    public  SharedPreferences mySharedPreferences;
++    private  static SharedPreferences mySharedPreferences;
+     private  SharedPreferences mCustomerSharedPreferences;
+ 
++    public static SharedPreferences getSharedPreferences() {
++        if(mySharedPreferences == null && x != null) {
++            mySharedPreferences = x.getSharedPreferences("test", Activity.MODE_PRIVATE);
++        }
++        return mySharedPreferences;
++    }
++
+     public void writeData()
+     {
+         Log.d("slog","写入场景");
+Index: vendor/sprd/platform/packages/apps/EngineerMode/src/com/sprd/engineermode/activity/slog/SlogActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/EngineerMode/src/com/sprd/engineermode/activity/slog/SlogActivity.java	(revision 177199)
++++ vendor/sprd/platform/packages/apps/EngineerMode/src/com/sprd/engineermode/activity/slog/SlogActivity.java	(revision 177200)
+@@ -172,16 +172,7 @@
+     @Override
+     public void onResume() {
+         super.onResume();
+-        /* SPRD: Bug 557464 normal log button display is not same with scence activity @{ */
+-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+-        if (pref != null) {
+-            if(pref.getBoolean("first_in_SlogActivity", true)) {
+-                SlogInfo.self().setSceneStatus(SlogInfo.SceneStatus.normal);
+-                pref.edit().putBoolean("first_in_SlogActivity",false).commit();
+-            }
+-        }
+-        /* @} */
+-        mGeneral.setText(SlogInfo.self().getTitle(SlogInfo.self().getSceneStatus()));
++        syncStateAsync();
+         //mGeneral.setChecked(SlogInfo.self().slog_tmp == SlogInfo.SceneStatus.close);
+         boolean ylogOnOff = SlogCore.isYlogOpen();
+         /*if(!ylogOnOff){
+@@ -190,9 +181,6 @@
+         mGeneral.setChecked(ylogOnOff);
+         mGeneral.setBackgroundColor(ylogOnOff ? Color.GREEN
+                 : Color.GRAY);
+-        if(SlogInfo.self().slog_tmp == SlogInfo.SceneStatus.close && SlogInfo.self().getSlogStartTime() == 0) {
+-            SlogInfo.self().resetStartTime();
+-        }
+         mClear.setEnabled(ylogOnOff);
+         mSceneTime.setText("0:0:0");
+ 
+@@ -210,9 +198,7 @@
+             }
+         }).start();
+         // SPRD: Bug 557464 normal log button display is not same with scence activity
+-        if (SlogInfo.self().getSceneStatus() != SlogInfo.SceneStatus.close) {
+-            mHandler.obtainMessage(2).sendToTarget();
+-        }
++        
+         //fix bug 639527
+         new Thread(new Runnable() {
+             @Override
+@@ -235,6 +221,53 @@
+ 
+     }
+ 
++    private void syncStateAsync() {
++        //bug 614705
++        new Thread(new Runnable(){
++            @Override
++            public void run() {
++                /* SPRD: Bug 557464 normal log button display is not same with scence activity @{ */
++                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(SlogActivity.this);
++                if (pref != null) {
++                    if(pref.getBoolean("first_in_SlogActivity", true)) {
++                        SlogInfo.self().setSceneStatus(SlogInfo.SceneStatus.normal);
++                        pref.edit().putBoolean("first_in_SlogActivity",false).commit();
++                    }
++                }
++                /* @} */
++                mUiThread.post(new Runnable() {
++                    @Override
++                    public void run() {
++                        mGeneral.setText(SlogInfo.self().getTitle(SlogInfo.self().getSceneStatus()));
++                    }
++                });
++                if(SlogInfo.self().slog_tmp == SlogInfo.SceneStatus.close && SlogInfo.self().getSlogStartTime() == 0) {
++                    SlogInfo.self().resetStartTime();
++                }
++                // SPRD: Bug 557464 normal log button display is not same with scence activity
++                if (SlogInfo.self().getSceneStatus() != SlogInfo.SceneStatus.close) {
++                    mHandler.obtainMessage(2).sendToTarget();
++                }
++            }
++        }).start();
++    }
++
++    private void updateSceneInfo() {
++        //bug 614705
++        new Thread(new Runnable(){
++            @Override
++            public void run() {
++                final String sceneInfo = SlogInfo.self().getSceneInfo(SlogInfo.self().getSceneStatus());
++                mUiThread.post(new Runnable() {
++                    @Override
++                    public void run() {
++                        mSceneInfo.setText(sceneInfo);
++                    }
++                });
++            }
++        }).start();
++    }
++
+     @Override
+     public void onClick(View v) {
+         // TODO Auto-generated method stub
+@@ -637,16 +670,16 @@
+             public void run() {
+                 try {
+                     mService.setNotification(NOTIFICATION_SLOG,
+-                            SlogInfo.self().mySharedPreferences.getBoolean(SERVICE_SLOG_KEY, false));
++                            SlogInfo.getSharedPreferences().getBoolean(SERVICE_SLOG_KEY, false));
+                     Log.d("Slog",
+                             "slog preference:"
+-                                    + (SlogInfo.self().mySharedPreferences.getBoolean(
++                                    + (SlogInfo.getSharedPreferences().getBoolean(
+                                             SERVICE_SLOG_KEY, false) ? "1" : "0"));
+                     mService.setNotification(NOTIFICATION_SNAP,
+-                            SlogInfo.self().mySharedPreferences.getBoolean(SERVICE_SNAP_KEY, false));
++                            SlogInfo.getSharedPreferences().getBoolean(SERVICE_SNAP_KEY, false));
+                     Log.d("Slog",
+                             "slog preference:"
+-                                    + (SlogInfo.self().mySharedPreferences.getBoolean(
++                                    + (SlogInfo.getSharedPreferences().getBoolean(
+                                             SERVICE_SNAP_KEY, false) ? "1" : "0"));
+                 } catch (Exception e) {
+                     Log.d("Slog", e.toString());
+@@ -695,17 +728,17 @@
+ 
+         btnShowNotif
+                 .setBackgroundColor(
+-                SlogInfo.self().mySharedPreferences.getBoolean(SERVICE_SLOG_KEY, false) ? Color.GREEN
++                SlogInfo.getSharedPreferences().getBoolean(SERVICE_SLOG_KEY, false) ? Color.GREEN
+                         : Color.GRAY);
+ 
+         Button btnSnapDevice = (Button) popupWindow_view.findViewById(R.id.btn_general_2);
+         btnSnapDevice
+                 .setBackgroundColor(
+-                SlogInfo.self().mySharedPreferences.getBoolean(SERVICE_SNAP_KEY, false) ? Color.GREEN
++                SlogInfo.getSharedPreferences().getBoolean(SERVICE_SNAP_KEY, false) ? Color.GREEN
+                         : Color.GRAY);
+         Button btnDumpArt = (Button) popupWindow_view.findViewById(R.id.btn_dump_art);
+         btnDumpArt.setBackgroundColor(
+-                SlogInfo.self().mySharedPreferences.getBoolean("art_debug", false) ? Color.GREEN
++                SlogInfo.getSharedPreferences().getBoolean("art_debug", false) ? Color.GREEN
+                         : Color.GRAY);
+         /* BEGIN BUG540993 2016/05/11 sprd:EngineerMode add the parameter of CAP log packet length feature */
+         Button btnCapLog = (Button) popupWindow_view.findViewById(R.id.btn_cap_log_packet);
+@@ -773,19 +806,19 @@
+                     case R.id.btn_dump_art:
+                         SystemProperties.set(
+                                 "persist.sys.art.log.sprd_debug",
+-                                (!SlogInfo.self().mySharedPreferences
++                                (!SlogInfo.getSharedPreferences()
+                                         .getBoolean("art_debug", false)) ? "1" : "0");
+-                        SlogInfo.self().mySharedPreferences
++                        SlogInfo.getSharedPreferences()
+                                 .edit()
+                                 .putBoolean(
+                                         "art_debug",
+-                                        !SlogInfo.self().mySharedPreferences.getBoolean(
++                                        !SlogInfo.getSharedPreferences().getBoolean(
+                                                 "art_debug", false))
+                                 .commit();
+                         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                         pm.reboot(null);
+                         v.setBackgroundColor(
+-                                SlogInfo.self().mySharedPreferences.getBoolean("art_debug", false) ? Color.GREEN
++                                SlogInfo.getSharedPreferences().getBoolean("art_debug", false) ? Color.GREEN
+                                         : Color.GRAY);
+                         break;
+                     case R.id.btn_dump_gps:
+@@ -808,13 +841,13 @@
+                         try {
+ 
+                             mService.setNotification(NOTIFICATION_SLOG,
+-                                    !SlogInfo.self().mySharedPreferences.getBoolean(
++                                    !SlogInfo.getSharedPreferences().getBoolean(
+                                             SERVICE_SLOG_KEY, false));
+-                            SlogInfo.self().mySharedPreferences
++                            SlogInfo.getSharedPreferences()
+                                     .edit()
+                                     .putBoolean(
+                                             SERVICE_SLOG_KEY,
+-                                            !SlogInfo.self().mySharedPreferences.getBoolean(
++                                            !SlogInfo.getSharedPreferences().getBoolean(
+                                                     SERVICE_SLOG_KEY, false))
+                                     .commit();
+                         } catch (RemoteException e) {
+@@ -821,20 +854,20 @@
+                             // e.printStackTrace();
+                         }
+                         v.setBackgroundColor(
+-                                SlogInfo.self().mySharedPreferences.getBoolean(SERVICE_SLOG_KEY,
++                                SlogInfo.getSharedPreferences().getBoolean(SERVICE_SLOG_KEY,
+                                         false) ? Color.GREEN : Color.GRAY);
+                         break;
+                     case R.id.btn_general_2:
+                         try {
+                             mService.setNotification(NOTIFICATION_SNAP,
+-                                    !SlogInfo.self().mySharedPreferences.getBoolean(
++                                    !SlogInfo.getSharedPreferences().getBoolean(
+                                             SERVICE_SNAP_KEY, false));
+ 
+-                            SlogInfo.self().mySharedPreferences
++                            SlogInfo.getSharedPreferences()
+                                     .edit()
+                                     .putBoolean(
+                                             SERVICE_SNAP_KEY,
+-                                            !SlogInfo.self().mySharedPreferences.getBoolean(
++                                            !SlogInfo.getSharedPreferences().getBoolean(
+                                                     SERVICE_SNAP_KEY, false))
+                                     .commit();
+                         } catch (RemoteException e) {
+@@ -841,7 +874,7 @@
+                             e.printStackTrace();
+                         }
+                         v.setBackgroundColor(
+-                                SlogInfo.self().mySharedPreferences.getBoolean(SERVICE_SNAP_KEY,
++                                SlogInfo.getSharedPreferences().getBoolean(SERVICE_SNAP_KEY,
+                                         false) ? Color.GREEN : Color.GRAY);
+                         break;
+                     case R.id.btn_modem_to_pc:

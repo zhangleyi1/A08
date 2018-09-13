@@ -1,0 +1,20 @@
+Index: frameworks/base/packages/SystemUI/res/values/config.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/config.xml	(revision 166622)
++++ frameworks/base/packages/SystemUI/res/values/config.xml	(revision 166623)
+@@ -90,7 +90,7 @@
+     <bool name="quick_settings_wide">false</bool>
+ 
+     <!-- The number of columns in the QuickSettings -->
+-    <integer name="quick_settings_num_columns">3</integer>
++    <integer name="quick_settings_num_columns">4</integer>
+ 
+     <!-- The number of rows in the QuickSettings -->
+     <integer name="quick_settings_num_rows">1</integer>
+
+Property changes on: frameworks/base/packages/SystemUI/res/values/config.xml
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/frameworks/base/packages/SystemUI/res/values/config.xml:r163701
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/frameworks/base/packages/SystemUI/res/values/config.xml:r161675
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/frameworks/base/packages/SystemUI/res/values/config.xml:r165465

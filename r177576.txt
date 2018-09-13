@@ -1,0 +1,50 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/sprd/incallui/InCallUiUtils.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/sprd/incallui/InCallUiUtils.java	(revision 177575)
++++ packages/apps/Dialer/InCallUI/src/com/android/sprd/incallui/InCallUiUtils.java	(revision 177576)
+@@ -85,10 +85,18 @@
+         if (!PermissionsUtil.hasPermission(context, READ_PHONE_STATE)) {
+             return "";
+         }
+-        int defaultDataSubId = SubscriptionManager.from(context).getDefaultDataSubscriptionId();
+-
++        //int defaultDataSubId = SubscriptionManager.from(context).getDefaultDataSubscriptionId();
++        /* SPRD: Modify for bug663401. get primary card for CMCC.*/
++//        int phoneId = getPhoneIdBySubId(context, subId);
++//        boolean isPrimaryCard = InCallUICmccHelper.getInstance(context)
++//                .isSimSlotForPrimaryCard(subId, defaultDataSubId, phoneId, context);
++        android.util. Log.d("zwj",android.util. Log.getStackTraceString(new Throwable()));
++        int phoneId = getPhoneIdBySubId(context, subId);
++        boolean isPrimaryCard = SubscriptionManager.isValidPhoneId(phoneId) && phoneId == 0;
++       android.util.Log.e("zwj", "getSlotInfoBySubId isPrimaryCard "+isPrimaryCard);
++       android.util.Log.e("zwj", "getSlotInfoBySubId phoneId "+phoneId);
+         String card_slot = "";
+-        if (subId == defaultDataSubId) {
++        if (isPrimaryCard) {
+             card_slot = context.getResources().getString(R.string.main_card_slot);
+         } else {
+             card_slot = context.getResources().getString(R.string.vice_card_slot);
+@@ -97,6 +105,23 @@
+     }
+ 
+     /**
++     * Add method to get phoneId by subId.
++     */
++    public static int getPhoneIdBySubId(Context context, int subId) {
++        List<SubscriptionInfo> result = DialerUtils
++                .getActiveSubscriptionInfoList();
++
++        if (result != null) {
++            for (SubscriptionInfo subInfo : result) {
++                if (subInfo != null && subId == subInfo.getSubscriptionId()) {
++                    return subInfo.getSimSlotIndex();
++                }
++            }
++        }
++        return -1;
++    }
++
++    /**
+      * Add method to get phone account label by PhoneAccountHandle.
+      */
+     public static String getPhoneAccountLabel(PhoneAccountHandle accountHandle) {

@@ -1,0 +1,12 @@
+Index: device/sprd/scx35l/sp9832a_2h11/system.prop
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/system.prop	(revision 172032)
++++ device/sprd/scx35l/sp9832a_2h11/system.prop	(revision 172033)
+@@ -7,6 +7,7 @@
+ ro.product.modem.mode=GSM,EDGE,TD-SCDMA,WCDMA,TD-LTE,FDD-LTE
+ 
+ debug.hwui.render_dirty_regions=false
++debug.hwui.use_partial_updates=false
+ 
+ persist.ttydev=ttyVUART0
+ 

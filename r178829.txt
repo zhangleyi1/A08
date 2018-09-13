@@ -1,0 +1,13 @@
+Index: frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+===================================================================
+--- frameworks/base/packages/SettingsProvider/res/values/defaults.xml	(revision 178828)
++++ frameworks/base/packages/SettingsProvider/res/values/defaults.xml	(revision 178829)
+@@ -55,7 +55,7 @@
+     -->
+     <!-- SPRD:set default GPS status is off @{ -->
+     <!--<string name="def_location_providers_allowed" translatable="false"></string>-->
+-	<string name="def_location_providers_allowed" translatable="false">gps,network</string>
++	<string name="def_location_providers_allowed" translatable="false">gps</string>
+     <!--<string name="def_location_providers_allowed" translatable="false">gps</string>	-->
+     <!-- @} -->
+     <bool name="assisted_gps_enabled">true</bool>

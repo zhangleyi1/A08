@@ -1,0 +1,76 @@
+Index: vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable-xhdpi/stat_sys_volte.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable-hdpi/stat_sys_volte.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable-hdpi/stat_sys_volte.png
+===================================================================
+--- vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable-hdpi/stat_sys_volte.png	(revision 0)
++++ vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable-hdpi/stat_sys_volte.png	(revision 168922)
+
+Property changes on: vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable-hdpi/stat_sys_volte.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-xhdpi/stat_sys_vowifi_poor_sprd.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-xhdpi/stat_sys_vowifi_fair_sprd.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-xhdpi/stat_sys_vowifi_good_sprd.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-hdpi/stat_sys_vowifi_good_sprd.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-hdpi/stat_sys_vowifi_good_sprd.png
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-hdpi/stat_sys_vowifi_good_sprd.png	(revision 0)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-hdpi/stat_sys_vowifi_good_sprd.png	(revision 168922)
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-hdpi/stat_sys_vowifi_good_sprd.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-hdpi/stat_sys_vowifi_poor_sprd.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-hdpi/stat_sys_vowifi_poor_sprd.png
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-hdpi/stat_sys_vowifi_poor_sprd.png	(revision 0)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-hdpi/stat_sys_vowifi_poor_sprd.png	(revision 168922)
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-hdpi/stat_sys_vowifi_poor_sprd.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-hdpi/stat_sys_vowifi_fair_sprd.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-hdpi/stat_sys_vowifi_fair_sprd.png
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-hdpi/stat_sys_vowifi_fair_sprd.png	(revision 0)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-hdpi/stat_sys_vowifi_fair_sprd.png	(revision 168922)
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-hdpi/stat_sys_vowifi_fair_sprd.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property

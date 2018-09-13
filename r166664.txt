@@ -1,0 +1,3642 @@
+Index: frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java	(revision 166663)
++++ frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java	(revision 166664)
+@@ -3214,10 +3214,16 @@
+             // Hijack modified menu keys for debugging features
+             final int chordBug = KeyEvent.META_SHIFT_ON;
+ 
++            ActivityManager activityManager = (ActivityManager)mContext.getSystemService(Context.ACTIVITY_SERVICE);
++            ComponentName topActivity = activityManager.getRunningTasks(1).get(0).topActivity;
++            if (topActivity.getPackageName().equals("com.mediatek.factorymode")){
++                return 0;
++            }
++
+             if (!down) {
+                 cancelPreloadRecentApps();
+                 mOpenRecentAppFlag = false;
+-                return 0;
++                return -1;
+             }
+ 
+             if (down && repeatCount == 0) {
+@@ -3242,14 +3248,14 @@
+                             res, Settings.Global.SHOW_PROCESSES, shown ? 0 : 1);
+                     return -1;
+                 }
+-                preloadRecentApps();
+-            } else if (down && repeatCount != 0) {
+                 if (!mOpenRecentAppFlag) {
+                     preloadRecentApps();
+                     toggleRecentApps();
+                     mOpenRecentAppFlag = true;
++                    return -1;
+                 }
+             }
++
+             return -1;
+         } else if (keyCode == KeyEvent.KEYCODE_SEARCH) {
+             if (down) {
+@@ -5621,6 +5627,19 @@
+         mContext.sendBroadcastAsUser(errorIntent, UserHandle.CURRENT);
+     }
+ 
++    private boolean isGestureKeyCode(int keyCode) {
++        boolean ret = false;
++        if((keyCode == KeyEvent.KEYCODE_DPAD_UP) || (keyCode == KeyEvent.KEYCODE_P)
++            || (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) || (keyCode == KeyEvent.KEYCODE_DPAD_LEFT)
++            || (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) || (keyCode == KeyEvent.KEYCODE_O)
++            || (keyCode == KeyEvent.KEYCODE_V)) {
++            ret = true;
++        }
++        
++        return ret;
++    }
++
++
+     /** {@inheritDoc} */
+     @Override
+     public int interceptKeyBeforeQueueing(KeyEvent event, int policyFlags) {
+@@ -5689,6 +5708,18 @@
+                 && (policyFlags & WindowManagerPolicy.FLAG_VIRTUAL) != 0
+                 && event.getRepeatCount() == 0;
+ 
++        if(isGestureKeyCode(keyCode)) {
++            if(down) {
++                    Log.d(TAG, "send broadcast start keyCode:" + keyCode);
++                    Intent gestureIntent = new Intent();
++                    gestureIntent.putExtra("KeyCode", keyCode);
++                    gestureIntent.setAction("intent.action.gesture.UNLOCK.STARTAPP");
++                    mContext.sendBroadcast(gestureIntent);
++                    Log.d(TAG, "send broadcast successful");
++            }
++            return 0;
++        }
++
+         // Handle special keys.
+         switch (keyCode) {
+             case KeyEvent.KEYCODE_BACK: {
+Index: frameworks/base/core/java/android/provider/Settings.java
+===================================================================
+--- frameworks/base/core/java/android/provider/Settings.java	(revision 166663)
++++ frameworks/base/core/java/android/provider/Settings.java	(revision 166664)
+@@ -1728,6 +1728,16 @@
+     public static final class System extends NameValueTable {
+         private static final float DEFAULT_FONT_SCALE = 1.0f;
+ 
++        /**
++         * For Gesture
++         */
++        public static final String KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_UNLOCK = "gesture_type_double_click_switch_unlock";
++        public static final String KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_LOCK = "gesture_type_double_click_switch_lock";
++        public static final String KEY_GESTURE_TYPE_CAMERA = "gesture_type_camera";
++        public static final String KEY_GESTURE_TYPE_MUSIC = "gesture_type_music";
++        public static final String KEY_GESTURE_TYPE_FLASHLIGHT = "gesture_type_flashlight";
++        public static final String KEY_GESTURE_TYPE_VIBRATE = "gesture_type_vibrate";
++
+         /** @hide */
+         public static interface Validator {
+             public boolean validate(String value);
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java	(revision 0)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java	(revision 166664)
+@@ -0,0 +1,505 @@
++
++package com.android.systemui;
++
++import android.content.ComponentName;
++import android.content.Context;
++import android.content.BroadcastReceiver;
++import android.content.Intent;
++import android.content.IntentFilter;
++import android.content.pm.ApplicationInfo;
++import android.content.pm.PackageManager;
++import android.content.pm.UserInfo;
++import android.content.res.Resources;
++import android.graphics.drawable.AnimationDrawable;
++import android.graphics.PixelFormat;
++import android.media.AudioAttributes;
++import android.media.AudioManager;
++import android.media.SoundPool;
++import android.os.Handler;
++import android.os.Message;
++import android.os.PowerManager;
++import android.os.SystemProperties;
++import android.os.UserManager;
++import android.os.Vibrator;
++import android.provider.Settings;
++import android.util.Log;
++import android.view.KeyEvent;
++import android.view.Gravity;
++import android.view.LayoutInflater;
++import android.view.View;
++import android.view.ViewGroup;
++import android.view.WindowManager;
++import android.widget.ImageView;
++
++import com.android.internal.widget.LockPatternUtils;
++import com.android.keyguard.KeyguardUpdateMonitor;
++import com.android.keyguard.ViewMediatorCallback;
++import com.android.keyguard.R;
++import com.android.systemui.statusbar.phone.PhoneStatusBar;
++
++//import com.mediatek.keyguard.AntiTheft.AntiTheftManager ;
++import android.os.UserHandle;
++import java.util.ArrayList;
++import java.util.List;
++
++/**
++ * A class which manages the bouncer on the lockscreen.
++ */
++public class KeyguardGesture {
++
++    private final String TAG = "KeyguardGesture" ;
++    private final boolean DEBUG = true ;
++
++    private Context mContext;
++    private PhoneStatusBar mPhoneStatusBar;
++    private ViewMediatorCallback mViewMediatorCallback;
++    private LockPatternUtils mLockPatternUtils;
++    private final WindowManager mWindowManager;
++    private ImageView mGestureView;
++    private ViewGroup mRoot;
++
++    private SoundPool mSoundPool;
++    private int mSoundStreamId;
++    private int mGestureSoundId;
++    private int mUnlockSoundId;
++    private String mComponentName;
++    public static final String GESTURE_SOUND_PATH = "/system/media/audio/ui/whisper.ogg";
++
++    public static final int LOCK_SCREEN_MODE_NONE = 0;
++    public static final int LOCK_SCREEN_MODE_SLIDE = 1;
++
++    private static final int MSG_GESTURE_ANIMATION = 100;
++    private static final int MSG_GESTURE_START_APP = 200;
++    private static final int MSG_GESTURE_UPDATE_KEYGUARD_VIEW = 300;
++
++    private static final AudioAttributes VIBRATION_ATTRIBUTES = new AudioAttributes.Builder()
++            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
++            .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
++            .build();
++
++    private final ArrayList<KeyCodeAndGesture> mKeyCodeAndGesture = new ArrayList<KeyCodeAndGesture>(){
++        {add(new KeyCodeAndGesture(KeyEvent.KEYCODE_DPAD_UP,    R.drawable.gesture_type_up,    Settings.System.KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_UNLOCK));}
++        {add(new KeyCodeAndGesture(KeyEvent.KEYCODE_DPAD_DOWN,  R.drawable.gesture_type_down,  Settings.System.KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_LOCK));}
++        {add(new KeyCodeAndGesture(KeyEvent.KEYCODE_DPAD_LEFT,  R.drawable.gesture_type_left,  Settings.System.KEY_GESTURE_TYPE_CAMERA));}
++        {add(new KeyCodeAndGesture(KeyEvent.KEYCODE_DPAD_RIGHT, R.drawable.gesture_type_right, Settings.System.KEY_GESTURE_TYPE_MUSIC));}
++        {add(new KeyCodeAndGesture(KeyEvent.KEYCODE_O,          R.drawable.gesture_type_o,     Settings.System.KEY_GESTURE_TYPE_FLASHLIGHT));}
++        {add(new KeyCodeAndGesture(KeyEvent.KEYCODE_W,          R.drawable.gesture_type_w,     Settings.System.KEY_GESTURE_TYPE_VIBRATE));}
++    };
++
++    public KeyguardGesture(Context context, ViewMediatorCallback viewMediatorCallback, PhoneStatusBar phoneStatusBar, LockPatternUtils lockPatternUtils) {
++        mContext = context;
++        mViewMediatorCallback = viewMediatorCallback;
++        mPhoneStatusBar = phoneStatusBar;
++        mLockPatternUtils = lockPatternUtils;
++        mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
++
++        mSoundPool = new SoundPool(1, AudioManager.STREAM_SYSTEM, 0);
++        mGestureSoundId = mSoundPool.load(GESTURE_SOUND_PATH, 1);
++        String soundPath = Settings.Global.getString(context.getContentResolver(), Settings.Global.UNLOCK_SOUND);
++        if (soundPath != null) {
++            mUnlockSoundId = mSoundPool.load(soundPath, 1);
++        }
++
++        IntentFilter filter = new IntentFilter();
++        filter.addAction("intent.action.gesture.UNLOCK.STARTAPP");
++        context.registerReceiver(mGestureBroadcastReceiver, filter);
++    }
++
++    private void playSoundEffect(boolean isGestureSound) {
++        Log.i(TAG, "to playSoundEffect");
++        int lockSoundDefaultAttenuation = mContext.getResources().getInteger(
++                com.android.internal.R.integer.config_lockSoundVolumeDb);
++        final float lockSoundVolume = (float)Math.pow(10, (float)lockSoundDefaultAttenuation/20);
++        final int whichSound = isGestureSound
++                ? mGestureSoundId
++                : mUnlockSoundId;
++        mSoundPool.stop(mSoundStreamId);
++        mSoundStreamId = mSoundPool.play(whichSound, lockSoundVolume, lockSoundVolume, 1, 0, 1.0f);
++    }
++
++    static long[] getLongIntArray(Resources r, int resid) {
++        int[] ar = r.getIntArray(resid);
++        if (ar == null) {
++            return null;
++        }
++        long[] out = new long[ar.length];
++        for (int i=0; i<ar.length; i++) {
++            out[i] = ar[i];
++        }
++        return out;
++    }
++
++    private void handleVibrate() {
++        Log.i(TAG, "to handleVibrate");
++        Vibrator vibrator = (Vibrator)mContext.getSystemService(Context.VIBRATOR_SERVICE);
++        if (!vibrator.hasVibrator()) {
++            return;
++        }
++
++        long[] pattern = getLongIntArray(mContext.getResources(), com.android.internal.R.array.config_virtualKeyVibePattern);
++
++        int owningUid = android.os.Process.myUid();
++        String owningPackage = mContext.getOpPackageName();
++        if (pattern.length == 1) {
++            // One-shot vibration
++            vibrator.vibrate(owningUid, owningPackage, pattern[0], VIBRATION_ATTRIBUTES);
++        } else {
++            // Pattern vibration
++            vibrator.vibrate(owningUid, owningPackage, pattern, -1, VIBRATION_ATTRIBUTES);
++        }
++    }
++
++    private boolean checkApplication(String packageName) {
++        boolean ret = false;
++        if(packageName == null || packageName.isEmpty()) {
++            return ret;
++        }
++
++        try {
++            ApplicationInfo info = mContext.getPackageManager().getApplicationInfo(packageName, PackageManager.GET_UNINSTALLED_PACKAGES);
++            if(info != null) {
++                ret = true;
++            }
++        } catch (PackageManager.NameNotFoundException e) {
++            ret = false;
++            Log.e(TAG, "checkApplication: NameNotFoundException");
++        }
++
++        return ret;
++    }
++
++    private void updateKeyguardViewForGesture() {
++        Log.d(TAG, "updateKeyguardViewForGesture: mRoot = " + mRoot + ", mGestureView = " + mGestureView);
++        hideAllView();
++        //resetFlag();
++    }
++
++    private void startApplication(String componentName) {
++        if(componentName == null || componentName.isEmpty()) {
++            Log.e(TAG, "startApplication: componentName is empty");
++            mHandler.sendEmptyMessageDelayed(MSG_GESTURE_UPDATE_KEYGUARD_VIEW, 1600);
++            return;
++        }
++
++        String[] s = componentName.split(";");
++        if(!checkApplication(s[0])) {
++            Log.e(TAG, "startApplication: Not found the application: " + componentName);
++            mHandler.sendEmptyMessageDelayed(MSG_GESTURE_UPDATE_KEYGUARD_VIEW, 1600);
++            return;
++        }
++
++        ComponentName component = new ComponentName(s[0], s[1]);
++        Intent intent = new Intent(Intent.ACTION_MAIN);
++        intent.addCategory(Intent.CATEGORY_LAUNCHER);
++        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
++        intent.setComponent(component);
++        mContext.startActivity(intent);
++
++        mHandler.sendEmptyMessageDelayed(MSG_GESTURE_UPDATE_KEYGUARD_VIEW, 1600);
++    }
++
++
++    private void showGestureAnimation(int resourceId) {
++        Log.d(TAG, "showGestureAnimation: resourceId = " + resourceId);
++        if(mGestureView != null) {
++            AnimationDrawable ad = (AnimationDrawable)mContext.getResources().getDrawable(resourceId, null);
++            mGestureView.setBackground(ad);
++            ad.start();
++
++            int duration = 0;
++            for(int i=0; i<ad.getNumberOfFrames(); i++){
++                duration += ad.getDuration(i);
++            }
++            duration += 30;
++
++            mHandler.sendEmptyMessageDelayed(MSG_GESTURE_START_APP, duration);
++        }
++    }
++
++    private void handleGesture(int keyCode) {
++        int resourceId = 0;
++
++        Log.d(TAG, "handleGesture: mRoot = " + mRoot + ", mGestureView = " + mGestureView);
++
++        showAllView();
++
++        int count = mKeyCodeAndGesture.size();
++        mComponentName = null;
++        for(int i = 0; i < count; i++) {
++            if(keyCode == mKeyCodeAndGesture.get(i).keyCode) {
++                mComponentName = Settings.System.getString(mContext.getContentResolver(), mKeyCodeAndGesture.get(i).gestureType);
++                resourceId = mKeyCodeAndGesture.get(i).resourceId;
++                break;
++            }
++        }
++
++        showGestureAnimation(resourceId);
++
++        int value = Settings.System.getInt(mContext.getContentResolver(), Settings.System.KEY_GESTURE_TYPE_VIBRATE, 0);
++        /*
++        if(value == 1) {
++            playSoundEffect(true);
++        } else {
++
++            handleVibrate();
++            int lockMode = getLockScreenMode();
++            if(lockMode == LOCK_SCREEN_MODE_SLIDE) {
++                playSoundEffect(false);
++            }
++        }*/
++
++        if (value == 1) {
++            final Vibrator v = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
++            if (v != null) {
++                v.vibrate(500, new AudioAttributes.Builder()
++                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
++                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION).build());
++            }
++        }
++
++    }
++
++    private Handler mHandler = new Handler() {
++        @Override
++        public void handleMessage(Message msg) {
++             switch (msg.what) {
++                 case MSG_GESTURE_ANIMATION:
++                    showGestureAnimation((int)msg.obj);
++                    break;
++
++                 case MSG_GESTURE_START_APP:
++                    startApplication(mComponentName);
++                    break;
++
++                case MSG_GESTURE_UPDATE_KEYGUARD_VIEW:
++                    updateKeyguardViewForGesture();
++                    break;
++             }
++        }
++    };
++
++    private BroadcastReceiver mGestureBroadcastReceiver = new BroadcastReceiver() {
++        public void onReceive(Context context, Intent intent) {
++            String action = intent.getAction();
++            Log.i(TAG, "mGestureBroadcastReceiver: action = " + action);
++            if("intent.action.gesture.UNLOCK.STARTAPP".equals(action)) {
++                int gestureKeycode = intent.getIntExtra("KeyCode", -1);
++                Log.i(TAG, "intent.action.gesture.UNLOCK.STARTAPP keyCode = " + gestureKeycode);
++
++                switch(gestureKeycode) {
++                    case KeyEvent.KEYCODE_P:
++                        //handleGesture(gestureKeycode);
++                        int value = Settings.System.getInt(mContext.getContentResolver(), Settings.System.KEY_GESTURE_TYPE_VIBRATE, 0);
++                        if (value == 1) {
++                            final Vibrator v = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
++                            if (v != null) {
++                                v.vibrate(500, new AudioAttributes.Builder()
++                                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
++                                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION).build());
++                            }
++                        }
++
++                        if( -1 != getLockScreenMode()) {
++                            Log.i(TAG, "mGestureBroadcastReceiver: to makeExpandedInvisibleByGesture");
++                            mPhoneStatusBar.makeExpandedInvisibleByGesture();
++                        }
++                        break;
++
++                    case KeyEvent.KEYCODE_DPAD_UP:
++                        handleGesture(gestureKeycode);
++                        Intent upIntent = new Intent();
++                        upIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++                        upIntent.setAction("com.android.music.musicservicecommand.pause");
++                        context.sendBroadcast(upIntent);
++                        break;
++                    case KeyEvent.KEYCODE_DPAD_DOWN:
++                        handleGesture(gestureKeycode);
++                        Intent downIntent = new Intent();
++                        downIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++                        downIntent.setAction("com.android.music.musicservicecommand.togglepause");
++                        context.sendBroadcast(downIntent);
++                        break;
++                    case KeyEvent.KEYCODE_DPAD_LEFT:
++                        Log.i(TAG, "zly --> KEYCODE_DPAD_LEFT");
++                        handleGesture(gestureKeycode);
++                        Intent leftIntent = new Intent();
++                        leftIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++                        leftIntent.setAction("com.android.music.musicservicecommand.previous");
++                        context.sendBroadcast(leftIntent);
++                        return;
++                    case KeyEvent.KEYCODE_DPAD_RIGHT:
++                        Log.i(TAG, "zly --> KEYCODE_DPAD_RIGHT");
++                        handleGesture(gestureKeycode);
++                        Intent rightIntent = new Intent();
++                        rightIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++                        rightIntent.setAction("com.android.music.musicservicecommand.next");
++                        context.sendBroadcast(rightIntent);
++                        return;
++                    case KeyEvent.KEYCODE_O:
++                        handleGesture(gestureKeycode);
++                        if( -1 != getLockScreenMode()) {
++                            Log.i(TAG, "mGestureBroadcastReceiver: to makeExpandedInvisibleByGesture");
++                            mPhoneStatusBar.makeExpandedInvisibleByGesture();
++                        }
++                        Intent cameraIntent = new Intent();
++                        cameraIntent.setClassName("com.android.camera2", "com.android.camera.CameraLauncher");
++                        cameraIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++                        context.startActivity(cameraIntent);
++                        break;
++                    case KeyEvent.KEYCODE_V:
++                        //handleGesture(gestureKeycode);
++                        if( -1 != getLockScreenMode()) {
++                            Log.i(TAG, "mGestureBroadcastReceiver: to makeExpandedInvisibleByGesture");
++                            mPhoneStatusBar.makeExpandedInvisibleByGesture();
++                        }
++                        Intent flashLightIntent = new Intent();
++                        flashLightIntent.setClassName("wanzhen.android.flashlight", "wanzhen.android.flashlight.FlashLightActivity");
++                        flashLightIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++                        context.startActivity(flashLightIntent);
++                        break;
++                    default:
++                       break;
++                }
++
++
++            }
++        }
++    };
++
++    private void showAllView() {
++        if (DEBUG) {
++            Log.d(TAG, "showAllView() is called, mRoot = " + mRoot) ;
++        }
++
++        inflateView();
++
++        if(mRoot != null) {
++            mRoot.setVisibility(View.VISIBLE);
++        }
++
++        if(mGestureView != null) {
++            mGestureView.setVisibility(View.VISIBLE);
++        }
++    }
++
++
++
++    private void hideAllView() {
++        if (DEBUG) {
++            Log.d(TAG, "hideAllView() is called, mRoot = " + mRoot) ;
++        }
++
++        if(mRoot != null) {
++            mRoot.setVisibility(View.GONE);
++        }
++
++        if(mGestureView != null) {
++            mGestureView.setVisibility(View.GONE);
++            mGestureView.setBackground(null);
++        }
++    }
++
++    private int getLockScreenMode() {
++        int ret = -1;
++
++        /*boolean isAntiTheftMode = AntiTheftManager.isAntiTheftLocked();
++        if(isAntiTheftMode) {
++            Log.d(TAG, "getLockScreenMode: isAntiTheftMode = " + isAntiTheftMode);
++            return -1;
++        }
++
++        boolean isSimLocked = KeyguardUpdateMonitor.getInstance(mContext).isSimLocked();
++        if(isSimLocked) {
++            Log.d(TAG, "getLockScreenMode: isSimLocked = " + isSimLocked);
++            return -1;
++        }*/
++
++        if(mLockPatternUtils != null) {
++            if(!mLockPatternUtils.isSecure(UserHandle.USER_OWNER)) {
++                UserManager mUm = (UserManager)mContext.getSystemService(Context.USER_SERVICE);
++                List<UserInfo> users = mUm.getUsers(true);
++                final boolean singleUser = users.size() == 1;
++                if(singleUser && mLockPatternUtils.isLockScreenDisabled(UserHandle.USER_OWNER)) {
++                    ret = LOCK_SCREEN_MODE_NONE;
++                } else {
++                    ret = LOCK_SCREEN_MODE_SLIDE;
++                }
++            }
++        }
++        Log.d(TAG, "getLockScreenMode: ret = " + ret);
++        return ret;
++    }
++
++
++    private void showRootViewOnly() {
++        if (DEBUG) {
++            Log.d(TAG, "showRootView() is called, mRoot = " + mRoot) ;
++        }
++
++        inflateView();
++
++        if(mRoot != null) {
++            mRoot.setVisibility(View.VISIBLE);
++        }
++
++        if(mGestureView != null) {
++            mGestureView.setVisibility(View.GONE);
++            mGestureView.setBackground(null);
++        }
++    }
++
++    private void hideGestureViewOnly() {
++        if (DEBUG) {
++            Log.d(TAG, "hideGestureViewOnly() is called, mRoot = " + mRoot) ;
++        }
++
++        if(mGestureView != null) {
++            mGestureView.setVisibility(View.GONE);
++            mGestureView.setBackground(null);
++        }
++    }
++
++    public void onScreenTurnedOff() {
++        if (DEBUG) Log.d(TAG, "onScreenTurnedOff(): to show root view");
++        showRootViewOnly();
++    }
++
++    public void onScreenTurnedOn() {
++        if (DEBUG) Log.d(TAG, "onScreenTurnedOn(): mRoot = " + mRoot);
++        hideAllView();
++    }
++
++    private void inflateView() {
++        if (DEBUG) Log.d(TAG, "inflateView(): mRoot = " + mRoot);
++        if(mRoot == null) {
++            mRoot = (ViewGroup) LayoutInflater.from(mContext).inflate(R.layout.keyguard_gesture, null);
++            mGestureView = (ImageView) mRoot.findViewById(R.id.gestrue_view);
++
++            WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
++                ViewGroup.LayoutParams.MATCH_PARENT,
++                ViewGroup.LayoutParams.MATCH_PARENT,
++                WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
++                WindowManager.LayoutParams.FLAG_FULLSCREEN
++                        | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
++                        | WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS,
++                PixelFormat.OPAQUE);
++            lp.flags |= WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
++            lp.gravity = Gravity.TOP;
++
++            mWindowManager.addView(mRoot, lp);
++        }
++    }
++
++    public class KeyCodeAndGesture {
++        int keyCode;
++        int resourceId;
++        String gestureType;
++        public KeyCodeAndGesture(int keyCode, int resourceId, String gestureType) {
++            this.keyCode = keyCode;
++            this.resourceId = resourceId;
++            this.gestureType = gestureType;
++        }
++    }
++
++}
++
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java	(revision 166663)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java	(revision 166664)
+@@ -4743,6 +4743,17 @@
+         mDozeScrimController.onScreenTurnedOn();
+     }
+ 
++    //For Gesture -S
++    public void makeExpandedInvisibleByGesture() {
++        mHandler.post(new Runnable() {
++            public void run() {
++                makeExpandedInvisible();
++            }
++        });
++    }
++    //For Gesture -E
++
++
+     /**
+      * Handles long press for back button. This exits screen pinning.
+      */
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarKeyguardViewManager.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarKeyguardViewManager.java	(revision 166663)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarKeyguardViewManager.java	(revision 166664)
+@@ -38,6 +38,7 @@
+ import com.android.music.KeyguardMusicManager;
+ 
+ import static com.android.keyguard.KeyguardHostView.OnDismissAction;
++import com.android.systemui.KeyguardGesture;
+ 
+ /**
+  * Manages creating, showing, hiding and resetting the keyguard within the status bar. Calls back
+@@ -91,6 +92,10 @@
+     private boolean isLockMusicEnabledSetting;
+     /** @} **/
+ 
++    //For Gesture -S
++    private KeyguardGesture mGesture;
++    //For Gesture -S
++
+     public StatusBarKeyguardViewManager(Context context, ViewMediatorCallback callback,
+             LockPatternUtils lockPatternUtils) {
+         mContext = context;
+@@ -116,6 +121,9 @@
+             mKeyguardMusicManager = KeyguardMusicManager.getInstance(mContext, this);
+         }
+         /** @} **/
++        //For Gesture -S
++        mGesture = new KeyguardGesture(mContext, mViewMediatorCallback, mPhoneStatusBar, mLockPatternUtils);
++        //For Gesture -E
+     }
+ 
+     /**
+@@ -221,6 +229,9 @@
+             updateStates();
+         }
+         mPhoneStatusBar.onScreenTurnedOn();
++        //For Gesture -S
++        mGesture.onScreenTurnedOn();
++        //For Gesture -E
+     }
+ 
+     @Override
+@@ -232,6 +243,9 @@
+     public void onScreenTurnedOff() {
+         mScreenTurnedOn = false;
+         mPhoneStatusBar.onScreenTurnedOff();
++        //For Gesture -S
++        mGesture.onScreenTurnedOff();
++        //For Gesture -E
+     }
+ 
+     public void notifyDeviceWakeUpRequested() {
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00002.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00002.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00002.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00002.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00002.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00002.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00002.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00002.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00002.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00002.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00004.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00004.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00004.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00004.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00004.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00004.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00004.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00004.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00004.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00004.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00006.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00006.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00006.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00006.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00006.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00002.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00002.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00002.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00002.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00002.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00006.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00006.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00006.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00006.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00006.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00008.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00008.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00008.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00008.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00008.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00004.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00004.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00004.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00004.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00004.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00008.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00008.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00008.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00008.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00008.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00006.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00006.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00006.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00006.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00006.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00008.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00008.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00008.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00008.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00008.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00002.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00002.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00002.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00002.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00002.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00004.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00004.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00004.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00004.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00004.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00006.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00006.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00006.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00006.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00006.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00008.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00008.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00008.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00008.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00008.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00002.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00002.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00002.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00002.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00002.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00001.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00001.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00001.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00001.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00001.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00002.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00002.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00002.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00002.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00002.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00004.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00004.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00004.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00004.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00004.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00003.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00003.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00003.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00003.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00003.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00004.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00004.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00004.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00004.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00004.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00006.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00006.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00006.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00006.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00006.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00005.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00005.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00005.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00005.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00005.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00008.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00008.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00008.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00008.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00008.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00006.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00006.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00006.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00006.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00006.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00007.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00007.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00007.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00007.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00007.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00008.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00008.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00008.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00008.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00008.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00009.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00009.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00009.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00009.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00009.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00001.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00001.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00001.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00001.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00001.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00003.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00003.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00003.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00003.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00003.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00002.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00002.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00002.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00002.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00002.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_background.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_background.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_background.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_background.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_background.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00005.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00005.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00005.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00005.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00005.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00004.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00004.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00004.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00004.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00004.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00007.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00007.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00007.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00007.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00007.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00002.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00002.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00002.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00002.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00002.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00006.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00006.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00006.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00006.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00006.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00009.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00009.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00009.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00009.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00009.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00008.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00008.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00008.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00008.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00008.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00004.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00004.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00004.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00004.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00004.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00006.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00006.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00006.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00006.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00006.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00002.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00002.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00002.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00002.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00002.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00008.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00008.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00008.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00008.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00008.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00004.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00004.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00004.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00004.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00004.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00006.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00006.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00006.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00006.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00006.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00008.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00008.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00008.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00008.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00008.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00002.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00002.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00002.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00002.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00002.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00004.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00004.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00004.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00004.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00004.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00006.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00006.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00006.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00006.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00006.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00010.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00010.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00010.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00010.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00010.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00008.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00008.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00008.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00008.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00008.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00010.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00010.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00010.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00010.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00010.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00001.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00001.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00001.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00001.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00001.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00003.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00003.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00003.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00003.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00003.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00001.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00001.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00001.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00001.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00001.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00005.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00005.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00005.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00005.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00005.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00001.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00001.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00001.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00001.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00001.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00003.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00003.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00003.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00003.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00003.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00007.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00007.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00007.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00007.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00007.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00003.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00003.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00003.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00003.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00003.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00005.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00005.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00005.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00005.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00005.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00009.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00009.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00009.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00009.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00009.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00005.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00005.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00005.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00005.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00005.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00007.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00007.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00007.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00007.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00007.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00007.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00007.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00007.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00007.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00007.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00009.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00009.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00009.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00009.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00009.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00009.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00009.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00009.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00009.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00009.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00001.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00001.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00001.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00001.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00001.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00003.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00003.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00003.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00003.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00003.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00005.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00005.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00005.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00005.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00005.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00007.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00007.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00007.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00007.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00007.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00009.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00009.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00009.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00009.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00009.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00010.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00010.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00010.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00010.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_v_00010.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00010.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00010.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00010.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00010.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_down_00010.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00010.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00010.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00010.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00010.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_z_00010.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00001.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00001.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00001.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00001.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00001.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00003.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00003.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00003.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00003.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00003.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00001.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00001.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00001.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00001.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00001.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00002.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00002.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00002.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00002.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00002.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00005.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00005.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00005.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00005.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00005.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00003.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00003.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00003.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00003.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00003.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00004.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00004.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00004.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00004.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00004.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00007.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00007.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00007.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00007.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00007.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00005.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00005.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00005.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00005.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00005.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00006.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00006.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00006.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00006.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00006.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00007.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00007.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00007.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00007.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00007.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00010.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00010.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00010.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00010.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_left_00010.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00009.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00009.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00009.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00009.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00009.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00008.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00008.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00008.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00008.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_e_00008.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00009.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00009.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00009.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00009.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00009.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00002.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00002.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00002.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00002.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00002.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00001.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00001.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00001.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00001.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00001.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00004.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00004.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00004.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00004.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00004.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00003.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00003.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00003.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00003.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00003.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00006.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00006.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00006.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00006.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00006.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00001.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00001.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00001.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00001.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00001.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00005.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00005.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00005.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00005.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00005.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00008.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00008.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00008.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00008.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_m_00008.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00003.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00003.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00003.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00003.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00003.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00007.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00007.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00007.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00007.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00007.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00001.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00001.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00001.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00001.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00001.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00005.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00005.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00005.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00005.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00005.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00009.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00009.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00009.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00009.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00009.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00003.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00003.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00003.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00003.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00003.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00007.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00007.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00007.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00007.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00007.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00005.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00005.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00005.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00005.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00005.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00009.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00009.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00009.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00009.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00009.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00007.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00007.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00007.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00007.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00007.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00001.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00001.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00001.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00001.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00001.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00009.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00009.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00009.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00009.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00009.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00003.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00003.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00003.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00003.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00003.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00005.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00005.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00005.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00005.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00005.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00010.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00010.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00010.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00010.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_c_00010.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00007.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00007.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00007.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00007.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00007.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00010.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00010.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00010.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00010.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_up_00010.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00009.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00009.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00009.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00009.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00009.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00010.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00010.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00010.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00010.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_o_00010.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00010.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00010.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00010.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00010.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_s_00010.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00010.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00010.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00010.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00010.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_w_00010.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00010.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00010.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00010.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00010.png	(revision 166664)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/gesture_right_00010.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/layout/keyguard_gesture.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/layout/keyguard_gesture.xml	(revision 0)
++++ frameworks/base/packages/SystemUI/res/layout/keyguard_gesture.xml	(revision 166664)
+@@ -0,0 +1,32 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  ~ Copyright (C) 2014 The Android Open Source Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License
++  -->
++
++<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:background="@drawable/gesture_background"
++    android:clipChildren="false"
++    android:clipToPadding="false"
++    android:fitsSystemWindows="true">
++
++    <ImageView 
++        android:id="@+id/gestrue_view"
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        android:visibility="gone"/>
++</FrameLayout>
++
+Index: frameworks/base/packages/SystemUI/res/drawable/gesture_type_e.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/gesture_type_e.xml	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/gesture_type_e.xml	(revision 166664)
+@@ -0,0 +1,28 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2011 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
++    android:oneshot="true">
++    <item android:duration="30" android:drawable="@drawable/gesture_e_00001" />
++    <item android:duration="30" android:drawable="@drawable/gesture_e_00002" />
++    <item android:duration="30" android:drawable="@drawable/gesture_e_00003" />
++    <item android:duration="30" android:drawable="@drawable/gesture_e_00004" />
++    <item android:duration="30" android:drawable="@drawable/gesture_e_00005" />
++    <item android:duration="30" android:drawable="@drawable/gesture_e_00006" />
++    <item android:duration="30" android:drawable="@drawable/gesture_e_00007" />
++    <item android:duration="30" android:drawable="@drawable/gesture_e_00008" />
++    <item android:duration="30" android:drawable="@drawable/gesture_e_00009" />
++    <item android:duration="30" android:drawable="@drawable/gesture_e_00010" />
++</animation-list> 
+Index: frameworks/base/packages/SystemUI/res/drawable/gesture_type_m.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/gesture_type_m.xml	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/gesture_type_m.xml	(revision 166664)
+@@ -0,0 +1,28 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2011 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
++    android:oneshot="true">
++    <item android:duration="30" android:drawable="@drawable/gesture_m_00001" />
++    <item android:duration="30" android:drawable="@drawable/gesture_m_00002" />
++    <item android:duration="30" android:drawable="@drawable/gesture_m_00003" />
++    <item android:duration="30" android:drawable="@drawable/gesture_m_00004" />
++    <item android:duration="30" android:drawable="@drawable/gesture_m_00005" />
++    <item android:duration="30" android:drawable="@drawable/gesture_m_00006" />
++    <item android:duration="30" android:drawable="@drawable/gesture_m_00007" />
++    <item android:duration="30" android:drawable="@drawable/gesture_m_00008" />
++    <item android:duration="30" android:drawable="@drawable/gesture_m_00009" />
++    <item android:duration="30" android:drawable="@drawable/gesture_m_00010" />
++</animation-list> 
+Index: frameworks/base/packages/SystemUI/res/drawable/gesture_type_left.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/gesture_type_left.xml	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/gesture_type_left.xml	(revision 166664)
+@@ -0,0 +1,28 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2011 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
++    android:oneshot="true">
++    <item android:duration="30" android:drawable="@drawable/gesture_left_00001" />
++    <item android:duration="30" android:drawable="@drawable/gesture_left_00002" />
++    <item android:duration="30" android:drawable="@drawable/gesture_left_00003" />
++    <item android:duration="30" android:drawable="@drawable/gesture_left_00004" />
++    <item android:duration="30" android:drawable="@drawable/gesture_left_00005" />
++    <item android:duration="30" android:drawable="@drawable/gesture_left_00006" />
++    <item android:duration="30" android:drawable="@drawable/gesture_left_00007" />
++    <item android:duration="30" android:drawable="@drawable/gesture_left_00008" />
++    <item android:duration="30" android:drawable="@drawable/gesture_left_00009" />
++    <item android:duration="30" android:drawable="@drawable/gesture_left_00010" />
++</animation-list> 
+Index: frameworks/base/packages/SystemUI/res/drawable/gesture_type_down.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/gesture_type_down.xml	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/gesture_type_down.xml	(revision 166664)
+@@ -0,0 +1,28 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2011 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
++    android:oneshot="true">
++    <item android:duration="30" android:drawable="@drawable/gesture_down_00001" />
++    <item android:duration="30" android:drawable="@drawable/gesture_down_00002" />
++    <item android:duration="30" android:drawable="@drawable/gesture_down_00003" />
++    <item android:duration="30" android:drawable="@drawable/gesture_down_00004" />
++    <item android:duration="30" android:drawable="@drawable/gesture_down_00005" />
++    <item android:duration="30" android:drawable="@drawable/gesture_down_00006" />
++    <item android:duration="30" android:drawable="@drawable/gesture_down_00007" />
++    <item android:duration="30" android:drawable="@drawable/gesture_down_00008" />
++    <item android:duration="30" android:drawable="@drawable/gesture_down_00009" />
++    <item android:duration="30" android:drawable="@drawable/gesture_down_00010" />
++</animation-list> 
+Index: frameworks/base/packages/SystemUI/res/drawable/gesture_type_v.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/gesture_type_v.xml	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/gesture_type_v.xml	(revision 166664)
+@@ -0,0 +1,28 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2011 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
++    android:oneshot="true">
++    <item android:duration="30" android:drawable="@drawable/gesture_v_00001" />
++    <item android:duration="30" android:drawable="@drawable/gesture_v_00002" />
++    <item android:duration="30" android:drawable="@drawable/gesture_v_00003" />
++    <item android:duration="30" android:drawable="@drawable/gesture_v_00004" />
++    <item android:duration="30" android:drawable="@drawable/gesture_v_00005" />
++    <item android:duration="30" android:drawable="@drawable/gesture_v_00006" />
++    <item android:duration="30" android:drawable="@drawable/gesture_v_00007" />
++    <item android:duration="30" android:drawable="@drawable/gesture_v_00008" />
++    <item android:duration="30" android:drawable="@drawable/gesture_v_00009" />
++    <item android:duration="30" android:drawable="@drawable/gesture_v_00010" />
++</animation-list> 
+Index: frameworks/base/packages/SystemUI/res/drawable/gesture_type_z.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/gesture_type_z.xml	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/gesture_type_z.xml	(revision 166664)
+@@ -0,0 +1,28 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2011 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
++    android:oneshot="true">
++    <item android:duration="30" android:drawable="@drawable/gesture_z_00001" />
++    <item android:duration="30" android:drawable="@drawable/gesture_z_00002" />
++    <item android:duration="30" android:drawable="@drawable/gesture_z_00003" />
++    <item android:duration="30" android:drawable="@drawable/gesture_z_00004" />
++    <item android:duration="30" android:drawable="@drawable/gesture_z_00005" />
++    <item android:duration="30" android:drawable="@drawable/gesture_z_00006" />
++    <item android:duration="30" android:drawable="@drawable/gesture_z_00007" />
++    <item android:duration="30" android:drawable="@drawable/gesture_z_00008" />
++    <item android:duration="30" android:drawable="@drawable/gesture_z_00009" />
++    <item android:duration="30" android:drawable="@drawable/gesture_z_00010" />
++</animation-list> 
+Index: frameworks/base/packages/SystemUI/res/drawable/gesture_type_c.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/gesture_type_c.xml	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/gesture_type_c.xml	(revision 166664)
+@@ -0,0 +1,28 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2011 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
++    android:oneshot="true">
++    <item android:duration="30" android:drawable="@drawable/gesture_c_00001" />
++    <item android:duration="30" android:drawable="@drawable/gesture_c_00002" />
++    <item android:duration="30" android:drawable="@drawable/gesture_c_00003" />
++    <item android:duration="30" android:drawable="@drawable/gesture_c_00004" />
++    <item android:duration="30" android:drawable="@drawable/gesture_c_00005" />
++    <item android:duration="30" android:drawable="@drawable/gesture_c_00006" />
++    <item android:duration="30" android:drawable="@drawable/gesture_c_00007" />
++    <item android:duration="30" android:drawable="@drawable/gesture_c_00008" />
++    <item android:duration="30" android:drawable="@drawable/gesture_c_00009" />
++    <item android:duration="30" android:drawable="@drawable/gesture_c_00010" />
++</animation-list> 
+Index: frameworks/base/packages/SystemUI/res/drawable/gesture_type_o.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/gesture_type_o.xml	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/gesture_type_o.xml	(revision 166664)
+@@ -0,0 +1,28 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2011 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
++    android:oneshot="true">
++    <item android:duration="30" android:drawable="@drawable/gesture_o_00001" />
++    <item android:duration="30" android:drawable="@drawable/gesture_o_00002" />
++    <item android:duration="30" android:drawable="@drawable/gesture_o_00003" />
++    <item android:duration="30" android:drawable="@drawable/gesture_o_00004" />
++    <item android:duration="30" android:drawable="@drawable/gesture_o_00005" />
++    <item android:duration="30" android:drawable="@drawable/gesture_o_00006" />
++    <item android:duration="30" android:drawable="@drawable/gesture_o_00007" />
++    <item android:duration="30" android:drawable="@drawable/gesture_o_00008" />
++    <item android:duration="30" android:drawable="@drawable/gesture_o_00009" />
++    <item android:duration="30" android:drawable="@drawable/gesture_o_00010" />
++</animation-list> 
+Index: frameworks/base/packages/SystemUI/res/drawable/gesture_type_s.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/gesture_type_s.xml	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/gesture_type_s.xml	(revision 166664)
+@@ -0,0 +1,28 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2011 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
++    android:oneshot="true">
++    <item android:duration="30" android:drawable="@drawable/gesture_s_00001" />
++    <item android:duration="30" android:drawable="@drawable/gesture_s_00002" />
++    <item android:duration="30" android:drawable="@drawable/gesture_s_00003" />
++    <item android:duration="30" android:drawable="@drawable/gesture_s_00004" />
++    <item android:duration="30" android:drawable="@drawable/gesture_s_00005" />
++    <item android:duration="30" android:drawable="@drawable/gesture_s_00006" />
++    <item android:duration="30" android:drawable="@drawable/gesture_s_00007" />
++    <item android:duration="30" android:drawable="@drawable/gesture_s_00008" />
++    <item android:duration="30" android:drawable="@drawable/gesture_s_00009" />
++    <item android:duration="30" android:drawable="@drawable/gesture_s_00010" />
++</animation-list> 
+Index: frameworks/base/packages/SystemUI/res/drawable/gesture_type_w.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/gesture_type_w.xml	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/gesture_type_w.xml	(revision 166664)
+@@ -0,0 +1,28 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2011 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
++    android:oneshot="true">
++    <item android:duration="30" android:drawable="@drawable/gesture_w_00001" />
++    <item android:duration="30" android:drawable="@drawable/gesture_w_00002" />
++    <item android:duration="30" android:drawable="@drawable/gesture_w_00003" />
++    <item android:duration="30" android:drawable="@drawable/gesture_w_00004" />
++    <item android:duration="30" android:drawable="@drawable/gesture_w_00005" />
++    <item android:duration="30" android:drawable="@drawable/gesture_w_00006" />
++    <item android:duration="30" android:drawable="@drawable/gesture_w_00007" />
++    <item android:duration="30" android:drawable="@drawable/gesture_w_00008" />
++    <item android:duration="30" android:drawable="@drawable/gesture_w_00009" />
++    <item android:duration="30" android:drawable="@drawable/gesture_w_00010" />
++</animation-list> 
+Index: frameworks/base/packages/SystemUI/res/drawable/gesture_type_right.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/gesture_type_right.xml	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/gesture_type_right.xml	(revision 166664)
+@@ -0,0 +1,28 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2011 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
++    android:oneshot="true">
++    <item android:duration="30" android:drawable="@drawable/gesture_right_00001" />
++    <item android:duration="30" android:drawable="@drawable/gesture_right_00002" />
++    <item android:duration="30" android:drawable="@drawable/gesture_right_00003" />
++    <item android:duration="30" android:drawable="@drawable/gesture_right_00004" />
++    <item android:duration="30" android:drawable="@drawable/gesture_right_00005" />
++    <item android:duration="30" android:drawable="@drawable/gesture_right_00006" />
++    <item android:duration="30" android:drawable="@drawable/gesture_right_00007" />
++    <item android:duration="30" android:drawable="@drawable/gesture_right_00008" />
++    <item android:duration="30" android:drawable="@drawable/gesture_right_00009" />
++    <item android:duration="30" android:drawable="@drawable/gesture_right_00010" />
++</animation-list> 
+Index: frameworks/base/packages/SystemUI/res/drawable/gesture_type_up.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/gesture_type_up.xml	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/gesture_type_up.xml	(revision 166664)
+@@ -0,0 +1,28 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2011 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
++    android:oneshot="true">
++    <item android:duration="30" android:drawable="@drawable/gesture_up_00001" />
++    <item android:duration="30" android:drawable="@drawable/gesture_up_00002" />
++    <item android:duration="30" android:drawable="@drawable/gesture_up_00003" />
++    <item android:duration="30" android:drawable="@drawable/gesture_up_00004" />
++    <item android:duration="30" android:drawable="@drawable/gesture_up_00005" />
++    <item android:duration="30" android:drawable="@drawable/gesture_up_00006" />
++    <item android:duration="30" android:drawable="@drawable/gesture_up_00007" />
++    <item android:duration="30" android:drawable="@drawable/gesture_up_00008" />
++    <item android:duration="30" android:drawable="@drawable/gesture_up_00009" />
++    <item android:duration="30" android:drawable="@drawable/gesture_up_00010" />
++</animation-list> 
+Index: frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java
+===================================================================
+--- frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java	(revision 166663)
++++ frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java	(revision 166664)
+@@ -2409,6 +2409,14 @@
+             loadIntegerSetting(stmt, Settings.System.POINTER_SPEED,
+                     R.integer.def_pointer_speed);
+ 
++            /* For Gesture */
++            loadSetting(stmt, Settings.System.KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_UNLOCK, 0);
++            loadSetting(stmt, Settings.System.KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_LOCK, 0);
++            loadSetting(stmt, Settings.System.KEY_GESTURE_TYPE_CAMERA, "com.android.camera2;com.android.camera.CameraLauncher");
++            loadSetting(stmt, Settings.System.KEY_GESTURE_TYPE_MUSIC, "com.android.dialer;com.android.dialer.DialtactsActivity");
++            loadSetting(stmt, Settings.System.KEY_GESTURE_TYPE_FLASHLIGHT, "com.android.contacts;com.android.contacts.activities.PeopleActivity");
++            loadSetting(stmt, Settings.System.KEY_GESTURE_TYPE_VIBRATE, 0);
++
+             /*
+              * IMPORTANT: Do not add any more upgrade steps here as the global,
+              * secure, and system settings are no longer stored in a database
+Index: frameworks/base/api/current.txt
+===================================================================
+--- frameworks/base/api/current.txt	(revision 166663)
++++ frameworks/base/api/current.txt	(revision 166664)
+@@ -32609,6 +32609,12 @@
+     field public static final java.lang.String HAPTIC_FEEDBACK_ENABLED = "haptic_feedback_enabled";
+     field public static final deprecated java.lang.String HTTP_PROXY = "http_proxy";
+     field public static final deprecated java.lang.String INSTALL_NON_MARKET_APPS = "install_non_market_apps";
++    field public static final java.lang.String KEY_GESTURE_TYPE_CAMERA = "gesture_type_camera";
++    field public static final java.lang.String KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_LOCK = "gesture_type_double_click_switch_lock";
++    field public static final java.lang.String KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_UNLOCK = "gesture_type_double_click_switch_unlock";
++    field public static final java.lang.String KEY_GESTURE_TYPE_FLASHLIGHT = "gesture_type_flashlight";
++    field public static final java.lang.String KEY_GESTURE_TYPE_MUSIC = "gesture_type_music";
++    field public static final java.lang.String KEY_GESTURE_TYPE_VIBRATE = "gesture_type_vibrate";
+     field public static final deprecated java.lang.String LOCATION_PROVIDERS_ALLOWED = "location_providers_allowed";
+     field public static final deprecated java.lang.String LOCK_PATTERN_ENABLED = "lock_pattern_autolock";
+     field public static final deprecated java.lang.String LOCK_PATTERN_TACTILE_FEEDBACK_ENABLED = "lock_pattern_tactile_feedback_enabled";
+Index: frameworks/base/api/system-current.txt
+===================================================================
+--- frameworks/base/api/system-current.txt	(revision 166663)
++++ frameworks/base/api/system-current.txt	(revision 166664)
+@@ -35317,6 +35317,12 @@
+     field public static final java.lang.String HAPTIC_FEEDBACK_ENABLED = "haptic_feedback_enabled";
+     field public static final deprecated java.lang.String HTTP_PROXY = "http_proxy";
+     field public static final deprecated java.lang.String INSTALL_NON_MARKET_APPS = "install_non_market_apps";
++    field public static final java.lang.String KEY_GESTURE_TYPE_CAMERA = "gesture_type_camera";
++    field public static final java.lang.String KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_LOCK = "gesture_type_double_click_switch_lock";
++    field public static final java.lang.String KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_UNLOCK = "gesture_type_double_click_switch_unlock";
++    field public static final java.lang.String KEY_GESTURE_TYPE_FLASHLIGHT = "gesture_type_flashlight";
++    field public static final java.lang.String KEY_GESTURE_TYPE_MUSIC = "gesture_type_music";
++    field public static final java.lang.String KEY_GESTURE_TYPE_VIBRATE = "gesture_type_vibrate";
+     field public static final deprecated java.lang.String LOCATION_PROVIDERS_ALLOWED = "location_providers_allowed";
+     field public static final deprecated java.lang.String LOCK_PATTERN_ENABLED = "lock_pattern_autolock";
+     field public static final deprecated java.lang.String LOCK_PATTERN_TACTILE_FEEDBACK_ENABLED = "lock_pattern_tactile_feedback_enabled";
+Index: frameworks/base/api/test-current.txt
+===================================================================
+--- frameworks/base/api/test-current.txt	(revision 166663)
++++ frameworks/base/api/test-current.txt	(revision 166664)
+@@ -32684,6 +32684,12 @@
+     field public static final java.lang.String HAPTIC_FEEDBACK_ENABLED = "haptic_feedback_enabled";
+     field public static final deprecated java.lang.String HTTP_PROXY = "http_proxy";
+     field public static final deprecated java.lang.String INSTALL_NON_MARKET_APPS = "install_non_market_apps";
++    field public static final java.lang.String KEY_GESTURE_TYPE_CAMERA = "gesture_type_camera";
++    field public static final java.lang.String KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_LOCK = "gesture_type_double_click_switch_lock";
++    field public static final java.lang.String KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_UNLOCK = "gesture_type_double_click_switch_unlock";
++    field public static final java.lang.String KEY_GESTURE_TYPE_FLASHLIGHT = "gesture_type_flashlight";
++    field public static final java.lang.String KEY_GESTURE_TYPE_MUSIC = "gesture_type_music";
++    field public static final java.lang.String KEY_GESTURE_TYPE_VIBRATE = "gesture_type_vibrate";
+     field public static final deprecated java.lang.String LOCATION_PROVIDERS_ALLOWED = "location_providers_allowed";
+     field public static final deprecated java.lang.String LOCK_PATTERN_ENABLED = "lock_pattern_autolock";
+     field public static final deprecated java.lang.String LOCK_PATTERN_TACTILE_FEEDBACK_ENABLED = "lock_pattern_tactile_feedback_enabled";
+Index: packages/apps/Settings/AndroidManifest.xml
+===================================================================
+--- packages/apps/Settings/AndroidManifest.xml	(revision 166663)
++++ packages/apps/Settings/AndroidManifest.xml	(revision 166664)
+@@ -2262,6 +2262,7 @@
+                  <action android:name="android.provider.Telephony.SECRET_CODE" />
+                  <data android:scheme="android_secret_code" android:host="4636" />
+                  <data android:scheme="android_secret_code" android:host="38378" />
++                 <data android:scheme="android_secret_code" android:host="73" />
+             </intent-filter>
+        </receiver>
+ 
+@@ -3372,5 +3373,48 @@
+                 <category android:name="android.intent.category.DEFAULT" />
+             </intent-filter>
+         </activity>
++
++        <receiver android:name="com.android.settings.GestureReceiver">
++            <intent-filter>
++                <action android:name="android.intent.action.BOOT_COMPLETED"/>
++            </intent-filter>
++            <intent-filter>
++                <action android:name="intent.action.gesture.RESET_FLAG"/>
++            </intent-filter>
++            <intent-filter>
++                <action android:name="android.intent.action.PACKAGE_CHANGED"/>
++                <action android:name="android.intent.action.PACKAGE_REMOVED"/>
++                <data android:scheme="package"/>
++            </intent-filter>
++        </receiver>
++
++        <activity android:name="Settings$GestureSettingsActivity"
++                android:theme="@style/Theme.SubSettingsDialogWhenLarge"
++                android:label="@string/gesture_name"
++                android:icon="@drawable/ic_settings_gesture"
++                android:taskAffinity="com.android.settings"
++                android:parentActivityName="Settings">
++            <intent-filter android:priority="1">
++                <action android:name="android.settings.DEVICE_INFO_SETTINGS" />
++                <category android:name="android.intent.category.DEFAULT" />
++            </intent-filter>
++            <intent-filter>
++                <action android:name="android.intent.action.MAIN" />
++                <category android:name="android.intent.category.DEFAULT" />
++                <category android:name="android.intent.category.VOICE_LAUNCH" />
++            </intent-filter>
++            <intent-filter android:priority="6">
++                <action android:name="com.android.settings.action.SETTINGS" />
++            </intent-filter>
++            <meta-data android:name="com.android.settings.category"
++                android:value="com.android.settings.category.system" />
++            <meta-data android:name="com.android.settings.title"
++                android:resource="@string/gesture_name" />
++            <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
++                android:value="com.android.settings.GestureSettings" />
++            <meta-data android:name="com.android.settings.PRIMARY_PROFILE_CONTROLLED"
++                android:value="true" />
++        </activity>
++
+     </application>
+ </manifest>
+Index: packages/apps/Settings/src/com/android/settings/search/SearchIndexableResources.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/search/SearchIndexableResources.java	(revision 166663)
++++ packages/apps/Settings/src/com/android/settings/search/SearchIndexableResources.java	(revision 166664)
+@@ -73,6 +73,9 @@
+ 
+ import com.sprd.settings.navigation.NavigationBarSettings;
+ import com.sprd.settings.timerpower.AlarmClock;
++
++import com.android.settings.GestureSettings;
++
+ public final class SearchIndexableResources {
+ 
+     public static int NO_DATA_RES_ID = 0;
+@@ -158,6 +161,14 @@
+                         NO_DATA_RES_ID,
+                         ScreenZoomSettings.class.getName(),
+                         R.drawable.ic_settings_display));
++
++        sResMap.put(GestureSettings.class.getName(),
++                new SearchIndexableResource(
++                    Ranking.getRankForClassName(GestureSettings.class.getName()),
++                    NO_DATA_RES_ID,
++                    GestureSettings.class.getName(),
++                    R.drawable.ic_settings_gesture));
++
+         /* SPRD:add for bug 601661. @{ */
+         if(PressBrightness.getInstance().isSupport()){
+             sResMap.put(DisplaySettings.class.getName(),
+Index: packages/apps/Settings/src/com/android/settings/search/Ranking.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/search/Ranking.java	(revision 166663)
++++ packages/apps/Settings/src/com/android/settings/search/Ranking.java	(revision 166664)
+@@ -68,6 +68,7 @@
+ 
+ //<-- support AGPS settings END
+ import java.util.HashMap;
++import com.android.settings.GestureSettings;
+ 
+ import com.sprd.settings.smartcontrols.SmartControlsSettings;
+ import com.sprd.settings.timerpower.AlarmClock;
+@@ -105,6 +106,7 @@
+     public static final int RANK_AUTO_RUN = 28;
+     //SPRD:modify for Bug 641248 can not search prompt & notification in Chinese.
+     public static final int RANK_NOTIFICATION_APPS = 29;
++    public static final int RANK_GESTURE = 30;
+     // SPRD: Bug 511228 Smart Controls in Settings
+     public static final int RANK_SMART_CONTROLS = 24;
+     // SPRD: Bug 596066 TimePower in Settings
+@@ -139,6 +141,8 @@
+         // Other wireless settinfs
+         sRankMap.put(WirelessSettings.class.getName(), RANK_WIRELESS);
+ 
++        sRankMap.put(GestureSettings.class.getName(), RANK_GESTURE);
++
+         // Display
+         sRankMap.put(DisplaySettings.class.getName(), RANK_DISPLAY);
+         sRankMap.put(ScreenZoomSettings.class.getName(), RANK_WIFI);
+Index: packages/apps/Settings/src/com/android/settings/Settings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/Settings.java	(revision 166663)
++++ packages/apps/Settings/src/com/android/settings/Settings.java	(revision 166664)
+@@ -52,6 +52,7 @@
+     public static class LocalePickerActivity extends SettingsActivity { /* empty */ }
+     public static class UserDictionarySettingsActivity extends SettingsActivity { /* empty */ }
+     public static class HomeSettingsActivity extends SettingsActivity { /* empty */ }
++    public static class GestureSettingsActivity extends SettingsActivity { /* empty */ }
+     public static class DisplaySettingsActivity extends SettingsActivity { /* empty */ }
+     public static class DeviceInfoSettingsActivity extends SettingsActivity { /* empty */ }
+     public static class ApplicationSettingsActivity extends SettingsActivity { /* empty */ }
+Index: packages/apps/Settings/src/com/android/settings/GestureSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/GestureSettings.java	(revision 0)
++++ packages/apps/Settings/src/com/android/settings/GestureSettings.java	(revision 166664)
+@@ -0,0 +1,191 @@
++package com.android.settings;
++
++import android.app.ActionBar;
++import android.app.Activity;
++import android.app.AlertDialog;
++import android.app.AlertDialog.Builder;
++import android.app.Dialog;
++import android.content.BroadcastReceiver;
++import android.content.ComponentName;
++import android.content.ContentValues;
++import android.content.Context;
++import android.content.DialogInterface;
++import android.content.DialogInterface.OnClickListener;
++import android.content.DialogInterface.OnDismissListener;
++import android.content.Intent;
++import android.content.IntentFilter;
++import android.content.pm.ActivityInfo;
++import android.content.pm.ApplicationInfo;
++import android.content.pm.PackageManager;
++import android.content.pm.ResolveInfo;
++import android.content.res.Resources;
++import android.graphics.Bitmap;
++import android.graphics.BitmapFactory;
++import android.graphics.Canvas;
++import android.graphics.drawable.Drawable;
++import android.os.Bundle;
++import android.support.v14.preference.SwitchPreference;
++import android.support.v7.preference.PreferenceScreen;
++import android.support.v7.preference.Preference;
++import android.support.v7.preference.PreferenceGroup;
++import android.support.v7.preference.PreferenceGroupAdapter;
++import android.support.v7.preference.PreferenceScreen;
++import android.support.v7.preference.PreferenceViewHolder;
++import android.support.v7.widget.LinearLayoutManager;
++import android.support.v7.widget.RecyclerView;
++import android.support.v7.preference.Preference.OnPreferenceChangeListener;
++import android.support.v7.preference.PreferenceCategory;
++
++
++import android.provider.Settings;
++import android.util.AttributeSet;
++import android.util.Log;
++import android.view.Gravity;
++import android.view.LayoutInflater;
++import android.view.View;
++import android.view.ViewGroup;
++import android.widget.AdapterView;
++import android.widget.BaseAdapter;
++import android.widget.ImageView;
++import android.widget.ListAdapter;
++import android.widget.ListView;
++import android.widget.Switch;
++import android.widget.TextView;
++
++import com.android.settings.R;
++import com.android.settings.SettingsActivity;
++import com.android.settings.SettingsPreferenceFragment;
++import com.android.settings.widget.SwitchBar;
++
++import java.util.ArrayList;
++import java.util.List;
++import java.io.IOException;
++import com.android.internal.logging.MetricsLogger;
++import com.android.internal.logging.MetricsProto.MetricsEvent;
++import android.preference.PreferenceFragment;
++
++public class GestureSettings extends SettingsPreferenceFragment implements Preference.OnPreferenceChangeListener {
++    private static final String TAG = "GestureSettings";
++    private static final String KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_UNLOCK = "gesture_type_double_click_switch_unlock";
++    private static final String KEY_GESTURE_TYPE_CAMERA = "gesture_type_camera";
++    private static final String KEY_GESTURE_TYPE_MUSIC = "gesture_type_music";
++    private static final String KEY_GESTURE_TYPE_FLASHLIGHT = "gesture_type_flashlight";
++    private static final String KEY_GESTURE_TYPE_VIBRATE = "gesture_type_vibrate";
++
++    private SwitchPreference mDoubleClickUnlockPref;
++    private SwitchPreference mCameraPref;
++    private SwitchPreference mMusicPref;
++    private SwitchPreference mFlashLightPref;
++    private SwitchPreference mVibratePref;
++    private Context mContext;
++
++    @Override
++    public void onActivityCreated(Bundle savedInstanceState) {
++        super.onActivityCreated(savedInstanceState);
++
++        final SettingsActivity activity = (SettingsActivity) getActivity();
++        mContext = activity;
++    }
++
++    @Override
++    public void onDestroyView() {
++        super.onDestroyView();
++    }
++
++    public void onResume() {
++        super.onResume();
++        updateUI();
++    }
++
++    public void onPause() {
++        super.onPause();
++    }
++
++    public void onDestroy() {
++        super.onDestroy();
++    }
++
++    private void updateUI() {
++        PreferenceScreen preferenceScreen = getPreferenceScreen();
++        if(preferenceScreen != null) {
++            preferenceScreen.removeAll();
++        }
++
++        addPreferencesFromResource(R.xml.gesture_settings);
++        initPreference();
++    }
++
++    private void initPreference() {
++        boolean boolValue = false;
++        String strValue = null;
++
++        PreferenceScreen preferenceScreen = getPreferenceScreen();
++        if(preferenceScreen == null) {
++            return;
++        }
++
++        mDoubleClickUnlockPref = (SwitchPreference)findPreference(KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_UNLOCK);
++        if(mDoubleClickUnlockPref != null) {
++            boolValue = Settings.System.getInt(mContext.getContentResolver(), Settings.System.KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_UNLOCK, 0) != 0;
++            mDoubleClickUnlockPref.setChecked(boolValue);
++            mDoubleClickUnlockPref.setOnPreferenceChangeListener(this);
++        }
++
++        mCameraPref = (SwitchPreference)findPreference(KEY_GESTURE_TYPE_CAMERA);
++        if(mCameraPref != null) {
++            boolValue = Settings.System.getInt(mContext.getContentResolver(), Settings.System.KEY_GESTURE_TYPE_CAMERA, 0) != 0;
++            mCameraPref.setChecked(boolValue);
++            mCameraPref.setOnPreferenceChangeListener(this);
++        }
++
++
++        mMusicPref = (SwitchPreference)findPreference(KEY_GESTURE_TYPE_MUSIC);
++        if(mMusicPref != null) {
++            boolValue = Settings.System.getInt(mContext.getContentResolver(), Settings.System.KEY_GESTURE_TYPE_MUSIC, 0) != 0;
++            mMusicPref.setChecked(boolValue);
++            mMusicPref.setOnPreferenceChangeListener(this);
++        }
++
++        mFlashLightPref = (SwitchPreference)findPreference(KEY_GESTURE_TYPE_FLASHLIGHT);
++        if(mFlashLightPref != null) {
++            boolValue = Settings.System.getInt(mContext.getContentResolver(), Settings.System.KEY_GESTURE_TYPE_FLASHLIGHT, 0) != 0;
++            mFlashLightPref.setChecked(boolValue);
++            mFlashLightPref.setOnPreferenceChangeListener(this);
++        }
++
++        mVibratePref = (SwitchPreference)findPreference(KEY_GESTURE_TYPE_VIBRATE);
++        if(mVibratePref != null) {
++            boolValue = Settings.System.getInt(mContext.getContentResolver(), Settings.System.KEY_GESTURE_TYPE_VIBRATE, 0) != 0;
++            mVibratePref.setChecked(boolValue);
++            mVibratePref.setOnPreferenceChangeListener(this);
++        }
++    }
++
++    @Override
++    protected int getMetricsCategory() {
++        return MetricsEvent.FINGERPRINT;
++    }
++
++    @Override
++    public boolean onPreferenceChange(Preference preference, Object objValue) {
++        int value = (Boolean) objValue ? 1:0;
++        if (preference == mDoubleClickUnlockPref) {
++            Settings.System.putInt(mContext.getContentResolver(), Settings.System.KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_UNLOCK, value);
++            Util.setFlags(mContext, Util.KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_UNLOCK);
++        } else if (preference == mCameraPref) {
++            Settings.System.putInt(mContext.getContentResolver(), Settings.System.KEY_GESTURE_TYPE_CAMERA, value);
++            Util.setFlags(mContext, Util.KEY_GESTURE_TYPE_CAMERA);
++        } else if (preference == mMusicPref) {
++            Settings.System.putInt(mContext.getContentResolver(), Settings.System.KEY_GESTURE_TYPE_MUSIC, value);
++            Util.setFlags(mContext, Util.KEY_GESTURE_TYPE_MUSIC);
++        } else if (preference == mFlashLightPref) {
++            Settings.System.putInt(mContext.getContentResolver(), Settings.System.KEY_GESTURE_TYPE_FLASHLIGHT, value);
++            Util.setFlags(mContext, Util.KEY_GESTURE_TYPE_FLASHLIGHT);
++        } else if (preference == mVibratePref) {
++            Settings.System.putInt(mContext.getContentResolver(), Settings.System.KEY_GESTURE_TYPE_VIBRATE, value);
++        }
++
++        return true;
++    }
++}
++
+Index: packages/apps/Settings/src/com/android/settings/GestureReceiver.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/GestureReceiver.java	(revision 0)
++++ packages/apps/Settings/src/com/android/settings/GestureReceiver.java	(revision 166664)
+@@ -0,0 +1,73 @@
++package com.android.settings;
++
++
++import android.content.Context;
++import android.content.ComponentName;
++import android.content.BroadcastReceiver;
++import android.content.Intent;
++import android.content.pm.ApplicationInfo;
++import android.content.pm.PackageManager;
++import android.os.SystemProperties;
++import android.provider.Settings;
++import android.util.Log;
++
++import java.util.ArrayList;
++import java.util.List;
++
++
++public class GestureReceiver extends BroadcastReceiver {
++    private static final String TAG = "GestureReceiver";
++
++    private static final String KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_UNLOCK = "gesture_type_double_click_switch_unlock";
++    private static final String KEY_GESTURE_TYPE_CAMERA = "gesture_type_camera";
++    private static final String KEY_GESTURE_TYPE_MUSIC = "gesture_type_music";
++    private static final String KEY_GESTURE_TYPE_FLASHLIGHT = "gesture_type_flashlight";
++    private static final String KEY_GESTURE_TYPE_VIBRATE = "gesture_type_vibrate";
++
++    private final ArrayList<GestureFlags> mGestureFlags = new ArrayList<GestureFlags>() {
++        {add(new GestureFlags(Settings.System.KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_UNLOCK,    Util.KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_UNLOCK));}
++        {add(new GestureFlags(Settings.System.KEY_GESTURE_TYPE_CAMERA,  Util.KEY_GESTURE_TYPE_CAMERA));}
++        {add(new GestureFlags(Settings.System.KEY_GESTURE_TYPE_MUSIC, Util.KEY_GESTURE_TYPE_MUSIC));}
++        {add(new GestureFlags(Settings.System.KEY_GESTURE_TYPE_FLASHLIGHT,     Util.KEY_GESTURE_TYPE_FLASHLIGHT));}
++    };
++
++    @Override
++    public void onReceive(Context context, Intent intent) {
++        String action = intent.getAction();
++        Log.d(TAG, "onReceive: action = " + action);
++        if(Intent.ACTION_BOOT_COMPLETED.equals(action)) {
++            Util.setFlags(context, 0);
++        }
++    }
++
++    private void updateContent(Context context, String packageName) {
++        int flag = 0;
++        int i = 0;
++        Log.d(TAG, "updateContent: packageName = " + packageName);
++        if(packageName == null || packageName.length() < 0) {
++            Log.e(TAG, "updateContent: packageName is null, return");
++            return;
++        }
++
++        for(i = 0; i < mGestureFlags.size(); i++) {
++            String strValue = Settings.System.getString(context.getContentResolver(), mGestureFlags.get(i).gestureType);
++            if(strValue != null && strValue.length() > 0) {
++                String[] s = strValue.split(";");
++                if(packageName.equals(s[0])) {
++                    flag = mGestureFlags.get(i).flag;
++                    Log.d(TAG, "updateContent: flag = " + flag);
++                    Settings.System.putString(context.getContentResolver(), mGestureFlags.get(i).gestureType, "");
++                }
++            }
++        }
++    }
++
++    public class GestureFlags {
++        String gestureType;
++        int flag;
++        public GestureFlags(String gestureType, int flag) {
++            this.gestureType = gestureType;
++            this.flag = flag;
++        }
++    }
++}
+Index: packages/apps/Settings/src/com/android/settings/SettingsActivity.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/SettingsActivity.java	(revision 166663)
++++ packages/apps/Settings/src/com/android/settings/SettingsActivity.java	(revision 166664)
+@@ -143,6 +143,8 @@
+ import com.android.internal.app.LocalePickerWithRegion;
+ import com.android.settings.Utils;
+ 
++import com.android.settings.GestureSettings;
++
+ public class SettingsActivity extends SettingsDrawerActivity
+         implements PreferenceManager.OnPreferenceTreeClickListener,
+         PreferenceFragment.OnPreferenceStartFragmentCallback,
+@@ -246,6 +248,7 @@
+             //device_section
+             Settings.HomeSettingsActivity.class.getName(),
+             Settings.SoundSettingsActivity.class.getName(),
++            Settings.GestureSettingsActivity.class.getName(),
+             Settings.DisplaySettingsActivity.class.getName(),
+             Settings.StorageSettingsActivity.class.getName(),
+             Settings.ManageApplicationsActivity.class.getName(),
+@@ -288,6 +291,7 @@
+             UserDictionaryList.class.getName(),
+             UserDictionarySettings.class.getName(),
+             HomeSettings.class.getName(),
++            GestureSettings.class.getName(),
+             DisplaySettings.class.getName(),
+             DeviceInfoSettings.class.getName(),
+             ManageApplications.class.getName(),
+Index: packages/apps/Settings/src/com/android/settings/Util.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/Util.java	(revision 0)
++++ packages/apps/Settings/src/com/android/settings/Util.java	(revision 166664)
+@@ -0,0 +1,58 @@
++package com.android.settings;
++
++import android.os.SystemProperties;
++import android.content.Context;
++import android.provider.Settings;
++import java.io.FileInputStream;
++import java.io.FileOutputStream;
++import java.io.FileNotFoundException;
++import java.io.BufferedInputStream;
++import java.io.BufferedOutputStream;
++import java.io.File;
++import java.io.IOException;
++import android.util.Log;
++import java.io.FileWriter;
++
++public final class Util  {
++    private static final String TAG = "Gesture/Util";
++    private static final String fileName = "/dev/tp_gesture_switch";
++
++    public static final int FALG_GESTURE_ENABLE                             = 0x01;
++    public static final int KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_UNLOCK     = 0x20;
++    public static final int KEY_GESTURE_TYPE_CAMERA                         = 0x80;
++    public static final int KEY_GESTURE_TYPE_MUSIC                          = 0x1E;
++    public static final int KEY_GESTURE_TYPE_FLASHLIGHT                     = 0x40;
++    public static final int FLAG_DEFAULT_VALUES                             = 0X01;
++
++    public static void setFlags(Context mContext, int gestureValue){
++        int gestureSwitchValue = Settings.System.getInt(mContext.getContentResolver(), "FALG_GESTURE_CURRENT_STATE", 1);
++        int value = gestureValue ^ gestureSwitchValue;
++        writeFile(value);
++        Settings.System.putInt(mContext.getContentResolver(), "FALG_GESTURE_CURRENT_STATE", value);
++    }
++
++    public static void writeFile(int gestureValue) {
++        int value = gestureValue;
++
++        FileWriter file = null;
++        try {
++            file = new FileWriter(fileName);
++            String buf = String.valueOf(value);
++            file.write(buf);
++            if (file != null) {
++                file.close();
++                file = null;
++            }
++        } catch (IOException e) {
++            Log.e(TAG, "saveParamToFile " + e.getMessage());
++            try {
++                if (file != null) {
++                    file.close();
++                    file = null;
++                }
++            } catch (IOException io) {
++                Log.e(TAG, "saveParamToFile fail");
++            }
++        }
++    }
++}
+Index: packages/apps/Settings/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values-zh-rCN/strings.xml	(revision 166663)
++++ packages/apps/Settings/res/values-zh-rCN/strings.xml	(revision 166664)
+@@ -3243,7 +3243,7 @@
+     <string name="cmupdate_settings_title">系统更新</string>
+     <!-- SPRD 614538-->
+     <string name="current_label_phone">本机</string>
+-
++    <string name="gesture_name">手势</string>
+     <!-- SPRD:645023-->
+     <string name="public_volumes_permission">访客或新用户无权限访问</string>
+ 	<string name="storage_detail_total">总共</string>
+Index: packages/apps/Settings/res/values/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values/strings.xml	(revision 166663)
++++ packages/apps/Settings/res/values/strings.xml	(revision 166664)
+@@ -7671,7 +7671,40 @@
+     <string name="memoryInfoText"><![CDATA[Free/Total Memory: [%1$s]/[%2$s]]]></string>
+     <string name="clear_btn_text">Stop</string>
+     <string name="app_title">Task Manager</string>
+-    <string name="storage_detail_total">Total</string>
+-    <string name="storage_detail_system">System</string>
+-    <string name="storage_detail_free">Free</string>
++	<!-- for custom requirements: gesture s -->
++    <string name="gesture_setting_title">Magic gesture</string>
++    <string name="gesture_setting_off_msg">When activate Magic-Touch Mode, you can launch the preset application rapidly by making the associated gesture with the screen off. You can also customize the launched application for each gesture. Pay attent when you enable secure lockscreen, you should unlock before enter the specified application for the sake of privacy. Pay attention the gesture should be finished in 1.5 seconds.</string>
++    <string name="gesture_setting_category_normal">COMMON</string>
++    <string name="gesture_setting_shortcut_title">Smart-Wake prompt</string>
++    <string name="gesture_setting_shortcut_msg">Smart-Wake Mode Activated!</string>
++    <string name="gesture_setting_shortcut_ok">OK</string>
++    <string name="gesture_setting_double_click_switch_unlock">Screen Unlock</string>
++    <string name="gesture_setting_double_click_switch_unlock_summary">Double tap any any where to unlock the screen</string>
++    <string name="gesture_type_double_click_switch_lock">Screen Lock</string>
++    <string name="gesture_type_double_click_switch_lock_summary">Double tap any any where to lock the screen</string>
++    <string name="gesture_setting_gesture_camera">Camera</string>
++    <string name="gesture_setting_gesture_camera_summary">Draw a circle to activate camera</string>
++    <string name="gesture_setting_gesture_music">Music</string>
++    <string name="gesture_setting_gesture_music_summary">Use gestures to control music playback\n·Draw up arrow for pause\n·Draw down arrow for play\n·Draw left arrow for previous track\n·Draw right arrow for next tract</string>
++    <string name="gesture_setting_gesture_flashlight">Flashlight</string>
++    <string name="gesture_setting_gesture_flashlight_summary">Draw a \'V\' to toggle flashlight</string>
++    <string name="gesture_setting_vibrate_title">Extras</string>
++    <string name="gesture_setting_gesture_vibrate">Haptic feedback</string>
++    <string name="gesture_setting_gesture_vibrate_summary">Vibrate when a gesture got detected</string>
++    <string name="gesture_setting_name">Gestures</string>
++    <string name="gesture_setting_gesture_up">Slide Up</string>
++    <string name="gesture_setting_gesture_down">Slide Down</string>
++    <string name="gesture_setting_gesture_left">Slide Left</string>
++    <string name="gesture_setting_gesture_right">Slide Right</string>
++    <string name="gesture_setting_gesture_o">O Gesture</string>
++    <string name="gesture_setting_gesture_w">W Gesture</string>
++    <string name="gesture_setting_gesture_e">E Gesture</string>
++    <string name="gesture_setting_gesture_c">C Gesture</string>
++    <string name="gesture_setting_gesture_m">M Gesture</string>
++    <string name="gesture_setting_gesture_z">Z Gesture</string>
++    <string name="gesture_setting_gesture_v">V Gesture</string>
++    <string name="gesture_setting_gesture_s">S Gesture</string>
++    <string name="gesture_setting_no_app">(empty)</string>
++    <string name="gesture_name">Gesture</string>
++    <!-- for custom requirements: gesture e -->
+ </resources>
+Index: packages/apps/Settings/res/drawable-hdpi/ic_settings_gesture.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Settings/res/drawable-hdpi/ic_settings_gesture.png
+===================================================================
+--- packages/apps/Settings/res/drawable-hdpi/ic_settings_gesture.png	(revision 0)
++++ packages/apps/Settings/res/drawable-hdpi/ic_settings_gesture.png	(revision 166664)
+
+Property changes on: packages/apps/Settings/res/drawable-hdpi/ic_settings_gesture.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Settings/res/xml/gesture_settings.xml
+===================================================================
+--- packages/apps/Settings/res/xml/gesture_settings.xml	(revision 0)
++++ packages/apps/Settings/res/xml/gesture_settings.xml	(revision 166664)
+@@ -0,0 +1,62 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2012 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++
++-->
++<PreferenceScreen
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    android:title="@string/gesture_setting_title"
++    xmlns:settings="http://schemas.android.com/apk/res/com.android.settings">
++
++    <SwitchPreference
++        android:key="gesture_type_double_click_switch_unlock"
++        android:title="@string/gesture_setting_double_click_switch_unlock"
++        android:summary="@string/gesture_setting_double_click_switch_unlock_summary"
++        android:persistent="false"/>
++<!--
++    <SwitchPreference
++        android:key="gesture_type_double_click_switch_lock"
++        android:title="@string/gesture_type_double_click_switch_lock"
++        android:summary="@string/gesture_type_double_click_switch_lock_summary"
++        android:persistent="false"/>
++-->
++    <SwitchPreference
++        android:key="gesture_type_camera"
++        android:title="@string/gesture_setting_gesture_camera"
++        android:summary="@string/gesture_setting_gesture_camera_summary"
++        android:persistent="false"/>
++
++    <SwitchPreference
++        android:key="gesture_type_music"
++        android:title="@string/gesture_setting_gesture_music"
++        android:summary="@string/gesture_setting_gesture_music_summary"
++        android:persistent="false"/>
++
++    <SwitchPreference
++        android:key="gesture_type_flashlight"
++        android:title="@string/gesture_setting_gesture_flashlight"
++        android:summary="@string/gesture_setting_gesture_flashlight_summary"
++        android:persistent="false"/>
++
++    <PreferenceCategory
++        android:title="@string/gesture_setting_vibrate_title">
++
++        <SwitchPreference
++            android:key="gesture_type_vibrate"
++            android:title="@string/gesture_setting_gesture_vibrate"
++            android:summary="@string/gesture_setting_gesture_vibrate_summary"
++            android:persistent="false"/>
++    </PreferenceCategory>
++
++</PreferenceScreen>

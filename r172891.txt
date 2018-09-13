@@ -1,0 +1,20 @@
+Index: vendor/sprd/platform/packages/apps/SprdStk/src/com/android/stk/StkAppService.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdStk/src/com/android/stk/StkAppService.java	(revision 172890)
++++ vendor/sprd/platform/packages/apps/SprdStk/src/com/android/stk/StkAppService.java	(revision 172891)
+@@ -87,6 +87,7 @@
+ import java.util.LinkedList;
+ import java.lang.System;
+ import java.util.List;
++import android.provider.Telephony;
+ 
+ import static com.android.internal.telephony.cat.CatCmdMessageSprd.
+                    SetupEventListConstants.IDLE_SCREEN_AVAILABLE_EVENT;
+@@ -1506,6 +1507,7 @@
+         values.put(Telephony.Carriers.TYPE, TYPE_STK);
+         values.put(Telephony.Carriers.SUBSCRIPTION_ID, SubscriptionController.getInstance().getSubIdUsingPhoneId(slotId));
+         values.put(Telephony.Carriers.PROFILE_ID, 255);
++		values.put("user_visible", 0);
+         /* SPRD: Modify the bear type @{ */
+         if (channeldata.BearerParam != null) {
+             int len = channeldata.BearerParam.length();

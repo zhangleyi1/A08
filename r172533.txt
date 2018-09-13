@@ -1,0 +1,33 @@
+Index: packages/apps/Messaging/src/com/android/messaging/datamodel/MessageNotificationState.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/datamodel/MessageNotificationState.java	(revision 172532)
++++ packages/apps/Messaging/src/com/android/messaging/datamodel/MessageNotificationState.java	(revision 172533)
+@@ -553,11 +553,11 @@
+             //builder.setContentText(mContent);   // for collapsed state
+             final Context context = Factory.get().getApplicationContext();
+             String unReadMsgCoutTips;
+-            //if (convInfo.mTotalMessageCount <= getMaxMessagesInConversationNotification())  {
++            if (convInfo.mTotalMessageCount <= getMaxMessagesInConversationNotification())  {
+                 unReadMsgCoutTips = messageCount+" "+context.getString(R.string.unread_message_count);
+-           // } else {
+-           //     unReadMsgCoutTips = messageCount+"+ "+context.getString(R.string.unread_message_count);
+-          //  }
++           } else {
++                unReadMsgCoutTips = messageCount+"+ "+context.getString(R.string.unread_message_count);
++           }
+             builder.setContentText(unReadMsgCoutTips);
+             LogUtil.v(TAG, "===notify=====NotificationCompat.Style==build===========unReadMsgCoutTips: "+unReadMsgCoutTips+"   mContent: "+mContent);
+            /* if (messageCount == 1) {
+Index: packages/apps/Messaging/src/com/android/messaging/util/BugleGservicesKeys.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/util/BugleGservicesKeys.java	(revision 172532)
++++ packages/apps/Messaging/src/com/android/messaging/util/BugleGservicesKeys.java	(revision 172533)
+@@ -194,7 +194,7 @@
+     public static final String MAX_MESSAGES_IN_CONVERSATION_NOTIFICATION =
+             "bugle_max_messages_in_conversation_notification";
+ 	//bug for 91570
+-    public static final int MAX_MESSAGES_IN_CONVERSATION_NOTIFICATION_DEFAULT = 7;
++    public static final int MAX_MESSAGES_IN_CONVERSATION_NOTIFICATION_DEFAULT = 99;//7
+ 
+     /**
+      * Time (in seconds) between notification ringing for incoming messages of the same

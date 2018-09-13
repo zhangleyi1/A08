@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/KeyGen/src/com/sprd/keygen/MainActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/KeyGen/src/com/sprd/keygen/MainActivity.java	(revision 173967)
++++ vendor/sprd/platform/packages/apps/KeyGen/src/com/sprd/keygen/MainActivity.java	(revision 173968)
+@@ -100,7 +100,7 @@
+                 String phoneNumber1 = tm.getLine1Number();
+                 
+                 String number = "";
+-                if(phoneNumber1 != null) {
++                if(phoneNumber1 != null || phoneNumber1.startsWith ("000")) {
+                     number = phoneNumber1.length() < 1?"NULL":phoneNumber1;
+                 } else {
+                     number = "NULL";

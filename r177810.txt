@@ -1,0 +1,13 @@
+Index: vendor/sprd/feature_configs/base/overlay/packages/services/Telephony/res/values-in/strings.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/packages/services/Telephony/res/values-in/strings.xml	(revision 177809)
++++ vendor/sprd/feature_configs/base/overlay/packages/services/Telephony/res/values-in/strings.xml	(revision 177810)
+@@ -7,7 +7,7 @@
+ <string name="preferred_data_roaming_title">"Roaming Data"</string>
+ <string name="preferred_data_roaming_title_smartfren">Roaming Data</string>
+ <string name="preferred_data_roaming_summary">"Hanya roaming Nasional"</string>
+-<string name="preferred_data_roaming_dialogtitle">"Roaming data"</string>
++<string name="preferred_data_roaming_dialogtitle">"Roaming Data"</string>
+ <string name="preferred_data_roaming_disable">"Nonaktifkan"</string>
+ <string name="preferred_data_roaming_national">"Hanya roaming Nasional"</string>
+ <string name="preferred_data_roaming_all_networks">Semua jaringan</string>

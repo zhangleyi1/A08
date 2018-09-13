@@ -1,0 +1,13 @@
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 169955)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 169956)
+@@ -1245,7 +1245,7 @@
+ 						public void onClick(DialogInterface dialog, int which) {                           
+ 						// TODO Auto-generated method stub 
+ 						enhanced4gModePref.setChecked(enhanced4gMode);
+-						ImsManager.setEnhanced4gLteModeSetting(this, enhanced4gModePref.isChecked());
++						ImsManager.setEnhanced4gLteModeSetting(MobileNetworkSettings.this, enhanced4gModePref.isChecked());
+ 						}                    
+ 				});                
+ 				dialog.setNegativeButton(R.string.votle_cancel,                    

@@ -1,0 +1,40 @@
+Index: kernel/arch/arm/configs/sp9832a_3h10_volte_defconfig
+===================================================================
+--- kernel/arch/arm/configs/sp9832a_3h10_volte_defconfig	(revision 169828)
++++ kernel/arch/arm/configs/sp9832a_3h10_volte_defconfig	(revision 169829)
+@@ -2828,7 +2828,7 @@
+ # CONFIG_ADIE_SC2711 is not set
+ CONFIG_ADIE_SC2723=y
+ # CONFIG_ADIE_SC2723S is not set
+-CONFIG_BUS_MONITOR_DEBUG=y
++# CONFIG_BUS_MONITOR_DEBUG is not set
+ CONFIG_DJTAG=y
+ CONFIG_BUS_MONITOR_PERF=y
+ # CONFIG_SC_VIBRATOR is not set
+Index: kernel/drivers/misc/sprd_dwnload/sprd_download.c
+===================================================================
+--- kernel/drivers/misc/sprd_dwnload/sprd_download.c	(revision 169828)
++++ kernel/drivers/misc/sprd_dwnload/sprd_download.c	(revision 169829)
+@@ -150,6 +150,8 @@
+ 
+ static int sprd_download_write(struct file *filp, const char __user *buf,size_t count,loff_t *pos)
+ {
++	int try_cnt = 0;
++
+ 	if ((download_dev==NULL)||(download_dev->open_count!=1))
+ 		return -EIO;
+ 
+@@ -182,6 +184,13 @@
+ 				printk("wait marlin ready ok\n");
+ 				break;
+ 			}
++
++			if (try_cnt > 20) {
++				pr_info("wait marlin ready timeout\n");
++				break;
++			}
++			try_cnt++;
++
+ 			msleep(50);
+ 		}
+ 	}else if(strncmp(download_dev->write_buffer,"end_calibration",15) == 0)

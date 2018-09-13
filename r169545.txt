@@ -1,0 +1,22 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/StatusBarNotifier.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/StatusBarNotifier.java	(revision 169544)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/StatusBarNotifier.java	(revision 169545)
+@@ -526,7 +526,7 @@
+         // different calls.  So if both lines are in use, display info
+         // from the foreground call.  And if there's a ringing call,
+         // display that regardless of the state of the other calls.
+-        if (call.getState() == Call.State.ONHOLD) {
++       /* if (call.getState() == Call.State.ONHOLD) {
+             return R.drawable.ic_phone_paused_white_24dp;
+         } else if (call.getSessionModificationState()
+                 == Call.SessionModificationState.RECEIVED_UPGRADE_TO_VIDEO_REQUEST) {
+@@ -539,7 +539,7 @@
+             if (iconToShow != 0) {
+                 return iconToShow ;
+             }
+-        }
++        }*/
+         return R.drawable.ic_call_white_24dp;
+     }
+ 

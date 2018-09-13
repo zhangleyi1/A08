@@ -1,0 +1,13 @@
+Index: packages/apps/Dialer/src/com/sprd/dialer/utils/FastDialUtils.java
+===================================================================
+--- packages/apps/Dialer/src/com/sprd/dialer/utils/FastDialUtils.java	(revision 168399)
++++ packages/apps/Dialer/src/com/sprd/dialer/utils/FastDialUtils.java	(revision 168400)
+@@ -94,7 +94,7 @@
+             String fastCall = sp.getString("fast_dial_" + String.valueOf(key), "");
+ 
+             if (TextUtils.isEmpty(fastCall)) {
+-                Toast.makeText(appContext, appContext.getText(R.string.no_fast_dial_number), Toast.LENGTH_SHORT).show();
++            //    Toast.makeText(appContext, appContext.getText(R.string.no_fast_dial_number), Toast.LENGTH_SHORT).show();
+                 return null;
+             }
+ 

@@ -1,0 +1,291 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/PredictedAppController.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/PredictedAppController.java	(revision 168751)
++++ packages/apps/Launcher3/src/com/android/launcher3/PredictedAppController.java	(revision 168752)
+@@ -1,102 +1,144 @@
++
+ package com.android.launcher3;
+ 
+-import android.app.usage.UsageStats;
+-import android.app.usage.UsageStatsManager;
++
+ import android.content.ComponentName;
+ import android.content.Context;
++import android.content.SharedPreferences;
+ import android.util.Log;
+ 
+ import com.android.launcher3.compat.UserHandleCompat;
+ import com.android.launcher3.util.ComponentKey;
+ 
++import org.json.JSONArray;
++import org.json.JSONException;
+ 
+ import java.util.ArrayList;
+-import java.util.Calendar;
+ import java.util.Collections;
+ import java.util.Comparator;
+-import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
++import java.util.Set;
++import java.util.concurrent.ConcurrentHashMap;
+ 
+ class PredictedAppController {
+     private static final String TAG = "PredictedAppController";
++    Context mContext;
++    private String[] mPredictedCustomApp;
++    private static ConcurrentHashMap<ComponentName, Integer> mPredictedList = new ConcurrentHashMap<>();
++    private static final String CLICK_APP_LIST = "click_app_list";
+ 
+-    private ArrayList<ComponentKey> currentSortAppList = new ArrayList<>();
+-    private Map<String, UsageStats>  mPackageStat = new HashMap<>();
+-    Launcher mLauncher;
+-    private LauncherModel mModel;
+-    private UsageStatsManager mUsageStatsManager;
+-
+-    PredictedAppController(Launcher launcher) {
++    PredictedAppController(Context context) {
+         // TODO Auto-generated constructor stub
+-        mLauncher = launcher;
+-        mModel = mLauncher.getModel();
+-        mUsageStatsManager = (UsageStatsManager) mLauncher.getSystemService(Context.USAGE_STATS_SERVICE);
++        mContext = context;
++        mPredictedCustomApp = mContext.getResources().getStringArray(R.array.predictedapp_list);
+     }
+ 
+-    List<ComponentKey> getCurrentSortAppComponentList() {
+-        currentSortAppList.clear();
++    void initPredictedList(){
++        if(!getSavedPredictedList().isEmpty()){
++            mPredictedList.putAll(getSavedPredictedList());
++        }else {
++            for (String cnStr : mPredictedCustomApp) {
++                ComponentName cn = ComponentName.unflattenFromString(cnStr);
++                mPredictedList.put(cn, 0);
++            }
++        }
++    }
+ 
+-        ArrayList<AppInfo> appInfos = mModel.getAllAppsList();
+-        int size = appInfos.size();
+-        Log.d(TAG, "getCurrentSortAppComponentList, appInfos.size(): " + size);
++    void updatePredictedList(ComponentName cn){
++        if(cn == null){
++            return;
++        }
++        if(!mPredictedList.isEmpty()) {
++            if (mPredictedList.containsKey(cn)) {
++                int clickCount = mPredictedList.get(cn);
++                mPredictedList.put(cn, clickCount + 1);
++            }else{
++                mPredictedList.put(cn, 1);
++            }
++        }else{
++                initPredictedList();
++        }
++    }
+ 
+-        for (int i = 0; i < size; i++) {
++    void removeAppsFromPredicteList(final ArrayList<AppInfo> appInfos){
++        for(int i = 0; i < appInfos.size(); i++){
+             ComponentName cn = appInfos.get(i).componentName;
+-			UserHandleCompat user = appInfos.get(i).user;
+-            currentSortAppList.add(new ComponentKey(cn, user));
++            if(cn != null){
++                mPredictedList.remove(cn);
++            }
+         }
+-        sortApps(currentSortAppList);
+-
+-        return currentSortAppList;
+     }
+ 
++    List<ComponentKey> getCurrentPredictedList(){
++        synchronized (this) {
++            List<ComponentKey> currentPredictedList = new ArrayList<>();
+ 
+-    private void sortApps(ArrayList<ComponentKey> apps) {
+-        try {
+-           Calendar cal = Calendar.getInstance();
+-           cal.add(Calendar.DAY_OF_YEAR, -2);
++            List<Map.Entry<ComponentName, Integer>> temp = new ArrayList<>(mPredictedList.entrySet());
+ 
+-            mPackageStat = mUsageStatsManager.queryAndAggregateUsageStats(cal.getTimeInMillis(), System.currentTimeMillis());
++            Collections.sort(temp, new Comparator<Map.Entry<ComponentName, Integer>>() {
++                public int compare(Map.Entry<ComponentName, Integer> o1, Map.Entry<ComponentName, Integer> o2) {
++                    return o2.getValue() - o1.getValue();
++                }
++            });
+ 
+-            Log.d(TAG, "mPackageStat.size() = " + mPackageStat.size());
+-
+-
+-            Collections.sort(apps, APP_LAUNCH_TIME_COMPARATOR);
+-        } catch (Exception e) {
+-            e.printStackTrace();
++            for (int i = 0; i < temp.size() - 1; i++) {
++                ComponentName cn = temp.get(i).getKey();
++                currentPredictedList.add(new ComponentKey(cn, UserHandleCompat.myUserHandle()));
++           }
++            return currentPredictedList;
+         }
+     }
+ 
+-    private final Comparator<ComponentKey> APP_LAUNCH_TIME_COMPARATOR = new Comparator<ComponentKey>() {
+-        @Override
+-        public int compare(ComponentKey a, ComponentKey b) {
+-            String aName = a.componentName.getPackageName();
+-            String bName = b.componentName.getPackageName();
+-            int result = 0;
+-            try {
+-                UsageStats aStats = mPackageStat.get(aName);
+-                UsageStats bStats = mPackageStat.get(bName);
+-                if (aStats != null && bStats != null) {
+-                    if ((aStats.mLaunchCount > bStats.mLaunchCount)
+-                            || ((aStats.mLaunchCount == bStats.mLaunchCount) && (aStats.mLastTimeUsed > bStats.mLastTimeUsed))) {
+-                        result = -1;
+-                    }else if ((aStats.mLaunchCount < bStats.mLaunchCount)
+-                            || ((aStats.mLaunchCount == bStats.mLaunchCount) && (aStats.mLastTimeUsed < bStats.mLastTimeUsed))) {
+-                        result = 1;
+-                    }else {
+-                        result = 0;
++    private ConcurrentHashMap<ComponentName, Integer> getSavedPredictedList(){
++        ConcurrentHashMap<ComponentName, Integer> savePredictedist = new ConcurrentHashMap<>();
++        SharedPreferences sp = mContext.getSharedPreferences(CLICK_APP_LIST, Context.MODE_PRIVATE);
++        int size = sp.getInt("predicted_app_size", 0);
++        if(size != 0){
++            for(int i = 0; i < size; i++){
++                try {
++                    JSONArray jsonArray = new JSONArray(sp.getString("predicted_app" + i, ""));
++                    int length = jsonArray.length();
++                    String[] data = new String[length];
++                    for (int j = 0; j < length; j++){
++                        String str = jsonArray.getString(j);
++                        data[j] = str;
+                     }
+-                } else {
+-                    result = -1;
++                    if(data[0] != null && data[1] != null) {
++                        savePredictedist.put(ComponentName.unflattenFromString(data[0]), Integer.valueOf(data[1]));
++                    }
++                } catch (JSONException e) {
++                    e.printStackTrace();
++                }
++            }
++        }
++        return  savePredictedist;
++    }
+ 
++    void savePredictedList(){
++        synchronized (this) {
++            int size = mPredictedList.size();
++            SharedPreferences sp = mContext.getSharedPreferences(CLICK_APP_LIST, Context.MODE_PRIVATE);
++            SharedPreferences.Editor editor = sp.edit();
++            editor.putInt("predicted_app_size", size);
++            Log.d(TAG, "set predicted_app_size = " + size);
++
++            Set set = mPredictedList.keySet();
++            int i = 0;
++            for (Object obj : set){
++                String[] data = new String[2];
++                data[0] = ((ComponentName) obj).flattenToString();
++                data[1] = mPredictedList.get(obj).toString();
++
++                JSONArray jsonArray = new JSONArray();
++                for (String str : data) {
++                    jsonArray.put(str);
+                 }
+-            } catch (Exception e) {
+-                e.printStackTrace();
+-                return result;
++
++                editor.putString("predicted_app" + i, jsonArray.toString());
++                i++;
+             }
+-            return result;
++            editor.apply();
+         }
+-    };
+-
++    }
+ }
+Index: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 168751)
++++ packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 168752)
+@@ -571,6 +571,7 @@
+         /* @} */
+ 		
+ 		mPredictedAppController = new PredictedAppController(this);
++		mPredictedAppController.initPredictedList();
+ 		motionSound = MediaPlayer.create(yyContext, R.raw.collision);
+ 		mSensorManager = (SensorManager) yyContext.getSystemService(Context.SENSOR_SERVICE);
+ 		audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);   
+@@ -2265,6 +2266,8 @@
+         if (mLauncherCallbacks != null) {
+             mLauncherCallbacks.onSaveInstanceState(outState);
+         }
++		
++        mPredictedAppController.savePredictedList();
+     }
+ 
+     @Override
+@@ -2312,6 +2315,7 @@
+         mDragController = null;
+ 
+         LauncherAnimUtils.onDestroyActivity();
++        mPredictedAppController.savePredictedList();
+ 
+         if (mLauncherCallbacks != null) {
+             mLauncherCallbacks.onDestroy();
+@@ -3333,6 +3337,12 @@
+             Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
+             Log.e(TAG, "Unable to launch. tag=" + tag + " intent=" + intent, e);
+         }
++        if(success){
++            ComponentName cn = intent.getComponent();
++            if(cn != null) {
++                mPredictedAppController.updatePredictedList(cn);
++            }
++        }
+         return success;
+     }
+ 
+@@ -3880,9 +3890,9 @@
+      * resumed.
+      */
+     private void tryAndUpdatePredictedApps() {
+-        if(mPredictedAppController != null ){
+-            List<ComponentKey> apps = mPredictedAppController.getCurrentSortAppComponentList();
+-            if(apps != null && apps.size() != 0) {
++        if(mPredictedAppController !=  null){
++            List<ComponentKey> apps = mPredictedAppController.getCurrentPredictedList();
++            if (apps != null && !apps.isEmpty()) {
+                 mAppsView.setPredictedApps(apps);
+             }
+         }else{
+@@ -4752,6 +4762,7 @@
+         if (mAppsView != null) {
+             mAppsView.removeApps(appInfos);
+         }
++        mPredictedAppController.removeAppsFromPredicteList(appInfos);
+     }
+ 
+     private Runnable mBindWidgetModelRunnable = new Runnable() {
+Index: packages/apps/Launcher3/res/values/array.xml
+===================================================================
+--- packages/apps/Launcher3/res/values/array.xml	(revision 0)
++++ packages/apps/Launcher3/res/values/array.xml	(revision 168752)
+@@ -0,0 +1,12 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++
++    <string-array name="predictedapp" translatable="false">
++        <item>com.android.settings/.Settings</item>
++        <item>com.android.camera2/com.android.camera.CameraLauncher</item>
++        <item>com.android.gallery3d/.app.GalleryActivity</item>
++        <item>com.android.email/.activity.Welcome</item>
++        <item>com.android.calculator2/.Calculator</item>
++        <item>com.sprd.note/.NoteActivity</item>
++    </string-array>
++</resources>

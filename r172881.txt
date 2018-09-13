@@ -1,0 +1,27 @@
+Index: kernel/drivers/input/touchscreen/msg5846/mstar_drv_platform_interface.c
+===================================================================
+--- kernel/drivers/input/touchscreen/msg5846/mstar_drv_platform_interface.c	(revision 172880)
++++ kernel/drivers/input/touchscreen/msg5846/mstar_drv_platform_interface.c	(revision 172881)
+@@ -519,6 +519,7 @@
+ 		return count;
+ 
+ 	/*
++	bit8  M
+ 	bit7  O
+ 	bit6  V
+ 	bit5  double click
+@@ -528,6 +529,14 @@
+ 	bit1  up
+ 	bit0  total switch
+ 	*/
++	if ((TP_gesture_value & 0x100) == 0x100)
++	{
++		g_GestureWakeupMode[0] = g_GestureWakeupMode[0] | GESTURE_WAKEUP_MODE_m_CHARACTER_FLAG;
++	}
++	else
++	{
++		g_GestureWakeupMode[0] = g_GestureWakeupMode[0] & (~GESTURE_WAKEUP_MODE_m_CHARACTER_FLAG);
++	}
+ 
+ 	if ((TP_gesture_value & 0x80) == 0x80)
+ 	{

@@ -1,0 +1,2663 @@
+Index: frameworks/av/include/camera/camera2/OutputConfiguration.h
+===================================================================
+--- frameworks/av/include/camera/camera2/OutputConfiguration.h	(revision 173857)
++++ frameworks/av/include/camera/camera2/OutputConfiguration.h	(revision 173858)
+@@ -20,6 +20,8 @@
+ #include <gui/IGraphicBufferProducer.h>
+ #include <binder/Parcelable.h>
+ 
++#include "OutputConfigurationEx.h"
++
+ namespace android {
+ 
+ class Surface;
+@@ -28,7 +30,9 @@
+ namespace camera2 {
+ namespace params {
+ 
+-class OutputConfiguration : public android::Parcelable {
++class OutputConfiguration :
++        public android::Parcelable ,
++        public android::OutputConfigurationEx{
+ public:
+ 
+     static const int INVALID_ROTATION;
+Index: frameworks/av/services/camera/libcameraservice/Android.mk
+===================================================================
+--- frameworks/av/services/camera/libcameraservice/Android.mk	(revision 173857)
++++ frameworks/av/services/camera/libcameraservice/Android.mk	(revision 173858)
+@@ -112,5 +112,7 @@
+ LOCAL_CFLAGS += -DSPRD_FEATURE_BEAUTY
+ # SPRD:Add for Feature:EIS
+ LOCAL_CFLAGS += -DSPRD_FEATURE_EIS
++# SPRD:Add for Feature:ZSL
++LOCAL_CFLAGS += -DSPRD_FEATURE_ZSL
+ 
+ include $(BUILD_SHARED_LIBRARY)
+Index: frameworks/av/services/camera/libcameraservice/api2/CameraDeviceClient.cpp
+===================================================================
+--- frameworks/av/services/camera/libcameraservice/api2/CameraDeviceClient.cpp	(revision 173857)
++++ frameworks/av/services/camera/libcameraservice/api2/CameraDeviceClient.cpp	(revision 173858)
+@@ -470,18 +470,26 @@
+     int width, height, format;
+     android_dataspace dataSpace;
+ 
+-    if ((err = anw->query(anw, NATIVE_WINDOW_WIDTH, &width)) != OK) {
+-        String8 msg = String8::format("Camera %d: Failed to query Surface width: %s (%d)",
+-                mCameraId, strerror(-err), err);
+-        ALOGE("%s: %s", __FUNCTION__, msg.string());
+-        return STATUS_ERROR(CameraService::ERROR_INVALID_OPERATION, msg.string());
++    width = outputConfiguration.getWidth();
++    height = outputConfiguration.getHeight();
++
++    if(width != 0 && height != 0){
++        ALOGV("API2 surface view");
++    }else {
++        if ((err = anw->query(anw, NATIVE_WINDOW_WIDTH, &width)) != OK) {
++              String8 msg = String8::format("Camera %d: Failed to query Surface width: %s (%d)",
++                       mCameraId, strerror(-err), err);
++              ALOGE("%s: %s", __FUNCTION__, msg.string());
++              return STATUS_ERROR(CameraService::ERROR_INVALID_OPERATION, msg.string());
++        }
++        if ((err = anw->query(anw, NATIVE_WINDOW_HEIGHT, &height)) != OK) {
++              String8 msg = String8::format("Camera %d: Failed to query Surface height: %s (%d)",
++                       mCameraId, strerror(-err), err);
++              ALOGE("%s: %s", __FUNCTION__, msg.string());
++              return STATUS_ERROR(CameraService::ERROR_INVALID_OPERATION, msg.string());
++        }
+     }
+-    if ((err = anw->query(anw, NATIVE_WINDOW_HEIGHT, &height)) != OK) {
+-        String8 msg = String8::format("Camera %d: Failed to query Surface height: %s (%d)",
+-                mCameraId, strerror(-err), err);
+-        ALOGE("%s: %s", __FUNCTION__, msg.string());
+-        return STATUS_ERROR(CameraService::ERROR_INVALID_OPERATION, msg.string());
+-    }
++    ALOGE("w:%d , h:%d.",width,height);
+     if ((err = anw->query(anw, NATIVE_WINDOW_FORMAT, &format)) != OK) {
+         String8 msg = String8::format("Camera %d: Failed to query Surface format: %s (%d)",
+                 mCameraId, strerror(-err), err);
+Index: frameworks/av/camera/camera2/OutputConfiguration.cpp
+===================================================================
+--- frameworks/av/camera/camera2/OutputConfiguration.cpp	(revision 173857)
++++ frameworks/av/camera/camera2/OutputConfiguration.cpp	(revision 173858)
+@@ -19,11 +19,12 @@
+ //#define LOG_NDEBUG 0
+ 
+ #include <utils/Log.h>
+-
+ #include <camera/camera2/OutputConfiguration.h>
+ #include <gui/Surface.h>
+ #include <binder/Parcel.h>
+ 
++#include "OutputConfigurationEx.h"
++
+ namespace android {
+ 
+ 
+@@ -44,7 +45,7 @@
+ 
+ OutputConfiguration::OutputConfiguration() :
+         mRotation(INVALID_ROTATION),
+-        mSurfaceSetID(INVALID_SET_ID) {
++        mSurfaceSetID(INVALID_SET_ID){
+ }
+ 
+ OutputConfiguration::OutputConfiguration(const Parcel& parcel) :
+@@ -56,6 +57,8 @@
+ status_t OutputConfiguration::readFromParcel(const Parcel* parcel) {
+     status_t err = OK;
+     int rotation = 0;
++    view::Surface surfaceShim;
++    int setID = INVALID_SET_ID;
+ 
+     if (parcel == nullptr) return BAD_VALUE;
+ 
+@@ -64,17 +67,19 @@
+         return err;
+     }
+ 
+-    int setID = INVALID_SET_ID;
+-    if ((err = parcel->readInt32(&setID)) != OK) {
++   if(rotation == 4){
++        readInfo(parcel,&rotation);
++   }
++
++   if ((err = parcel->readInt32(&setID)) != OK) {
+         ALOGE("%s: Failed to read surface set ID from parcel", __FUNCTION__);
+         return err;
+-    }
++   }
+ 
+-    view::Surface surfaceShim;
+-    if ((err = surfaceShim.readFromParcel(parcel)) != OK) {
++   if ((err = surfaceShim.readFromParcel(parcel)) != OK) {
+         ALOGE("%s: Failed to read surface from parcel", __FUNCTION__);
+         return err;
+-    }
++   }
+ 
+     mGbp = surfaceShim.graphicBufferProducer;
+     mRotation = rotation;
+@@ -87,7 +92,7 @@
+ }
+ 
+ OutputConfiguration::OutputConfiguration(sp<IGraphicBufferProducer>& gbp, int rotation,
+-        int surfaceSetID) {
++        int surfaceSetID){
+     mGbp = gbp;
+     mRotation = rotation;
+     mSurfaceSetID = surfaceSetID;
+Index: frameworks/av/camera/Android.mk
+===================================================================
+--- frameworks/av/camera/Android.mk	(revision 173857)
++++ frameworks/av/camera/Android.mk	(revision 173858)
+@@ -75,9 +75,11 @@
+ 	frameworks/native/include/media/openmax \
+ 	frameworks/av/include/camera \
+ 	vendor/sprd/platform/frameworks/av/include/camera \
++	vendor/sprd/platform/frameworks/av/include/camera/camera2
+ 
+ LOCAL_EXPORT_C_INCLUDE_DIRS := \
+ 	system/media/camera/include \
++	vendor/sprd/platform/frameworks/av/include/camera/camera2 \
+ 	frameworks/av/include/camera
+ 
+ LOCAL_CFLAGS += -Werror -Wall -Wextra
+@@ -101,7 +103,11 @@
+ LOCAL_CFLAGS += -DSPRD_FEATURE_BEAUTY
+ # SPRD:Add for Feature:EIS
+ LOCAL_CFLAGS += -DSPRD_FEATURE_EIS
++# SPRD:Add for Feature:ZSL
++LOCAL_CFLAGS += -DSPRD_FEATURE_ZSL
+ 
++
++
+ LOCAL_MODULE:= libcamera_client
+ 
+ include $(BUILD_SHARED_LIBRARY)
+Index: frameworks/base/core/java/android/hardware/camera2/params/OutputConfiguration.java
+===================================================================
+--- frameworks/base/core/java/android/hardware/camera2/params/OutputConfiguration.java	(revision 173857)
++++ frameworks/base/core/java/android/hardware/camera2/params/OutputConfiguration.java	(revision 173858)
+@@ -228,6 +228,23 @@
+     }
+ 
+     /**
++     * Add by SPRD for SurfaceView
++     */
++    private int mWidth = 0;
++    private int mHeight = 0;
++    private final int  FLAG_TAG_ORIENTATION = 4;
++
++    /**
++     * @hide
++     * Create an OutputConfiguration for sprd.
++     */
++    public OutputConfiguration(@NonNull Surface surface, int previewWidth, int previewHeight) {
++        this(SURFACE_GROUP_ID_NONE, surface, ROTATION_0);
++        mWidth = previewWidth;
++        mHeight = previewHeight;
++    }
++
++    /**
+      * Get the {@link Surface} associated with this {@link OutputConfiguration}.
+      *
+      * @return the {@link Surface} associated with this {@link OutputConfiguration}.
+@@ -289,6 +306,11 @@
+         if (dest == null) {
+             throw new IllegalArgumentException("dest must not be null");
+         }
++        if (mWidth != 0 && mHeight != 0) {
++            dest.writeInt(FLAG_TAG_ORIENTATION);
++            dest.writeInt(mWidth);
++            dest.writeInt(mHeight);
++        }
+         dest.writeInt(mRotation);
+         dest.writeInt(mSurfaceGroupId);
+         mSurface.writeToParcel(dest, flags);
+@@ -317,6 +339,8 @@
+                    mConfiguredSize.equals(other.mConfiguredSize) &&
+                    mConfiguredFormat == other.mConfiguredFormat &&
+                    mConfiguredDataspace == other.mConfiguredDataspace &&
++                   mWidth == other.mWidth &&
++                   mHeight == other.mHeight &&
+                    mSurfaceGroupId == other.mSurfaceGroupId;
+         }
+         return false;
+@@ -328,6 +352,7 @@
+     @Override
+     public int hashCode() {
+         return HashCodeHelpers.hashCode(
++            mWidth, mHeight,
+             mRotation, mSurface.hashCode(), mConfiguredGenerationId,
+             mConfiguredSize.hashCode(), mConfiguredFormat, mConfiguredDataspace, mSurfaceGroupId);
+     }
+Index: frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/AndroidCamera2AgentImpl.java
+===================================================================
+--- frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/AndroidCamera2AgentImpl.java	(revision 173857)
++++ frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/AndroidCamera2AgentImpl.java	(revision 173858)
+@@ -33,6 +33,7 @@
+ import android.hardware.camera2.CaptureRequest;
+ import android.hardware.camera2.CaptureResult;
+ import android.hardware.camera2.params.MeteringRectangle;
++import android.hardware.camera2.params.OutputConfiguration;
+ import static android.hardware.camera2.SprdCaptureRequest.SPRD_CAPTURE_MODE;
+ import static android.hardware.camera2.SprdCameraCharacteristics.CONTROL_AVAILABLE_SMILEENABLE;
+ import static android.hardware.camera2.SprdCameraCharacteristics.CONTROL_AVAILABLE_ANTIBAND_AUTO;
+@@ -47,6 +48,8 @@
+ import android.os.Message;
+ import android.view.Surface;
+ 
++import android.view.SurfaceHolder;
++import android.hardware.Camera;
+ import com.android.ex.camera2.portability.debug.Log;
+ import com.android.ex.camera2.portability.CameraAgent.CancelBurstCaptureCallback;
+ import com.android.ex.camera2.utils.Camera2RequestSettingsSet;
+@@ -221,6 +224,7 @@
+ 
+         // Available in PREVIEW_READY state and above:
+         protected SurfaceTexture mPreviewTexture;
++        protected SurfaceHolder mSurfaceHolder;
+         protected Surface mPreviewSurface;
+         protected CameraCaptureSession mSession;
+         protected ImageReader mCaptureReader;
+@@ -324,6 +328,7 @@
+                             mPreviewSurface = null;
+                         }
+                         mPreviewTexture = null;
++                        mSurfaceHolder = null;
+                         if (mCaptureReader != null) {
+                             Log.i(TAG, "CaptureReader.close");
+                             mCaptureReader.close();
+@@ -352,6 +357,7 @@
+ 
+                     case CameraActions.SET_PREVIEW_TEXTURE_ASYNC_WITHOUT_OPTIMIZE: {
+                         setPreviewTextureWithoutOptimize((SurfaceTexture) msg.obj);
++                        break;
+                     }
+ 
+                     case CameraActions.START_PREVIEW_ASYNC: {
+@@ -388,6 +394,13 @@
+                         }
+                         try {
+                             mSession.stopRepeating();
++                            /* SPRD:fix bug671521 do flush when stoppreivew @{ */
++                            if (mSession != null) {
++                                Log.i(TAG, "closePreviewSession");
++                                closePreviewSession();
++                                mSession = null;
++                            }
++                            /* @} */
+                             mCameraProxy.getSettings().setSizesLocked(false);
+                             changeState(AndroidCamera2StateHolder.CAMERA_PREVIEW_READY);
+                         }catch (CameraAccessException ex) {
+@@ -397,6 +410,22 @@
+                         break;
+                     }
+ 
++                    case CameraActions.STOP_PREVIEW_WITHOUT_FLUSH: {
++                        if (mCameraState.getState() <
++                                        AndroidCamera2StateHolder.CAMERA_PREVIEW_ACTIVE) {
++                            Log.w(TAG, "Refusing to stop preview at inappropriate time");
++                            break;
++                        }
++                        try {
++                            mSession.stopRepeating();
++                            mCameraProxy.getSettings().setSizesLocked(false);
++                            changeState(AndroidCamera2StateHolder.CAMERA_PREVIEW_READY);
++                        }catch (CameraAccessException ex) {
++                            Log.w(TAG,"Unable to stop preview", ex );
++                            throw new RuntimeException("Unimplemented CameraProxy message=" + msg.what);
++                        }
++                        break;
++                    }
+                     /*case CameraActions.SET_PREVIEW_CALLBACK_WITH_BUFFER: {
+                         break;
+                     }
+@@ -766,7 +795,6 @@
+             mPersistentSettings.union(settings.getRequestSettings());
+             mPreviewSize = settings.getCurrentPreviewSize();
+             mPhotoSize = settings.getCurrentPhotoSize();
+-
+             if (mCameraState.getState() >= AndroidCamera2StateHolder.CAMERA_PREVIEW_ACTIVE) {
+                 // If we're already previewing, reflect most settings immediately
+                 try {
+@@ -783,6 +811,86 @@
+             }
+         }
+ 
++        protected void setPreviewDisplay(SurfaceHolder surfaceHolder) {
++            // TODO: Must be called after providing a .*Settings populated with sizes
++            // TODO: We don't technically offer a selection of sizes tailored to SurfaceTextures!
++
++            // TODO: Handle this error condition with a callback or exception
++            if (mCameraState.getState() < AndroidCamera2StateHolder.CAMERA_CONFIGURED) {
++                Log.w(TAG, "Ignoring texture setting at inappropriate time");
++                return;
++            }
++
++            // Avoid initializing another capture session unless we absolutely have to
++            if (surfaceHolder == mSurfaceHolder) {
++                Log.i(TAG, "Optimizing out redundant preview texture setting");
++                return;
++            }
++
++            if (mSession != null) {
++                closePreviewSession();
++            }
++
++            mSurfaceHolder = surfaceHolder;
++
++            if (mPreviewSurface != null) {
++                mPreviewSurface.release();
++            }
++            mPreviewSurface = mSurfaceHolder.getSurface();
++
++            if (mCaptureReader != null) {
++                mCaptureReader.close();
++            }
++            mCaptureReader = ImageReader.newInstance(
++                    mPhotoSize.width(), mPhotoSize.height(), ImageFormat.JPEG, 1);
++
++            List<OutputConfiguration> outConfigurations = new ArrayList<>(2);
++            outConfigurations.add(new OutputConfiguration(mPreviewSurface, mPreviewSize.width(), mPreviewSize.height()));
++            outConfigurations.add(new OutputConfiguration(mCaptureReader.getSurface()));
++            try {
++                mCamera.createCaptureSessionByOutputConfigurations(
++                        outConfigurations,
++                        mCameraPreviewStateCallback, this);
++            } catch (CameraAccessException ex) {
++                Log.e(TAG, "Failed to create camera capture session", ex);
++            }
++        }
++
++        protected void setPreviewDisplayWithoutOptimize(SurfaceHolder surfaceHolder) {
++            // TODO: Must be called after providing a .*Settings populated with sizes
++            // TODO: We don't technically offer a selection of sizes tailored to SurfaceTextures!
++
++            // TODO: Handle this error condition with a callback or exception
++            if (mCameraState.getState() < AndroidCamera2StateHolder.CAMERA_CONFIGURED) {
++                Log.w(TAG, "Ignoring texture setting at inappropriate time");
++                return;
++            }
++
++            if (mSession != null) {
++                closePreviewSession();
++            }
++
++            mSurfaceHolder = surfaceHolder;
++            mPreviewSurface = mSurfaceHolder.getSurface();
++
++            if (mCaptureReader != null) {
++                mCaptureReader.close();
++            }
++            mCaptureReader = ImageReader.newInstance(
++                    mPhotoSize.width(), mPhotoSize.height(), ImageFormat.JPEG, 1);
++
++            List<OutputConfiguration> outConfigurations = new ArrayList<>(2);
++            outConfigurations.add(new OutputConfiguration(mPreviewSurface, mPreviewSize.width(), mPreviewSize.height()));
++            outConfigurations.add(new OutputConfiguration(mCaptureReader.getSurface()));
++            try {
++                mCamera.createCaptureSessionByOutputConfigurations(
++                        outConfigurations,
++                        mCameraPreviewStateCallback, this);
++            } catch (CameraAccessException ex) {
++                Log.e(TAG, "Failed to create camera capture session", ex);
++            }
++        }
++
+         private void setPreviewTexture(SurfaceTexture surfaceTexture) {
+             // TODO: Must be called after providing a .*Settings populated with sizes
+             // TODO: We don't technically offer a selection of sizes tailored to SurfaceTextures!
+@@ -1166,6 +1274,20 @@
+             return mCapabilities;
+         }
+ 
++        public void setPreviewDisplay(SurfaceHolder surfaceHolder) {
++            // Once the Surface has been selected, we configure the session and
++            // are no longer able to change the sizes.
++            getSettings().setSizesLocked(true);
++            super.setPreviewDisplay(surfaceHolder);
++        }
++
++        public void setPreviewDisplayWithoutOptimize(SurfaceHolder surfaceHolder) {
++         // Once the Surface has been selected, we configure the session and
++            // are no longer able to change the sizes.
++            getSettings().setSizesLocked(true);
++            super.setPreviewDisplayWithoutOptimize(surfaceHolder);
++        }
++
+         // FIXME: Unlock the sizes in stopPreview(), as per the corresponding
+         // explanation on the STOP_PREVIEW case in the handler.
+         @Override
+Index: frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/AndroidCameraAgentImpl.java
+===================================================================
+--- frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/AndroidCameraAgentImpl.java	(revision 173857)
++++ frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/AndroidCameraAgentImpl.java	(revision 173858)
+@@ -537,6 +537,7 @@
+                     }
+ 
+                     // TODO: Unlock the CameraSettings object's sizes
++                    case CameraActions.STOP_PREVIEW_WITHOUT_FLUSH:
+                     case CameraActions.STOP_PREVIEW: {
+                         mCamera.stopPreview();
+                         break;
+Index: frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/CameraAgent.java
+===================================================================
+--- frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/CameraAgent.java	(revision 173857)
++++ frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/CameraAgent.java	(revision 173858)
+@@ -557,6 +557,27 @@
+                 getAgent().getCameraExceptionHandler().onDispatchThreadException(ex);
+             }
+         }
++
++        /**
++         * Sprd add for surfaceview restartPreview
++         * Sets the {@link android.view.SurfaceHolder} for preview.
++         *
++         * @param surfaceHolder The {@link SurfaceHolder} for preview.
++         */
++        public void setPreviewDisplayWithoutOptimize(final SurfaceHolder surfaceHolder) {
++            try {
++                getDispatchThread().runJob(new Runnable() {
++                    @Override
++                    public void run() {
++                        getCameraHandler()
++                                .obtainMessage(CameraActions.SET_PREVIEW_DISPLAY_ASYNC_WITHOUT_OPTIMIZE, surfaceHolder)
++                                .sendToTarget();
++                    }});
++            } catch (final RuntimeException ex) {
++                getAgent().getCameraExceptionHandler().onDispatchThreadException(ex);
++            }
++        }
++
+         public void setPreviewTextureWithoutOptimize(final SurfaceTexture surfaceTexture) {
+             try {
+                 getDispatchThread().runJob(new Runnable() {
+@@ -685,6 +706,31 @@
+             }
+         }
+ 
++        /* SPRD: fix bug677344 intent capture should not stoppreview with flush @{ */
++        public void stopPreviewWithOutFlush() {
++            // Don't bother to wait since camera is in bad state.
++            if (getCameraState().isInvalid()) {
++                return;
++            }
++            final WaitDoneBundle bundle = new WaitDoneBundle();
++            try {
++                getDispatchThread().runJobSync(new Runnable() {
++                    @Override
++                    public void run() {
++                        /**
++                         * SPRD:fix bug622519 should unlock when stoppreivew is return due to wrong state
++                        getCameraHandler().obtainMessage(CameraActions.STOP_PREVIEW, bundle)
++                         */
++                        getCameraHandler().obtainMessage(CameraActions.STOP_PREVIEW_WITHOUT_FLUSH)
++                                .sendToTarget();
++                        getCameraHandler().post(bundle.mUnlockRunnable);
++                    }}, bundle.mWaitLock, CAMERA_OPERATION_TIMEOUT_MS, "stop preview");
++            } catch (final RuntimeException ex) {
++                getAgent().getCameraExceptionHandler().onDispatchThreadException(ex);
++            }
++        }
++        /* @} */
++
+         /**
+          * Sets the callback for preview data.
+          *
+Index: frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/CameraActions.java
+===================================================================
+--- frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/CameraActions.java	(revision 173857)
++++ frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/CameraActions.java	(revision 173858)
+@@ -33,6 +33,7 @@
+     public static final int SET_PREVIEW_CALLBACK =             107;
+     public static final int SET_ONE_SHOT_PREVIEW_CALLBACK =    108;
+     public static final int SET_PREVIEW_TEXTURE_ASYNC_WITHOUT_OPTIMIZE =        109;
++    public static final int STOP_PREVIEW_WITHOUT_FLUSH =       111;
+     // Parameters
+     public static final int SET_PARAMETERS =     201;
+     public static final int GET_PARAMETERS =     202;
+@@ -113,6 +114,8 @@
+                 return "SET_DISPLAY_ORIENTATION";
+             case CAPTURE_PHOTO:
+                 return "CAPTURE_PHOTO";
++            case STOP_PREVIEW_WITHOUT_FLUSH:
++                return "STOP_PREVIEW_WITHOUT_FLUSH";
+             default:
+                 return stringifySprd(action);
+         }
+Index: frameworks/ex/camera2/portability/portability.mk
+===================================================================
+--- frameworks/ex/camera2/portability/portability.mk	(revision 173857)
++++ frameworks/ex/camera2/portability/portability.mk	(revision 173858)
+@@ -17,7 +17,7 @@
+ 
+ LOCAL_MODULE := android-ex-camera2-portability
+ LOCAL_MODULE_TAGS := optional
+-LOCAL_SDK_VERSION := current
++#LOCAL_SDK_VERSION := current
+ LOCAL_SRC_FILES := $(call all-java-files-under, src)
+ LOCAL_STATIC_JAVA_LIBRARIES := android-ex-camera2-utils
+ 
+Index: device/sprd/scx35l/sp9832a_2h11/system.prop
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/system.prop	(revision 173857)
++++ device/sprd/scx35l/sp9832a_2h11/system.prop	(revision 173858)
+@@ -91,5 +91,8 @@
+ 
+ debug.hwui.use_partial_updates=false
+ 
++#use surfaceview
++persist.sys.cam.sfv.alter=true
++
+ # verified boot config
+ ro.oem_unlock_supported=1
+Index: device/sprd/scx35l/sp9832a_3h10/system.prop
+===================================================================
+--- device/sprd/scx35l/sp9832a_3h10/system.prop	(revision 173857)
++++ device/sprd/scx35l/sp9832a_3h10/system.prop	(revision 173858)
+@@ -88,4 +88,7 @@
+ 
+ persist.sys.cam.gps=true
+ 
++#use surfaceview
++persist.sys.cam.sfv.alter=true
++
+ debug.hwui.use_partial_updates=false
+Index: vendor/sprd/platform/frameworks/av/camera/CameraParametersEx.cpp
+===================================================================
+--- vendor/sprd/platform/frameworks/av/camera/CameraParametersEx.cpp	(revision 173857)
++++ vendor/sprd/platform/frameworks/av/camera/CameraParametersEx.cpp	(revision 173858)
+@@ -61,5 +61,15 @@
+ #ifdef SPRD_FEATURE_EIS
+ const char CameraParameters::KEY_EOIS[] = "EOIS";
+ #endif
++
++#ifdef SPRD_FEATURE_ZSL
++const char CameraParameters::KEY_ZSL[] = "sprd-zsl-enabled";
++#endif
++
++const char CameraParameters::KEY_SUPPORTED_ANTIBANDING_ENABLE[] = "antibandauto-enable-values";
++
++const char CameraParameters::KEY_SUPPORTED_SMILE_ENABLE[] = "smile-enable-values";
++
++
+ }; // namespace android
+ #endif // SPRD_FRAMEWORKS_CAMERA_EX
+Index: vendor/sprd/platform/frameworks/av/camera/CameraParameters2Ex.cpp
+===================================================================
+--- vendor/sprd/platform/frameworks/av/camera/CameraParameters2Ex.cpp	(revision 173857)
++++ vendor/sprd/platform/frameworks/av/camera/CameraParameters2Ex.cpp	(revision 173858)
+@@ -152,6 +152,14 @@
+     set(CameraParameters::KEY_EOIS, eois);
+ }
+ #endif
++
++#ifdef SPRD_FEATURE_ZSL
++const char *CameraParameters2::getSprdZSL() const
++{
++     return get(CameraParameters::KEY_ZSL);
++}
++#endif
++
+ }; // namespace android
+ 
+ #endif // SPRD_FRAMEWORKS_CAMERA_EX
+Index: vendor/sprd/platform/frameworks/av/service/camera/libcameraservice/api1/client2/ParametersEx.h
+===================================================================
+--- vendor/sprd/platform/frameworks/av/service/camera/libcameraservice/api1/client2/ParametersEx.h	(revision 173857)
++++ vendor/sprd/platform/frameworks/av/service/camera/libcameraservice/api1/client2/ParametersEx.h	(revision 173858)
+@@ -32,4 +32,9 @@
+ #ifdef SPRD_FEATURE_BEAUTY
+ int perfectSkinlevel;
+ #endif // #ifdef SPRD_FEATURE_BEAUTY
++
++#ifdef SPRD_FEATURE_ZSL
++bool zsl;
++#endif // #ifdef SPRD_FEATURE_ZSL
++
+ #endif /* SPRD_SERVERS_CAMERA_CAMERA2PARAMETERS_EX_H */
+Index: vendor/sprd/platform/frameworks/av/service/camera/libcameraservice/api1/client2/ParametersExFun.cpp
+===================================================================
+--- vendor/sprd/platform/frameworks/av/service/camera/libcameraservice/api1/client2/ParametersExFun.cpp	(revision 173857)
++++ vendor/sprd/platform/frameworks/av/service/camera/libcameraservice/api1/client2/ParametersExFun.cpp	(revision 173858)
+@@ -7,6 +7,8 @@
+ 
+ status_t initializeEx(Parameters *p)
+ {
++    p->zsl = false;
++    p->perfectSkinlevel = 0;
+     if (NULL == p)
+         return BAD_VALUE;
+ #ifdef SPRD_FEATURE_BRIGHTNESS
+@@ -115,6 +117,19 @@
+     p->params.set(CameraParameters::KEY_SUPPORTED_SLOWMOTION, supportedSlowMotion);
+ #endif // #ifdef SPRD_FEATURE_SLOW_MOTION
+ 
++    camera_metadata_ro_entry_t antiBandValue = p->staticInfo(ANDROID_SPRD_AVAILABLE_ANTIBAND_AUTOSUPPORTED , 0 , 0 , false);
++    if (!antiBandValue.count)
++        return NO_INIT;
++    String8 antiBandEnable = String8::format("%d", antiBandValue.data.u8[0]);
++    ALOGI("InitializeEx: antiBandEnable %s",antiBandEnable.string());
++    p->params.set(CameraParameters::KEY_SUPPORTED_ANTIBANDING_ENABLE, antiBandEnable);
++
++    camera_metadata_ro_entry_t smileEnableValue = p->staticInfo(ANDROID_SPRD_AVAILABLE_SMILEENABLE , 0 , 0 , false);
++    if (!smileEnableValue.count)
++        return NO_INIT;
++    String8 smileEnable = String8::format("%d", smileEnableValue.data.u8[0]);
++    p->params.set(CameraParameters::KEY_SUPPORTED_SMILE_ENABLE, smileEnable);
++
+     return OK;
+ }
+ 
+@@ -232,6 +247,16 @@
+ #ifdef SPRD_FEATURE_Beauty
+     validatedParams->perfectSkinlevel = newParams->getSprdPerfectSkinLevel();
+ #endif // #ifdef SPRD_FEATURE_Beauty
++
++#ifdef SPRD_FEATURE_ZSL
++    validatedParams->zsl = false;
++    if(newParams->getSprdZSL()!= NULL) {
++	int zsldisable;
++	zsldisable = strcmp(newParams->getSprdZSL(),"1");
++	validatedParams->zsl = (zsldisable == 0) ? true : false;
++    }
++#endif // #ifdef SPRD_FEATURE_ZSL
++
+     return OK;
+ }
+ 
+@@ -361,6 +386,17 @@
+         if (res!=OK) return res;
+     }
+ #endif // #ifdef SPRD_FEATURE_BEAUTY
++
++#ifdef SPRD_FEATURE_ZSL
++    {
++        uint8_t reqZSL = p->zsl;
++        ALOGD("updatereq zsl enable = %d", reqZSL);
++        res = request->update(ANDROID_SPRD_ZSL_ENABLED,
++        &reqZSL, 1);
++        if (res!=OK) return res;
++    }
++#endif // #ifdef SPRD_FEATURE_ZSL
++
+     return res;
+ }
+ 
+Index: vendor/sprd/platform/frameworks/av/include/camera/CameraParametersEx.h
+===================================================================
+--- vendor/sprd/platform/frameworks/av/include/camera/CameraParametersEx.h	(revision 173857)
++++ vendor/sprd/platform/frameworks/av/include/camera/CameraParametersEx.h	(revision 173858)
+@@ -50,4 +50,12 @@
+ static const char KEY_EOIS[];
+ #endif
+ 
++#ifdef SPRD_FEATURE_ZSL
++static const char KEY_ZSL[];
++#endif
++
++static const char KEY_SUPPORTED_ANTIBANDING_ENABLE[];
++
++static const char KEY_SUPPORTED_SMILE_ENABLE[];
++
+ #endif /* ANDROID_HARDWARE_CAMERA_PARAMETERS_EX_H */
+Index: vendor/sprd/platform/frameworks/av/include/camera/CameraParameters2Ex.h
+===================================================================
+--- vendor/sprd/platform/frameworks/av/include/camera/CameraParameters2Ex.h	(revision 173857)
++++ vendor/sprd/platform/frameworks/av/include/camera/CameraParameters2Ex.h	(revision 173858)
+@@ -46,4 +46,8 @@
+ void setSprdEOIS(const char *eois);
+ #endif
+ 
++#ifdef SPRD_FEATURE_ZSL
++const char *getSprdZSL() const;
++#endif
++
+ #endif /* ANDROID_HARDWARE_CAMERA_PARAMETERS2_EX_H */
+Index: vendor/sprd/platform/frameworks/av/include/camera/camera2/OutputConfigurationEx.h
+===================================================================
+--- vendor/sprd/platform/frameworks/av/include/camera/camera2/OutputConfigurationEx.h	(revision 0)
++++ vendor/sprd/platform/frameworks/av/include/camera/camera2/OutputConfigurationEx.h	(revision 173858)
+@@ -0,0 +1,58 @@
++/*
++* opyright (C) 2015 The Android Open Source Project
++*
++* Licensed under the Apache License, Version 2.0 (the "License");
++* you may not use this file except in compliance with the License.
++* You may obtain a copy of the License at
++*
++*      http://www.apache.org/licenses/LICENSE-2.0
++*
++* Unless required by applicable law or agreed to in writing, software
++* distributed under the License is distributed on an "AS IS" BASIS,
++* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++* See the License for the specific language governing permissions and
++* limitations under the License.
++*/
++#ifndef ANDROID_HARDWARE_CAMERA2_OUTPUTCONFIGURATIONEX_H
++#define ANDROID_HARDWARE_CAMERA2_OUTPUTCONFIGURATIONEX_H
++#include <utils/Log.h>
++#include <utils/CallStack.h>
++#include <gui/Surface.h>
++#include <binder/Parcel.h>
++namespace android {
++class OutputConfigurationEx {
++    public:
++        OutputConfigurationEx(){
++            mWidth = 0;
++            mHeight = 0;
++        }
++        int getWidth() const{return mWidth;}
++        int getHeight() const{return mHeight;}
++        int readInfo(const Parcel* parcel, int* rotation){
++            int err = OK;
++            int width = 0;
++            int height = 0;
++            int mRotation = 0;
++            if ((err = parcel->readInt32(&width)) != OK) {
++                ALOGE("%s: Failed to read width from parcel", __FUNCTION__);
++            }
++
++            if ((err = parcel->readInt32(&height)) != OK) {
++                ALOGE("%s: Failed to read height from parcel", __FUNCTION__);
++            }
++            mWidth = width;
++            mHeight = height;
++            ALOGD("w:%d ,h:%d ",mWidth,mHeight);
++            if ((err = parcel->readInt32(&mRotation)) != OK) {
++                ALOGE("%s: Failed to read rotation from parcel", __FUNCTION__);
++                return err;
++            }
++            *rotation = mRotation;
++            return err;
++        }
++    private:
++        int mWidth;
++        int mHeight;
++};
++}
++#endif
+Index: vendor/sprd/platform/frameworks/base/core/java/android/hardware/SprdCamera.java
+===================================================================
+--- vendor/sprd/platform/frameworks/base/core/java/android/hardware/SprdCamera.java	(revision 173857)
++++ vendor/sprd/platform/frameworks/base/core/java/android/hardware/SprdCamera.java	(revision 173858)
+@@ -260,5 +260,17 @@
+             }
+             super.setFocusMode(value);
+         }
++
++        private static final String KEY_SMILE_ENABLE = "smile-enable";
++
++        public String getSupportedSmileEnable() {
++            return get(KEY_SMILE_ENABLE + SUPPORTED_VALUES_SUFFIX);
++        }
++
++        private static final String KEY_ANTIBAND_AUTO_ENABLE = "antibandauto-enable";
++
++        public String getSupportedAntibandAutoEnable() {
++            return get(KEY_ANTIBAND_AUTO_ENABLE + SUPPORTED_VALUES_SUFFIX);
++        }
+     }
+ }
+\ No newline at end of file
+Index: vendor/sprd/platform/frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/SprdAndroidCameraAgentImpl.java
+===================================================================
+--- vendor/sprd/platform/frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/SprdAndroidCameraAgentImpl.java	(revision 173857)
++++ vendor/sprd/platform/frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/SprdAndroidCameraAgentImpl.java	(revision 173858)
+@@ -86,7 +86,6 @@
+ 
+             //SPRD:fix bug474672 add ucam beauty for api1
+             parameters.set("perfectskinlevel", settings.getSkinWhitenLevel());
+-            Log.e(TAG, " Camera1 API setParameters = " + parameters.flatten());
+ 
+             // SPRD Bug:474696 Feature:Slow-Motion.
+             if (capabilities.supports(settings.getCurrentVideoSlowMotion(),
+@@ -99,6 +98,8 @@
+ 
+             // SPRD Bug:500099 Feature:Mirror.
+             parameters.set("mirror", settings.getfrontCameraMirror() ? "true" : "false");
++            parameters.set("sprd-zsl-enabled", settings.getZslModeEnable());
++            Log.e(TAG, " Camera1 API setParameters = " + parameters.flatten());
+         }
+ 
+         /**
+Index: vendor/sprd/platform/frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/SprdAndroidCamera2AgentImpl.java
+===================================================================
+--- vendor/sprd/platform/frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/SprdAndroidCamera2AgentImpl.java	(revision 173857)
++++ vendor/sprd/platform/frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/SprdAndroidCamera2AgentImpl.java	(revision 173858)
+@@ -31,6 +31,7 @@
+ import android.os.Message;
+ import android.os.Handler;
+ import android.os.Looper;
++import android.view.SurfaceHolder;
+ 
+ public class SprdAndroidCamera2AgentImpl extends AndroidCamera2AgentImpl {
+ 
+@@ -177,6 +178,15 @@
+             int cameraAction = msg.what;
+             try {
+                 switch (cameraAction) {
++                    case CameraActions.SET_PREVIEW_DISPLAY_ASYNC: {
++                        setPreviewDisplay((SurfaceHolder) msg.obj);
++                        break;
++                    }
++                    case CameraActions.SET_PREVIEW_DISPLAY_ASYNC_WITHOUT_OPTIMIZE: {
++                        setPreviewDisplayWithoutOptimize((SurfaceHolder) msg.obj);
++                        break;
++                    }
++
+                     case CameraActions.SET_FACE_DETECTION_LISTENER: {
+                         setFaceDetectionListener((FaceDetectionCallbackForward) msg.obj);
+                         break;
+Index: vendor/sprd/platform/frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/SprdCameraCapabilities.java
+===================================================================
+--- vendor/sprd/platform/frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/SprdCameraCapabilities.java	(revision 173857)
++++ vendor/sprd/platform/frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/SprdCameraCapabilities.java	(revision 173858)
+@@ -183,6 +183,9 @@
+         mSupportedSaturation.addAll(src.mSupportedSaturation);
+         // SPRD Bug:474696 Feature:Slow-Motion.
+         mSupportedSlowMotion.addAll(src.mSupportedSlowMotion);
++
++        mSupportedSmileEnable = src.mSupportedSmileEnable;
++        mSupportedAntibandAutoEnable = src.mSupportedAntibandAutoEnable;
+     }
+ 
+     public final boolean supports(Antibanding antibanding) {
+@@ -216,7 +219,19 @@
+     }
+     /* @} */
+ 
++    public boolean mSupportedSmileEnable = false;
+ 
++    public final boolean getSupportedSmileEnable() {
++        return mSupportedSmileEnable;
++    }
++
++    public boolean mSupportedAntibandAutoEnable = false;
++
++    public final boolean getSupportedAntibandAutoEnable() {
++        return mSupportedAntibandAutoEnable;
++    }
++
++
+     public static class SprdStringifier {
+         public Antibanding antibandingModeFromString(String val) {
+             if (val == null) {
+Index: vendor/sprd/platform/frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/SprdAndroidCameraCapabilities.java
+===================================================================
+--- vendor/sprd/platform/frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/SprdAndroidCameraCapabilities.java	(revision 173857)
++++ vendor/sprd/platform/frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/SprdAndroidCameraCapabilities.java	(revision 173858)
+@@ -51,6 +51,9 @@
+             buildSaturation(params);
+             // SPRD Bug:474696 Feature:Slow-Motion.
+             buildVideoSlowMotion(params);
++
++            buildSmileEnable(params);
++            buildAntibandAutoEnable(params);
+         }
+     }
+ 
+@@ -229,4 +232,24 @@
+         }
+     }
+     /* @} */
++
++    private void buildSmileEnable(SprdCamera.SprdParameters p) {
++        String supportedSmileEnable = p.getSupportedSmileEnable();
++        Log.d(TAG, "supportedSmileEnable = " + supportedSmileEnable);
++        if (supportedSmileEnable != null && "1".equals(supportedSmileEnable)) {
++            mSupportedSmileEnable = true;
++        } else {
++            mSupportedSmileEnable = false;
++        }
++    }
++
++    private void buildAntibandAutoEnable(SprdCamera.SprdParameters p) {
++        String supportedAntibandAutoEnable = p.getSupportedAntibandAutoEnable();
++        Log.d(TAG, "supportedAntibandAutoEnable = " + supportedAntibandAutoEnable);
++        if (supportedAntibandAutoEnable != null && "1".equals(supportedAntibandAutoEnable)) {
++            mSupportedAntibandAutoEnable = true;
++        } else {
++            mSupportedAntibandAutoEnable = false;
++        }
++    }
+ }
+Index: vendor/sprd/platform/frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/SprdAndroidCamera2Capabilities.java
+===================================================================
+--- vendor/sprd/platform/frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/SprdAndroidCamera2Capabilities.java	(revision 173857)
++++ vendor/sprd/platform/frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/SprdAndroidCamera2Capabilities.java	(revision 173858)
+@@ -27,6 +27,9 @@
+         buildMetering(p);
+         // SPRD Bug:474722 Feature:Saturation.
+         buildSaturation(p);
++
++        buildSmileEnable(p);
++        buildAntibandAutoEnable(p);
+     }
+ 
+     private void buildAntibandingModes(CameraCharacteristics p) {
+@@ -284,4 +287,24 @@
+         return null;
+     }
+     /* @} */
++
++    private void buildSmileEnable(CameraCharacteristics p) {
++        int supportedSmileEnable = p.get(CONTROL_AVAILABLE_SMILEENABLE);
++        Log.d(TAG, "supportedSmileEnable = " + supportedSmileEnable);
++        if (1 == supportedSmileEnable) {
++            mSupportedSmileEnable = true;
++        } else {
++            mSupportedSmileEnable = false;
++        }
++    }
++
++    private void buildAntibandAutoEnable(CameraCharacteristics p) {
++        int supportedAntibandAutoEnable = p.get(CONTROL_AVAILABLE_ANTIBAND_AUTO);
++        Log.d(TAG, "supportedAntibandAutoEnable = " + supportedAntibandAutoEnable);
++        if (1 == supportedAntibandAutoEnable) {
++            mSupportedAntibandAutoEnable = true;
++        } else {
++            mSupportedAntibandAutoEnable = false;
++        }
++    }
+ }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/.gitignore
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/.gitignore	(revision 173857)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/.gitignore	(revision 173858)
+@@ -1,12 +0,0 @@
+-# Project files and paths.
+-.classpath
+-.project
+-*.iml
+-**/*.iml
+-.settings/
+-bin/
+-gen/
+-.idea/
+-
+-# ignore OS X metadata
+-.DS_Store
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/PhotoModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/PhotoModule.java	(revision 173857)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/PhotoModule.java	(revision 173858)
+@@ -2880,7 +2880,13 @@
+         Log.i(TAG, "stopPreview start!mCameraDevice=" + mCameraDevice);
+         if (mCameraDevice != null && mCameraState != PREVIEW_STOPPED) {
+             Log.i(TAG, "stopPreview");
+-            mCameraDevice.stopPreview();
++            /* SPRD: fix bug677344 intent capture should not stoppreview with flush @{ */
++            if (isUseSurfaceView()) {
++                mCameraDevice.stopPreview();
++            } else {
++                mCameraDevice.stopPreviewWithOutFlush();
++            }
++            /* @} */
+             mFaceDetectionStarted = false;
+         }
+         setCameraState(PREVIEW_STOPPED);
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/SurfaceViewEx.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/SurfaceViewEx.java	(revision 0)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/SurfaceViewEx.java	(revision 173858)
+@@ -0,0 +1,272 @@
++/*
++ * Copyright (C) 2011,2013 Thundersoft Corporation
++ * All rights Reserved
++ *
++ * Copyright (C) 2012 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.camera;
++
++import android.content.Context;
++import android.graphics.Bitmap;
++import android.graphics.BitmapFactory;
++import android.graphics.ImageFormat;
++import android.graphics.Matrix;
++import android.graphics.Rect;
++import android.graphics.RectF;
++import android.graphics.YuvImage;
++import android.util.AttributeSet;
++import android.view.SurfaceHolder;
++import android.view.SurfaceView;
++import android.widget.FrameLayout;
++
++import com.android.camera.app.CameraAppUI;
++import com.android.camera.debug.Log;
++import com.android.camera.ui.PreviewStatusListener;
++import com.android.ex.camera2.portability.CameraAgent;
++import com.android.ex.camera2.portability.Size;
++
++import java.io.ByteArrayOutputStream;
++import com.ucamera.ucam.modules.utils.LogUtils;
++import com.ucamera.ucam.jni.ImageProcessJni;
++import com.ucamera.ucam.modules.utils.BitmapUtils;
++
++public class SurfaceViewEx extends SurfaceView {
++
++    private final Log.Tag TAG = new Log.Tag("SurfaceViewEx");
++
++    private byte[] mYUVBuffer;
++    private float mAspectRatio = 0;
++    private SurfaceHolder mSurfaceHolder;
++    private CameraAppUI mCameraAppUI = null;
++    private SurfaceHolder.Callback mSurfaceHolderListener;
++    private CameraAgent.CameraProxy mCameraProxy;
++    private boolean mWaitingYUVBufferReady;
++    private final long WAIT_TIMEOUT_MS = 3000;
++    private final long WAIT_INTERVAL_MS = 20;
++    private Context mContext = null;
++
++
++    private SurfaceHolder.Callback mSurfaceCallback = new SurfaceHolder.Callback() {
++        @Override
++        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
++            Log.i(TAG, "surfaceChanged: " + holder + " " + width + " " + height);
++            if (mSurfaceHolderListener != null) {
++                mSurfaceHolderListener.surfaceChanged(holder, format, width, height);
++            }
++        }
++
++        @Override
++        public void surfaceCreated(SurfaceHolder holder) {
++            Log.i(TAG, "surfaceCreated: " + holder);
++            mSurfaceHolder = holder;
++            if (mSurfaceHolderListener != null) {
++                mSurfaceHolderListener.surfaceCreated(holder);
++            }
++        }
++
++        @Override
++        public void surfaceDestroyed(SurfaceHolder holder) {
++            Log.i(TAG, "surfaceDestroyed: " + holder);
++            mSurfaceHolder = null;
++            if (mSurfaceHolderListener != null) {
++                mSurfaceHolderListener.surfaceDestroyed(holder);
++            }
++        }
++    };
++
++    public SurfaceViewEx(Context context, AttributeSet attrs) {
++        super(context, attrs);
++        mContext = context;
++        getHolder().addCallback(mSurfaceCallback);
++    }
++
++    public void setCameraAppUI(CameraAppUI cameraAppUI) {
++        mCameraAppUI = cameraAppUI;
++    }
++
++    public void setSurfaceHolderListener(SurfaceHolder.Callback surfaceHolderListener) {
++        mSurfaceHolderListener = surfaceHolderListener;
++    }
++
++    // do not use main thread, or getPreviewBitmap() will return wrong result because of timeout
++    public void onPreviewUpdated(byte[] data, CameraAgent.CameraProxy camera) {
++        mCameraProxy = camera;
++
++        if (mYUVBuffer == null || (mYUVBuffer.length != data.length)) {
++            mYUVBuffer = new byte[data.length];
++        }
++        System.arraycopy(data, 0, mYUVBuffer, 0, data.length);
++
++        /*if (mWaitingYUVBufferReady) {
++            synchronized (this) {
++                mWaitingYUVBufferReady = false;
++                this.notifyAll();
++            }
++        }*/
++    }
++
++    public SurfaceHolder getSurfaceHolder() {
++        Log.i(TAG, "mSurfaceHolder =" + mSurfaceHolder);
++        return mSurfaceHolder;
++    }
++
++    public PreviewStatusListener.PreviewAreaChangedListener getPreviewAreaChangedListener() {
++        return mPreviewAreaChangedListener;
++    }
++
++    public void setAspectRatio(float aspectRatio) {
++        mAspectRatio = aspectRatio;
++    }
++
++    private PreviewStatusListener.PreviewAreaChangedListener mPreviewAreaChangedListener =
++            new PreviewStatusListener.PreviewAreaChangedListener() {
++
++                @Override
++                public void onPreviewAreaChanged(RectF previewArea) {
++                    setTransformMatrix(Math.round(previewArea.width()),
++                            Math.round((int) previewArea.height()));
++                }
++
++                private void setTransformMatrix(int previewWidth, int previewHeight) {
++                    float scaledTextureWidth, scaledTextureHeight;
++                    if (mAspectRatio == 0 || mCameraAppUI == null) {
++                        return;
++                    }
++                    if (previewWidth > previewHeight) {
++                        scaledTextureWidth = Math.min(previewWidth,
++                                (int) (previewHeight * mAspectRatio));
++                        scaledTextureHeight = Math.min(previewHeight,
++                                (int) (previewWidth / mAspectRatio));
++                    } else {
++                        scaledTextureWidth = Math.min(previewWidth,
++                                (int) (previewHeight / mAspectRatio));
++                        scaledTextureHeight = Math.min(previewHeight,
++                                (int) (previewWidth * mAspectRatio));
++                    }
++                    FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) getLayoutParams();
++                    params.width = (int) scaledTextureWidth;
++                    params.height = (int) scaledTextureHeight;
++                    RectF rect = mCameraAppUI.getPreviewArea();
++
++                    // horizontal direction
++                    if (previewWidth > previewHeight) {
++                        params.setMargins((int) rect.left, 0, 0, 0);
++                    } else {
++                        params.setMargins(0, (int) rect.top, 0, 0);
++                    }
++                    setLayoutParams(params);
++
++                    Log.i(TAG, "setTransformMatrix(): width = " + previewWidth
++                            + " height = " + previewHeight
++                            + " scaledTextureWidth = " + scaledTextureWidth
++                            + " scaledTextureHeight = " + scaledTextureHeight
++                            + " mAspectRatio = " + mAspectRatio);
++                }
++            };
++
++    public Bitmap getPreviewBitmap() {
++        long start = System.currentTimeMillis();
++
++        if (mCameraProxy == null) {
++            return null;
++        }
++
++        if (mYUVBuffer == null || mYUVBuffer.length == 0) {
++            return null;
++        }
++        /*mWaitingYUVBufferReady = true;
++        synchronized (this) {
++            while (mWaitingYUVBufferReady) {
++                try {
++                    this.wait(WAIT_INTERVAL_MS);
++
++                    if (System.currentTimeMillis() - start > WAIT_TIMEOUT_MS) {
++                        Log.w(TAG, "Timeout waiting");
++                        break;
++                    }
++                } catch (InterruptedException ex) {
++                }
++            }
++
++            if (mWaitingYUVBufferReady) {
++                return null;
++            }
++        }*/
++
++        Size previewSize = mCameraProxy.getSettings().getCurrentPreviewSize();
++        int width = previewSize.width();
++        int height = previewSize.height();
++
++        int sensorOrientation = mCameraProxy.getCharacteristics().getSensorOrientation();
++        int cameraId = mCameraProxy.getCameraId();
++
++        Bitmap bitmap = null;
++        synchronized (this) {
++            ByteArrayOutputStream os = new ByteArrayOutputStream(mYUVBuffer.length);
++            YuvImage yuvImage = new YuvImage(mYUVBuffer, ImageFormat.NV21, width, height, null);
++            try {
++                yuvImage.compressToJpeg(new Rect(0, 0, width, height), 50, os);
++                Bitmap originalBitmap = BitmapFactory.decodeByteArray(os.toByteArray(), 0,
++                        os.toByteArray().length);
++                if (sensorOrientation != 0) {
++                    Matrix matrix = new Matrix();
++                    matrix.postRotate(sensorOrientation);
++                    matrix.postScale((cameraId == 1) ? -1 : 1, 1);
++                    bitmap = Bitmap.createBitmap(originalBitmap, 0, 0, width, height, matrix, true);
++                    originalBitmap.recycle();
++                }
++            } catch (Exception e) {
++                Log.i(TAG, "catch exception " + e.getMessage());
++            }
++        }
++
++        long end = System.currentTimeMillis();
++        if ((end - start) > 500) {
++            Log.i(TAG, "getBitmap cost: " + (end - start) + " previewSize " + previewSize);
++        }
++        return bitmap;
++    }
++
++    private Bitmap yuv2FreezeBitmap(byte[] yuvData, int width, int height) {
++        Log.i(TAG, "yuv2FreezeBitmap SurfaceviewEx");
++        int yuvWidth = width;
++        int yuvHeight = height;
++
++        if (yuvWidth <= 0 || yuvHeight <= 0) {
++            return null;
++        }
++
++        Bitmap mFreezeBitmap = null;
++        if (mFreezeBitmap != null && !mFreezeBitmap.isRecycled()) {
++            mFreezeBitmap.recycle();
++            mFreezeBitmap = null;
++        }
++
++        try {
++            mFreezeBitmap = yuv2Bitmap(yuvData, yuvWidth, yuvHeight);
++        } catch (OutOfMemoryError e) {
++            LogUtils.error(TAG.toString(), "OutOfMemoryError " + e);
++            return null;
++        }
++        return mFreezeBitmap;
++    }
++
++    protected Bitmap yuv2Bitmap(byte[] yuvData, int width, int height) {
++        return Bitmap.createBitmap(ImageProcessJni.Yuv2RGB888(yuvData, width, height), width,
++                height, Bitmap.Config.ARGB_8888);
++    }
++
++}
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/src/com/ucamera/ucam/modules/uscenery/SprdSceneryModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/src/com/ucamera/ucam/modules/uscenery/SprdSceneryModule.java	(revision 173857)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/src/com/ucamera/ucam/modules/uscenery/SprdSceneryModule.java	(revision 173858)
+@@ -73,7 +73,7 @@
+     public void init(CameraActivity activity, boolean isSecureCamera, boolean isCaptureIntent) {
+         super.init(activity, isSecureCamera, isCaptureIntent);
+         mActivity.setPreviewStatusListener(getUcamUI());
+-        mActivity.getCameraAppUI().setLayoutAspectRation(4f/3f);
++        mActivity.getCameraAppUI().updatePreviewAspectRatio(4f/3f);
+ //        BasicModule.isSceneryModule = true;
+         //showToastFirstTime();//SPRD:fix bug605019
+     }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModuleVideo.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModuleVideo.java	(revision 173857)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModuleVideo.java	(revision 173858)
+@@ -141,11 +141,7 @@
+         }
+     }
+ 
+-    private void setAntibanding(){
+-        if (mInfos2 == null) {
+-            Log.i(TAG, "setAntibanding() mInfos2 == null");
+-            return;
+-        }
++    protected void setAntibanding(){
+         if (!isEnableSettingConfig(Keys.KEY_VIDEO_ANTIBANDING)){
+             return;
+         }
+@@ -156,7 +152,7 @@
+         }
+         data.mEntryValues = mContext.getResources().getTextArray(
+                 R.array.pref_camera_antibanding_entryvalues);
+-        if (mInfos2.getAntibandAutoEnable()){
++        if (mSupportedAntibandAutoEnable && isSupportedAntibandAutoInited) {
+             data.mEntries = mContext.getResources().getTextArray(
+                     R.array.pref_camera_antibanding_entries_addauto);
+             data.mDefaultValue = data.mEntryValues[2].toString();
+@@ -390,6 +386,12 @@
+                 changeAndNotify(Keys.KEY_VIDEO_BEAUTY_ENTERED, getString(Keys.KEY_VIDEO_BEAUTY_ENTERED) );
+             }
+ 
++            if (!isSupportedAntibandAutoInited && (proxy != null)) {
++                mSupportedAntibandAutoEnable = proxy.getCapabilities().getSupportedAntibandAutoEnable();
++                isSupportedAntibandAutoInited = true;
++                setAntibanding();
++                keyList.add(Keys.KEY_VIDEO_ANTIBANDING);
++            }
+             if (keyList.size() > 0) {
+                 notifyKeyChange(keyList);
+             }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModuleInterfacePV.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModuleInterfacePV.java	(revision 173857)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModuleInterfacePV.java	(revision 173858)
+@@ -52,7 +52,8 @@
+     public static PictureSizes mPictureSizes;
+     public static String[] mCamcorderProfileNames;
+     private static DecimalFormat sMegaPixelFormat = new DecimalFormat("##0.0");
+-
++	protected boolean isSupportedAntibandAutoInited = false;
++    protected boolean mSupportedAntibandAutoEnable = false;
+     public DataModuleInterfacePV(Context context) {
+         super(context);
+         if (mInfos == null) {
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModulePhoto.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModulePhoto.java	(revision 173857)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModulePhoto.java	(revision 173858)
+@@ -23,6 +23,9 @@
+ 
+     public static final String TAG = "DataModulePhoto";
+ 
++    private boolean isSupportedSmileInited = false;
++    private boolean mSupportedSmileEnable = false;
++
+     public DataModulePhoto(Context context) {
+         super(context);
+         mCategory = CategoryType.CATEGORY_PHOTO;
+@@ -658,20 +661,11 @@
+             return;
+         }
+ 
+-        if (mInfos2 == null) {
+-            Log.e(TAG, "setEVSAIDetect() mInfos2 == null");
+-        }
+-        if (mInfos2 != null && !mInfos2.getSmileEnable()) {
+-            Log.e(TAG, "setEVSAIDetect() mInfos2 != null && !mInfos2.getSmileEnable()");
+-        }
+-        if (mInfos2 != null && !mInfos2.getSmileEnable()) {
+-            DataStorageStruct data = (DataStorageStruct) mSupportDataMap
+-                    .get(Keys.KEY_CAMERA_AI_DATECT);
+-
++        if (!mSupportedSmileEnable && isSupportedSmileInited) {
++            DataStorageStruct data = (DataStorageStruct) mSupportDataMap.get(Keys.KEY_CAMERA_AI_DATECT);
+             if (data == null) {
+                 return;
+             }
+-
+             data.mEntries = mContext.getResources().getTextArray(
+                     R.array.pref_camera_ai_detect_entries_removesmile);
+             data.mEntryValues = mContext.getResources().getTextArray(
+@@ -680,11 +674,7 @@
+         }
+     }
+ 
+-    private void setAntibanding(){
+-        if (mInfos2 == null) {
+-            Log.i(TAG, "setAntibanding() mInfos2 == null");
+-            return;
+-        }
++    protected void setAntibanding(){
+         if (!isEnableSettingConfig(Keys.KEY_CAMER_ANTIBANDING)){
+             return;
+         }
+@@ -695,10 +685,10 @@
+         }
+         data.mEntryValues = mContext.getResources().getTextArray(
+                 R.array.pref_camera_antibanding_entryvalues);
+-        if (mInfos2.getAntibandAutoEnable()){
++        if (mSupportedAntibandAutoEnable && isSupportedAntibandAutoInited) {
+             data.mEntries = mContext.getResources().getTextArray(
+                     R.array.pref_camera_antibanding_entries_addauto);
+-            data.mDefaultValue = data.mEntryValues[0].toString();
++            data.mDefaultValue = data.mEntryValues[2].toString();
+         }
+     }
+ 
+@@ -773,6 +763,19 @@
+ 
+             setExposureCompensationValue(proxy);
+ 
++            if (!isSupportedSmileInited && (proxy != null)) {
++                mSupportedSmileEnable = proxy.getCapabilities().getSupportedSmileEnable();
++                isSupportedSmileInited = true;
++                setEVSAIDetect();
++                keyList.add(Keys.KEY_CAMERA_AI_DATECT);
++            }
++
++            if (!isSupportedAntibandAutoInited && (proxy != null)) {
++                mSupportedAntibandAutoEnable = proxy.getCapabilities().getSupportedAntibandAutoEnable();
++                isSupportedAntibandAutoInited = true;
++                setAntibanding();
++                keyList.add(Keys.KEY_CAMER_ANTIBANDING);
++            }
+             if(keyList.size() > 0){
+                 notifyKeyChange(keyList);
+             }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/autophoto/AutoPhotoModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/autophoto/AutoPhotoModule.java	(revision 173857)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/autophoto/AutoPhotoModule.java	(revision 173858)
+@@ -4,6 +4,7 @@
+ import com.android.camera.app.AppController;
+ import com.android.camera.debug.Log;
+ import com.android.camera.settings.Keys;
++import com.android.camera.util.CameraUtil;
+ import com.android.camera.util.GservicesHelper;
+ import com.android.camera.CameraActivity;
+ import com.android.camera.PhotoUI;
+@@ -45,90 +46,9 @@
+         return false;
+     }
+ 
+-    /**
+-    @Override
+-    protected void doCameraOpen(int cameraId) {
+-        if (isShouldShowVGesture()) {
+-            Log.d(TAG,"doCameraOpen "+cameraId);
+-            mActivity.getCameraProvider().requestCamera(cameraId, false);
+-        }
+-        else {
+-            super.doCameraOpen(cameraId);
+-        }
+-
++    public boolean isUseSurfaceView() {
++        return CameraUtil.isSurfaceViewAlternativeEnabled();
+     }
+-
+-    @Override
+-    protected void doStartPreview(CameraAgent.CameraStartPreviewCallback startPreviewCallback, CameraAgent.CameraProxy cameraDevice) {
+-        if (isShouldShowVGesture()) {
+-            Log.d(TAG,"doCameraOpen ");
+-            mVGestureController.doStartPreview(new Handler(Looper.getMainLooper()),startPreviewCallback, cameraDevice);
+-        } else {
+-            super.doStartPreview(startPreviewCallback, cameraDevice);
+-        }
+-    }
+-
+-    @Override
+-    public void doOnPreviewStartedSpecial(boolean isCameraIdle, boolean isHdrOn,
+-            CameraActivity activity, CameraAgent.CameraProxy cameraDevice, Handler h, int displayOrientation,
+-            boolean mirror, View rootView) {
+-        if (isShouldShowVGesture()) {
+-            Log.d(TAG,"doOnPreviewStartedSpecial ");
+-            mVGestureController.doOnPreviewStartedSpecial(isCameraIdle, isHdrOn, activity,
+-                    cameraDevice, h, displayOrientation, mirror, rootView);
+-        }
+-    }
+-
+-    @Override
+-    public void doCaptureSpecial() {
+-        if (isShouldShowVGesture()) {
+-            mVGestureController.doCaptureSpecial();
+-        }
+-    }
+-
+-    @Override
+-    public void doCloseCameraSpecial(CameraActivity activity, CameraAgent.CameraProxy cameraDevice) {
+-        if (mVGestureController != null) { // nj dream camera test 46
+-            mVGestureController.doCloseCameraSpecial(activity,cameraDevice);
+-            // mVGestureController = null;
+-        }
+-    }
+-
+-    public boolean isShouldShowVGesture(){
+-        boolean isFront = DreamUtil.FRONT_CAMERA == DataModuleManager
+-                .getInstance(mActivity).getDataModuleCamera()
+-                .getInt(Keys.KEY_CAMERA_ID);
+-        boolean isVOpen = DataModuleManager.getInstance(mActivity).getCurrentDataModule()
+-                .getBoolean(Keys.KEY_CAMERA_VGESTURE);
+-        boolean isVEnable = UCamUtill.isVgestureEnnable();
+-        boolean isVConfigureEnable = DataModuleManager.getInstance(mActivity)
+-                .getCurrentDataModule()
+-                .isEnableSettingConfig(Keys.KEY_CAMERA_VGESTURE);
+-
+-        boolean result = isVConfigureEnable && isFront && isVOpen && isVEnable;
+-        Log.d(TAG,
+-                "isShouldShowVGesture " + isFront+","+isVOpen+","+isVEnable + "," + isVConfigureEnable);
+-        return result;
+-    }
+-    @Override
+-    public void closeCamera(){
+-        super.closeCamera();
+-    }
+-
+-    @Override
+-    public void requestCameraOpen(){
+-        super.requestCameraOpen();
+-    }
+-    // nj dream camera test 24
+-    @Override
+-    public void pause() {
+-        if (mVGestureController != null) {
+-            mVGestureController.resetVGestureImp();
+-        }
+-        super.pause();
+-    }
+-    /* @} */
+-
+     /* SPRD: optimize camera launch time @{ */
+     public boolean useNewApi() {
+         // judge VGesture enable state first will be better, like:
+@@ -136,6 +56,9 @@
+         // but isShouldShowVGesture will throw exception if useNewApi() is
+         // called before module initialized, and no negative effect is found
+         // until now, so just ignore this judgement temporarily.
++        if (isUseSurfaceView()) {
++            return true;
++        }
+         return GservicesHelper.useCamera2ApiThroughPortabilityLayer(null);
+     }
+     /* @} */
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/filterdream/DreamFilterModuleController.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/filterdream/DreamFilterModuleController.java	(revision 173857)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/filterdream/DreamFilterModuleController.java	(revision 173858)
+@@ -50,8 +50,15 @@
+     public boolean switchMode(int swipeState) {
+         if (swipeState == SWIPE_LEFT && mAppController != null
+                 && mAppController.getCurrentModuleIndex() == mPhotoIndex) {
+-            mAppController.freezeScreenUntilPreviewReady();
+-            mAppController.onModeSelected(mFilterIndex);
++            mAppController.freezeScreenCommon();
++            new Handler().post(new Runnable() {
++                @Override
++                public void run() {
++                    if (!mAppController.isPaused()) {
++                        mAppController.onModeSelected(mFilterIndex);
++                    }
++                }
++            });
+             return true;
+         } else if (swipeState == SWIPE_RIGHT && mAppController != null
+                 && mAppController.getCurrentModuleIndex() == mFilterIndex) {
+@@ -114,7 +121,7 @@
+             // mModeTransitionView.hideImageCover();
+             getCameraAppUI().hideModeCover();
+             /*SPRD:fix bug612383 filter not need textureview @ {*/
+-            if (mAppController != null && mAppController.getCurrentModuleIndex() == mFilterIndex) {
++            if ((mAppController != null && mAppController.getCurrentModuleIndex() == mFilterIndex)) {
+                 getCameraAppUI().pauseTextureViewRendering();
+             }
+             /* @} */
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/autovideo/AutoVideoModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/autovideo/AutoVideoModule.java	(revision 173857)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/autovideo/AutoVideoModule.java	(revision 173858)
+@@ -4,6 +4,8 @@
+ import com.android.camera.app.AppController;
+ import com.android.camera.CameraActivity;
+ import com.android.camera.VideoUI;
++import com.android.camera.util.CameraUtil;
++import com.android.camera.util.GservicesHelper;
+ 
+ import com.dream.camera.dreambasemodules.DreamVideoModule;
+ 
+@@ -17,4 +19,14 @@
+     public VideoUI createUI(CameraActivity activity) {
+         return new AutoVideoUI(activity, this, activity.getModuleLayoutRoot());
+     }
++
++    @Override
++    public boolean useNewApi() {
++        return GservicesHelper.useCamera2ApiThroughPortabilityLayer(mActivity.getContentResolver());
++    }
++
++    @Override
++    public boolean isUseSurfaceView() {
++        return CameraUtil.isSurfaceViewAlternativeEnabled();
++    }
+ }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/PhotoModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/PhotoModule.java	(revision 173857)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/PhotoModule.java	(revision 173858)
+@@ -16,6 +16,7 @@
+ 
+ package com.android.camera;
+ 
++import com.android.camera.CameraActivity;
+ import android.annotation.TargetApi;
+ import android.app.Activity;
+ import android.content.BroadcastReceiver;
+@@ -116,6 +117,8 @@
+ import com.sprd.camera.voice.PhotoVoiceMessage;
+ import com.sprd.hz.selfportrait.MSG;
+ import com.ucamera.ucam.modules.utils.UCamUtill;
++import android.view.SurfaceHolder;
++import android.graphics.RectF;
+ 
+ import java.io.ByteArrayOutputStream;
+ import java.io.File;
+@@ -226,7 +229,7 @@
+     /**
+      * @}
+      */
+-
++	private boolean mCanSensorSelfShot = true;
+     private final Runnable mDoSnapRunnable = new Runnable() {
+         @Override
+         public void run() {
+@@ -859,10 +862,10 @@
+         }
+     }
+ 
+-    private void restartPreview(boolean freezeScreen) {
++     private void restartPreview(boolean freezeScreen) {
+         stopPreview();
+-        if(freezeScreen){
+-            mAppController.getCameraAppUI().freezeScreenUntilPreviewReady();
++        if (freezeScreen && !isUseSurfaceView()) {
++            mAppController.freezeScreenUntilPreviewReady();
+         }
+         /* SPRD: fix bug620875 need make sure freeze screen draw on Time @{ */
+         mHandler.post(new Runnable() {
+@@ -1125,9 +1128,7 @@
+     }
+ 
+     protected void doCameraOpen(int cameraId){
+-        mActivity.getCameraProvider().requestCamera(mCameraId,
+-                GservicesHelper.useCamera2ApiThroughPortabilityLayer(mActivity
+-                        .getContentResolver()));
++        mActivity.getCameraProvider().requestCamera(mCameraId, useNewApi());
+     }
+ 
+     public final ButtonManager.ButtonCallback mCameraCallback = new ButtonManager.ButtonCallback() {
+@@ -2148,8 +2149,7 @@
+ 
+     /*SPRD:fix bug 620875 avoid 3d photo use burst mode @{ */
+     public boolean checkCameraProxy() {
+-        boolean preferNewApi = GservicesHelper.useCamera2ApiThroughPortabilityLayer(
+-                mActivity.getContentResolver());
++        boolean preferNewApi = useNewApi();
+         return (preferNewApi == getCameraProvider().isNewApi())
+                 && mCameraId == getCameraProvider().getCurrentCameraId().getLegacyValue();
+     }
+@@ -2779,6 +2779,11 @@
+         getServices().getMediaSaver().setListener(this);// SPRD BUG:388273
+ 
+         mUI.onResume();
++		 /* SPRD: Fix bug 613015 add SurfaceView support @{ */
++        if (isUseSurfaceView()) {
++            mActivity.setSurfaceHolderListener(mUI);
++        }
++        /* @} */
+     }
+ 
+     /**
+@@ -2842,6 +2847,9 @@
+         mHandler.removeMessages(MSG.CAMERA_SHUTTER);
+         mHandler.removeMessages(MSG.CAMERA_FOCUS_CAPTURE);
+         /* @} */
++		if (isUseSurfaceView() && (mActivity.getCameraAppUI() != null)) {
++            mActivity.getCameraAppUI().resumeTextureViewRendering();
++        }
+         /* SPRD: fix bug 473462 add burst capture @{ */
+         if (mBurstMode){
+             cancelBurstCapture();
+@@ -2932,6 +2940,11 @@
+             mAppController.getOrientationManager().removeOnOrientationChangeListener(this);
+ 
+         mAppController.getCameraAppUI().setBottomPanelLeftRightClickable(true);//Fix bug 649158/628424
++		/* SPRD: Fix bug 613015 add SurfaceView support @{ */
++        if (isUseSurfaceView()) {
++            mActivity.setSurfaceHolderListener(null);
++        }
++        /* @} */
+         Log.i(TAG, "pause end!");
+         /* @} */
+     }
+@@ -3335,11 +3348,38 @@
+             return false;
+         }
+ 
++        /*
++         * SPRD: Fix bug 613015 add SurfaceView support @{
++         * Original Code
++         *
+         SurfaceTexture st = mActivity.getCameraAppUI().getSurfaceTexture();
+         if (st == null) {
+             Log.w(TAG, "startPreview: surfaceTexture is not ready.");
+             return false;
+         }
++         */
++        if (isUseSurfaceView()) {
++            SurfaceHolder sh = mActivity.getCameraAppUI().getSurfaceHolder();
++            if (sh == null) {
++                Log.w(TAG, "startPreview: SurfaceHolder is not ready.");
++                return false;
++            }
++            /*
++             * SPRD: Fix bug 666033
++            SurfaceTexture st = mActivity.getCameraAppUI().getSurfaceTexture();
++            if (st == null) {
++                Log.w(TAG, "startPreview: surfaceTexture is not ready. need wait for blur.");
++                return false;
++            }
++            */
++        } else {
++            SurfaceTexture st = mActivity.getCameraAppUI().getSurfaceTexture();
++            if (st == null) {
++                Log.w(TAG, "startPreview: surfaceTexture is not ready.");
++                return false;
++            }
++        }
++        /* @} */
+ 
+         /**
+          * SPRD: Fix bug 572631, optimize camera launch time,
+@@ -3368,7 +3408,7 @@
+         }
+ 
+         /* SPRD: add for bug 380597/642171: switch camera preview has a frame error @{ */
+-        mActivity.getCameraAppUI().resetPreview(!optimize);
++        mActivity.getCameraAppUI().resetPreview();
+         /* @} */
+         /*SPRD: fix bug606414 burst mode not need to set display orientation, because it will modify jpeg orientation @ */
+         if (!mBurstMode) {
+@@ -3394,12 +3434,19 @@
+ 
+         setCameraParameters(UPDATE_PARAM_ALL);
+ 
+-        if(optimize){
+-            mCameraDevice.setPreviewTexture(mActivity.getCameraAppUI()
+-                    .getSurfaceTexture());
+-        }else {
+-            mCameraDevice.setPreviewTextureWithoutOptimize(mActivity.getCameraAppUI()
+-                    .getSurfaceTexture());
++        if (isUseSurfaceView()) {
++            if (optimize) {
++                mCameraDevice.setPreviewDisplay(mActivity.getCameraAppUI().getSurfaceHolder());
++            } else {
++                mCameraDevice.setPreviewDisplayWithoutOptimize(mActivity.getCameraAppUI().getSurfaceHolder());
++            }
++        } else {
++            if (optimize) {
++                mCameraDevice.setPreviewTexture(mActivity.getCameraAppUI().getSurfaceTexture());
++            } else {
++                mCameraDevice.setPreviewTextureWithoutOptimize(mActivity.getCameraAppUI()
++                        .getSurfaceTexture());
++            }
+         }
+ 
+         Log.i(TAG, "startPreview");
+@@ -3406,7 +3453,7 @@
+         // If we're using API2 in portability layers, don't use
+         // startPreviewWithCallback()
+         // b/17576554
+-        CameraAgent.CameraStartPreviewCallback startPreviewCallback = new CameraAgent.CameraStartPreviewCallback() {
++      CameraAgent.CameraStartPreviewCallback startPreviewCallback = new CameraAgent.CameraStartPreviewCallback() {
+             @Override
+             public void onPreviewStarted() {
+                 mFocusManager.onPreviewStarted();
+@@ -3415,6 +3462,17 @@
+                 if (mSnapshotOnIdle) {
+                     mHandler.post(mDoSnapRunnable);
+                 }
++                if(isUseSurfaceView()) {
++                    if(mHandler == null) return;
++                    mHandler.postDelayed(new Runnable() {
++                        public void run() {
++                            if(mPaused) return;
++                            final CameraAppUI cameraAppUI = mActivity.getCameraAppUI();
++                            cameraAppUI.onSurfaceTextureUpdated(cameraAppUI.getSurfaceTexture());
++                            cameraAppUI.pauseTextureViewRendering();
++                        }
++                    }, 500);
++                }
+             }
+         };
+         /**
+@@ -3443,7 +3501,13 @@
+         Log.i(TAG, "stopPreview start!mCameraDevice=" + mCameraDevice);
+         if (mCameraDevice != null && mCameraState != PREVIEW_STOPPED) {
+             Log.i(TAG, "stopPreview");
+-            mCameraDevice.stopPreview();
++            /* SPRD: fix bug677344 intent capture should not stoppreview with flush @{ */
++            if (isUseSurfaceView()) {
++                mCameraDevice.stopPreview();
++            } else {
++                mCameraDevice.stopPreviewWithOutFlush();
++            }
++            /* @} */
+             mFaceDetectionStarted = false;
+         }
+         setCameraState(PREVIEW_STOPPED);
+@@ -3460,7 +3524,7 @@
+      */
+     @Override
+     public void onSettingChanged(SettingsManager settingsManager, String key) {
+-//        Log.d(TAG, "onSettingChanged key=" + key);
++          Log.d(TAG, "onSettingChanged key=" + key);
+ //        if (key.equals(Keys.KEY_FLASH_MODE)) {
+ //            updateParametersFlashMode();
+ //        }
+@@ -5237,7 +5301,7 @@
+     }
+ 
+     protected void doStartPreview(CameraAgent.CameraStartPreviewCallback startPreviewCallback, CameraAgent.CameraProxy cameraDevice) {
+-        if (GservicesHelper.useCamera2ApiThroughPortabilityLayer(mActivity.getContentResolver())) {
++       if (useNewApi()) {
+             mCameraDevice.startPreview();
+             startPreviewCallback.onPreviewStarted();
+         } else {
+@@ -5515,4 +5579,8 @@
+     public boolean isCameraAvailable(){
+         return mCameraAvailable;
+     }
++	@Override
++    public boolean useNewApi() {
++        return GservicesHelper.useCamera2ApiThroughPortabilityLayer(mActivity.getContentResolver());
++    }
+ }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/app/AppController.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/app/AppController.java	(revision 173857)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/app/AppController.java	(revision 173858)
+@@ -174,7 +174,7 @@
+ 
+     // SPRD: Fix 474843 Add for Filter Feature
+     public void freezeScreenUntilPreviewReady(Bitmap bitmap);
+-
++	public void freezeScreenCommon();
+     public void freezeScreenUntilPreviewReady(Bitmap bitmap, RectF previewArea);//SPRD:fix bug595400 add freeze screen for gif
+     /**
+      * Returns the {@link android.graphics.SurfaceTexture} used by the preview
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/app/CameraAppUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/app/CameraAppUI.java	(revision 173857)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/app/CameraAppUI.java	(revision 173858)
+@@ -102,7 +102,13 @@
+ import android.content.Context;
+ 
+ import com.dream.camera.DreamOrientation;
++import com.android.camera.ui.motion.AnimationClock.SystemTimeClock;
++import android.view.SurfaceView;
++import android.view.SurfaceHolder;
++import com.android.camera.SurfaceViewEx;
++import com.android.ex.camera2.portability.CameraAgent;
+ 
++
+ /**
+  * CameraAppUI centralizes control of views shared across modules. Whereas
+  * module specific views will be handled in each Module UI. For example, we can
+@@ -693,6 +699,7 @@
+         public Bitmap getScreenShot(Bitmap bmp);
+         // SPRD: Fix bug 595400 the freeze screen for gif
+         public Bitmap getScreenShot(Bitmap bmp, RectF previewArea);
++		public Bitmap getBlackPreviewFrameWithButtons();
+         public Bitmap getBlackPreviewFrame(int downSampleFactor);
+     }
+ 
+@@ -798,18 +805,22 @@
+ 
+         /* SPRD: Fix bug 595400 the freeze screen for gif @{ */
+         @Override
+-        public Bitmap getScreenShot(Bitmap bmp, RectF previewArea) {
++       	public Bitmap getScreenShot(Bitmap bmp, RectF previewArea) {
+             Bitmap screenshot = Bitmap.createBitmap(mCameraRootView.getWidth(),
+                     mCameraRootView.getHeight(), Bitmap.Config.ARGB_8888);
+             Canvas canvas = new Canvas(screenshot);
+-            canvas.drawARGB(255, 0, 0, 0);
+-            if (bmp != null) {
+-                canvas.drawBitmap(bmp, null, previewArea, null);
++            if (!mStartSwitchAnimation) {
++                canvas.drawARGB(255, 0, 0, 0);
++                if (bmp != null) {
++                    canvas.drawBitmap(bmp, null, previewArea, null);
++                }
++                Bitmap overlay = getPreviewOverlayAndControls();
++                if (overlay != null) {
++                    canvas.drawBitmap(overlay, 0f, 0f, null);
++                }
++            } else {
++                canvas.drawARGB(0, 0, 0, 0);
+             }
+-            Bitmap overlay = getPreviewOverlayAndControls();
+-            if (overlay != null) {
+-                canvas.drawBitmap(overlay, 0f, 0f, null);
+-            }
+             return screenshot;
+         }
+         /* @} */
+@@ -827,6 +838,22 @@
+             }
+             return preview;
+         }
++		@Override
++        public Bitmap getBlackPreviewFrameWithButtons() {
++            Bitmap screenshot = Bitmap.createBitmap(mCameraRootView.getWidth(),
++                    mCameraRootView.getHeight(), Bitmap.Config.ARGB_8888);
++            Canvas canvas = new Canvas(screenshot);
++            if (!mStartSwitchAnimation) {
++                canvas.drawARGB(255, 0, 0, 0);
++                Bitmap overlay = getPreviewOverlayAndControls();
++                if (overlay != null) {
++                    canvas.drawBitmap(overlay, 0f, 0f, null);
++                }
++            } else {
++                canvas.drawARGB(0, 0, 0, 0);
++            }
++            return screenshot;
++		}
+     };
+ 
+     private long mCoverHiddenTime = -1; // System time when preview cover was
+@@ -1169,7 +1196,19 @@
+         }
+      }
+     /* @} */
+-
++	public void freezeScreenBlackUntilPreviewReady() {
++    	Log.v(TAG, "freezeScreenBlackUntilPreviewReady");
++    	mModeTransitionView.setupModeCover(mCameraModuleScreenShotProvider
++                .getBlackPreviewFrameWithButtons());
++    	mHideCoverRunnable = new Runnable() {
++         	@Override
++         	public void run() {
++              mModeTransitionView.hideImageCover();
++          }
++      };
++      mModeCoverState = COVER_SHOWN;
++   	}
++	
+     /**
+      * Creates a cling for the specific viewer and links the cling to the
+      * corresponding button for layout position.
+@@ -1245,6 +1284,12 @@
+                 .unregisterDisplayListener(mDisplayListener);
+         SlidePanelManager.getInstance((CameraActivity) mController).onDestroy();
+         mIsDestroyed = true;
++		/* SPRD: Fix bug 613015 add SurfaceView support @{ */
++        if (((CameraActivity) mController).getCurrentModule().isUseSurfaceView()) {
++            mTextureViewHelper.removePreviewAreaSizeChangedListener(
++                    mSurfaceView.getPreviewAreaChangedListener());
++        }
++        /* @} */
+         DataModuleManager.getInstance(mController.getAndroidContext()).removeListener(mSettingLayout);
+     }
+ 
+@@ -1700,6 +1745,13 @@
+         // .getColor(R.color.camera_gray_background);
+         // setBottomBarColor(unpressedColor);
+         // updateModeSpecificUIColors();
++         /* SPRD: Fix bug 613015 add SurfaceView support @{ */
++        mSurfaceView = (SurfaceViewEx) mCameraRootView.findViewById(R.id.preview_content_surfaceview);
++        if ((null != mSurfaceView) && ((CameraActivity) mController).getCurrentModule().isUseSurfaceView()) {
++            mSurfaceView.setCameraAppUI(this);
++            mTextureViewHelper.addPreviewAreaSizeChangedListener(mSurfaceView.getPreviewAreaChangedListener());
++        }
++        /* @} */
+ 
+         mBottomBar.setCaptureLayoutHelper(mCaptureLayoutHelper);
+ 
+@@ -1761,7 +1813,13 @@
+                 .addAspectRatioChangedListener(new PreviewStatusListener.PreviewAspectRatioChangedListener() {
+                     @Override
+                     public void onPreviewAspectRatioChanged(float aspectRatio) {
++                        mModeOptionsOverlay.requestLayout();
+                         mBottomBar.requestLayout();
++                        /* SPRD: Fix bug 613015 add SurfaceView support @{ */
++                        if (null != mSurfaceView) {
++                            mSurfaceView.setAspectRatio(aspectRatio);
++                        }
++                        /* @} */
+                     }
+                 });
+     }
+@@ -1822,7 +1880,7 @@
+         /**
+          * SPRD:fix bug474690 Log.v(TAG, "onPreviewStarted");
+          */
+-        Log.i(TAG, "onPreviewStarted mModeCoverState = " + mModeCoverState + " mIsReStartPreview = " + mIsReStartPreview);
++        Log.i(TAG, "onPreviewStarted mModeCoverState = " + mModeCoverState);
+         // SPRD: Fix 474843 Add for Filter Feature
+         mDreamFilterModuleController.resetFrameCount();
+         mStartSwitchAnimation = false;
+@@ -1835,9 +1893,9 @@
+             // to
+             // avoid potential janks. We do this only for L, Nexus 6 and
+             // Haleakala.
+-            if (ApiHelper.isLorLMr1() && ApiHelper.IS_NEXUS_6 || mIsReStartPreview) {//SPRD:fix bu642171
++            if (ApiHelper.isLorLMr1() && ApiHelper.IS_NEXUS_6 ) {//SPRD:fix bu642171
+                 mModeCoverState = COVER_WILL_HIDE_AFTER_NEXT_TEXTURE_UPDATE;
+-                mIsReStartPreview = false;
++                
+             } else {
+                 mModeCoverState = COVER_WILL_HIDE_AT_NEXT_TEXTURE_UPDATE;
+             }
+@@ -2141,7 +2199,7 @@
+     public void onSurfaceTextureUpdated() {
+         Log.i(TAG, "onSurfaceTextureUpdated() mModeCoverState = "
+                 + mModeCoverState);
+-        if (mModeCoverState == COVER_WILL_HIDE_AT_NEXT_TEXTURE_UPDATE || mModeCoverState == COVER_WILL_HIDE_AFTER_NEXT_TEXTURE_UPDATE) {
++        if (mModeCoverState == COVER_WILL_HIDE_AT_NEXT_TEXTURE_UPDATE ) {
+             Log.i(TAG, "hiding cover via onSurfaceTextureUpdated");
+             onNewPreviewFrame();
+             if (!isInIntentReview()
+@@ -2179,8 +2237,9 @@
+              *
+             hideModeCover();
+              */
+-            mDreamFilterModuleController.checkFrameCount();//SPRD:fix bug642171
++            
+         }
++		mDreamFilterModuleController.checkFrameCount();
+     }
+ 
+     /**************************** Grid lines api ******************************/
+@@ -2800,13 +2859,6 @@
+     }
+     /* @} */
+ 
+-    /* SPRD: add for bug642171 switch resolution error @{ */
+-    private boolean mIsReStartPreview = false;
+-    public void resetPreview(boolean restart) {
+-        mIsReStartPreview = restart;
+-        mTextureViewHelper.resetPreview();
+-    }
+-    /* @} */
+ 
+     /* SPRD:Add for bug 507813 The flash icon is not sync @{ */
+     public void resetIndicatorIcon() {
+@@ -4099,4 +4151,26 @@
+         }
+         return false;
+     }
++	/* SPRD: Fix bug 613015 add SurfaceView support @{ */
++    private SurfaceViewEx mSurfaceView;
++    public SurfaceHolder getSurfaceHolder() {
++        if (mSurfaceView != null) {
++            return mSurfaceView.getSurfaceHolder();
++        }
++        return null;
++    }
++
++    public void setSurfaceHolderListener(SurfaceHolder.Callback surfaceHolderListener) {
++        if (mSurfaceView != null) {
++            mSurfaceView.setSurfaceHolderListener(surfaceHolderListener);
++            mSurfaceView.setVisibility(surfaceHolderListener == null ? View.GONE : View.VISIBLE);
++        }
++    }
++
++    public void onPreviewUpdated(byte[] data, CameraAgent.CameraProxy camera) {
++        if (mSurfaceView != null) {
++            mSurfaceView.onPreviewUpdated(data, camera);
++        }
++    }
++    /* @} */
+ }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoUI.java	(revision 173857)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoUI.java	(revision 173858)
+@@ -45,8 +45,9 @@
+ import com.android.camera.settings.Keys;
+ import com.dream.camera.settings.DataModuleManager;
+ import com.dream.camera.ButtonManagerDream;
++import android.view.SurfaceHolder;
+ 
+-public class VideoUI extends DreamUI implements PreviewStatusListener {
++public class VideoUI extends DreamUI implements PreviewStatusListener, SurfaceHolder.Callback {
+     private static final Log.Tag TAG = new Log.Tag("VideoUI");
+ 
+     private final static float UNSET = 0f;
+@@ -363,6 +364,9 @@
+     // SurfaceTexture callbacks
+     @Override
+     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
++		if (((VideoModule) mController).isUseSurfaceView()) {
++            return;
++        }
+         mController.onPreviewUIReady();
+     }
+ 
+@@ -441,4 +445,22 @@
+     public void setButtonVisibility(int buttonId, int visibility) {
+         ((ButtonManagerDream)mActivity.getButtonManager()).setButtonVisibility(buttonId,visibility);
+     }
++	/* SPRD: Fix bug 613015 add SurfaceView support @{ */
++    @Override
++    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
++        Log.i(TAG, "surfaceChanged: " + holder + " " + width + " " + height);
++    }
++
++    @Override
++    public void surfaceCreated(SurfaceHolder holder) {
++        Log.i(TAG, "surfaceCreated: " + holder);
++        mController.onPreviewUIReady();
++    }
++
++    @Override
++    public void surfaceDestroyed(SurfaceHolder holder) {
++        Log.i(TAG, "surfaceDestroyed: " + holder);
++        mController.onPreviewUIDestroyed();
++    }
++    /* @} */
+ }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java	(revision 173857)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java	(revision 173858)
+@@ -213,6 +213,8 @@
+ import com.dream.camera.SlidePanelManager;
+ 
+ import android.os.SystemProperties;
++import com.android.camera.util.Size;
++import android.view.SurfaceHolder;
+ 
+ import com.android.camera.PhotoModule;
+ import com.android.camera.SecurityAccessLocation;
+@@ -1334,6 +1336,12 @@
+     public void launchActivityByIntent(Intent intent) {
+         // Starting from L, we prefer not to start edit activity within camera's task.
+         mResetToPreviewOnResume = false;
++		// SPRD: Add For bug670083 after video playing, flash a preview frame.
++        if (mCurrentModule.isUseSurfaceView() && intent.getType() != null
++                && intent.getType().indexOf("video/") >= 0) {
++            startActivity(intent);
++            return;
++        }
+         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+ 
+         startActivity(intent);
+@@ -1401,7 +1409,7 @@
+     public void onPreviewStarted() {
+         mCameraAppUI.onPreviewStarted();
+         /* SPRD: Fix bug 572631, optimize camera launch time @{ */
+-        if (mStorageCheckNeeded) {
++        if (mStorageCheckNeeded && !mFilmstripVisible) {
+             mStorageCheckNeeded = false;
+             updateStorageSpaceAndHint(null);
+             loadFilmstripItems();
+@@ -3954,6 +3962,15 @@
+ 
+         startActivity(intent);
+     }
++	public void freezeScreenCommon() {
++        if (mCurrentModule.isUseSurfaceView()) {
++            Size displaySize = CameraUtil.getDefaultDisplaySize();
++            Bitmap screenShot = CameraUtil.getSurfaceScreenShot(displaySize, (Context)this, CameraUtil.isFreezeBlurEnable());
++            freezeScreenUntilPreviewReady(screenShot, new RectF(0, 0, displaySize.getWidth(), displaySize.getHeight()));
++        } else {
++            freezeScreenUntilPreviewReady();
++        }
++    }
+ 
+     @Override
+     public void freezeScreenUntilPreviewReady() {
+@@ -3960,12 +3977,14 @@
+         mCameraAppUI.freezeScreenUntilPreviewReady();
+     }
+ 
+-    // SPRD: Fix 474843 Add for Filter Feature.
++     // SPRD: Fix 474843 Add for Filter Feature.
++    @Override
+     public void freezeScreenUntilPreviewReady(Bitmap bitmap) {
+         mCameraAppUI.freezeScreenUntilPreviewReady(bitmap);
+     }
+ 
+     /* SPRD: Fix bug 595400 the freeze screen for gif @{ */
++    @Override
+     public void freezeScreenUntilPreviewReady(Bitmap bitmap, RectF previewArea) {
+         mCameraAppUI.freezeScreenUntilPreviewReady(bitmap, previewArea);
+     }
+@@ -4912,7 +4931,7 @@
+             if (mCurrentModule.getModuleTpye() == DreamModule.FILTER_MODULE || mCurrentModule.getModuleTpye() == DreamModule.WIDEANGLE_MODULE) {
+                 mCurrentModule.freezeScreen(CameraUtil.isFreezeBlurEnable(), false);
+             } else {
+-                freezeScreenUntilPreviewReady();
++                freezeScreenCommon();
+             }
+             /*SPRD: fix bug 616844 make sure freeze view draw on time @{ */
+             mMainHandler.post(new Runnable() {
+@@ -5003,7 +5022,7 @@
+             if (CameraUtil.isSwitchAnimationEnable()) {
+                 mCameraAppUI.startSwitchAnimation(null);
+             }
+-            freezeScreenUntilPreviewReady();
++            freezeScreenCommon();
+         }
+         /* SPRD:fix bug616685 add freeze for module from gif to other @{ */
+         ModeSelectRunnable selectRunnable = new ModeSelectRunnable(modeIndex);
+@@ -5101,7 +5120,7 @@
+                 .getBoolean(Keys.KEY_CAMERA_SHUTTER_SOUND);
+     }
+ 
+-    @Override
++   @Override
+     public void onSettingReset() {
+         Log.d(TAG, "onSettingReset");
+         updateShutterSound();
+@@ -5118,7 +5137,11 @@
+             if (DreamModule.FILTER_MODULE == mCurrentModule.getModuleTpye()) {
+                 mCurrentModule.freezeScreen(CameraUtil.isFreezeBlurEnable(), false);
+             } else {
+-                mCameraAppUI.freezeScreenUntilPreviewReady();
++                if(!mCurrentModule.isUseSurfaceView()){
++                    freezeScreenUntilPreviewReady();
++                } else {
++                    mCameraAppUI.freezeScreenBlackUntilPreviewReady();// SPRD:add for bug 667082
++                }
+             }
+             mMainHandler.post(new Runnable() {
+                 @Override
+@@ -5334,4 +5357,74 @@
+     public void setWaitToChangeMode(boolean wait) {
+         waitToChangeMode = wait;
+     }
++	private void updateUI() {
++        /*
++         * SPRD Bug:519334, 527627 Refactor Rotation UI of Camera. @{
++         */
++        if (mOrientationManager == null) {
++            Log.e(TAG, "onFilmstripHidden returned,"
++                    + "because cameraActivity is destroyed.");
++            return;
++        }
++        mOrientationManager
++                .setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
++        mMainHandler.postDelayed(new Runnable() {
++
++            int tryTime = 0;
++
++            @Override
++            public void run() {
++                if (CameraActivity.this.getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
++                        && CameraActivity.this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
++                    if (CameraActivity.this.isDestroyed()) return; // SPRD: fix bug 531072 JavaCrash:java.lang.NullPointerException
++                  //SPRD:fix bug 613799 save the panorama exception
++                    if(!mCurrentModule.isSavingPanorama()){
++                        mCameraAppUI.showPanels();
++                    }
++                    if (dataAdapterLengthBeforeShow != mDataAdapter.getCount()) {
++                        updateStorageSpaceAndHint(null);
++                    } else {
++                        /*
++                         * fix bug 601158 thumbnail does not generate and display
++                         */
++                        if (mCurrentModule.getModuleTpye() == DreamModule.CONTINUE_MODULE && mCurrentModule.isBurstThumbnailNotInvalid()) {
++                            Log.i(TAG,"burst capture invalid thumbnail");
++                            fillTemporarySessions();
++                            mCurrentModule.restoreCancelBurstTag();
++                        }
++                        /* SPRD:fix bug 619231 thumbnail not sync @{ */
++                        if (mLastPhotoId != mDataAdapter.getLastPhotoId()) {
++                            fillTemporarySessions();
++                        }
++                        /* @} */
++                    }
++                    if (dataAdapterLengthBeforeShow != mDataAdapter.getCount()
++                            && mDataAdapter != null
++                            && fsItem != mDataAdapter.getItemAt(0)
++                            && mCurrentModule != null
++                            && !mCurrentModule.isFreezeFrameDisplayShow()) {
++                        if (mSecureCamera) {
++                            runSyncThumbnail();
++                        } else if (!mCameraAppUI.isGifCancelVisible()){
++                            fillTemporarySessions();
++                        }
++                        fsItem = null;
++                    }
++                } else {
++                    if (++tryTime <= 50) {
++                        mMainHandler.postDelayed(this, 20);
++                    } else {
++                        Log.e(TAG,
++                                "resetOrientaion timeout.");
++                        return;
++                    }
++                }
++            }
++        }, 20);
++    }
++    /* SPRD: Fix bug 613015 add SurfaceView support @{ */
++    public void setSurfaceHolderListener(SurfaceHolder.Callback surfaceHolderListener) {
++        mCameraAppUI.setSurfaceHolderListener(surfaceHolderListener);
++    }
++    /* @} */
+ }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoModule.java	(revision 173857)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoModule.java	(revision 173858)
+@@ -110,6 +110,8 @@
+ import android.telephony.PhoneStateListener;
+ import android.telephony.TelephonyManager;
+ 
++import android.view.SurfaceHolder;
++import android.graphics.RectF;
+ 
+ public class VideoModule extends CameraModule implements
+         FocusOverlayManager.Listener, MediaRecorder.OnErrorListener,
+@@ -1204,12 +1206,32 @@
+     private void startPreview() {
+         Log.i(TAG, "startPreview");
+ 
+-        SurfaceTexture surfaceTexture = mActivity.getCameraAppUI()
+-                .getSurfaceTexture();
++        SurfaceTexture surfaceTexture = mActivity.getCameraAppUI().getSurfaceTexture();
++        /*
++         * SPRD: Fix bug 613015 add SurfaceView support @{
++         * Original Code
++         *
+         if (!mPreferenceRead || surfaceTexture == null || mPaused == true
+                 || mCameraDevice == null) {
+             return;
+         }
++        */
++       SurfaceHolder surfaceHolder = mActivity.getCameraAppUI().getSurfaceHolder();
++       if (!mPreferenceRead || mPaused == true || mCameraDevice == null) {
++           return;
++       }
++       if (isUseSurfaceView()) {
++           if (surfaceHolder == null) {
++               Log.w(TAG, "startPreview: SurfaceHolder or surfaceTexture is not ready.");
++               return;
++           }
++       } else {
++           if (surfaceTexture == null) {
++               Log.w(TAG, "startPreview: surfaceTexture is not ready.");
++               return;
++           }
++       }
++       /* @} */
+ 
+         if (mPreviewing == true) {
+             stopPreview();
+@@ -1244,7 +1266,18 @@
+             Log.v(TAG, "on L, no one shot callback necessary");
+         }
+         try {
++            /*
++             * SPRD: Fix bug 613015 add SurfaceView support @{
++             * Original Code
++             *
+             mCameraDevice.setPreviewTexture(surfaceTexture);
++             */
++            if (isUseSurfaceView()) {
++                mCameraDevice.setPreviewDisplay(surfaceHolder);
++            } else {
++                mCameraDevice.setPreviewTexture(surfaceTexture);
++            }
++            /* @} */
+             mCameraDevice.startPreviewWithCallback(
+                     new Handler(Looper.getMainLooper()),
+                     new CameraAgent.CameraStartPreviewCallback() {
+@@ -1251,6 +1284,15 @@
+                         @Override
+                         public void onPreviewStarted() {
+                             VideoModule.this.onPreviewStarted();
++                            if(isUseSurfaceView()) {
++                                mActivity.getMainHandler().postDelayed(new Runnable() {
++                                    public void run() {
++                                        final CameraAppUI cameraAppUI = mActivity.getCameraAppUI();
++                                        cameraAppUI.onSurfaceTextureUpdated(cameraAppUI.getSurfaceTexture());
++                                        cameraAppUI.pauseTextureViewRendering();
++                                    }
++                                }, 500);
++                            }
+                         }
+                     });
+             mPreviewing = true;
+@@ -1299,8 +1341,7 @@
+             return;
+         }
+         mCameraDevice.setZoomChangeListener(null);
+-        mActivity.getCameraProvider()
+-                .releaseCamera(mCameraDevice.getCameraId());
++        mActivity.getCameraProvider().releaseCamera(mCameraDevice.getCameraId());
+         mCameraDevice = null;
+         mPreviewing = false;
+         mSnapshotInProgress = false;
+@@ -2360,7 +2401,7 @@
+ 
+     private void restartPreview() {
+         stopPreview();
+-        if (!isVideoCaptureIntent())
++        if (!isVideoCaptureIntent() && !isUseSurfaceView())
+         mAppController.getCameraAppUI().freezeScreenUntilPreviewReady();
+         /* SPRD: fix bug620875 need make sure freeze screen draw on Time @{ */
+         mHandler.post(new Runnable() {
+@@ -2627,6 +2668,11 @@
+                     }
+                 });
+         /* @} */
++		  /* SPRD: Fix bug 613015 add SurfaceView support @{ */
++        if (isUseSurfaceView()) {
++            mActivity.setSurfaceHolderListener(mUI);
++        }
++        /* @} */
+ 
+         //PAY ATTENTION: NEED NEXT DEBUG
+         // SPRD BUG 532096: NO timestamp effect when take picture under videomodule
+@@ -2641,6 +2687,9 @@
+         ToastUtil.cancelToast();
+         /* @} */
+         mPaused = true;
++		if (mActivity.getCameraAppUI() != null) {
++            mActivity.getCameraAppUI().resumeTextureViewRendering();
++        }
+         restoreToDefaultSettings();
+         mDataModuleCurrent.removeListener(this);
+         mDataModule.removeListener(this);
+@@ -2705,6 +2754,12 @@
+         mPreferenceRead = false;
+         getServices().getMemoryManager().removeListener(this);
+         mUI.onPause();
++		/* SPRD: Fix bug 613015 add SurfaceView support @{ */
++        if (isUseSurfaceView()) {
++            mActivity.setSurfaceHolderListener(null);
++        }
++        /* @} */
++        Log.i(TAG, "pause end!");
+     }
+ 
+     public void restoreToDefaultSettings(){
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/PhotoUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/PhotoUI.java	(revision 173857)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/PhotoUI.java	(revision 173858)
+@@ -78,9 +78,10 @@
+ import com.dream.camera.DreamUI;
+ import com.dream.camera.MakeupController;
+ import com.dream.camera.ButtonManagerDream;
++import android.view.SurfaceHolder;
+ 
+ public class PhotoUI extends DreamUI implements PreviewStatusListener,
+-    CameraAgent.CameraFaceDetectionCallback, PreviewStatusListener.PreviewAreaChangedListener, FaceDetectionController{
++    CameraAgent.CameraFaceDetectionCallback, PreviewStatusListener.PreviewAreaChangedListener, FaceDetectionController, SurfaceHolder.Callback{
+ 
+     private static final Log.Tag TAG = new Log.Tag("PhotoUI");
+     private static final int DOWN_SAMPLE_FACTOR = 4;
+@@ -340,6 +341,9 @@
+ 
+     @Override
+     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
++		if(((PhotoModule) mController).isUseSurfaceView()){
++            return;
++        }
+         mController.onPreviewUIReady();
+     }
+ 
+@@ -1000,4 +1004,22 @@
+     }
+ 
+     protected void setPictureInfo(int width, int height, int orientation){}//SPRD:fix bug 625571
++	 /* SPRD: Fix bug 613015 add SurfaceView support @{ */
++    @Override
++    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
++        Log.i(TAG, "surfaceChanged: " + holder + " " + width + " " + height);
++    }
++
++    @Override
++    public void surfaceCreated(SurfaceHolder holder) {
++        Log.i(TAG, "surfaceCreated: " + holder);
++        mController.onPreviewUIReady();
++    }
++
++    @Override
++    public void surfaceDestroyed(SurfaceHolder holder) {
++        Log.i(TAG, "surfaceDestroyed: " + holder);
++        mController.onPreviewUIDestroyed();
++    }
++    /* @} */
+ }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/util/CameraUtil.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/util/CameraUtil.java	(revision 173857)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/util/CameraUtil.java	(revision 173858)
+@@ -49,6 +49,7 @@
+ import android.util.TypedValue;
+ import android.view.OrientationEventListener;
+ import android.view.Surface;
++import android.view.SurfaceControl;
+ import android.view.View;
+ import android.view.WindowManager;
+ import android.view.animation.AlphaAnimation;
+@@ -67,6 +68,7 @@
+ import com.android.camera.one.OneCameraModule;
+ import com.android.camera.settings.CameraPictureSizesCacher;
+ import com.android.camera.settings.Keys;
++import com.android.camera.util.CameraUtil;
+ import com.android.camera2.R;
+ import com.android.ex.camera2.portability.CameraCapabilities;
+ import com.android.ex.camera2.portability.CameraSettings;
+@@ -1475,6 +1477,9 @@
+     private static boolean isFilterHighFpsEnable = false;
+     private static int mLowBatteryNoFlashLevel = -1;
+ 
++    // SPRD: Fix bug 613015 add SurfaceView support
++    private static boolean isSurfaceViewAlternativeEnabled = false;
++
+     private final static String TARGET_TS_BURST_NINETYNINE_ENABLE = "persist.sys.cam.ninetynine";
+     private final static String TARGET_TS_ZSL_BURST_ENABLE = "persist.sys.cam.burst";
+     private final static String TARGET_TS_ZSL_ENABLE = "persist.sys.cam.zsl";
+@@ -1528,6 +1533,10 @@
+ 
+     private static boolean isFreezeBlurEnable = false;
+     private final static String TARGET_TS_FREEZE_BLUR_ENABLE = "persist.sys.cam.blur";
++
++    // SPRD: Fix bug 613015 add SurfaceView support
++    private final static String TARGER_SURFACE_VIEW_ALTERNATIVE = "persist.sys.cam.sfv.alter";
++
+     // dream test 33
+     // SPRD: Fix bug 572309 camera GPS function
+     private static boolean isSupportGps = CameraUtil.isRecordLocationEnable();
+@@ -1559,6 +1568,9 @@
+         isFilterHighFpsEnable = android.os.SystemProperties.getBoolean(
+                 TARGER_FILTER_HIGH_FPS, false);
+ 
++        // SPRD: Fix bug 613015 add SurfaceView support
++        isSurfaceViewAlternativeEnabled = isEnable(TARGER_SURFACE_VIEW_ALTERNATIVE, false);
++
+         /* SPRD: Add for bug 594960, beauty video recoding @{ */
+         isMakeupVideoEnable = android.os.SystemProperties.getBoolean(
+                 TARGET_MAKE_UP_VIDEO, false);
+@@ -1567,6 +1579,7 @@
+         isSwitchAnimationEnable = isEnable(TARGET_TS_SWITCH_ANIMATION_ENABLE, false);
+         isFreezeBlurEnable = isEnable(TARGET_TS_FREEZE_BLUR_ENABLE, true);
+         /* @} */
++
+     }
+ 
+     static boolean isEnable(String targetIsQrcodeEnable, boolean def) {
+@@ -1663,6 +1676,12 @@
+                 context.getString(R.string.image_file_name_format));
+     }
+ 
++    /* SPRD: Fix bug 613015 add SurfaceView support @{ */
++    public static boolean isSurfaceViewAlternativeEnabled() {
++        return isSurfaceViewAlternativeEnabled;
++    }
++    /* @} */
++
+     /* SPRD: add for TimeStamp @{*/
+     public static final String[] subPathA = {"/.UCam","/imagedigit"};
+     public static final String subPathTimeStampRes = subPathA[0] + subPathA[1] ;
+@@ -1968,6 +1987,40 @@
+         return blurBitmap;
+     }
+ 
++    public static Bitmap getSurfaceScreenShot(Size displaySize, Context context, boolean needBlur) {
++        Bitmap screenshot = SurfaceControl.screenshot(displaySize.getWidth(), displaySize.getHeight());
++        //saveBitmapToFile(screenshot);
++        screenshot = needBlur ? blurBitmap(computeScale(screenshot, 0.2f), context) : screenshot;
++        return screenshot;
++    }
++
++    public static void saveBitmapToFile(Bitmap bm) {
++        SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");
++        String date = sDateFormat.format(new java.util.Date());
++
++        File d = new File("/storage/emulated/0/bitmap/");
++        File f = new File("/storage/emulated/0/bitmap/", date + ".png");
++
++        if (!d.exists()) {
++            d.mkdirs();
++        }
++
++        if (f.exists()) {
++            f.delete();
++        }
++
++        try {
++            FileOutputStream out = new FileOutputStream(f);
++            bm.compress(Bitmap.CompressFormat.PNG, 90, out);
++            android.util.Log.d("CameraSaveBitmap", "saveBitmapToFile:" + f.getAbsolutePath());
++            out.flush();
++            out.close();
++        } catch (IOException e) {
++            android.util.Log.d("CameraSaveBitmap", "saveBitmapToFileException:" + f.getAbsolutePath() + " Exception");
++            e.printStackTrace();
++        }
++    }
++
+     public static Bitmap doBlur(Bitmap sentBitmap, int radius, boolean canReuseInBitmap) {
+         Bitmap bitmap;
+         if (canReuseInBitmap) {
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraModule.java	(revision 173857)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraModule.java	(revision 173858)
+@@ -194,6 +194,10 @@
+     }
+     /* @} */
+ 
++    public boolean isUseSurfaceView() {
++        return false;
++    }
++
+     public boolean isRefreshThumbnail(){
+         return true;
+     }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/dream_camera.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/dream_camera.xml	(revision 173857)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/dream_camera.xml	(revision 173858)
+@@ -5,7 +5,7 @@
+     android:id="@+id/camera_app_root"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+-    android:background="@android:color/transparent" >
++    android:background="@android:color/black" >
+ 
+     <TextureView
+         android:id="@+id/preview_content"
+@@ -21,6 +21,13 @@
+ 
+     <!-- SPRD: Add for Filter Feature -->
+     <include layout="@layout/ucam_magiclens_module"/>
++	 <!-- SPRD: Fix bug 613015 add SurfaceView support @{ -->
++    <com.android.camera.SurfaceViewEx
++        android:id="@+id/preview_content_surfaceview"
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        android:visibility="gone"/>
++    <!-- @} -->
+ 
+     <com.android.camera.ui.focus.FocusRingView
+         android:id="@+id/focus_ring"
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/AndroidManifest.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/AndroidManifest.xml	(revision 173857)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/AndroidManifest.xml	(revision 173858)
+@@ -37,6 +37,7 @@
+     <uses-permission android:name="android.permission.BATTERY_STATS"/>
+     <!-- READ_PHONE_STATE is required to determine when a phone call exists prior to M -->
+     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
++	<uses-permission android:name="android.permission.READ_FRAME_BUFFER" />
+ 
+     <supports-screens
+         android:anyDensity="true"

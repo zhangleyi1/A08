@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/CallFirewall/AndroidManifest.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/CallFirewall/AndroidManifest.xml	(revision 176127)
++++ vendor/sprd/platform/packages/apps/CallFirewall/AndroidManifest.xml	(revision 176128)
+@@ -33,7 +33,7 @@
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+ 
+-                <category android:name="android.intent.category.LAUNCHER" />
++                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+             </intent-filter>
+             <intent-filter>
+                 <action android:name="com.sprd.blacklist.action" />

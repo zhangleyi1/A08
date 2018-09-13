@@ -1,0 +1,26 @@
+Index: frameworks/base/core/res/res/values-in/strings.xml
+===================================================================
+--- frameworks/base/core/res/res/values-in/strings.xml	(revision 177368)
++++ frameworks/base/core/res/res/values-in/strings.xml	(revision 177369)
+@@ -673,7 +673,7 @@
+     <string name="lockscreen_instructions_when_pattern_enabled" msgid="46154051614126049">"Tekan Menu untuk membuka atau melakukan panggilan darurat."</string>
+     <string name="lockscreen_instructions_when_pattern_disabled" msgid="686260028797158364">"Tekan Menu untuk membuka."</string>
+     <string name="lockscreen_pattern_instructions" msgid="7478703254964810302">"Buat pola untuk membuka"</string>
+-    <string name="lockscreen_emergency_call" msgid="5298642613417801888">"Darurat"</string>
++    <string name="lockscreen_emergency_call" msgid="5298642613417801888">"Panggilan Darurat"</string>
+     <string name="lockscreen_return_to_call" msgid="5244259785500040021">"Kembali ke panggilan"</string>
+     <string name="lockscreen_pattern_correct" msgid="9039008650362261237">"Perbaiki!"</string>
+     <string name="lockscreen_pattern_wrong" msgid="4317955014948108794">"Coba lagi"</string>
+Index: frameworks/base/core/res/res/values/strings.xml
+===================================================================
+--- frameworks/base/core/res/res/values/strings.xml	(revision 177368)
++++ frameworks/base/core/res/res/values/strings.xml	(revision 177369)
+@@ -1749,7 +1749,7 @@
+     <!-- On the unlock pattern screen, shown at the top of the unlock screen to tell the user what to do. Below this text is the place for theu ser to draw the pattern. -->
+     <string name="lockscreen_pattern_instructions">Draw pattern to unlock</string>
+     <!-- Button at the bottom of the unlock screen to make an emergency call or access other emergency assistance functions. -->
+-    <string name="lockscreen_emergency_call">Emergency</string>
++    <string name="lockscreen_emergency_call">Emergency Call</string>
+     <!-- Button at the bottom of the unlock screen that lets the user return to a call -->
+     <string name="lockscreen_return_to_call">Return to call</string>
+     <!-- Shown to confirm that the user entered their lock pattern correctly. -->

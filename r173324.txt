@@ -1,0 +1,20 @@
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/app/Wallpaper.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/app/Wallpaper.java	(revision 173323)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/app/Wallpaper.java	(revision 173324)
+@@ -115,7 +115,6 @@
+             case STATE_PHOTO_PICKED: {
+                 Intent cropAndSetWallpaperIntent;
+ 				Log.i(TAG ,"onResume(1)......");
+-				/*
+                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                     WallpaperManager wpm = WallpaperManager.getInstance(getApplicationContext());
+                     try {
+@@ -129,7 +128,6 @@
+                         // ignored; fallthru to existing crop activity
+                     }
+                 }
+-				*/
+ 
+                 int width = getWallpaperDesiredMinimumWidth();
+                 int height = getWallpaperDesiredMinimumHeight();

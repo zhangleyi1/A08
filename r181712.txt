@@ -1,0 +1,26 @@
+Index: packages/apps/Settings/res/values-in/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values-in/strings.xml	(revision 181711)
++++ packages/apps/Settings/res/values-in/strings.xml	(revision 181712)
+@@ -261,7 +261,7 @@
+     <string name="settings_label_launcher" msgid="8344735489639482340">"Setelan"</string>
+     <string name="settings_shortcut" msgid="3936651951364030415">"Pintasan setelan"</string>
+     <string name="airplane_mode" msgid="8837269988154128601">"Mode pesawat"</string>
+-    <string name="radio_controls_title" msgid="3447085191369779032">"Lainnya"</string>
++    <string name="radio_controls_title" msgid="3447085191369779032">"Wireless and network"</string>
+     <string name="wireless_networks_settings_title" msgid="3643009077742794212">"Jaringan &amp; nirkabel"</string>
+     <string name="radio_controls_summary" msgid="2837395036275123133">"Kelola Wi‑Fi, Bluetooth, mode pesawat, jaringan seluler, &amp; VPN"</string>
+     <string name="cellular_data_title" msgid="2525947635539415202">"Data seluler"</string>
+Index: packages/apps/Settings/res/values/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values/strings.xml	(revision 181711)
++++ packages/apps/Settings/res/values/strings.xml	(revision 181712)
+@@ -618,7 +618,7 @@
+     <!-- Wireless controls settings screen, setting check box label -->
+     <string name="airplane_mode">Airplane mode</string>
+     <!-- Main Settings screen settings title for things like airplane mode, tethering, NFC, VPN.  This will take you to another screen with those settings.  [CHAR LIMIT=30] -->
+-    <string name="radio_controls_title">More</string>
++    <string name="radio_controls_title">Wireless and network</string>
+     <!-- Wireless Settings screen title for things like Wi-Fi, bluetooth, airplane mode. -->
+     <string name="wireless_networks_settings_title">Wireless &amp; networks</string>
+     <!-- Main Settings screen settings summary text for the "Wireless controls" setting -->

@@ -1,0 +1,13 @@
+Index: frameworks/opt/net/wifi/service/java/com/android/server/wifi/WifiApConfigStore.java
+===================================================================
+--- frameworks/opt/net/wifi/service/java/com/android/server/wifi/WifiApConfigStore.java	(revision 178504)
++++ frameworks/opt/net/wifi/service/java/com/android/server/wifi/WifiApConfigStore.java	(revision 178505)
+@@ -204,7 +204,7 @@
+         //first 12 chars from xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+         config.preSharedKey = randomUUID.substring(0, 8) + randomUUID.substring(9, 13);
+         //NOTE: Bug #474462 Add For SoftAp advance Feature BEG-->
+-        config.softApMaxNumSta = 8;
++        config.softApMaxNumSta = 5;
+         config.apBand = 0;
+         config.apChannel = 11;
+         //<-- Add for SoftAp Advance Feature END

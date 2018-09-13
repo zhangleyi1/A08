@@ -1,0 +1,13 @@
+Index: packages/apps/Settings/src/com/android/settings/localepicker/LocaleListEditor.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/localepicker/LocaleListEditor.java	(revision 167236)
++++ packages/apps/Settings/src/com/android/settings/localepicker/LocaleListEditor.java	(revision 167237)
+@@ -129,7 +129,7 @@
+     private void setRemoveMode(boolean mRemoveMode) {
+         this.mRemoveMode = mRemoveMode;
+         mAdapter.setRemoveMode(mRemoveMode);
+-        mAddLanguage.setVisibility(mRemoveMode ? View.INVISIBLE : View.VISIBLE);
++        mAddLanguage.setVisibility(mRemoveMode ? View.INVISIBLE : View.INVISIBLE);
+         updateVisibilityOfRemoveMenu();
+     }
+ 

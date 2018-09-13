@@ -1,0 +1,56 @@
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 172566)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 172567)
+@@ -193,7 +193,8 @@
+     private boolean mShow4GForLTE;
+     private boolean mIsGlobalCdma;
+     private boolean mUnavailable;
+-
++	private boolean mGsmRoamingIsOpen=false;
++	
+     // SPRD: FEATURE_NATIONAL_DATA_ROAMING
+     private boolean mShowNationalDataRoam;
+     private static final int DATA_ROAM_THIS_TRIP = 0;
+@@ -740,6 +741,11 @@
+         boolean gsmRoamingOn = (1 == iGsmRoamingSetting);
+         android.util.Log.e("Tony","onResume gsmRoamingOn = " + gsmRoamingOn + ",mPhone.getSubId() = " + mPhone.getSubId());
+         mButtonGsmRoaming.setChecked(gsmRoamingOn);
++		if(mButtonGsmRoaming.isChecked()){
++			mGsmRoamingIsOpen=true;
++		}else{
++			mGsmRoamingIsOpen=false;
++		}
+         mSubscriptionManager.addOnSubscriptionsChangedListener(mOnSubscriptionsChangeListener);
+ 		
+ 
+@@ -1121,7 +1127,7 @@
+         }
+         ps = findPreference(BUTTON_OPERATOR_SELECTION_EXPAND_KEY);
+         if (ps != null) {
+-            ps.setEnabled(hasActiveSubscriptions);
++            ps.setEnabled(hasActiveSubscriptions && mGsmRoamingIsOpen);
+         }
+         ps = findPreference(BUTTON_CARRIER_SETTINGS_KEY);
+         if (ps != null) {
+@@ -1410,6 +1416,11 @@
+ 			SwitchPreference gsmRoamingPreference = (SwitchPreference) preference;
+             boolean gsmRaomingOn = !gsmRoamingPreference.isChecked();
+             gsmRoamingPreference.setChecked(gsmRaomingOn);
++			if(gsmRoamingPreference.isChecked()){
++				mGsmRoamingIsOpen=true;
++			}else{
++				mGsmRoamingIsOpen=false;
++			}
+             android.provider.Settings.Global.putInt(
+                     mPhone.getContext().getContentResolver(),
+                     android.provider.Settings.Global.GSM_ROAMING_ENABLED + phoneSubId, gsmRoamingPreference.isChecked() ? 1: 0);
+@@ -1799,7 +1810,7 @@
+             apnExpand.setEnabled(isWorldMode() || enable);
+         }
+         if (operatorSelectionExpand != null) {
+-            if (enable) {
++            if (enable && mGsmRoamingIsOpen) {
+                 operatorSelectionExpand.setEnabled(true);
+             } else {
+                 prefSet.removePreference(operatorSelectionExpand);

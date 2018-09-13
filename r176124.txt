@@ -1,0 +1,32 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/PageIndicator.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/PageIndicator.java	(revision 176123)
++++ packages/apps/Launcher3/src/com/android/launcher3/PageIndicator.java	(revision 176124)
+@@ -191,13 +191,6 @@
+         }
+     }
+ 
+-    void GoneMarker() {
+-        if (mMarkers.size() > 1) {
+-            mMarkers.get(0).setVisibility(View.GONE);
+-            offsetWindowCenterTo(mActiveMarkerIndex, true);
+-        }
+-    }
+-
+     void removeAllMarkers(boolean allowAnimations) {
+         while (mMarkers.size() > 0) {
+             removeMarker(Integer.MAX_VALUE, allowAnimations);
+Index: packages/apps/Launcher3/src/com/android/launcher3/PagedView.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/PagedView.java	(revision 176123)
++++ packages/apps/Launcher3/src/com/android/launcher3/PagedView.java	(revision 176124)
+@@ -1053,9 +1053,6 @@
+         // in accordance with any scroll effects.
+         mForceScreenScrolled = true;
+         updateFreescrollBounds();
+-       if (mPageIndicator != null){
+-        mPageIndicator.GoneMarker();
+-      }
+         invalidate();
+     }
+ 

@@ -1,0 +1,76 @@
+Index: kernel/drivers/usb/gadget/f_mass_storage.c
+===================================================================
+--- kernel/drivers/usb/gadget/f_mass_storage.c	(revision 166738)
++++ kernel/drivers/usb/gadget/f_mass_storage.c	(revision 166739)
+@@ -2886,7 +2886,7 @@
+ 		 /* Assume product name dependent on the first LUN */
+ 		 cfg->product_name ?: (common->luns->cdrom
+ 				     ? "File-Stor Gadget"
+-				     : "File-CD Gadget"),
++				     : "Andromax A36C5H"),
+ 		 i);
+ 
+ 	/*
+Index: frameworks/opt/net/wifi/service/java/com/android/server/wifi/p2p/WifiP2pServiceImpl.java
+===================================================================
+--- frameworks/opt/net/wifi/service/java/com/android/server/wifi/p2p/WifiP2pServiceImpl.java	(revision 166738)
++++ frameworks/opt/net/wifi/service/java/com/android/server/wifi/p2p/WifiP2pServiceImpl.java	(revision 166739)
+@@ -2838,7 +2838,7 @@
+                     Settings.Secure.ANDROID_ID);
+             return "Andromax A36C5H";
+         }
+-        return deviceName;
++        return "Andromax A36C5H";
+     }
+ 
+     private boolean setAndPersistDeviceName(String devName) {
+
+Property changes on: frameworks/opt/net/wifi/service/java/com/android/server/wifi/p2p/WifiP2pServiceImpl.java
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/frameworks/opt/net/wifi/service/java/com/android/server/wifi/p2p/WifiP2pServiceImpl.java:r165987
+Index: device/sprd/scx35l/common/rootdir/root/init.sc8830.usb.rc
+===================================================================
+--- device/sprd/scx35l/common/rootdir/root/init.sc8830.usb.rc	(revision 166738)
++++ device/sprd/scx35l/common/rootdir/root/init.sc8830.usb.rc	(revision 166739)
+@@ -152,8 +152,8 @@
+     write /sys/class/android_usb/android0/idVendor 1782
+     write /sys/class/android_usb/android0/idProduct 4d00
+     write /sys/class/android_usb/android0/functions vser
+-    write /sys/class/android_usb/android0/iManufacturer Spreadtrum
+-    write /sys/class/android_usb/android0/iProduct "Gadget Serial"
++    write /sys/class/android_usb/android0/iManufacturer Andromax_A36C5H
++    write /sys/class/android_usb/android0/iProduct "Andromax A36C5H"
+     write /sys/class/android_usb/android0/iSerial 19761202
+     write /sys/class/android_usb/android0/enable 1
+ 
+@@ -174,4 +174,4 @@
+     write /sys/class/android_usb/android0/functions ${sys.usb.config}
+     write /sys/class/android_usb/android0/enable 1
+     start adbd
+-    setprop sys.usb.state ${sys.usb.config}
+\ No newline at end of file
++    setprop sys.usb.state ${sys.usb.config}
+Index: vendor/sprd/plugins/packages/apps/Launcher3/addons/UnreadInfo/src/plugins/sprd/unreadinfo/UnreadInfoManagerAddon.java
+===================================================================
+--- vendor/sprd/plugins/packages/apps/Launcher3/addons/UnreadInfo/src/plugins/sprd/unreadinfo/UnreadInfoManagerAddon.java	(revision 166738)
++++ vendor/sprd/plugins/packages/apps/Launcher3/addons/UnreadInfo/src/plugins/sprd/unreadinfo/UnreadInfoManagerAddon.java	(revision 166739)
+@@ -763,8 +763,14 @@
+             AlphabeticalAppsList mApps,
+             AllAppsContainerView mAllAppsContainerView) {
+         List<AppInfo> apps = new ArrayList<AppInfo>();
++        Log.d("zly", "zly --> app.size:" + mApps.getNumFilteredApps());
+         for (int i = 0; i < mApps.getNumFilteredApps(); i++) {
++<<<<<<< .mine
++            Log.d("zly", "zly --> i=:" + i + " mApps.getApps.size:" + mApps.getApps().size());
+             if (i >= mApps.getApps().size()) break;
++=======
++            if (i >= mApps.getApps().size()) break;
++>>>>>>> .r165985
+             AppInfo app = (AppInfo) mApps.getApps().get(i);
+             BubbleTextView bubble = new BubbleTextView(mLauncher);
+             bubble.setTag(app);
+Index: vendor/sprd/resource/cdrom/adb.iso
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream

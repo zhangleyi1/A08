@@ -1,0 +1,15 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/ui/DetailsDialog.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/ui/DetailsDialog.java	(revision 178570)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/ui/DetailsDialog.java	(revision 178571)
+@@ -160,6 +160,10 @@
+                         // up the path).
+                         value = "\n" + detail.getValue().toString();
+                         path = detail.getValue().toString();
++                        String[] directory = value.split("/");
++                        if (!directory[2].equals("emulated")) {
++                            value = value.replace(directory[2], "sdcard0");
++                        }
+                         break;
+                     case MediaDetails.INDEX_ORIENTATION:
+                         value = toLocalInteger(detail.getValue());

@@ -1,0 +1,17 @@
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 174411)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 174412)
+@@ -1309,10 +1309,10 @@
+                 return false;
+             }
+             boolean enhanced4gMode = !enhanced4gModePref.isChecked();
+-			if(enhanced4gModePref.isChecked()){
++			if(enhanced4gMode){
+ 				ImsManager.setEnhanced4gLteModeSetting(MobileNetworkSettings.this, true);
+ 			}
+-			if (DBG) log("enhanced4gModePref.setChecked1 :  "+enhanced4gMode); 
++			if (DBG) log("enhanced4gModePref.setChecked():  "+enhanced4gMode); 
+             if (!enhanced4gMode) {                
+ 				AlertDialog.Builder dialog = new AlertDialog.Builder(this);                
+ 				dialog.setMessage(R.string.close_volte_info);                

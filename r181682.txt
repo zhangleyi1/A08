@@ -1,0 +1,23 @@
+Index: device/sprd/scx35l/common/4mod.mk
+===================================================================
+--- device/sprd/scx35l/common/4mod.mk	(revision 181681)
++++ device/sprd/scx35l/common/4mod.mk	(revision 181682)
+@@ -1,4 +1,4 @@
+ PRODUCT_PROPERTY_OVERRIDES := \
+ persist.radio.modem.config=TL_LF_W_G,G \
+-persist.radio.modem.workmode=6,10 \
++persist.radio.modem.workmode=3,10 \
+ $(PRODUCT_PROPERTY_OVERRIDES)
+Index: device/sprd/scx35l/common/TelephonyCommon.mk
+===================================================================
+--- device/sprd/scx35l/common/TelephonyCommon.mk	(revision 181681)
++++ device/sprd/scx35l/common/TelephonyCommon.mk	(revision 181682)
+@@ -15,7 +15,7 @@
+ PRODUCT_PROPERTY_OVERRIDES += \
+     rild.libpath=/system/lib/libsprd-ril.so\
+     ro.radio.modemtype=l\
+-    ro.telephony.default_network = 9\
++    ro.telephony.default_network = 11\
+     keyguard.no_require_sim=true \
+     ro.com.android.dataroaming=true \
+     ro.simlock.unlock.autoshow=0 \

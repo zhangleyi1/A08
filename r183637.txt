@@ -1,0 +1,12 @@
+Index: packages/apps/Dialer/InCallUI/res/values/config_ex.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/values/config_ex.xml	(revision 183636)
++++ packages/apps/Dialer/InCallUI/res/values/config_ex.xml	(revision 183637)
+@@ -40,6 +40,6 @@
+         com.sprd.incallui.voiceClearCodePlugin.VoiceClearCodePlugin
+     </string>
+     <!-- SPRD : modify video call type Feature. @{ -->
+-    <bool name="video_call_use_ext">false</bool>
++    <bool name="video_call_use_ext">true</bool>
+     <bool name="config_enable_enhance_video_call_ui">true</bool>
+ </resources>

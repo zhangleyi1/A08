@@ -1,0 +1,29 @@
+Index: packages/apps/Settings/src/com/android/settings/sim/SimSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/sim/SimSettings.java	(revision 166616)
++++ packages/apps/Settings/src/com/android/settings/sim/SimSettings.java	(revision 166617)
+@@ -271,7 +271,8 @@
+         } else if (sir == null) {
+             simPref.setSummary(R.string.sim_selection_required_pref);
+         }
+-        simPref.setEnabled(mAvailableSubInfoList.size() > 1);
++		//fix for bug 90596 by zhangchi
++        simPref.setEnabled(mAvailableSubInfoList.size() > 2);
+     }
+ 
+     /* SPRD: add new feature for data switch on/off @{ */
+@@ -303,7 +304,8 @@
+         simPref.setSummary(!isPhoneAccountAvialable
+                 ? mContext.getResources().getString(R.string.sim_calls_ask_first_prefs_title)
+                 : (String) pa.getLabel());
+-        simPref.setEnabled(mAvailableSubInfoList.size() > 1);
++		//fix for bug 90596 by zhangchi
++        simPref.setEnabled(mAvailableSubInfoList.size() >2);
+         // SPRD: new featrue:Smart Dual SIM
+         refreshSmartDualSimStatus();
+     }
+
+Property changes on: packages/apps/Settings/src/com/android/settings/sim/SimSettings.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Settings/src/com/android/settings/sim/SimSettings.java:r165459

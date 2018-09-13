@@ -1,0 +1,96 @@
+Index: u-boot64/board/spreadtrum/sp9832a_2h11_volte/sprd_kp.c
+===================================================================
+--- u-boot64/board/spreadtrum/sp9832a_2h11_volte/sprd_kp.c	(revision 166716)
++++ u-boot64/board/spreadtrum/sp9832a_2h11_volte/sprd_kp.c	(revision 166717)
+@@ -42,6 +42,11 @@
+         printf("[gpio keys] volumedown pressed!\n");
+ 	}
+ 
++    if(0 == gpio_volumedown && gpio_volumeup > 0) {
++        key_code = KEY_HOME;
++        printf("[gpio keys] volumedown volumeup both pressed!\n");
++    }
++	
+ 	if (KEY_RESERVED == key_code)
+ 		printf("[gpio keys] no key pressed!\n");
+ 	return key_code;
+@@ -49,13 +54,11 @@
+ 
+ unsigned int check_key_boot(unsigned char key)
+ {
+-	/*
+ 	if(KEY_VOLUMEUP == key)
+ 		return CMD_FACTORYTEST_MODE;
+ 	else if(KEY_HOME == key)
+ 		return CMD_FASTBOOT_MODE;
+-	else */
+-		if(KEY_VOLUMEDOWN== key)
++	else if(KEY_VOLUMEDOWN== key)
+ 		return CMD_RECOVERY_MODE;
+ 	else
+ 		return 0;
+Index: u-boot64/common/loader/fastboot.c
+===================================================================
+--- u-boot64/common/loader/fastboot.c	(revision 166716)
++++ u-boot64/common/loader/fastboot.c	(revision 166717)
+@@ -1054,15 +1054,15 @@
+ 	fastboot_register("download:", fb_cmd_download);
+ 	fastboot_publish("version", "1.0");
+ 
+-	fastboot_register("flash:", fb_cmd_flash);
+-	fastboot_register("erase:", fb_cmd_erase);
+-	fastboot_register("boot", fb_cmd_boot);
+-	fastboot_register("reboot", fb_cmd_reboot);
+-	fastboot_register("powerdown", fb_cmd_powerdown);
+-	fastboot_register("continue", fb_cmd_continue);
+-	fastboot_register("reboot-bootloader", fb_cmd_reboot_bootloader);
+-	fastboot_register("flashing", fb_cmd_setlockflag);
+-	fastboot_register("getflag", fb_cmd_getlockflag);
++	fastboot_register("burn:", fb_cmd_flash);
++	fastboot_register("wipe:", fb_cmd_erase);
++	fastboot_register("guide", fb_cmd_boot);
++	fastboot_register("restart", fb_cmd_reboot);
++	fastboot_register("ac_dump", fb_cmd_powerdown);
++	fastboot_register("go_on", fb_cmd_continue);
++	fastboot_register("restart_guide", fb_cmd_reboot_bootloader);
++	fastboot_register("burning", fb_cmd_setlockflag);
++	fastboot_register("getmark", fb_cmd_getlockflag);
+ 
+ 	fastboot_handler(0);
+ 
+Index: frameworks/base/api/test-current.txt
+===================================================================
+--- frameworks/base/api/test-current.txt	(revision 166716)
++++ frameworks/base/api/test-current.txt	(revision 166717)
+@@ -32697,6 +32697,7 @@
+     field public static final deprecated java.lang.String LOGGING_ID = "logging_id";
+     field public static final deprecated java.lang.String MODE_RINGER = "mode_ringer";
+     field public static final java.lang.String MODE_RINGER_STREAMS_AFFECTED = "mode_ringer_streams_affected";
++    field public static final java.lang.String MOTION_SOUND_EFFECT_ENABLED = "motion_sound_effect_enabled";
+     field public static final java.lang.String MUTE_STREAMS_AFFECTED = "mute_streams_affected";
+     field public static final deprecated java.lang.String NETWORK_PREFERENCE = "network_preference";
+     field public static final deprecated java.lang.String NEXT_ALARM_FORMATTED = "next_alarm_formatted";
+Index: frameworks/base/api/current.txt
+===================================================================
+--- frameworks/base/api/current.txt	(revision 166716)
++++ frameworks/base/api/current.txt	(revision 166717)
+@@ -32622,6 +32622,7 @@
+     field public static final deprecated java.lang.String LOGGING_ID = "logging_id";
+     field public static final deprecated java.lang.String MODE_RINGER = "mode_ringer";
+     field public static final java.lang.String MODE_RINGER_STREAMS_AFFECTED = "mode_ringer_streams_affected";
++    field public static final java.lang.String MOTION_SOUND_EFFECT_ENABLED = "motion_sound_effect_enabled";
+     field public static final java.lang.String MUTE_STREAMS_AFFECTED = "mute_streams_affected";
+     field public static final deprecated java.lang.String NETWORK_PREFERENCE = "network_preference";
+     field public static final deprecated java.lang.String NEXT_ALARM_FORMATTED = "next_alarm_formatted";
+Index: frameworks/base/api/system-current.txt
+===================================================================
+--- frameworks/base/api/system-current.txt	(revision 166716)
++++ frameworks/base/api/system-current.txt	(revision 166717)
+@@ -35330,6 +35330,7 @@
+     field public static final deprecated java.lang.String LOGGING_ID = "logging_id";
+     field public static final deprecated java.lang.String MODE_RINGER = "mode_ringer";
+     field public static final java.lang.String MODE_RINGER_STREAMS_AFFECTED = "mode_ringer_streams_affected";
++    field public static final java.lang.String MOTION_SOUND_EFFECT_ENABLED = "motion_sound_effect_enabled";
+     field public static final java.lang.String MUTE_STREAMS_AFFECTED = "mute_streams_affected";
+     field public static final deprecated java.lang.String NETWORK_PREFERENCE = "network_preference";
+     field public static final deprecated java.lang.String NEXT_ALARM_FORMATTED = "next_alarm_formatted";

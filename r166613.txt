@@ -1,0 +1,238 @@
+Index: packages/apps/Provision/Android.mk
+===================================================================
+--- packages/apps/Provision/Android.mk	(revision 166612)
++++ packages/apps/Provision/Android.mk	(revision 166613)
+@@ -4,6 +4,7 @@
+ LOCAL_MODULE_TAGS := optional
+ 
+ LOCAL_SRC_FILES := $(call all-subdir-java-files)
++LOCAL_RESOURCE_DIR := packages/apps/Provision/res
+ 
+ LOCAL_PACKAGE_NAME := Provision
+ LOCAL_CERTIFICATE := platform
+Index: packages/apps/Provision/AndroidManifest.xml
+===================================================================
+--- packages/apps/Provision/AndroidManifest.xml	(revision 166612)
++++ packages/apps/Provision/AndroidManifest.xml	(revision 166613)
+@@ -25,8 +25,7 @@
+ 
+     <application>
+         <activity android:name="DefaultActivity"
+-                android:excludeFromRecents="true"
+-                android:theme="@android:style/Theme.Translucent.NoTitleBar">
++                android:excludeFromRecents="true">
+             <intent-filter android:priority="1">
+                 <action android:name="android.intent.action.MAIN" />
+                 <category android:name="android.intent.category.HOME" />
+@@ -34,6 +33,11 @@
+                 <category android:name="android.intent.category.SETUP_WIZARD" />
+             </intent-filter>
+         </activity>
++
++        <activity android:name="FotaInfoActivity"
++                android:theme="@android:style/Theme.Holo.Dialog.NoActionBar"
++                android:exported="true" >
++        </activity>
+     </application>
+ </manifest>
+ 
+Index: packages/apps/Provision/src/com/android/provision/DefaultActivity.java
+===================================================================
+--- packages/apps/Provision/src/com/android/provision/DefaultActivity.java	(revision 166612)
++++ packages/apps/Provision/src/com/android/provision/DefaultActivity.java	(revision 166613)
+@@ -17,6 +17,7 @@
+ package com.android.provision;
+ 
+ import android.app.Activity;
++import android.content.Intent;
+ import android.content.ComponentName;
+ import android.content.pm.PackageManager;
+ import android.os.Bundle;
+@@ -34,6 +35,12 @@
+     protected void onCreate(Bundle icicle) {
+         super.onCreate(icicle);
+ 
++		//Added by zhangleyi for fota info 20170302 begin
++        Intent intent = new Intent(this, FotaInfoActivity.class);
++        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++        startActivity(intent);
++        //Added by zhangleyi for fota info 20170302 end
++
+         // Add a persistent setting to allow other apps to know the device has been provisioned.
+         Settings.Global.putInt(getContentResolver(), Settings.Global.DEVICE_PROVISIONED, 1);
+         Settings.Secure.putInt(getContentResolver(), Settings.Secure.USER_SETUP_COMPLETE, 1);
+Index: packages/apps/Provision/src/com/android/provision/FotaInfoActivity.java
+===================================================================
+--- packages/apps/Provision/src/com/android/provision/FotaInfoActivity.java	(revision 0)
++++ packages/apps/Provision/src/com/android/provision/FotaInfoActivity.java	(revision 166613)
+@@ -0,0 +1,43 @@
++package com.android.provision;
++
++import android.app.Activity;
++import android.os.Bundle;
++import android.view.Display;
++import android.view.KeyEvent;
++import android.view.View;
++import android.view.WindowManager;
++import android.widget.Button;
++
++public class FotaInfoActivity extends Activity {
++
++    private Button nextBtn;
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setFinishOnTouchOutside(false);
++        setContentView(R.layout.activity_main);
++
++        WindowManager m = getWindowManager();
++        Display d = m.getDefaultDisplay(); //Get the screen;
++        android.view.WindowManager.LayoutParams p = getWindow().getAttributes();
++        p.width = (int) (d.getWidth() * 1); //set width;
++        getWindow().setAttributes(p);
++
++        nextBtn = (Button)findViewById(R.id.nextBtn);
++        nextBtn.setOnClickListener(new View.OnClickListener() {
++            @Override
++            public void onClick(View v) {
++                finish();
++            }
++        });
++    }
++
++    @Override
++    public boolean onKeyDown(int keyCode, KeyEvent event) {
++        if (keyCode == KeyEvent.KEYCODE_HOME || keyCode == KeyEvent.KEYCODE_BACK) {
++            return true;
++        }
++        return super.onKeyDown(keyCode, event);
++    }
++}
+Index: packages/apps/Provision/res/layout/activity_main.xml
+===================================================================
+--- packages/apps/Provision/res/layout/activity_main.xml	(revision 0)
++++ packages/apps/Provision/res/layout/activity_main.xml	(revision 166613)
+@@ -0,0 +1,60 @@
++<?xml version="1.0" encoding="utf-8"?>
++<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:layout_width="match_parent"
++    android:layout_height="wrap_content"
++    android:paddingBottom="@dimen/activity_vertical_margin"
++    android:paddingLeft="@dimen/activity_horizontal_margin"
++    android:paddingRight="@dimen/activity_horizontal_margin"
++    android:paddingTop="@dimen/activity_vertical_margin"
++    android:background="@color/activity_background_color"
++    tools:context="com.zly.activity.MainActivity">
++
++    <LinearLayout
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:id="@+id/fota_ly"
++        android:orientation="vertical">
++
++        <TextView
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:gravity="center_horizontal"
++            android:textSize="@dimen/fota_title_size"
++            android:text="@string/fota_title"
++            android:textStyle="bold" />
++
++        <TextView
++            android:layout_width="match_parent"
++            android:layout_height="1dp"
++            android:layout_marginTop="@dimen/line_margin_top"
++            android:layout_marginBottom="@dimen/line_margin_bottom"
++            android:background="@color/line_color"/>
++
++        <TextView
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:textSize="@dimen/content_size"
++            android:text="@string/fota_content"/>
++    </LinearLayout>
++
++    <TextView
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:layout_marginTop="@dimen/fota_end_margin_top"
++        android:layout_below="@id/fota_ly"
++        android:id="@+id/fota_end_tv"
++        android:textSize="@dimen/fota_end_size"
++        android:text="@string/fota_end"
++        android:textStyle="bold" />
++
++        <Button
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content"
++            android:id="@+id/nextBtn"
++            android:background="@drawable/btn_circular"
++            android:layout_centerInParent="true"
++            android:layout_below="@id/fota_end_tv"
++            android:layout_marginTop="@dimen/next_btn_margin_top"
++            android:text="@string/nextStr"/>
++</RelativeLayout>
+Index: packages/apps/Provision/res/values/dimens.xml
+===================================================================
+--- packages/apps/Provision/res/values/dimens.xml	(revision 0)
++++ packages/apps/Provision/res/values/dimens.xml	(revision 166613)
+@@ -0,0 +1,12 @@
++<resources>
++    <!-- Default screen margins, per the Android Design guidelines. -->
++    <dimen name="activity_horizontal_margin">10dp</dimen>
++    <dimen name="activity_vertical_margin">10dp</dimen>
++    <dimen name="fota_title_size">20dp</dimen>
++    <dimen name="line_margin_top">10dp</dimen>
++    <dimen name="line_margin_bottom">10dp</dimen>
++    <dimen name="content_size">15sp</dimen>
++    <dimen name="fota_end_margin_top">50dp</dimen>
++    <dimen name="fota_end_size">15dp</dimen>
++    <dimen name="next_btn_margin_top">25dp</dimen>
++</resources>
+Index: packages/apps/Provision/res/values/colors.xml
+===================================================================
+--- packages/apps/Provision/res/values/colors.xml	(revision 0)
++++ packages/apps/Provision/res/values/colors.xml	(revision 166613)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <color name="activity_background_color">#1D2B58</color>
++    <color name="line_color">#FAFBFB</color>
++
++</resources>
+Index: packages/apps/Provision/res/values/strings.xml
+===================================================================
+--- packages/apps/Provision/res/values/strings.xml	(revision 0)
++++ packages/apps/Provision/res/values/strings.xml	(revision 166613)
+@@ -0,0 +1,6 @@
++<resources>
++    <string name="fota_title">Andromax Firmware Upgrade</string>
++    <string name="fota_content">Dear Customer,Thank You for using Andromax as your trusted Smartphone device.To ensure your Andromax always in optimal performance, the device will conduct Software Patch or Firmware Download Automaticaly whenever a new release is available, therefore the process is seemless and hassle-free. This process will not deduct or consume data package or kuota whenever You are in or goes through Smartphone Cellular network.</string>
++    <string name="fota_end">&#160;&#160;&#160;&#160;Please click next to agree and continue</string>
++    <string name="nextStr">Next</string>
++</resources>
+Index: packages/apps/Provision/res/values-in-rID/strings.xml
+===================================================================
+--- packages/apps/Provision/res/values-in-rID/strings.xml	(revision 0)
++++ packages/apps/Provision/res/values-in-rID/strings.xml	(revision 166613)
+@@ -0,0 +1,6 @@
++<resources>
++    <string name="fota_title">Andromax Firmware Upgrade</string>
++    <string name="fota_content">Terima Kasih atas kepercayaan Anda untuk menggunakan perankat Smartphone Andromax.Agar kinerja Andromax Anda dapat selalu berfungsi dengan optimal,maka perangkat Andromax Anda akan melakukan Download Software Patch atau Firmware secara otomatis saat ada software patch atau firmware terbaru yang di terbitkan, sehingga proses lebih mudah dan praktis. Proces ini tidak akan mengurangi atau mengkonsumsi paket data atau kuota yang Anda miliki saat berada atau melalui jaringgan seluler Smartphone.</string>
++    <string name="fota_end">&#160;&#160;&#160;&#160;Klik lanjut untuk setuju dan melanjutkan</string>
++    <string name="nextStr">Lanjut</string>
++</resources>
+Index: packages/apps/Provision/res/drawable/btn_circular.xml
+===================================================================
+--- packages/apps/Provision/res/drawable/btn_circular.xml	(revision 0)
++++ packages/apps/Provision/res/drawable/btn_circular.xml	(revision 166613)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<shape xmlns:android="http://schemas.android.com/apk/res/android">
++    <corners
++        android:radius="8dp"  />
++    <solid android:color="#636E8B" />
++</shape>
+\ No newline at end of file

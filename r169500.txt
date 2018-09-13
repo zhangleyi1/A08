@@ -1,0 +1,16 @@
+Index: packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java	(revision 169499)
++++ packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java	(revision 169500)
+@@ -402,10 +402,9 @@
+ 		mSelectSIMButton.setOnClickListener(new OnClickListener() {
+             @Override
+             public void onClick(final View clickView) {
+-				boolean toFirstSim = !getConversationSelfId().equals(firstSimSelfId);
++				boolean toFirstSim = getConversationSelfId().equals(secondSimSelfId);
+                 setSimCard(toFirstSim);
+ 				mSendSMSButton.setImageDrawable(getResources().getDrawable(toFirstSim? R.drawable.sim1 : R.drawable.sim2));
+-				
+             }
+         });
+ 		

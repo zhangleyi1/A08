@@ -1,0 +1,94 @@
+Index: vendor/google/apps/SearchLauncher/Android.mk
+===================================================================
+--- vendor/google/apps/SearchLauncher/Android.mk	(revision 175398)
++++ vendor/google/apps/SearchLauncher/Android.mk	(revision 175399)
+@@ -1,54 +1,54 @@
+-LOCAL_PATH := $(call my-dir)
++#LOCAL_PATH := $(call my-dir)
+ 
+ #
+ # Prebuilt Launcher client library Libraries
+ #
+-include $(CLEAR_VARS)
+-LOCAL_PREBUILT_STATIC_JAVA_LIBRARIES := \
+-    libLauncherClient:libs/launcher_client.jar
+-include $(BUILD_MULTI_PREBUILT)
++#include $(CLEAR_VARS)
++#LOCAL_PREBUILT_STATIC_JAVA_LIBRARIES := \
++#    libLauncherClient:libs/launcher_client.jar
++#include $(BUILD_MULTI_PREBUILT)
+ 
+ #
+ # Search launcher build rule
+ #
+-include $(CLEAR_VARS)
+-LOCAL_PACKAGE_NAME := SearchLauncher
+-LOCAL_SDK_VERSION := current
+-LOCAL_MIN_SDK_VERSION := 21
+-LOCAL_OVERRIDES_PACKAGES := Home Launcher2 Launcher3
+-LOCAL_PRIVILEGED_MODULE := true
++#include $(CLEAR_VARS)
++#LOCAL_PACKAGE_NAME := SearchLauncher
++#LOCAL_SDK_VERSION := current
++#LOCAL_MIN_SDK_VERSION := 21
++#LOCAL_OVERRIDES_PACKAGES := Home Launcher2 Launcher3
++#LOCAL_PRIVILEGED_MODULE := true
+ 
+ # Relative path for Launcher3 directory
+-LAUNCHER_PATH := ../../../../packages/apps/Launcher3
++#LAUNCHER_PATH := ../../../../packages/apps/Launcher3
+ 
+-LOCAL_STATIC_JAVA_LIBRARIES := \
+-    android-support-v4 \
+-    android-support-v7-recyclerview \
+-    libLauncherClient
++#LOCAL_STATIC_JAVA_LIBRARIES := \
++#    android-support-v4 \
++#    android-support-v7-recyclerview \
++#    libLauncherClient
+ 
+-LOCAL_SRC_FILES := \
+-    $(call all-java-files-under, src) \
+-    $(call all-java-files-under, $(LAUNCHER_PATH)/src) \
+-    $(call all-java-files-under, $(LAUNCHER_PATH)/WallpaperPicker/src) \
+-    $(call all-proto-files-under, $(LAUNCHER_PATH)/protos)
++#LOCAL_SRC_FILES := \
++#    $(call all-java-files-under, src) \
++#    $(call all-java-files-under, $(LAUNCHER_PATH)/src) \
++#    $(call all-java-files-under, $(LAUNCHER_PATH)/WallpaperPicker/src) \
++#    $(call all-proto-files-under, $(LAUNCHER_PATH)/protos)
+ 
+-LOCAL_RESOURCE_DIR := \
+-    $(LOCAL_PATH)/res \
+-    $(LOCAL_PATH)/$(LAUNCHER_PATH)/WallpaperPicker/res \
+-    $(LOCAL_PATH)/$(LAUNCHER_PATH)/res \
+-    frameworks/support/v7/recyclerview/res
++#LOCAL_RESOURCE_DIR := \
++#    $(LOCAL_PATH)/res \
++#    $(LOCAL_PATH)/$(LAUNCHER_PATH)/WallpaperPicker/res \
++#    $(LOCAL_PATH)/$(LAUNCHER_PATH)/res \
++#    frameworks/support/v7/recyclerview/res
+ 
+ 
+-LOCAL_PROGUARD_FLAG_FILES := $(LAUNCHER_PATH)/proguard.flags
++#LOCAL_PROGUARD_FLAG_FILES := $(LAUNCHER_PATH)/proguard.flags
+ 
+-LOCAL_PROTOC_OPTIMIZE_TYPE := nano
+-LOCAL_PROTOC_FLAGS := --proto_path=$(LOCAL_PATH)/$(LAUNCHER_PATH)/protos/
+-LOCAL_AAPT_FLAGS := \
+-    --auto-add-overlay \
+-    --extra-packages android.support.v7.recyclerview \
+-    --extra-packages com.android.launcher3
++#LOCAL_PROTOC_OPTIMIZE_TYPE := nano
++#LOCAL_PROTOC_FLAGS := --proto_path=$(LOCAL_PATH)/$(LAUNCHER_PATH)/protos/
++#LOCAL_AAPT_FLAGS := \
++#    --auto-add-overlay \
++#    --extra-packages android.support.v7.recyclerview \
++#    --extra-packages com.android.launcher3
+ 
+-include $(BUILD_PACKAGE)
++#include $(BUILD_PACKAGE)
+ 
+ # ==================================================
+-include $(call all-makefiles-under,$(LOCAL_PATH))
++#include $(call all-makefiles-under,$(LOCAL_PATH))

@@ -1,0 +1,15 @@
+Index: 编译方法.txt
+===================================================================
+--- 编译方法.txt	(revision 171179)
++++ 编译方法.txt	(revision 171180)
+@@ -1,5 +1,9 @@
+-﻿source build/envsetup.sh
++﻿unzip proprietories-sp9832a_2h11_vwf_Smartfren-user.zip
++或者 
++unzip proprietories-sp9832a_2h11_vwf_Smartfren-userdebug.zip
+ 
++source build/envsetup.sh
++
+ lunch sp9832a_2h11_vwf_Smartfren-user
+ 或者
+ lunch sp9832a_2h11_vwf_Smartfren-userdebug

@@ -1,0 +1,10 @@
+Index: device/sprd/scx35l/sp9832a_2h11/BoardConfig.mk
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/BoardConfig.mk	(revision 170579)
++++ device/sprd/scx35l/sp9832a_2h11/BoardConfig.mk	(revision 170580)
+@@ -157,4 +157,4 @@
+ 
+ #fota start
+ FOTA_UPDATE_SUPPORT := true
+-FOTA_UPDATE_WITH_ICON := false
++FOTA_UPDATE_WITH_ICON := true

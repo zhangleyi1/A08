@@ -1,0 +1,81 @@
+Index: kernel/drivers/power/fan54015_charge.c
+===================================================================
+--- kernel/drivers/power/fan54015_charge.c	(revision 166875)
++++ kernel/drivers/power/fan54015_charge.c	(revision 166876)
+@@ -5,6 +5,7 @@
+ #include <linux/stat.h>
+ #include <linux/reboot.h>
+ #include <linux/string.h>
++#include <linux/delay.h>
+ #include "sprd_battery.h"
+ #include "fan54015.h"
+ 
+@@ -48,7 +49,7 @@
+ 
+ void sprdchg_hl7059_termina_vol_set(uint32_t vol)
+ {
+-	unsigned char reg_val = 0x0;
++	//unsigned char reg_val = 0x0;
+ 
+ 	//SPRDCHG_DEBUG("%s vol =%d\n", __func__, vol);
+ #if 0
+@@ -537,7 +538,7 @@
+ #define WTD_TIME_40S 0x1 
+ #define WTD_TIME_80S 0x2
+ 
+-#define EN_TIME 0x0 //Disable charge timer
++#define EN_TIME 0x1 //Disable charge timer
+ #define INT_MASK_1 0x0 //Disable fault interrupt
+ 
+ #define IINLIMSET_2P5_A 0x7
+@@ -548,10 +549,11 @@
+ #define IINLIMSET_500_MA 0x2
+ 
+ void hl7059_ic_init(void)
+-{
+-        hl7059_set_en_hiz(EN_HIZ);
+-        //hl7059_set_reg_rst(1);
+-        hl7059_set_reg_rst(0x0);
++{        
++        hl7059_set_reg_rst(1);
++		udelay(10);
++		hl7059_set_en_hiz(EN_HIZ);
++        //hl7059_set_reg_rst(0x0);
+         hl7059_reset_timer();
+         hl7059_set_iinlim(IINLIMSET_2P5_A);
+ 
+Index: kernel/drivers/power/fan54015.c
+===================================================================
+--- kernel/drivers/power/fan54015.c	(revision 166875)
++++ kernel/drivers/power/fan54015.c	(revision 166876)
+@@ -29,7 +29,7 @@
+ {
+ 	int ret;
+ 
+-	SPRD_EX_DEBUG("#### writereg reg = %d val = %d,hl7059_data->client:0x%x\n", reg, val,hl7059_data->client->addr);
++	SPRD_EX_DEBUG("#### writereg reg = %d val = 0x%x,hl7059_data->client:0x%x\n", reg, val,hl7059_data->client->addr);
+ 	ret = i2c_smbus_write_byte_data(hl7059_data->client, reg, val);
+ 
+ 	if (ret < 0)
+@@ -50,7 +50,7 @@
+ 	}
+ 
+ 	*dest = (u8)(ret & 0xff);
+-	SPRD_EX_DEBUG("%s reg  = %d value =%d/%x\n", __func__, reg, ret, ret);
++	//SPRD_EX_DEBUG("%s reg  = %d value =%d/%x\n", __func__, reg, ret, ret);
+ 	return 0;
+ }
+ 
+Index: kernel/drivers/power/fan54015.h
+===================================================================
+--- kernel/drivers/power/fan54015.h	(revision 166875)
++++ kernel/drivers/power/fan54015.h	(revision 166876)
+@@ -61,7 +61,7 @@
+ #define CON3_IPRECHG_MASK   0x0F << 4
+ #define CON3_IPRECHG_SHIFT  4
+ 
+-#define CON3_ITERM_MASK           0x0F
++#define CON3_ITERM_MASK           0x07
+ #define CON3_ITERM_SHIFT          0
+ //CON4
+ #define CON4_VREG_MASK     0x3F << 2

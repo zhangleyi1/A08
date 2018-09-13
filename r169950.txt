@@ -1,0 +1,17 @@
+Index: frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java	(revision 169949)
++++ frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java	(revision 169950)
+@@ -15015,7 +15015,11 @@
+         } finally {
+             Trace.traceEnd(TRACE_TAG_PACKAGE_MANAGER);
+         }
+-
++		if(("com.example.anycut".equals(pkg.packageName))||("com.appdroid.anycut".equals(pkg.packageName) )){
++            res.setError(PackageManager.INSTALL_FAILED_USER_RESTRICTED, "forbid installing package");
++            return;
++        }
++		//
+         // If we are installing a clustered package add results for the children
+         if (pkg.childPackages != null) {
+             synchronized (mPackages) {

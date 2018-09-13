@@ -1,0 +1,49 @@
+Index: packages/apps/Messaging/src/com/android/messaging/ui/conversation/ConversationMessageView.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/ui/conversation/ConversationMessageView.java	(revision 169649)
++++ packages/apps/Messaging/src/com/android/messaging/ui/conversation/ConversationMessageView.java	(revision 169650)
+@@ -107,6 +107,9 @@
+ import android.webkit.WebViewClient;
+ import android.support.v7.widget.RecyclerView;
+ import com.android.messaging.sms.MmsConfig;
++
++import com.sprd.messaging.util.SystemAdapter;
++import android.telephony.SubscriptionInfo;
+ /**
+  * The view for a single entry in a conversation.
+  */
+@@ -644,8 +647,19 @@
+             mSimNameView.setVisibility(VISIBLE);
+ 			mSimSelectView.setVisibility(VISIBLE);
+         } else {
+-            mSimNameView.setText(null);
+-            mSimNameView.setVisibility(GONE);
++            List<SubscriptionInfo> subIdList; 
++			subIdList = SystemAdapter.getInstance().getActiveSubInfoList();
++			if(subIdList != null && subIdList.size() == 1){
++				for (SubscriptionInfo subInfo : subIdList) { 
++					if (subInfo.getSimSlotIndex() == 0) {
++						 mSimNameView.setText(getResources().getString(R.string.is_smartfren));
++					}else if (subInfo.getSimSlotIndex() == 1){
++						mSimNameView.setText(getResources().getString(R.string.is_gsm));
++					}
++				}
++			}
++			mSimNameView.setTextColor(getResources().getColor(R.color.spn_color));
++            mSimNameView.setVisibility(VISIBLE);
+ 			mSimSelectView.setVisibility(GONE);
+         }
+ 
+Index: packages/apps/Messaging/res/values/colors.xml
+===================================================================
+--- packages/apps/Messaging/res/values/colors.xml	(revision 169649)
++++ packages/apps/Messaging/res/values/colors.xml	(revision 169650)
+@@ -17,7 +17,7 @@
+ <resources>
+     <color name="primary_color">#689F38</color>
+     <color name="permission_check_activity_background">@color/primary_color</color>
+-
++	<color name="spn_color">#057C6E</color>
+     <!--  Action bar -->
+     <color name="action_bar_title_text_color">#ffffff</color>
+     <color name="action_bar_background_color">@color/primary_color</color>

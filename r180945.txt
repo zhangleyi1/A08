@@ -1,0 +1,41 @@
+Index: vendor/sprd/modules/sensors/pls/liteon/Pls_LTR558ALS.cpp
+===================================================================
+--- vendor/sprd/modules/sensors/pls/liteon/Pls_LTR558ALS.cpp	(revision 180944)
++++ vendor/sprd/modules/sensors/pls/liteon/Pls_LTR558ALS.cpp	(revision 180945)
+@@ -38,8 +38,8 @@
+ 
+ /*****************************************************************************/
+ static struct sensor_t sSensorList[] = {
+-    {"LTR558ALS Light sensor",
+-     "LTR",
++    {"STK3311-39A Light sensor",
++     "Sensortek",
+      1,
+      SENSORS_LIGHT_HANDLE,
+      SENSOR_TYPE_LIGHT,
+@@ -54,8 +54,8 @@
+      0,
+      SENSOR_FLAG_ON_CHANGE_MODE,
+      {}},
+-    {"LTR558ALS Proximity sensor",
+-     "LTR",
++    {"STK3311-39A Proximity sensor",
++     "Sensortek",
+      1,
+      SENSORS_PROXIMITY_HANDLE,
+      SENSOR_TYPE_PROXIMITY,
+Index: vendor/sprd/modules/sensors/acc/st/Acc_Lis3dh.cpp
+===================================================================
+--- vendor/sprd/modules/sensors/acc/st/Acc_Lis3dh.cpp	(revision 180944)
++++ vendor/sprd/modules/sensors/acc/st/Acc_Lis3dh.cpp	(revision 180945)
+@@ -41,8 +41,8 @@
+ #define MAX_ENABLED 32767
+ /*****************************************************************************/
+ static struct sensor_t sSensorList[] = {
+-    {"ST LIS3DH 3-axis Accelerometer",
+-     "ST",
++    {"KXTJ3-1057 Accelerometer",
++     "Kionix",
+      1,
+      SENSORS_ACCELERATION_HANDLE,
+      SENSOR_TYPE_ACCELEROMETER,

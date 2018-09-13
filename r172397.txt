@@ -1,0 +1,35 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 172396)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 172397)
+@@ -1358,7 +1358,8 @@
+             mDigits.setCursorVisible(true);
+             return false;
+         /* SPRD: FEATURE_WAIT_PAUSE_ON_LONG_CLICK @{ */
+-        } else if (id == R.id.star) {
++       // } else if (id == R.id.star) {
++		       } else if (id == R.id.star) {/*
+             if (mDigits.getSelectionStart() > 1) {
+                 // Remove tentative input ('*') done by onTouch().
+                 removePreviousDigitIfPossible('*');
+@@ -1368,7 +1369,8 @@
+                 mPressedDialpadKeys.remove(view);
+             }
+             return true;
+-        } else if (id == R.id.pound) {
++        //} else if (id == R.id.pound) {
++	        */} else if (id == R.id.pound) {/*
+             if(mDigits.getSelectionStart() > 1) {
+                 // Remove tentative input ('#') done by onTouch().
+                 removePreviousDigitIfPossibleForPound();
+@@ -1380,8 +1382,8 @@
+                 mPressedDialpadKeys.remove(view);
+             }
+             return true;
+-        /* @} */
+-        } else {
++        @} 
++        */} else {
+             /* SPRD: Bug#474289, FAST DIAL FEATURE @{ */
+                 Intent intent = FastDialUtils.getFastDialIntent(this, digits, id);
+                 if (intent != null) {

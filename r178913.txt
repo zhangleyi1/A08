@@ -1,0 +1,13 @@
+Index: u-boot64/common/loader/loader_common.c
+===================================================================
+--- u-boot64/common/loader/loader_common.c	(revision 178912)
++++ u-boot64/common/loader/loader_common.c	(revision 178913)
+@@ -492,7 +492,7 @@
+ 	//6:Root Status
+ 	u32 rootFlag = get_rootflag(&root_stat);
+ 	if(rootFlag==0){
+-		lcd_printf("   root status: Offical \n");
++		lcd_printf("   root status: Official \n");
+ 	}
+ 	else if(rootFlag==1){
+ 		lcd_printf("   root status: Custom \n");

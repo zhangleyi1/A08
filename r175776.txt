@@ -1,0 +1,28 @@
+Index: vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_51009.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_51009.xml	(revision 175775)
++++ vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_51009.xml	(revision 175776)
+@@ -1,6 +1,9 @@
+ <?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+ 
+ <carrier_config_list>
++     <carrier_config>
++         <int name="carrier_default_wfc_ims_mode_int" value="1" />
++     </carrier_config>
+     <carrier_config network_preferred="true">
+         <string name="ecclist_nocard">110@1,112,113@4,118@2</string>
+         <string name="ecclist_withcard">110@1,112,113@4,118@2</string>
+Index: vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_51028.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_51028.xml	(revision 175775)
++++ vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_51028.xml	(revision 175776)
+@@ -1,6 +1,9 @@
+ <?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+ 
+ <carrier_config_list>
++     <carrier_config>
++         <int name="carrier_default_wfc_ims_mode_int" value="1" />
++     </carrier_config>
+     <carrier_config network_preferred="true">
+         <string name="ecclist_nocard">110@1,112,113@4,118@2</string>
+         <string name="ecclist_withcard">110@1,112,113@4,118@2</string>

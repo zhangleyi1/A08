@@ -1,0 +1,69 @@
+Index: vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/activities/PeopleActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/activities/PeopleActivity.java	(revision 172132)
++++ vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/activities/PeopleActivity.java	(revision 172133)
+@@ -1392,7 +1392,10 @@
+         makeMenuItemVisible(menu, R.id.menu_blocked_numbers, showMiscOptions && showBlockedNumbers);
+         makeMenuItemVisible(menu, R.id.menu_settings,
+                 showMiscOptions && !ContactsPreferenceActivity.isEmpty(this));
+-
++        
++        final boolean isAllContactsSelected = mActionBarAdapter.isSelectionMode()
++                && (mAllFragment.getSelectedContactIds().size() + 2 == mAllFragment.getListView().getCount());
++        makeMenuItemVisible(menu, R.id.menu_select_all, showSelectedContactOptions && !isAllContactsSelected);
+         makeMenuItemVisible(menu, R.id.menu_share, showSelectedContactOptions);
+         makeMenuItemVisible(menu, R.id.menu_delete, showSelectedContactOptions);
+         final boolean showLinkContactsOptions = mActionBarAdapter.isSelectionMode()
+Index: vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/list/MultiSelectContactsListFragment.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/list/MultiSelectContactsListFragment.java	(revision 172132)
++++ vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/list/MultiSelectContactsListFragment.java	(revision 172133)
+@@ -206,6 +206,33 @@
+     public void clearCheckBoxes() {
+         getAdapter().setSelectedContactIds(new TreeSet<Long>());
+     }
++    
++    public void selectallCheckBoxes() {
++        TreeSet<Long> SelectedContactIds = getAdapter().getSelectedContactIds();
++        for (int position = 0;position < getListView().getCount() - 2;position++) {
++            final Uri uri = getAdapter().getContactUri(position);
++            final int partition = getAdapter().getPartitionForPosition(position);
++            if (uri != null && (partition == ContactsContract.Directory.DEFAULT
++                && (position > 0 || !getAdapter().hasProfile()))) {
++                final String contactId = uri.getLastPathSegment();
++                if(SelectedContactIds.contains(Long.valueOf(contactId))){
++                    continue;
++                }
++                if (!TextUtils.isEmpty(contactId)) {
++                    if (mCheckBoxListListener != null) {
++                        mCheckBoxListListener.onStartDisplayingCheckBoxes();
++                    }
++                    getAdapter().toggleSelectionOfContactId(Long.valueOf(contactId));
++                    final int index = position + getListView().getHeaderViewsCount() - getListView()
++                            .getFirstVisiblePosition();
++                    if (index >= 0 && index < getListView().getChildCount()) {
++                        getListView().getChildAt(index).sendAccessibilityEvent(AccessibilityEvent
++                                .TYPE_VIEW_CLICKED);
++                    }
++                }
++            }
++        }
++    }
+ 
+     @Override
+     protected boolean onItemLongClick(int position, long id) {
+Index: vendor/sprd/platform/packages/apps/SprdContacts/res/menu/people_options.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/res/menu/people_options.xml	(revision 172132)
++++ vendor/sprd/platform/packages/apps/SprdContacts/res/menu/people_options.xml	(revision 172133)
+@@ -59,6 +59,10 @@
+         android:title="@string/menu_joinAggregate" />
+ 
+     <item
++        android:id="@+id/menu_select_all"
++        android:title="@string/menu_select_all" />
++
++    <item
+         android:id="@+id/menu_delete"
+         android:title="@string/menu_deleteContact" />
+ 

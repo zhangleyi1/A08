@@ -1,0 +1,54 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/arrays.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/arrays.xml	(revision 174931)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/arrays.xml	(revision 174932)
+@@ -212,6 +212,7 @@
+         <item>@string/camera_mode_vgesture</item>
+         <item>@string/camera_mode_qrcode</item>
+         <item>@string/camera_mode_smileshutter</item>
++        <item>@string/camera_mode_photograph</item>
+     </string-array>
+ 
+     <array name="dream_camera_mode_shutter_icon">
+@@ -238,7 +239,8 @@
+         <item>@drawable/ic_capture_camera_sprd</item>
+         <item>@drawable/ic_capture_camera_sprd</item>
+         <item>@drawable/ic_capture_video_sprd</item>
+-		<item>@drawable/ic_capture_camera_sprd</item>
++		    <item>@drawable/ic_capture_camera_sprd</item>
++		    <item>@drawable/ic_capture_camera_sprd</item>
+     </array>
+ 
+     <integer name="mode_support_all">-1</integer>
+@@ -262,7 +264,6 @@
+         <item>@integer/mode_support_photo</item>
+         <item>@integer/mode_support_photo</item>
+         <item>@integer/mode_support_photo</item>
+-
+         <item>@integer/mode_support_video</item>
+         <item>@integer/mode_support_none</item>
+         <item>@integer/mode_support_video</item>
+@@ -273,6 +274,7 @@
+         <item>@integer/mode_support_photo</item>
+         <item>@integer/mode_support_photo</item>
+         <item>@integer/mode_support_photo</item>
++        <item>@integer/mode_support_photo</item>
+         <item>@integer/mode_support_none</item>
+         <item>@integer/mode_support_none</item>
+     </integer-array>
+@@ -289,7 +291,6 @@
+         <item>@integer/camera_support_back</item>
+         <item>@integer/camera_support_all</item>
+         <item>@integer/camera_support_all</item>
+-
+         <item>@integer/camera_support_all</item>
+         <item>@integer/camera_support_all</item>
+         <item>@integer/camera_support_back</item>
+@@ -302,6 +303,7 @@
+         <item>@integer/camera_support_all</item>
+         <item>@integer/camera_support_all</item>
+         <item>@integer/camera_support_all</item>
++        <item>@integer/camera_support_all</item>
+     </integer-array>
+ 
+     <array name="dream_camera_flashmode_icons" translatable="false">

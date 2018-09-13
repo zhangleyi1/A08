@@ -1,0 +1,469 @@
+Index: frameworks/base/packages/SystemUI/AndroidManifest.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/AndroidManifest.xml	(revision 168367)
++++ frameworks/base/packages/SystemUI/AndroidManifest.xml	(revision 168368)
+@@ -534,5 +534,11 @@
+             </intent-filter>
+         </activity>
+ 
++        <activity android:name=".ChargerInfoActivity"
++            android:theme="@android:style/Theme.Holo.Dialog.NoActionBar">
++            <intent-filter>
++                <action android:name="android.intent.action.MAIN" />
++            </intent-filter>
++        </activity>
+     </application>
+ </manifest>
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/SystemUIService.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/SystemUIService.java	(revision 168367)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/SystemUIService.java	(revision 168368)
+@@ -32,6 +32,10 @@
+ 
+ import com.android.systemui.statusbar.FloatKeyView;
+ import android.os.UserHandle;
++import android.os.BatteryManager;
++import java.io.FileReader;
++import java.io.IOException;
++import android.util.Log;
+ 
+ public class SystemUIService extends Service {
+ 
+@@ -50,6 +54,7 @@
+             filter.addAction("com.android.systemui.FLOATKEY_ACTION_STOP");
+             filter.addAction("com.android.systemui.FLOATKEY_ACTION_START");
+             filter.addAction("com.android.systemui.FLOATKEY_ACTION_RESTART");
++            filter.addAction(Intent.ACTION_BATTERY_CHANGED);
+             filter.addAction(Intent.ACTION_USER_SWITCHED);
+             this.registerReceiver(floatKeyReceiver, filter);
+             if (Settings.Secure.getInt(this.getContentResolver()
+@@ -84,6 +89,7 @@
+         }
+     }
+ 
++    private boolean isShowChargeDialg = false;
+     /**
+      * SPRD: add for assistant touch
+      */
+@@ -109,8 +115,54 @@
+                 } else {
+                     mFloatKeyView.removeFromWindow();
+                 }
++            } else if (intent.getAction().equals((Intent.ACTION_BATTERY_CHANGED))) {
++                int status = intent.getIntExtra("status", 0);
++
++                switch (status) {
++                    case BatteryManager.BATTERY_STATUS_NOT_CHARGING:
++                        isShowChargeDialg = false;
++                        break;
++                    case BatteryManager.BATTERY_STATUS_DISCHARGING:
++                        isShowChargeDialg = false;
++                        break;
++                    case BatteryManager.BATTERY_STATUS_CHARGING:
++
++                        if (getChargeType() == 49 && !isShowChargeDialg) {
++                            isShowChargeDialg = true;
++                            Intent chargeIntent = new Intent(context, ChargerInfoActivity.class);
++                            context.startActivity(chargeIntent);
++                        }
++                        break;
++                    default:
++                        break;
++                }
++
+             }
+         }
+     };
++
++   private int getChargeType() {
++        char[] buffer = new char[5];
++        FileReader file = null;
++        try {
++            file = new FileReader("/sys/class/power_supply/usb/online");
++            file.read(buffer, 0, 5);
++            if (file != null) {
++                file.close();
++                file = null;
++            }
++        } catch (Exception e) {
++            try {
++                if (file != null) {
++                    file.close();
++                    file = null;
++                }
++            } catch (IOException io) {
++                android.util.Log.e("zly", "getBatteryElectronic fail");
++            }
++        }
++        return buffer[0];
++    }
++
+ }
+ 
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/ChargerInfoActivity.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/ChargerInfoActivity.java	(revision 0)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/ChargerInfoActivity.java	(revision 168368)
+@@ -0,0 +1,29 @@
++package com.android.systemui;
++
++import android.app.Activity;
++import android.os.Bundle;
++import android.view.View;
++import android.widget.Button;
++import com.android.systemui.R;
++
++/**
++ * Created by Administrator on 2017/4/12.
++ */
++public class ChargerInfoActivity extends Activity {
++    private Button mOk;
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setFinishOnTouchOutside(false);
++        setContentView(R.layout.charger_info_activity);
++        mOk = (Button)findViewById(R.id.charger_ok_btn);
++        mOk.setOnClickListener(new View.OnClickListener() {
++            @Override
++            public void onClick(View v) {
++                finish();
++            }
++        });
++    }
++}
++
+Index: frameworks/base/packages/SystemUI/res/layout/charger_info_activity.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/layout/charger_info_activity.xml	(revision 0)
++++ frameworks/base/packages/SystemUI/res/layout/charger_info_activity.xml	(revision 168368)
+@@ -0,0 +1,45 @@
++<RelativeLayout
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:layout_height="match_parent"
++    android:layout_width="match_parent"
++    android:background="@color/chargerInfoBackColor">
++
++    <ImageView
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:src="@drawable/ic_info"
++        android:id="@+id/charger_icon"
++        android:layout_centerHorizontal="true"/>
++
++    <TextView
++        android:layout_width="match_parent"
++        android:layout_height="@dimen/charger_line_height"
++        android:layout_below="@id/charger_icon"
++        android:id="@+id/chargre_line"
++        android:background="@color/charger_info_line_color"  />
++
++    <TextView
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:id="@+id/charger_info_content"
++        android:text="@string/charger_info_content_text"
++        android:layout_marginTop="@dimen/charger_info_content_margin_top"
++        android:layout_marginLeft="@dimen/charger_info_content_margin_button"
++        android:textSize="@dimen/charger_info_content_text_size"
++        android:layout_below="@id/chargre_line"/>
++
++    <Button
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:id="@+id/charger_ok_btn"
++        android:layout_below="@id/charger_info_content"
++        android:layout_centerHorizontal="true"
++        android:layout_marginTop="@dimen/charger_ok_margin_top"
++        android:layout_marginBottom="@dimen/charger_ok_margin_button"
++        android:text="@string/charge_ok_btn_text"
++        android:textColor="@color/charger_ok_btn_text_color"
++        android:background="@drawable/btn_circular"/>
++
++</RelativeLayout>
++
+Index: frameworks/base/packages/SystemUI/res/drawable/btn_circular.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/btn_circular.xml	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/btn_circular.xml	(revision 168368)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<shape xmlns:android="http://schemas.android.com/apk/res/android">
++    <corners
++        android:radius="8dp"  />
++    <solid android:color="@color/charger_btn_color" />
++</shape>
+Index: frameworks/base/packages/SystemUI/res/values-in-rID/string.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values-in-rID/string.xml	(revision 168367)
++++ frameworks/base/packages/SystemUI/res/values-in-rID/string.xml	(revision 168368)
+@@ -1,3 +1,4 @@
+ <resources>
+     <string name="content">VoWiFi akan dihidupkan. Panggilan telepon dan video akan berjalan melalui koneksi WiFi. Biaya akan dikenakan berdasarkan tarif Smartfren. Kualitas layanan bergantung pada jaringan WiFi. </string>
++    <string name="charger_info_content_text">Penggunaan charger, kabel atau aksesoriini mungkin tidak mendukung perangkat Andromax Andia.</string>
+ </resources>
+Index: frameworks/base/packages/SystemUI/res/values/dimens.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 168367)
++++ frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 168368)
+@@ -662,4 +662,10 @@
+     <dimen name="notification_clock_area_margintop">30dp</dimen>
+     <dimen name="activity_horizontal_margin">16dp</dimen>
+     <dimen name="activity_vertical_margin">16dp</dimen>
++    <dimen name="charger_line_height">2dp</dimen>
++    <dimen name="charger_info_content_margin_top">10dp</dimen>
++    <dimen name="charger_info_content_margin_button">15dp</dimen>
++    <dimen name="charger_info_content_text_size">18sp</dimen>
++    <dimen name="charger_ok_margin_top">20dp</dimen>
++    <dimen name="charger_ok_margin_button">20dp</dimen>
+ </resources>
+Index: frameworks/base/packages/SystemUI/res/values/strings.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 168367)
++++ frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 168368)
+@@ -1728,4 +1728,6 @@
+     <string name="cb_text">No longer remind</string>
+     <string name="cancel_text">Cancel</string>
+     <string name="ok_text">OK</string>
++    <string name="charger_info_content_text">This charger, cable or accessory may not work properly with your Andromax.</string>
++    <string name="charge_ok_btn_text">OK</string>
+ </resources>
+Index: frameworks/base/packages/SystemUI/res/values/colors.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/colors.xml	(revision 168367)
++++ frameworks/base/packages/SystemUI/res/values/colors.xml	(revision 168368)
+@@ -179,4 +179,8 @@
+     <!-- Background color of edit overflow -->
+     <color name="qs_edit_overflow_bg">#455A64</color>
+     <color name="mode_cover_default_color">#191919</color>
++    <color name="chargerInfoBackColor">#3B496C</color>
++    <color name="charger_info_line_color">#FF0000</color>
++    <color name="charger_btn_color">#EAC42C</color>
++    <color name="charger_ok_btn_text_color">#000000</color>
+ </resources>
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/ic_info.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable-hdpi/ic_info.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable-hdpi/ic_info.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable-hdpi/ic_info.png	(revision 168368)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable-hdpi/ic_info.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/proprietories-source/charge/charge.c
+===================================================================
+--- vendor/sprd/proprietories-source/charge/charge.c	(revision 168367)
++++ vendor/sprd/proprietories-source/charge/charge.c	(revision 168368)
+@@ -73,9 +73,14 @@
+ 
+     system("echo 0 > /sys/class/android_usb/android0/enable");
+ 
+-    ui_init();
++	ret = battery_type_init();
++	if (ret == 1) {
++		ill_ui_init();
++	} else {
++        ui_init();
++    }
+ 
+-    LOGD("ui_init\n");
++    LOGD("ui_init %d\n", ret);
+ 
+     ui_set_background(BACKGROUND_ICON_NONE);
+     ui_show_indeterminate_progress();
+Index: vendor/sprd/proprietories-source/charge/battery.c
+===================================================================
+--- vendor/sprd/proprietories-source/charge/battery.c	(revision 168367)
++++ vendor/sprd/proprietories-source/charge/battery.c	(revision 168368)
+@@ -327,6 +327,12 @@
+     return 0;
+ }
+ 
++int battery_type_init() {
++	char buf[2] = {0};
++	int length = readFromFile("/sys/class/power_supply/usb/online", buf, sizeof(buf));
++	return buf[0] - '0';
++}
++
+ int battery_ac_online(void) {
+     int ret;
+ 
+@@ -336,6 +342,7 @@
+     pthread_mutex_unlock(&gBatteryMutex);
+     return ret;
+ }
++
+ int battery_usb_online(void) {
+     int ret;
+ 
+Index: vendor/sprd/proprietories-source/charge/ui.c
+===================================================================
+--- vendor/sprd/proprietories-source/charge/ui.c	(revision 168367)
++++ vendor/sprd/proprietories-source/charge/ui.c	(revision 168368)
+@@ -62,6 +62,19 @@
+     { NULL,                              NULL },
+ };
+ 
++static const struct { gr_surface* surface; const char *name; } BITMAPS_ILLEGAL[] = {
++    { &gProgressBarIndeterminate[0],     "charge0" },
++    { &gProgressBarIndeterminate[1],     "charge1" },
++    { &gProgressBarIndeterminate[2],     "charge2" },
++    { &gProgressBarIndeterminate[3],     "charge3" },
++    { &gProgressBarIndeterminate[4],     "charge4" },
++    { &gProgressBarIndeterminate[5],     "charge5" },
++    { &gProgressBarIndeterminate[6],     "charge6" },
++    { &gProgressBarEmpty,                "charge0" },
++    { &gProgressBarFill,                 "charge6" },
++    { NULL,                              NULL },
++};
++
+ static gr_surface gCurrentIcon = NULL;
+ 
+ static enum ProgressBarType {
+@@ -520,6 +533,33 @@
+     }
+ }
+ 
++void ill_ui_init(void) {
++    gr_init();
++    ev_init();
++
++    text_col = text_row = 0;
++    text_rows = gr_fb_height() / CHAR_HEIGHT;
++    if (text_rows > MAX_ROWS) text_rows = MAX_ROWS;
++    text_top = 1;
++
++    text_cols = gr_fb_width() / CHAR_WIDTH;
++    if (text_cols > MAX_COLS - 1) text_cols = MAX_COLS - 1;
++
++    int i;
++    for (i = 0; BITMAPS_ILLEGAL[i].name != NULL; ++i) {
++        int result = res_create_display_surface(BITMAPS_ILLEGAL[i].name,  BITMAPS_ILLEGAL[i].surface);
++        if (result < 0) {
++            if (result == -2) {
++                LOGI("Bitmap %s missing header\n",  BITMAPS_ILLEGAL[i].name);
++            } else {
++                LOGE("Missing bitmap %s\n(Code %d)\n",  BITMAPS_ILLEGAL[i].name,  result);
++            }
++            *BITMAPS[i].surface = NULL;
++        }
++    }
++}
++
++
+ void ui_set_background(int icon) {
+     pthread_mutex_lock(&gUpdateMutex);
+     gCurrentIcon = gBackgroundIcon[icon];
+Index: vendor/sprd/proprietories-source/charge/images/charge2.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/proprietories-source/charge/images/charge2.png
+===================================================================
+--- vendor/sprd/proprietories-source/charge/images/charge2.png	(revision 0)
++++ vendor/sprd/proprietories-source/charge/images/charge2.png	(revision 168368)
+
+Property changes on: vendor/sprd/proprietories-source/charge/images/charge2.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/proprietories-source/charge/images/charge3.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/proprietories-source/charge/images/charge3.png
+===================================================================
+--- vendor/sprd/proprietories-source/charge/images/charge3.png	(revision 0)
++++ vendor/sprd/proprietories-source/charge/images/charge3.png	(revision 168368)
+
+Property changes on: vendor/sprd/proprietories-source/charge/images/charge3.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/proprietories-source/charge/images/charge4.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/proprietories-source/charge/images/charge4.png
+===================================================================
+--- vendor/sprd/proprietories-source/charge/images/charge4.png	(revision 0)
++++ vendor/sprd/proprietories-source/charge/images/charge4.png	(revision 168368)
+
+Property changes on: vendor/sprd/proprietories-source/charge/images/charge4.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/proprietories-source/charge/images/charge5.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/proprietories-source/charge/images/charge5.png
+===================================================================
+--- vendor/sprd/proprietories-source/charge/images/charge5.png	(revision 0)
++++ vendor/sprd/proprietories-source/charge/images/charge5.png	(revision 168368)
+
+Property changes on: vendor/sprd/proprietories-source/charge/images/charge5.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/proprietories-source/charge/images/charge6.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/proprietories-source/charge/images/charge6.png
+===================================================================
+--- vendor/sprd/proprietories-source/charge/images/charge6.png	(revision 0)
++++ vendor/sprd/proprietories-source/charge/images/charge6.png	(revision 168368)
+
+Property changes on: vendor/sprd/proprietories-source/charge/images/charge6.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/proprietories-source/charge/images/charge0.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/proprietories-source/charge/images/charge0.png
+===================================================================
+--- vendor/sprd/proprietories-source/charge/images/charge0.png	(revision 0)
++++ vendor/sprd/proprietories-source/charge/images/charge0.png	(revision 168368)
+
+Property changes on: vendor/sprd/proprietories-source/charge/images/charge0.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/proprietories-source/charge/images/charge1.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/proprietories-source/charge/images/charge1.png
+===================================================================
+--- vendor/sprd/proprietories-source/charge/images/charge1.png	(revision 0)
++++ vendor/sprd/proprietories-source/charge/images/charge1.png	(revision 168368)
+
+Property changes on: vendor/sprd/proprietories-source/charge/images/charge1.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property

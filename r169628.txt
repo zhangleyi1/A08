@@ -1,0 +1,676 @@
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/InboundSmsHandler.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/InboundSmsHandler.java	(revision 169627)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/InboundSmsHandler.java	(revision 169628)
+@@ -1049,6 +1049,10 @@
+                         getHandler(), Activity.RESULT_OK, null, null);
+             }
+         } else {
++            if (Telephony.Sms.Intents.WAP_PUSH_DELIVER_ACTION.equals(intent.getAction())
++                    && (intent.getType()).equals("application/vnd.wap.mms-message")){
++                return;
++            }
+             mContext.sendOrderedBroadcastAsUser(intent, user, permission, appOp, opts,
+                     resultReceiver, getHandler(), Activity.RESULT_OK, null, null);
+         }
+Index: packages/apps/Messaging/src/com/android/messaging/sms/MmsUtils.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/sms/MmsUtils.java	(revision 169627)
++++ packages/apps/Messaging/src/com/android/messaging/sms/MmsUtils.java	(revision 169628)
+@@ -1347,9 +1347,9 @@
+         final Context context = Factory.get().getApplicationContext();
+         final Resources resources = context.getResources();
+         final BuglePrefs prefs = BuglePrefs.getSubscriptionPrefs(subId);
+-        final String groupMmsKey = resources.getString(R.string.group_mms_pref_key);
++        //final String groupMmsKey = resources.getString(R.string.group_mms_pref_key);
+         final boolean groupMmsEnabledDefault = resources.getBoolean(R.bool.group_mms_pref_default);
+-        final boolean groupMmsPrefOn = prefs.getBoolean(groupMmsKey, groupMmsEnabledDefault);
++        final boolean groupMmsPrefOn = false;//prefs.getBoolean(groupMmsKey, groupMmsEnabledDefault);
+         return MmsConfig.get(subId).getGroupMmsEnabled() && groupMmsPrefOn;
+     }
+ 
+@@ -1876,7 +1876,7 @@
+         final Context context = Factory.get().getApplicationContext();
+         final Resources resources = context.getResources();
+         final BuglePrefs prefs = BuglePrefs.getSubscriptionPrefs(subId);
+-        final boolean autoRetrieve = prefs.getBoolean(
++       /* final boolean autoRetrieve = prefs.getBoolean(
+                 resources.getString(R.string.auto_retrieve_mms_pref_key),
+                 resources.getBoolean(R.bool.auto_retrieve_mms_pref_default));
+         if (autoRetrieve) {
+@@ -1888,7 +1888,7 @@
+                     || !phoneUtils.isRoaming()) {
+                 return true;
+             }
+-        }
++        }*/
+         return false;
+     }
+ 
+@@ -3693,11 +3693,12 @@
+         final Context context = Factory.get().getApplicationContext();
+         final Resources res = context.getResources();
+         final BuglePrefs prefs = BuglePrefs.getSubscriptionPrefs(subId);
+-        final String mmsDeliveryReportKey = res
++        /* final String mmsDeliveryReportKey = res
+                 .getString(R.string.mms_delivery_reports_pref_key);
+-        final boolean defaultValue = res
++       final boolean defaultValue = res
+                 .getBoolean(R.bool.mms_delivery_reports_pref_default);
+-        return prefs.getBoolean(mmsDeliveryReportKey, defaultValue);
++        return prefs.getBoolean(mmsDeliveryReportKey, defaultValue);*/
++        return false;
+     }
+ 
+     public static boolean isMmsReadReportRequired(final int subId) {
+@@ -3728,11 +3729,12 @@
+         final Context context = Factory.get().getApplicationContext();
+         final Resources res = context.getResources();
+         final BuglePrefs prefs = BuglePrefs.getSubscriptionPrefs(subId);
+-        final String enableReturnMmsDeliveryReportKey = res
++       /* final String enableReturnMmsDeliveryReportKey = res
+                 .getString(R.string.enable_return_mms_delivery_reports_pref_key);
+         final boolean defaultValue = res
+                 .getBoolean(R.bool.enable_return_mms_delivery_reports_pref_default);
+-        return prefs.getBoolean(enableReturnMmsDeliveryReportKey, defaultValue);
++        return prefs.getBoolean(enableReturnMmsDeliveryReportKey, defaultValue);*/
++        return false;
+     }
+     // 489220 end
+ 
+@@ -3741,9 +3743,9 @@
+         final Context context = Factory.get().getApplicationContext();
+         final Resources res = context.getResources();
+         final BuglePrefs prefs = BuglePrefs.getSubscriptionPrefs(subId);
+-        final String enableMmsSendReportKey = res.getString(R.string.mms_send_reports_pref_key);
++    //    final String enableMmsSendReportKey = res.getString(R.string.mms_send_reports_pref_key);
+         final boolean defaultValue = res.getBoolean(R.bool.mms_send_reports_pref_default);
+-        return prefs.getBoolean(enableMmsSendReportKey, defaultValue);
++        return false;//prefs.getBoolean(enableMmsSendReportKey, defaultValue);
+     }
+ 
+     public static boolean isEnabelSmsSendReport(final int subId) {
+Index: packages/apps/Messaging/src/com/android/messaging/receiver/MmsWapPushDeliverReceiver.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/receiver/MmsWapPushDeliverReceiver.java	(revision 169627)
++++ packages/apps/Messaging/src/com/android/messaging/receiver/MmsWapPushDeliverReceiver.java	(revision 169628)
+@@ -37,7 +37,7 @@
+             int subId = PhoneUtils.getDefault().getEffectiveIncomingSubIdFromSystem(
+                     intent, MmsWapPushReceiver.EXTRA_SUBSCRIPTION);
+             byte[] data = intent.getByteArrayExtra(MmsWapPushReceiver.EXTRA_DATA);
+-            MmsWapPushReceiver.mmsReceived(subId, data);
++          //  MmsWapPushReceiver.mmsReceived(subId, data);
+         }
+     }
+ }
+Index: packages/apps/Messaging/src/com/android/messaging/receiver/MmsWapPushReceiver.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/receiver/MmsWapPushReceiver.java	(revision 169627)
++++ packages/apps/Messaging/src/com/android/messaging/receiver/MmsWapPushReceiver.java	(revision 169628)
+@@ -41,7 +41,7 @@
+                 final int subId = PhoneUtils.getDefault().getEffectiveIncomingSubIdFromSystem(
+                         intent, MmsWapPushReceiver.EXTRA_SUBSCRIPTION);
+                 final byte[] data = intent.getByteArrayExtra(MmsWapPushReceiver.EXTRA_DATA);
+-                mmsReceived(subId, data);
++               // mmsReceived(subId, data);
+             }
+         }
+     }
+Index: packages/apps/Messaging/src/com/android/messaging/datamodel/action/SendMessageAction.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/datamodel/action/SendMessageAction.java	(revision 169627)
++++ packages/apps/Messaging/src/com/android/messaging/datamodel/action/SendMessageAction.java	(revision 169628)
+@@ -235,7 +235,10 @@
+ 
+             status = MmsUtils.sendSmsMessage(recipient, messageText, messageUri, subId,
+                     smsServiceCenter, deliveryReportRequired);
++            ProcessSentMessageAction.processMessageSentFastFailed(messageId, messageUri,
++                    updatedMessageUri, subId, isSms, status, rawStatus, resultCode);
+         } else {
++            /*
+             final Context context = Factory.get().getApplicationContext();
+             final ArrayList<String> recipients =
+                     actionParameters.getStringArrayList(KEY_RECIPIENTS);
+@@ -278,13 +281,11 @@
+                 resultCode = result.resultCode;
+             } else {
+                 status = MmsUtils.MMS_REQUEST_MANUAL_RETRY;
+-            }
++            }*/
+         }
+ 
+         // When we fast-fail before calling the MMS lib APIs (e.g. airplane mode,
+         // sending message is deleted).
+-        ProcessSentMessageAction.processMessageSentFastFailed(messageId, messageUri,
+-                updatedMessageUri, subId, isSms, status, rawStatus, resultCode);
+         return null;
+     }
+ 
+Index: packages/apps/Messaging/src/com/android/messaging/ui/appsettings/GroupMmsSettingDialog.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/ui/appsettings/GroupMmsSettingDialog.java	(revision 169627)
++++ packages/apps/Messaging/src/com/android/messaging/ui/appsettings/GroupMmsSettingDialog.java	(revision 169628)
+@@ -48,18 +48,18 @@
+ 
+     private void show() {
+         Assert.isNull(mDialog);
+-        mDialog = new AlertDialog.Builder(mContext)
++       /* mDialog = new AlertDialog.Builder(mContext)
+                 .setView(createView())
+                 .setTitle(R.string.group_mms_pref_title)
+                 .setNegativeButton(android.R.string.cancel, null)
+-                .show();
++                .show();*/
+     }
+ 
+     private void changeGroupMmsSettings(final boolean enable) {
+         Assert.notNull(mDialog);
+-        BuglePrefs.getSubscriptionPrefs(mSubId).putBoolean(
++       /* BuglePrefs.getSubscriptionPrefs(mSubId).putBoolean(
+                 mContext.getString(R.string.group_mms_pref_key), enable);
+-        mDialog.dismiss();
++        mDialog.dismiss();*/
+     }
+ 
+     private View createView() {
+@@ -82,11 +82,11 @@
+                 changeGroupMmsSettings(true);
+             }
+         });
+-        final boolean mmsEnabled = BuglePrefs.getSubscriptionPrefs(mSubId).getBoolean(
++       /* final boolean mmsEnabled = BuglePrefs.getSubscriptionPrefs(mSubId).getBoolean(
+                 mContext.getString(R.string.group_mms_pref_key),
+                 mContext.getResources().getBoolean(R.bool.group_mms_pref_default));
+         enableButton.setChecked(mmsEnabled);
+-        disableButton.setChecked(!mmsEnabled);
++        disableButton.setChecked(!mmsEnabled);*/
+         return rootView;
+     }
+ }
+Index: packages/apps/Messaging/src/com/android/messaging/ui/appsettings/PerSubscriptionSettingsActivity.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/ui/appsettings/PerSubscriptionSettingsActivity.java	(revision 169627)
++++ packages/apps/Messaging/src/com/android/messaging/ui/appsettings/PerSubscriptionSettingsActivity.java	(revision 169628)
+@@ -118,7 +118,7 @@
+             Preference.OnPreferenceChangeListener {
+         private PhoneNumberPreference mPhoneNumberPreference;
+         private Preference mGroupMmsPreference;
+-        private String mGroupMmsPrefKey;
++       // private String mGroupMmsPrefKey;
+         private String mPhoneNumberKey;
+         private int mSubId;
+         // sprd add for smsc begin
+@@ -201,16 +201,16 @@
+                         mSubId);
+             }
+ 
+-            mGroupMmsPrefKey = getString(R.string.group_mms_pref_key);
+-            mGroupMmsPreference = findPreference(mGroupMmsPrefKey);
++           // mGroupMmsPrefKey = getString(R.string.group_mms_pref_key);
++          //  mGroupMmsPreference = findPreference(mGroupMmsPrefKey);
+             if (!MmsConfig.get(mSubId).getGroupMmsEnabled()) {
+                 // Always show group messaging setting even if the SIM has no number
+                 // If broadcast sms is selected, the SIM number is not needed
+                 // If group mms is selected, the phone number dialog will popup when message
+                 // is being sent, making sure we will have a self number for group mms.
+-                mmsCategory.removePreference(mGroupMmsPreference);
++               // mmsCategory.removePreference(mGroupMmsPreference);
+             } else {
+-                mGroupMmsPreference
++               /* mGroupMmsPreference
+                         .setOnPreferenceClickListener(new OnPreferenceClickListener() {
+                             @Override
+                             public boolean onPreferenceClick(Preference pref) {
+@@ -219,7 +219,7 @@
+                                 return true;
+                             }
+                         });
+-                updateGroupMmsPrefSummary();
++                updateGroupMmsPrefSummary();*/
+             }
+ 
+             if (!MmsConfig.get(mSubId).getSMSDeliveryReportsEnabled()) {
+@@ -283,21 +283,21 @@
+             // above first so that the user sees the correct information on the
+             // screen
+             if (!PhoneUtils.getDefault().isDefaultSmsApp()) {
+-                mGroupMmsPreference.setEnabled(false);
+-                final Preference autoRetrieveMmsPreference = findPreference(getString(R.string.auto_retrieve_mms_pref_key));
+-                autoRetrieveMmsPreference.setEnabled(false);
++              //  mGroupMmsPreference.setEnabled(false);
++             //   final Preference autoRetrieveMmsPreference = findPreference(getString(R.string.auto_retrieve_mms_pref_key));
++               // autoRetrieveMmsPreference.setEnabled(false);
+                 final Preference deliveryReportsPreference = findPreference(getString(R.string.delivery_reports_pref_key));
+                 deliveryReportsPreference.setEnabled(false);
+             }
+ 
+             // 489220 begin
+-            mMmsDeliveryReportPrefKey = getString(R.string.mms_delivery_reports_pref_key);
++//            mMmsDeliveryReportPrefKey = getString(R.string.mms_delivery_reports_pref_key);
+             mMmsReadReportsPrefKey = getString(R.string.mms_read_reports_pref_key);
+             /* Delete by SPRD for Bug531825  2016.03.17 Start*/
+             //mEnableReturnMmsDeliveryReportsPrefKey = getString(R.string.enable_return_mms_delivery_reports_pref_key);
+             mEnableReturnMmsReadReportsPrefKey = getString(R.string.enable_return_mms_read_reports_pref_key);
+ 
+-            mMmsDeliveryReportsPreference = findPreference(mMmsDeliveryReportPrefKey);
++           // mMmsDeliveryReportsPreference = findPreference(mMmsDeliveryReportPrefKey);
+             mMmsReadReportsPreference = findPreference(mMmsReadReportsPrefKey);
+             //mEnableReturnMmsDeliveryReportsPreference = findPreference(mEnableReturnMmsDeliveryReportsPrefKey);
+             mEnableReturnMmsReadReportsPreference = findPreference(mEnableReturnMmsReadReportsPrefKey);
+@@ -321,22 +321,21 @@
+             // sprd: fix fof bug 528758 start
+             if (OsUtil.hasPhonePermission()) {
+                 /* Add by sprd for bug 526653 Start */
+-                String mmsValidityPrefKey = getString(R.string.mms_validity_pref_key);
++               // String mmsValidityPrefKey = getString(R.string.mms_validity_pref_key);
+                 String smsValidityPrefKey = getString(R.string.sms_validity_pref_key);
+                 SmsManager smsManager = SmsManager.getDefault();
+                 SharedPreferences sharedPref = PreferenceManager
+                         .getDefaultSharedPreferences(this.getActivity());
+                 /* Add by sprd for bug 526653 End */
+-                mMmsValidityPref = (ListPreference) findPreference(mmsValidityPrefKey);
+-                if (!MmsConfig.getValidityMmsEnabled()
++               // mMmsValidityPref = (ListPreference) findPreference(mmsValidityPrefKey);
++              /*  if (!MmsConfig.getValidityMmsEnabled()
+                         || (PhoneUtils.getDefault()
+                                 .getActiveSubscriptionCount() == 0)) {
+                     mmsCategory.removePreference(mMmsValidityPref);
+-                    /* Modify by sprd for bug 526653 Start */
++
+                 } else {
+                     if (null != mMmsValidityPref) {
+-                        String curVal = sharedPref.getString(mmsValidityPrefKey
+-                                + mSubId, "604800");
++
+                         SystemAdapter.getInstance().setProperty(//smsManager.setProperty(
+                                 getRealValidityKey(MMS_VALIDITY_SETTING),
+                                 curVal);
+@@ -345,7 +344,7 @@
+                                 .setSummary(mMmsValidityPref.getEntry());
+                         mMmsValidityPref.setOnPreferenceChangeListener(this);
+                     }
+-                }
++                }*/
+ 
+                 mSmsValidityPref = (ListPreference) findPreference(smsValidityPrefKey);
+                 if (!MmsConfig.getValiditySmsEnabled()
+@@ -365,7 +364,7 @@
+                         mSmsValidityPref.setOnPreferenceChangeListener(this);
+                     }
+                 }
+-                mmsValidityPrefKey = null;
++             //   mmsValidityPrefKey = null;
+                 smsValidityPrefKey = null;
+                 smsManager = null;
+                 sharedPref = null;
+@@ -484,6 +483,7 @@
+         // sprd add for smsc end
+         
+         private void updateGroupMmsPrefSummary() {
++            /*
+             final boolean groupMmsEnabled = getPreferenceScreen()
+                     .getSharedPreferences().getBoolean(
+                             mGroupMmsPrefKey,
+@@ -491,7 +491,7 @@
+                                     R.bool.group_mms_pref_default));
+             mGroupMmsPreference
+                     .setSummary(groupMmsEnabled ? R.string.enable_group_mms
+-                            : R.string.disable_group_mms);
++                            : R.string.disable_group_mms);*/
+         }
+ 
+         @Override
+@@ -505,9 +505,9 @@
+         @Override
+         public void onSharedPreferenceChanged(
+                 final SharedPreferences sharedPreferences, final String key) {
+-            if (key.equals(mGroupMmsPrefKey)) {
++            /*if (key.equals(mGroupMmsPrefKey)) {
+                 updateGroupMmsPrefSummary();
+-            } else if (key.equals(mPhoneNumberKey)) {
++            } else */if (key.equals(mPhoneNumberKey)) {
+                 // Save the changed phone number in preferences specific to the sub id
+                 final String newPhoneNumber = mPhoneNumberPreference.getText();
+                 final BuglePrefs subPrefs = BuglePrefs
+@@ -627,19 +627,16 @@
+                 return true;
+             }
+ 
+-            if (preference == mMmsValidityPref) {
++            /*if (preference == mMmsValidityPref) {
+                 SystemAdapter.getInstance().setProperty(//smsManager.setProperty(
+                         getRealValidityKey(MMS_VALIDITY_SETTING),
+                         newValue.toString());
+-                prefEditor.putString(
+-                        this.getActivity().getString(
+-                                R.string.mms_validity_pref_key)
+-                                + mSubId, newValue.toString());
++
+                 mMmsValidityPref.setValue(newValue.toString());
+                 mMmsValidityPref.setSummary(mMmsValidityPref.getEntry());
+                 prefEditor.commit();
+                 return true;
+-            }
++            }*/
+ 
+             if(preference == mMmsSizeLimit) {
+                 prefEditor.putString(MMS_SIZE_LIMIT, newValue.toString());
+Index: packages/apps/Messaging/src/com/android/messaging/ui/conversation/ConversationFragment.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/ui/conversation/ConversationFragment.java	(revision 169627)
++++ packages/apps/Messaging/src/com/android/messaging/ui/conversation/ConversationFragment.java	(revision 169628)
+@@ -1237,8 +1237,7 @@
+         menu.findItem(R.id.action_call).setVisible(supportCallAction);
+         menu.findItem(R.id.action_add_phrase).setVisible(true);//sprd add for common message
+         menu.findItem(R.id.action_sms_merge_forward).setVisible(true);//sprd add for sms merge forward
+-        //wqq modify for bug 92593
+-        //menu.findItem(R.id.goto_smil).setVisible(true);//Sprd add for smil   
++       // menu.findItem(R.id.goto_smil).setVisible(true);//Sprd add for smil
+     }
+ 
+     @Override
+@@ -1324,7 +1323,7 @@
+                 return true;
+             //Sprd add for sms merge forward end
+ 
+-           /* case R.id.goto_smil:  wqq modify for bug 92593
++          /*  case R.id.goto_smil:
+                 // store data to DB if the data hasn't been stored in DB
+                 StartSlideshow();
+                 return true;*/
+Index: packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java	(revision 169627)
++++ packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java	(revision 169628)
+@@ -161,7 +161,7 @@
+     private View mSubjectView;
+     private ImageButton mDeleteSubjectButton;
+     private AttachmentPreview mAttachmentPreview;
+-    private ImageButton mAttachMediaButton;
++    //private ImageButton mAttachMediaButton;
+     /*SPRD: add for Bug 489231--new feature,enable signature text append to a message. begin */
+     private TextView mSignatureIndicator;
+     /*SPRD: add for Bug 489231--new feature,enable signature text append to a message. end */
+@@ -458,7 +458,7 @@
+             }
+         });
+ 
+-        mAttachMediaButton =
++      /*  mAttachMediaButton =
+                 (ImageButton) findViewById(R.id.attach_media_button);
+         mAttachMediaButton.setOnClickListener(new View.OnClickListener() {
+             @Override
+@@ -472,10 +472,10 @@
+                     gotoSmilView();
+                 } else {
+                 // Showing the media picker is treated as starting to compose the message.
+-                mInputManager.showHideMediaPicker(false /* show */, false /* animate */);
++                mInputManager.showHideMediaPicker(true , true );
+             }
+             }
+-        });
++        });*/
+ 
+         mAttachmentPreview = (AttachmentPreview) findViewById(R.id.attachment_draft_view);
+         mAttachmentPreview.setComposeMessageView(this);
+@@ -1306,7 +1306,7 @@
+     // Set accessibility traversal order of the components in the send widget.
+     private void setSendWidgetAccessibilityTraversalOrder(final int mode) {
+         if (OsUtil.isAtLeastL_MR1()) {
+-            mAttachMediaButton.setAccessibilityTraversalBefore(R.id.compose_message_text);
++           // mAttachMediaButton.setAccessibilityTraversalBefore(R.id.compose_message_text);
+             switch (mode) {
+                 case SEND_WIDGET_MODE_SIM_SELECTOR:
+                     mComposeEditText.setAccessibilityTraversalBefore(R.id.self_send_icon);
+@@ -1503,7 +1503,7 @@
+     @Override
+     public void setAccessibility(boolean enabled) {
+         if (enabled) {
+-            mAttachMediaButton.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_YES);
++          //  mAttachMediaButton.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_YES);
+             mComposeEditText.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_YES);
+             mSendButton.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_YES);
+             setSendButtonAccessibility(mSendWidgetMode);
+@@ -1511,7 +1511,7 @@
+             mSelfSendIcon.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
+             mComposeEditText.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
+             mSendButton.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
+-            mAttachMediaButton.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
++          //  mAttachMediaButton.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
+         }
+     }
+ 
+Index: packages/apps/Messaging/src/com/android/messaging/util/BugleSubscriptionPrefs.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/util/BugleSubscriptionPrefs.java	(revision 169627)
++++ packages/apps/Messaging/src/com/android/messaging/util/BugleSubscriptionPrefs.java	(revision 169628)
+@@ -54,14 +54,14 @@
+                 // Migrate values from the application-wide settings.
+                 migratePrefBooleanInternal(BuglePrefs.getApplicationPrefs(), "delivery_reports",
+                         R.string.delivery_reports_pref_key, R.bool.delivery_reports_pref_default);
+-                migratePrefBooleanInternal(BuglePrefs.getApplicationPrefs(), "auto_retrieve_mms",
+-                        R.string.auto_retrieve_mms_pref_key, R.bool.auto_retrieve_mms_pref_default);
+-                migratePrefBooleanInternal(BuglePrefs.getApplicationPrefs(),
++              /*  migratePrefBooleanInternal(BuglePrefs.getApplicationPrefs(), "auto_retrieve_mms",
++                        R.string.auto_retrieve_mms_pref_key, R.bool.auto_retrieve_mms_pref_default);*/
++                /*migratePrefBooleanInternal(BuglePrefs.getApplicationPrefs(),
+                         "auto_retrieve_mms_when_roaming",
+                         R.string.auto_retrieve_mms_when_roaming_pref_key,
+-                        R.bool.auto_retrieve_mms_when_roaming_pref_default);
+-                migratePrefBooleanInternal(BuglePrefs.getApplicationPrefs(), "group_messaging",
+-                        R.string.group_mms_pref_key, R.bool.group_mms_pref_default);
++                        R.bool.auto_retrieve_mms_when_roaming_pref_default);*/
++              /*  migratePrefBooleanInternal(BuglePrefs.getApplicationPrefs(), "group_messaging",
++                        R.string.group_mms_pref_key, R.bool.group_mms_pref_default);*/
+ 
+                 if (PhoneUtils.getDefault().getActiveSubscriptionCount() == 1) {
+                     migratePrefStringInternal(BuglePrefs.getApplicationPrefs(), "mms_phone_number",
+Index: packages/apps/Messaging/res/xml/preferences_per_subscription.xml
+===================================================================
+--- packages/apps/Messaging/res/xml/preferences_per_subscription.xml	(revision 169627)
++++ packages/apps/Messaging/res/xml/preferences_per_subscription.xml	(revision 169628)
+@@ -17,18 +17,20 @@
+ <!-- Preference screen definition for Bugle's subscription-specific settings -->
+ <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+ 
++
+     <PreferenceCategory
+         android:key="@string/mms_messaging_category_pref_key"
+-        android:title="@string/mms_messaging_category_pref_title">
++        android:title="@string/advanced_settings_activity_title">
++        <!--
++                <Preference
++                    android:title="@string/group_mms_pref_title"
++                    android:key="@string/group_mms_pref_key"/>
++                    -->
+ 
+-        <Preference
+-            android:title="@string/group_mms_pref_title"
+-            android:key="@string/group_mms_pref_key"/>
+-
+         <com.android.messaging.ui.appsettings.PhoneNumberPreference
+             android:key="@string/mms_phone_number_pref_key"
+             android:title="@string/mms_phone_number_pref_title" />
+-
++<!--
+         <CheckBoxPreference
+             android:key="@string/auto_retrieve_mms_pref_key"
+             android:title="@string/auto_retrieve_mms_pref_title"
+@@ -46,12 +48,13 @@
+             android:key="@string/mms_send_reports_pref_key"
+             android:summary="@string/mms_send_reports_pref_summary"
+             android:title="@string/mms_send_reports_pref_title" />
+-        <!-- 489220 begin -->
++
+         <CheckBoxPreference
+             android:defaultValue="@bool/mms_delivery_reports_pref_default"
+             android:key="@string/mms_delivery_reports_pref_key"
+             android:summary="@string/mms_delivery_reports_pref_summary"
+             android:title="@string/mms_delivery_reports_pref_title" />
++        -->
+         <CheckBoxPreference
+             android:defaultValue="false"
+             android:key="@string/enable_return_mms_delivery_reports_pref_key"
+Index: packages/apps/Messaging/res/menu/conversation_menu.xml
+===================================================================
+--- packages/apps/Messaging/res/menu/conversation_menu.xml	(revision 169627)
++++ packages/apps/Messaging/res/menu/conversation_menu.xml	(revision 169628)
+@@ -61,11 +61,12 @@
+         android:orderInCategory="150"
+         android:showAsAction="never"
+         android:title="@string/sms_forward"/>
+-		<!--wqq modify for bug 92593-->
+-    <!--<item
++<!--
++    <item
+         android:id="@+id/goto_smil"
+         android:orderInCategory="150"
+         android:showAsAction="never"
+-        android:title="@string/goto_smil"/>-->
++        android:title="@string/goto_smil"/>
++        -->
+ 
+ </menu>
+Index: packages/apps/Messaging/res/layout/compose_message_view.xml
+===================================================================
+--- packages/apps/Messaging/res/layout/compose_message_view.xml	(revision 169627)
++++ packages/apps/Messaging/res/layout/compose_message_view.xml	(revision 169628)
+@@ -102,7 +102,7 @@
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:orientation="horizontal">
+-
++<!--
+                     <ImageButton
+                         android:id="@+id/attach_media_button"
+                         style="@style/ComposeMessageViewAttachMediaButtonStyle"
+@@ -110,10 +110,10 @@
+                         android:layout_height="wrap_content"
+                         android:layout_gravity="center_vertical"
+                         android:src="@drawable/ic_attachment_dark"
+-                        android:visibility="gone"
+                         android:paddingTop="@dimen/compose_message_attachment_padding_topBottom"
+                         android:paddingBottom="@dimen/compose_message_attachment_padding_topBottom"
+                         android:contentDescription="@string/attachMediaButtonContentDescription" />
++                        -->
+ 
+                     <LinearLayout
+                         android:layout_height="wrap_content"
+Index: packages/apps/Messaging/res/xml-v21/preferences_per_subscription.xml
+===================================================================
+--- packages/apps/Messaging/res/xml-v21/preferences_per_subscription.xml	(revision 169627)
++++ packages/apps/Messaging/res/xml-v21/preferences_per_subscription.xml	(revision 169628)
+@@ -17,18 +17,20 @@
+ <!-- Preference screen definition for Bugle's subscription-specific settings -->
+ <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+ 
++
+     <PreferenceCategory
+         android:key="@string/mms_messaging_category_pref_key"
+-        android:title="@string/mms_messaging_category_pref_title">
++        android:title="@string/advanced_settings_activity_title">
++        <!--
++                <Preference
++                    android:title="@string/group_mms_pref_title"
++                    android:key="@string/group_mms_pref_key"/>
++                    -->
+ 
+-        <Preference
+-            android:title="@string/group_mms_pref_title"
+-            android:key="@string/group_mms_pref_key"/>
+-
+         <com.android.messaging.ui.appsettings.PhoneNumberPreference
+             android:key="@string/mms_phone_number_pref_key"
+             android:title="@string/mms_phone_number_pref_title" />
+-
++<!--
+         <SwitchPreference
+             android:key="@string/auto_retrieve_mms_pref_key"
+             android:title="@string/auto_retrieve_mms_pref_title"
+@@ -41,8 +43,9 @@
+             android:title="@string/auto_retrieve_mms_when_roaming_pref_title"
+             android:summary="@string/auto_retrieve_mms_when_roaming_pref_summary"
+             android:defaultValue="@bool/auto_retrieve_mms_when_roaming_pref_default" />
+-
++-->
+         <!-- Modify by SPRD for bug 526653 Start -->
++        <!--
+         <ListPreference
+             android:key="@string/mms_validity_pref_key"
+             android:title="@string/mms_validity_pref_title"
+@@ -49,15 +52,18 @@
+             android:entries="@array/mms_validity_pref_entries"
+             android:entryValues="@array/mms_validity_pref_entry_values"
+             android:dialogTitle="@string/mms_validity_pref_title" />
++            -->
+         <!-- Modify by SPRD for bug 526653 End -->
+         <!-- Sprd add for sms and mms validity end -->
+ 
+ <!-- 584079 begin -->
++        <!--
+         <SwitchPreference
+             android:defaultValue="@bool/mms_send_reports_pref_default"
+             android:key="@string/mms_send_reports_pref_key"
+             android:summary="@string/mms_send_reports_pref_summary"
+             android:title="@string/mms_send_reports_pref_title" />
++            -->
+         <!-- 584079 end -->
+ 
+         <ListPreference android:key="pref_key_mms_size_limit"
+@@ -67,11 +73,13 @@
+             android:entryValues="@array/pref_mms_size_limit_values" />
+ 
+         <!-- 489220 begin -->
++        <!--
+         <SwitchPreference
+             android:defaultValue="@bool/mms_delivery_reports_pref_default"
+             android:key="@string/mms_delivery_reports_pref_key"
+             android:summary="@string/mms_delivery_reports_pref_summary"
+             android:title="@string/mms_delivery_reports_pref_title" />
++            -->
+ 
+         <!-- Delete by SPRD for Bug531825  2016.03.17 Start-->
+         <!-- <SwitchPreference
+Index: packages/apps/Messaging/AndroidManifest.xml
+===================================================================
+--- packages/apps/Messaging/AndroidManifest.xml	(revision 169627)
++++ packages/apps/Messaging/AndroidManifest.xml	(revision 169628)
+@@ -287,7 +287,7 @@
+                 <action android:name="android.intent.action.SEND" />
+ 
+                 <category android:name="android.intent.category.DEFAULT" />
+-
++                <!--
+                 <data android:mimeType="text/plain" />
+                 <data android:mimeType="text/x-vCard" />
+                 <data android:mimeType="text/x-vcard" />
+@@ -299,6 +299,7 @@
+                 <data android:mimeType="application/ogg" />
+                 <data android:mimeType="application/vnd.oma.drm.content" />
+                 <data android:mimeType="application/vnd.oma.drm.message" />
++                -->
+             </intent-filter>
+             <intent-filter android:label="@string/share_intent_label" >
+                 <action android:name="android.intent.action.SEND_MULTIPLE" />
+Index: packages/services/Mms/src/com/android/mms/service/MmsService.java
+===================================================================
+--- packages/services/Mms/src/com/android/mms/service/MmsService.java	(revision 169627)
++++ packages/services/Mms/src/com/android/mms/service/MmsService.java	(revision 169628)
+@@ -239,7 +239,7 @@
+                 LogUtil.d(request.toString(), "sending message by carrier app");
+                 request.trySendingByCarrierApp(MmsService.this, carrierMessagingServicePackage);
+             } else {
+-                addSimRequest(request);
++               // addSimRequest(request);
+             }
+         }
+ 
+@@ -266,7 +266,7 @@
+                 LogUtil.d(request.toString(), "downloading message by carrier app");
+                 request.tryDownloadingByCarrierApp(MmsService.this, carrierMessagingServicePackage);
+             } else {
+-                addSimRequest(request);
++               // addSimRequest(request);
+             }
+         }
+ 

@@ -1,0 +1,40 @@
+Index: vendor/sprd/platform/packages/services/Telephony/res/values-zh-rCN/strings_ex.xml
+===================================================================
+--- vendor/sprd/platform/packages/services/Telephony/res/values-zh-rCN/strings_ex.xml	(revision 171948)
++++ vendor/sprd/platform/packages/services/Telephony/res/values-zh-rCN/strings_ex.xml	(revision 171949)
+@@ -22,4 +22,6 @@
+     <!-- @} -->
+     <string name="vt_resolution_setting">视频分辨率选择</string>
+     <string name="turn_off_ims_error">wifi通话打开时volte开关不可关闭,请先关闭wifi通话</string>
++	<string name="gsm_roaming_mode_title">"GSM漫游"</string>
++    <string name="gsm_roaming_mode_summary">"国际漫游模式"</string>
+ </resources>
+Index: vendor/sprd/platform/packages/services/Telephony/res/xml/network_setting_volte.xml
+===================================================================
+--- vendor/sprd/platform/packages/services/Telephony/res/xml/network_setting_volte.xml	(revision 171948)
++++ vendor/sprd/platform/packages/services/Telephony/res/xml/network_setting_volte.xml	(revision 171949)
+@@ -74,6 +74,11 @@
+         android:entries="@array/enabled_networks_choices"
+         android:entryValues="@array/enabled_networks_values"
+         android:dialogTitle="@string/preferred_network_mode_dialogtitle" />
++    <SwitchPreference
++        android:key="gsm_roaming_key"
++        android:title="@string/gsm_roaming_mode_title"
++        android:persistent="false"
++        android:summary="@string/gsm_roaming_mode_summary"/>
+ 
+     <SwitchPreference
+         android:key="enhanced_4g_lte"
+Index: vendor/sprd/platform/packages/services/Telephony/res/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/services/Telephony/res/values/strings.xml	(revision 171948)
++++ vendor/sprd/platform/packages/services/Telephony/res/values/strings.xml	(revision 171949)
+@@ -71,4 +71,8 @@
+     <!-- SPRD: add for bug 626360 phone crash in non-system-user mode after input PUK code -->
+     <string name="outgoing_call_not_allowed_user_restriction">Only emergency calls are allowed by the device owner.</string>
+     <!-- @} -->
++	<!-- Gsm Roaming title [CHAR LIMIT=30] -->
++	<string name="gsm_roaming_mode_title">Gsm Roaming</string>
++    <!-- Gsm Roaming summary [CHAR LIMIT=80] -->
++    <string name="gsm_roaming_mode_summary">International roaming mode</string>
+ </resources>

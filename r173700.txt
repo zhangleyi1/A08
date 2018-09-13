@@ -1,0 +1,13 @@
+Index: frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java	(revision 173699)
++++ frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java	(revision 173700)
+@@ -5715,7 +5715,7 @@
+                 && (KeyEvent.KEYCODE_HOME == keyCode || KeyEvent.KEYCODE_MENU == keyCode || KeyEvent.KEYCODE_BACK == keyCode)
+                 && event.getRepeatCount() == 0;
+ 
+-        if(isGestureKeyCode(keyCode)) {
++        if(!isScreenOn() && isGestureKeyCode(keyCode)) {
+             if(down) {
+                     Log.d(TAG, "send broadcast start keyCode:" + keyCode);
+                     Intent gestureIntent = new Intent();

@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/services/Telephony/res/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/services/Telephony/res/values/strings.xml	(revision 177713)
++++ vendor/sprd/platform/packages/services/Telephony/res/values/strings.xml	(revision 177714)
+@@ -72,7 +72,7 @@
+     <string name="outgoing_call_not_allowed_user_restriction">Only emergency calls are allowed by the device owner.</string>
+     <!-- @} -->
+ 	<!-- Gsm Roaming title [CHAR LIMIT=30] -->
+-	<string name="gsm_roaming_mode_title">Gsm Roaming</string>
++	<string name="gsm_roaming_mode_title">GSM Roaming</string>
+     <!-- Gsm Roaming summary [CHAR LIMIT=80] -->
+     <string name="gsm_roaming_mode_summary">International roaming mode</string>
+ </resources>

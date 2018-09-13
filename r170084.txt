@@ -1,0 +1,32 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java	(revision 170083)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java	(revision 170084)
+@@ -932,7 +932,7 @@
+                 R.id.notification_panel_carrier_text);
+         Log.d(TAG, "mCarrierLabel.getTag() = " + mCarrierLabel.getTag());
+         if (mCarrierLabel.getTag() != null) {
+-            mCarrierLabel.setVisibility(View.VISIBLE);
++            mCarrierLabel.setVisibility(View.GONE);
+         }
+         /* @} */
+ 
+@@ -5125,7 +5125,8 @@
+                 Log.d(TAG, "make carrier label " + (makeVisible ? "visible" : "invisible"));
+             }
+ 
+-            mCarrierLabel.setVisibility(makeVisible ? View.VISIBLE : View.INVISIBLE);
++        //    mCarrierLabel.setVisibility(makeVisible ? View.VISIBLE : View.INVISIBLE);
++			mCarrierLabel.setVisibility(View.GONE);
+         }
+     }
+     /* @} */
+@@ -5135,7 +5136,7 @@
+         // TODO: this code piece can be deleted
+         // it only to display carrier info. when click pull down/up notification button
+         if(mCarrierLabel != null) {
+-            mCarrierLabel.setVisibility(View.VISIBLE);
++            mCarrierLabel.setVisibility(View.GONE);
+             mCarrierLabel.setAlpha(1.0f);
+         }
+         if(mNotificationPanel.isFullyExpanded()) {

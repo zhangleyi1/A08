@@ -1,0 +1,12 @@
+Index: vendor/google/products/gms-mandatory.mk
+===================================================================
+--- vendor/google/products/gms-mandatory.mk	(revision 174297)
++++ vendor/google/products/gms-mandatory.mk	(revision 174298)
+@@ -73,6 +73,6 @@
+ 
+ # Overrides
+ PRODUCT_PROPERTY_OVERRIDES += \
+-    ro.setupwizard.require_network=any \
++    ro.setupwizard.require_network=no \
+     ro.setupwizard.mode=OPTIONAL \
+     ro.com.google.gmsversion=7.0_r8

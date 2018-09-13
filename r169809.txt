@@ -1,0 +1,23 @@
+Index: device/sprd/scx35l/common/BoardConfigCommon.mk
+===================================================================
+--- device/sprd/scx35l/common/BoardConfigCommon.mk	(revision 169808)
++++ device/sprd/scx35l/common/BoardConfigCommon.mk	(revision 169809)
+@@ -155,6 +155,9 @@
+ #SPRD：SUPPORT PSXSTRExtractor
+ SUPPORT_PSXSTRExtractor :=true
+ 
++#SPRD: GetCPUCoreCount:_SC_NPROCESSORS_CONF
++BOARD_GETCPUCORECOUNT_CONF := true
++
+ TARGET_GPU_PLATFORM := utgard
+ GPU_GRALLOC_INCLUDES := $(TOP)/vendor/sprd/external/drivers/gpu/$(TARGET_GPU_PLATFORM)/include
+ #SPRD: add for fota
+Index: device
+===================================================================
+--- device	(revision 169808)
++++ device	(revision 169809)
+
+Property changes on: device
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /sprd_release_version/9832A_7.0/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.16.1/device:r168548-168594,168606-168621,169749

@@ -1,0 +1,45 @@
+Index: packages/apps/ExactCalculator/src/com/android/calculator2/CalculatorText.java
+===================================================================
+--- packages/apps/ExactCalculator/src/com/android/calculator2/CalculatorText.java	(revision 167501)
++++ packages/apps/ExactCalculator/src/com/android/calculator2/CalculatorText.java	(revision 167502)
+@@ -127,7 +127,7 @@
+         setClickable(false);
+ 
+         // Add a long click to start the ActionMode manually.
+-        setOnLongClickListener(this);
++       // setOnLongClickListener(this);
+     }
+ 
+     @Override
+Index: packages/apps/ExactCalculator/src/com/android/calculator2/CalculatorResult.java
+===================================================================
+--- packages/apps/ExactCalculator/src/com/android/calculator2/CalculatorResult.java	(revision 167501)
++++ packages/apps/ExactCalculator/src/com/android/calculator2/CalculatorResult.java	(revision 167502)
+@@ -570,9 +570,9 @@
+         /* @} */
+         @Override
+         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+-            MenuInflater inflater = mode.getMenuInflater();
+-            inflater.inflate(R.menu.copy, menu);
+-            highlightResult();
++         //   MenuInflater inflater = mode.getMenuInflater();
++         //   inflater.inflate(R.menu.copy, menu);
++         //   highlightResult();
+             return true;
+         }
+ 
+@@ -584,10 +584,10 @@
+         @Override
+         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+             switch (item.getItemId()) {
+-            case R.id.menu_copy:
+-                copyContent();
+-                mode.finish();
+-                return true;
++          //  case R.id.menu_copy:
++          //      copyContent();
++          //      mode.finish();
++          //      return true;
+             default:
+                 return false;
+             }

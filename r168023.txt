@@ -1,0 +1,22 @@
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_data_fully_connected_e.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_data_fully_connected_e.xml	(revision 168022)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_data_fully_connected_e.xml	(revision 168023)
+@@ -1,11 +1,13 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="7dp"
++    android:width="8dp"
+     android:height="17dp"
+-    android:viewportWidth="7"
++    android:viewportWidth="8"
+     android:viewportHeight="17">
+ 
+     <path
+         android:fillColor="#FFFFFF"
+-        android:pathData="M 0 17 L 7 17 L 7 15 L 2 15 L 2 12 L 6 12 L 6 10 L 2 10 L 2 8 L 7 8 L 7 6 L 1 6 L 0 6 L 0 17 Z" />
++        android:pathData="M7.873,9C7.417,7.233,5.824,6,4,6c-2.209,0-4,1.792-4,4c0,1,0,2,0,3c0,2.209,1.791,4,4,4s4-1.791,4-4
++c0-0.666,0-1.334,0-2c-1,0-2,0-3,0c0,0.666,0,1.334,0,2c0.333,0,0.667,0,1,0c0,1.104-0.896,2-2,2s-2-0.896-2-2c0-1,0-2,0-3
++c0-2.047,2.709-2.772,3.732-1C6.445,9,7.159,9,7.873,9z" />
+ </vector>
+\ No newline at end of file

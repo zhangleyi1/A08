@@ -1,0 +1,225 @@
+Index: kernel/drivers/video/sprdfb/lcd/lcd_ili9806e_2_mipi_huashi.c
+===================================================================
+--- kernel/drivers/video/sprdfb/lcd/lcd_ili9806e_2_mipi_huashi.c	(revision 166700)
++++ kernel/drivers/video/sprdfb/lcd/lcd_ili9806e_2_mipi_huashi.c	(revision 166701)
+@@ -63,17 +63,17 @@
+                    
+ {LCM_SEND(2),{0x31,0x02}},                 // Inversion
+                 
+-{LCM_SEND(2),{0x40,0x10}},                // BT  
++{LCM_SEND(2),{0x40,0x16}},                // BT  
+                  
+ {LCM_SEND(2),{0x41,0x33}},                 // DVDDH DVDDL clamp 
+                
+-{LCM_SEND(2),{0x42,0x02}},                 // VGH/VGL 
++{LCM_SEND(2),{0x42,0x03}},                 // VGH/VGL 
+                  
+ {LCM_SEND(2),{0x43,0x09}},                 // VGH_CLAMP 0FF ;
+                  
+ {LCM_SEND(2),{0x44,0x07}},                 // VGL_CLAMP OFF ; 
+                   
+-{LCM_SEND(2),{0x45,0x16}},                 // VGL_REG  -10V 
++//{LCM_SEND(2),{0x45,0x16}},                 // VGL_REG  -10V 
+                 
+ {LCM_SEND(2),{0x50,0x78}},                   //VGMP
+                    
+@@ -81,13 +81,15 @@
+                 
+ {LCM_SEND(2),{0x52,0x00}},                   //Flicker
+                  
+-{LCM_SEND(2),{0x53,0x4F}},                   //Flicker  41
++{LCM_SEND(2),{0x53,0x40}},                   //Flicker  41
++
++{LCM_SEND(2),{0x57,0x50}},                   //
+                   
+-{LCM_SEND(2),{0x60,0x07}},                 // SDTI
++{LCM_SEND(2),{0x60,0x0a}},                 // SDTI
+                 
+ {LCM_SEND(2),{0x61,0x00}},                // CRTI
+                 
+-{LCM_SEND(2),{0x62,0x08}},                 // EQTI
++{LCM_SEND(2),{0x62,0x0a}},                 // EQTI
+                    
+ {LCM_SEND(2),{0x63,0x00}},                // PCTI
+ 
+@@ -95,19 +97,19 @@
+ 
+ {LCM_SEND(2),{0xA0,0x00}},  // Gamma 0 
+                  
+-{LCM_SEND(2),{0xA1,0x0A}},  // Gamma 4 
++{LCM_SEND(2),{0xA1,0x06}},  // Gamma 4 
+                    
+-{LCM_SEND(2),{0xA2,0x16}},  // Gamma 8
++{LCM_SEND(2),{0xA2,0x11}},  // Gamma 8
+                    
+-{LCM_SEND(2),{0xA3,0x0E}},  // Gamma 16
++{LCM_SEND(2),{0xA3,0x10}},  // Gamma 16
+                      
+-{LCM_SEND(2),{0xA4,0x07}},  // Gamma 24
++{LCM_SEND(2),{0xA4,0x09}},  // Gamma 24
+                 
+-{LCM_SEND(2),{0xA5,0x19}},  // Gamma 52
++{LCM_SEND(2),{0xA5,0x18}},  // Gamma 52
+                    
+-{LCM_SEND(2),{0xA6,0x08}},  // Gamma 80
++{LCM_SEND(2),{0xA6,0x09}},  // Gamma 80
+                   
+-{LCM_SEND(2),{0xA7,0x06}}, // Gamma 108
++{LCM_SEND(2),{0xA7,0x07}}, // Gamma 108
+                     
+ {LCM_SEND(2),{0xA8,0x02}},  // Gamma 147
+                    
+@@ -115,13 +117,13 @@
+              
+ {LCM_SEND(2),{0xAA,0x05}},  // Gamma 203
+              
+-{LCM_SEND(2),{0xAB,0x05}},  // Gamma 231
++{LCM_SEND(2),{0xAB,0x09}},  // Gamma 231
+                  
+-{LCM_SEND(2),{0xAC,0x0A}},  // Gamma 239
++{LCM_SEND(2),{0xAC,0x0d}},  // Gamma 239
+                  
+-{LCM_SEND(2),{0xAD,0x33}},  // Gamma 247
++{LCM_SEND(2),{0xAD,0x31}},  // Gamma 247
+                
+-{LCM_SEND(2),{0xAE,0x2D}},  // Gamma 251
++{LCM_SEND(2),{0xAE,0x2e}},  // Gamma 251
+                   
+ {LCM_SEND(2),{0xAF,0x00}},  // Gamma 255
+ 
+@@ -130,33 +132,33 @@
+              
+ {LCM_SEND(2),{0xC1,0x06}},  // Gamma 4
+                  
+-{LCM_SEND(2),{0xC2,0x0F}},  // Gamma 8
++{LCM_SEND(2),{0xC2,0x10}},  // Gamma 8
+                 
+-{LCM_SEND(2),{0xC3,0x11}},  // Gamma 16
++{LCM_SEND(2),{0xC3,0x0f}},  // Gamma 16
+                 
+-{LCM_SEND(2),{0xC4,0x0A}},  // Gamma 24
++{LCM_SEND(2),{0xC4,0x08}},  // Gamma 24
+                  
+-{LCM_SEND(2),{0xC5,0x13}},  // Gamma 52
++{LCM_SEND(2),{0xC5,0x14}},  // Gamma 52
+                 
+-{LCM_SEND(2),{0xC6,0x0A}},  // Gamma 80
++{LCM_SEND(2),{0xC6,0x09}},  // Gamma 80
+                   
+-{LCM_SEND(2),{0xC7,0x08}},  // Gamma 108
++{LCM_SEND(2),{0xC7,0x07}},  // Gamma 108
+                    
+ {LCM_SEND(2),{0xC8,0x04}},  // Gamma 147
+                   
+-{LCM_SEND(2),{0xC9,0x08}},  // Gamma 175
++{LCM_SEND(2),{0xC9,0x09}},  // Gamma 175
+                 
+-{LCM_SEND(2),{0xCA,0x09}},  // Gamma 203
++{LCM_SEND(2),{0xCA,0x08}},  // Gamma 203
+                   
+-{LCM_SEND(2),{0xCB,0x03}},  // Gamma 231
++{LCM_SEND(2),{0xCB,0x07}},  // Gamma 231
+                   
+-{LCM_SEND(2),{0xCC,0x0B}},  // Gamma 239
++{LCM_SEND(2),{0xCC,0x0d}},  // Gamma 239
+                   
+-{LCM_SEND(2),{0xCD,0x25}},  // Gamma 247
++{LCM_SEND(2),{0xCD,0x27}},  // Gamma 247
+                    
+-{LCM_SEND(2),{0xCE,0x20}},  // Gamma 251
++{LCM_SEND(2),{0xCE,0x21}},  // Gamma 251
+       
+-{LCM_SEND(2),{0xCF,0x09}},  // Gamma 255
++{LCM_SEND(2),{0xCF,0x00}},  // Gamma 255
+ 
+ 
+ 
+@@ -168,9 +170,9 @@
+ //****************************************************************************//
+ {LCM_SEND(8), {6, 0,0xFF,0xFF,0x98,0x06,0x04,0x06}}, // Change to Page 6
+ 
+-{LCM_SEND(2),{0x00,0x20}},
++{LCM_SEND(2),{0x00,0x21}},
+                      
+-{LCM_SEND(2),{0x01,0x0A}},
++{LCM_SEND(2),{0x01,0x09}},
+                    
+ {LCM_SEND(2),{0x02,0x00}},    
+                    
+@@ -182,9 +184,9 @@
+                  
+ {LCM_SEND(2),{0x06,0x80}},    
+                   
+-{LCM_SEND(2),{0x07,0x06}},
++{LCM_SEND(2),{0x07,0x05}},
+                     
+-{LCM_SEND(2),{0x08,0x04}},
++{LCM_SEND(2),{0x08,0x02}},
+                   
+ {LCM_SEND(2),{0x09,0x80}},    
+                    
+@@ -192,19 +194,19 @@
+                   
+ {LCM_SEND(2),{0x0B,0x00}},    
+                   
+-{LCM_SEND(2),{0x0C,0x01}},
++{LCM_SEND(2),{0x0C,0x0a}},
+                    
+-{LCM_SEND(2),{0x0D,0x01}},
++{LCM_SEND(2),{0x0D,0x0a}},
+                     
+ {LCM_SEND(2),{0x0E,0x00}},
+                     
+ {LCM_SEND(2),{0x0F,0x00}},
+                     
+-{LCM_SEND(2),{0x10,0xF0}},
++{LCM_SEND(2),{0x10,0xE0}},
+                      
+-{LCM_SEND(2),{0x11,0xF4}},
++{LCM_SEND(2),{0x11,0xE4}},
+                     
+-{LCM_SEND(2),{0x12,0x01}},
++{LCM_SEND(2),{0x12,0x04}},
+                      
+ {LCM_SEND(2),{0x13,0x00}},
+                   
+@@ -256,11 +258,11 @@
+                     
+ {LCM_SEND(2),{0x35,0xBB}},	//GOUT5  GCLK4_R
+                      
+-{LCM_SEND(2),{0x36,0xAA}},	//GOUT6  GCLK3_R
++{LCM_SEND(2),{0x36,0xCA}},	//GOUT6  GCLK3_R
+                       
+ {LCM_SEND(2),{0x37,0xDD}},	//GOUT7  GCLK2_R
+                      
+-{LCM_SEND(2),{0x38,0xCC}},	//GOUT8  GCLK1_R
++{LCM_SEND(2),{0x38,0xAC}},	//GOUT8  GCLK1_R
+                      
+ {LCM_SEND(2),{0x39,0x76}},	//GOUT9  GVST1_R   76
+                      
+@@ -280,7 +282,7 @@
+                        
+ {LCM_SEND(2),{0x52,0x10}},
+                      
+-{LCM_SEND(2),{0x53,0x12}},
++{LCM_SEND(2),{0x53,0x10}},
+ 
+ 
+ //****************************************************************************//
+@@ -288,13 +290,13 @@
+ //****************************************************************************//
+ {LCM_SEND(8), {6, 0,0xFF,0xFF,0x98,0x06,0x04,0x07}}, // Change to Page 7
+ 
+-{LCM_SEND(2),{0x18,0x1D}},  // VREG1 VREG2 output
++//{LCM_SEND(2),{0x18,0x1D}},  // VREG1 VREG2 output
+                    
+-{LCM_SEND(2),{0x17,0x32}},  // 
++{LCM_SEND(2),{0x17,0x22}},  // 
+                     
+ {LCM_SEND(2),{0x02,0x77}},  // 
+                   
+-{LCM_SEND(2),{0x06,0x10}},  // 
++{LCM_SEND(2),{0xE1,0x79}},  // 
+ 
+ //****************************************************************************//
+ 

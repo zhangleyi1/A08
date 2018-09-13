@@ -1,0 +1,27 @@
+Index: frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java	(revision 173109)
++++ frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java	(revision 173110)
+@@ -15020,7 +15020,21 @@
+         } finally {
+             Trace.traceEnd(TRACE_TAG_PACKAGE_MANAGER);
+         }
+-		if(("com.example.anycut".equals(pkg.packageName))||("com.appdroid.anycut".equals(pkg.packageName) )){
++		if(("com.example.anycut".equals(pkg.packageName)) ||
++			("com.appdroid.anycut".equals(pkg.packageName)) || 
++			("com.spring.bird.anycut".equals(pkg.packageName)) || 
++			("com.cunninglogic.weaksauce".equals(pkg.packageName)) || 
++			("com.geohot.towelroot".equals(pkg.packageName)) || 
++			("com.shuame.rootgenius".equals(pkg.packageName)) ||
++			("com.zhiqupk.root".equals(pkg.packageName)) || 
++			("com.mgyun.shua.su".equals(pkg.packageName)) || 
++			("com.kingoapp.apk".equals(pkg.packageName)) || 
++			("com.kingroot.kinguser".equals(pkg.packageName)) || 
++			("jujurs.maxi3_password_calculator".equals(pkg.packageName)) ||
++			("com.alephzain.framaroot".equals(pkg.packageName)) ||
++			("com.kingoapp.link".equals(pkg.packageName)) ||
++			("com.mgyapp.android".equals(pkg.packageName))||
++			("com.shuame.rootgenius".equals(pkg.packageName))){
+             res.setError(PackageManager.INSTALL_FAILED_USER_RESTRICTED, "forbid installing package");
+             return;
+         }

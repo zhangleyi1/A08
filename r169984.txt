@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/ExpandingEntryCardView.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/ExpandingEntryCardView.java	(revision 169983)
++++ vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/ExpandingEntryCardView.java	(revision 169984)
+@@ -911,7 +911,7 @@
+                 });
+                 thirdIcon.setTag(entry.getThirdExtras());
+             }
+-            thirdIcon.setVisibility(View.VISIBLE);
++            //thirdIcon.setVisibility(View.VISIBLE);
+             thirdIcon.setContentDescription(entry.getThirdContentDescription());
+         }
+ 

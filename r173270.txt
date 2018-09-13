@@ -1,0 +1,114 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/utils/MyListAdapter.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/utils/MyListAdapter.java	(revision 0)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/utils/MyListAdapter.java	(revision 173270)
+@@ -0,0 +1,61 @@
++package com.mediatek.factorymode.utils;
++
++import android.annotation.SuppressLint;
++import android.content.Context;
++import android.graphics.drawable.Drawable;
++import android.view.LayoutInflater;
++import android.view.View;
++import android.view.ViewGroup;
++import android.widget.BaseAdapter;
++import android.widget.ListView;
++import android.widget.TextView;
++import java.util.List;
++import com.mediatek.factorymode.R;
++
++public class MyListAdapter extends BaseAdapter {
++	private Context mContext;
++	private String[] mListView;
++	private String[] mStrings;
++	private int resource;
++	
++	public MyListAdapter(Context context,int resource, String[] list) {
++		mContext = context;
++		this.resource=resource;
++		mListView = list;
++		mStrings  = mContext.getResources().getStringArray(R.array.Lte_sering_name);
++	}
++ 
++	public int getCount() {
++		return mStrings.length;
++	}
++
++
++	public Object getItem(int position) {
++		return position;
++	}
++
++	public long getItemId(int position) {
++		return position;
++	}
++
++	public View getView(int position, View convertView, ViewGroup parent) {
++		ViewHolder holder=null;
++		if (convertView == null) {
++			convertView=View.inflate(mContext, resource, null);
++			holder=new ViewHolder();
++			holder.nameTV=(TextView) convertView.findViewById(R.id.title); 
++			holder.valueTV=(TextView) convertView.findViewById(R.id.value); 
++			convertView.setTag(holder);
++		} else {
++			holder=(ViewHolder)convertView.getTag();
++		}
++		holder.nameTV.setText(mStrings[position]);
++		holder.valueTV.setText(mListView[position]);
++		return convertView;  
++	}
++	
++	class ViewHolder{
++		TextView  nameTV;
++		TextView  valueTV;
++	}
++}
+Index: packages/apps/FactoryMode/res/layout/array_item.xml
+===================================================================
+--- packages/apps/FactoryMode/res/layout/array_item.xml	(revision 173269)
++++ packages/apps/FactoryMode/res/layout/array_item.xml	(revision 173270)
+@@ -1,9 +1,21 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<TextView
+-    xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:id="@+id/TextView"
+-    android:layout_width="match_parent"
+-    android:layout_height="wrap_content"
+-    android:textSize="16dp"
+-    android:padding="4px"
+-    android:shadowRadius="2"/>
++<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    android:layout_width="fill_parent"
++    android:layout_height="fill_parent"
++	android:padding="4px"
++    android:orientation="vertical" >
++	<TextView
++		xmlns:android="http://schemas.android.com/apk/res/android"
++		android:id="@+id/title"
++		android:layout_width="match_parent"
++		android:layout_height="wrap_content"
++		android:textSize="16dp"
++		android:shadowRadius="2"/>
++	<TextView
++		xmlns:android="http://schemas.android.com/apk/res/android"
++		android:id="@+id/value"
++		android:layout_width="match_parent"
++		android:layout_height="wrap_content"
++		android:textSize="16dp"
++		android:shadowRadius="2"/>
++</LinearLayout>
+\ No newline at end of file
+Index: packages/apps/FactoryMode/res/values/arrays.xml
+===================================================================
+--- packages/apps/FactoryMode/res/values/arrays.xml	(revision 173269)
++++ packages/apps/FactoryMode/res/values/arrays.xml	(revision 173270)
+@@ -16,7 +16,7 @@
+ 		<item>DL Band</item>
+ 		<item>RSRP</item>
+ 		<item>RSRQ</item>
+-		<item>RS-SINER</item>
++		<item>RS-SINR</item>
+ 		<item>Rssi</item>
+ 		<item>Tx-Pwr</item>
+ 		<item>IP Address</item>

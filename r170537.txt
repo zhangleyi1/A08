@@ -1,0 +1,11 @@
+Index: vendor/sprd/proprietories-source/sprd_secure_boot_tool/RSAKeyGen
+===================================================================
+--- vendor/sprd/proprietories-source/sprd_secure_boot_tool/RSAKeyGen	(revision 170536)
++++ vendor/sprd/proprietories-source/sprd_secure_boot_tool/RSAKeyGen	(revision 170537)
+
+Property changes on: vendor/sprd/proprietories-source/sprd_secure_boot_tool/RSAKeyGen
+___________________________________________________________________
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property

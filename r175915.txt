@@ -1,0 +1,19 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PanelView.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PanelView.java	(revision 175914)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PanelView.java	(revision 175915)
+@@ -588,8 +588,14 @@
+         }
+         if (false/*Math.abs(vectorVel) < mFlingAnimationUtils.getMinVelocityPxPerSecond()*/) {
+             return getExpandedFraction() > 0.5f;
++        }
++else{
++            if (Math.abs(vectorVel) < mFlingAnimationUtils.getMinVelocityPxPerSecond()) {
++                Log.d(TAG, "flingExpands getExpandedFraction()="+getExpandedFraction());
++                return getExpandedFraction() > 0.5f;
+         } else {
+             return vel > 0;
++            }
+         }
+     }
+ 

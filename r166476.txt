@@ -1,0 +1,18 @@
+Index: packages/apps/Settings/res/xml/display_settings.xml
+===================================================================
+--- packages/apps/Settings/res/xml/display_settings.xml	(revision 166475)
++++ packages/apps/Settings/res/xml/display_settings.xml	(revision 166476)
+@@ -110,11 +110,11 @@
+                 android:summary="%s"
+                 android:title="@string/display_auto_rotate_title" />
+ 
+-        <PreferenceScreen
++        <!--<PreferenceScreen
+                 android:key="wifi_display"
+                 android:title="@string/wifi_display_settings_title"
+                 settings:keywords="@string/keywords_display_cast_screen"
+-                android:fragment="com.android.settings.wfd.WifiDisplaySettings" />
++                android:fragment="com.android.settings.wfd.WifiDisplaySettings" />-->
+ 
+         <DropDownPreference
+                 android:key="vr_display_pref"

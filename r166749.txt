@@ -1,0 +1,13 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java	(revision 166748)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java	(revision 166749)
+@@ -353,7 +353,7 @@
+                             mPhoneStatusBar.makeExpandedInvisibleByGesture();
+                         }
+                         Intent flashLightIntent = new Intent();
+-                        flashLightIntent.setClassName("wanzhen.android.flashlight", "wanzhen.android.flashlight.FlashLightActivity");
++                        flashLightIntent.setClassName("qualcomm.android.LEDFlashlight", "qualcomm.android.LEDFlashlight.LEDWidgetActivity");
+                         flashLightIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                         context.startActivity(flashLightIntent);
+                         break;

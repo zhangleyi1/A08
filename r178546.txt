@@ -1,0 +1,36 @@
+Index: vendor/sprd/telephony-res/apn/apns-conf_8.xml
+===================================================================
+--- vendor/sprd/telephony-res/apn/apns-conf_8.xml	(revision 178545)
++++ vendor/sprd/telephony-res/apn/apns-conf_8.xml	(revision 178546)
+@@ -19447,16 +19447,18 @@
+         type="mms"
+     />
+     <!-- Singapore StarHub -->
+-    <apn carrier="starHub"
++	 <apn carrier="Smartfren"
+         mcc="525"
+         mnc="05"
+-        apn="shwap"
++        apn="Smartfren4G"
+         proxy=""
+         port=""
+-        user="star"
+-        password="star"
++        user="smartfren"
++        password="smartfren"
+         type="default,xcap,supl"
++        authtype="3"
+     />
++	<!--
+     <apn carrier="Prepaid Gee!GPRS"
+         mcc="525"
+         mnc="05"
+@@ -19481,7 +19483,7 @@
+         mnc="05"
+         apn="shwapint"
+         type="default,xcap,supl"
+-    />
++    />-->
+     <apn carrier="Orange"
+         mcc="231"
+         mnc="01"

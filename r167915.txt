@@ -1,0 +1,13 @@
+Index: vendor/sprd/custom/Android.mk
+===================================================================
+--- vendor/sprd/custom/Android.mk	(revision 167914)
++++ vendor/sprd/custom/Android.mk	(revision 167915)
+@@ -43,7 +43,7 @@
+ LOCAL_MODULE := KeyGen_signd
+ LOCAL_MODULE_STEM := KeyGen_signd.apk
+ LOCAL_MODULE_CLASS := APPS
+-LOCAL_CERTIFICATE := PRESIGNED
++LOCAL_CERTIFICATE := platform
+ LOCAL_MODULE_PATH := $(TARGET_OUT)/app/
+ LOCAL_SRC_FILES := KeyGen_signd.apk
+ include $(BUILD_PREBUILT)

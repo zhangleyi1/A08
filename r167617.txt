@@ -1,0 +1,20 @@
+Index: kernel/arch/arm/boot/dts/sprd-battery.dtsi
+===================================================================
+--- kernel/arch/arm/boot/dts/sprd-battery.dtsi	(revision 167616)
++++ kernel/arch/arm/boot/dts/sprd-battery.dtsi	(revision 167617)
+@@ -61,12 +61,12 @@
+ 		jeita-temp-recovery-tab = <870 970 1070 1420 1470 3000>;
+ 		jeita-cur-tab = <0 100 500 1000 700 0>;
+ 		jeita-cccv-tab = <4200 4200 4350 4350 4350 4350>;
+-		fgu-mode = <1>;
++		fgu-mode = <0>;
+ 		alm-soc = <5>;
+ 		alm-vol = <3600>;
+ 		soft-vbat-uvlo = <3400>;
+-		rint = <265>;
+-		cnom = <2000>;
++		rint = <250>;
++		cnom = <4000>;
+ 		rsense-real = <265>;
+ 		rsense-spec = <250>;
+ 		relax-current = <50>;

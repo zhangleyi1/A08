@@ -1,0 +1,594 @@
+Index: u-boot64/include/configs/sprd_sharkl_modem_volte.h
+===================================================================
+--- u-boot64/include/configs/sprd_sharkl_modem_volte.h	(revision 170503)
++++ u-boot64/include/configs/sprd_sharkl_modem_volte.h	(revision 170504)
+@@ -27,7 +27,8 @@
+ #define LTE_RUNNV_SIZE 0x00090000 // 400k the max size is 512k
+ #define LTE_FIXNV_ADDR 0x8A983000
+ #define LTE_RUNNV_ADDR (LTE_FIXNV_ADDR + LTE_FIXNV_SIZE)
+-#define LTE_MODEM_SIZE 0x00E00000 /*dat modem*/
++//#define LTE_MODEM_SIZE 0x00E00000 /*dat modem*/
++#define LTE_MODEM_SIZE 0x01200000 
+ #define LTE_MODEM_ADDR 0x8AA89000
+ #define LTE_LDSP_SIZE  0x00b00000
+ #define LTE_LDSP_ADDR  0x89900000
+Index: u-boot64/include/configs/sp9832a_2h11_volte.h
+===================================================================
+--- u-boot64/include/configs/sp9832a_2h11_volte.h	(revision 170503)
++++ u-boot64/include/configs/sp9832a_2h11_volte.h	(revision 170504)
+@@ -24,8 +24,8 @@
+ 
+ #include "sprd_sharkl_modem_volte.h"
+ 
+-// #define CONFIG_SECURE_BOOT
+-// #define CONFIG_ROM_VERIFY_SPL
++#define CONFIG_SECURE_BOOT
++#define CONFIG_ROM_VERIFY_SPL
+ 
+ #define PRIMPUKPATH "/dev/block/mmcblk0boot0"
+ #define PRIMPUKSTART 512
+Index: chipram/include/configs/sp9832a_2h11_volte.h
+===================================================================
+--- chipram/include/configs/sp9832a_2h11_volte.h	(revision 170503)
++++ chipram/include/configs/sp9832a_2h11_volte.h	(revision 170504)
+@@ -30,8 +30,8 @@
+ #define SPRD_EVM_TAG(_x) (*(((unsigned long *)SPRD_EVM_ADDR_START)+_x) = *(volatile unsigned long *)0x87003004)
+ #endif
+ 
+-//#define CONFIG_SECURE_BOOT
+-//#define CONFIG_ROM_VERIFY_SPL
++#define CONFIG_SECURE_BOOT
++#define CONFIG_ROM_VERIFY_SPL
+ 
+ /*
+  * SPREADTRUM BIGPHONE board - SoC Configuration
+Index: chipram/Makefile
+===================================================================
+--- chipram/Makefile	(revision 170503)
++++ chipram/Makefile	(revision 170504)
+@@ -711,7 +711,7 @@
+ 	@echo "CONFIG_EMMC_BOOT = y" >> $(obj)include/config.mk
+ 	@echo "CONFIG_UMCTL_28NM = y" >> $(obj)include/config.mk
+ 	@echo "CONFIG_SP9630_SPL_BASE = y" >> $(obj)include/config.mk
+-	#@echo "CONFIG_SECURE_BOOT = y" >> $(obj)include/config.mk
++	@echo "CONFIG_SECURE_BOOT = y" >> $(obj)include/config.mk
+ 	@echo "CONFIG_EFUSE = y" >> $(obj)include/config.mk
+ 
+ sp9832a2_vol_13cam_config        : preconfig
+Index: device/sprd/scx35l/sp9832a_2h11/BoardConfig.mk
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/BoardConfig.mk	(revision 170503)
++++ device/sprd/scx35l/sp9832a_2h11/BoardConfig.mk	(revision 170504)
+@@ -15,7 +15,7 @@
+ #
+ 
+ # secure boot
+-BOARD_SECURE_BOOT_ENABLE := false
++BOARD_SECURE_BOOT_ENABLE := true
+ SECURE_BOOT_SIGNAL_KEY := false
+ 
+ 
+Index: device/sprd/scx35l/sp9832a_2h11/9832_pac.ini
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/9832_pac.ini	(revision 170503)
++++ device/sprd/scx35l/sp9832a_2h11/9832_pac.ini	(revision 170504)
+@@ -6,25 +6,25 @@
+ 
+ 
+ [default]
+-FDL=1@out/target/product/sp9832a_2h11/fdl1.bin
+-FDL2=1@out/target/product/sp9832a_2h11/fdl2.bin
++FDL=1@out/target/product/sp9832a_2h11/fdl1-sign.bin
++FDL2=1@out/target/product/sp9832a_2h11/fdl2-sign.bin
+ NV_WLTE=1@device/sprd/scx35l/sp9832a_2h11/modem/nvitem.bin
+ ProdNV=1@out/target/product/sp9832a_2h11/prodnv.img
+ Devicelog=1@out/target/product/sp9832a_2h11/devicelog.img
+ PhaseCheck=1@
+ EraseUBOOT=1@
+-SPLLoader=1@out/target/product/sp9832a_2h11/u-boot-spl-16k.bin
+-Modem_WLTE=1@device/sprd/scx35l/sp9832a_2h11/modem/SC9600_sharkls_3593.dat
+-DSP_WLTE_LTE=1@device/sprd/scx35l/sp9832a_2h11/modem/LTE_DSP.bin
+-DSP_WLTE_GGE=1@device/sprd/scx35l/sp9832a_2h11/modem/SHARKL_DM_DSP.bin
+-WARM_WLTE=1@device/sprd/scx35l/sp9832a_2h11/modem/SC9600_sharkl_wphy_5mod_volte_zc.bin
+-DFS=1@device/sprd/scx35l/sp9832a_2h11/modem/PM_sharkls_arm7.bin
++SPLLoader=1@out/target/product/sp9832a_2h11/u-boot-spl-16k-sign.bin
++Modem_WLTE=1@out/target/product/sp9832a_2h11/SC9600_sharkls_3593-sign.dat
++DSP_WLTE_LTE=1@out/target/product/sp9832a_2h11/LTE_DSP-sign.bin
++DSP_WLTE_GGE=1@out/target/product/sp9832a_2h11/SHARKL_DM_DSP-sign.bin
++WARM_WLTE=1@out/target/product/sp9832a_2h11/SC9600_sharkl_wphy_5mod_volte_zc-sign.bin
++DFS=1@out/target/product/sp9832a_2h11/PM_sharkls_arm7-sign.bin
+ FDL_WCN=1@device/sprd/scx35l/sp9832a_2h11/modem/fdl1.bin
+ Modem_WCN=1@device/sprd/scx35l/sp9832a_2h11/modem/EXEC_KERNEL_IMAGE0.bin
+-BOOT=1@out/target/product/sp9832a_2h11/boot.img
+-TOS=1@out/target/product/sp9832a_2h11/tos.bin
+-VMM=1@out/target/product/sp9832a_2h11/vmm.bin
+-Recovery=1@out/target/product/sp9832a_2h11/recovery.img
++BOOT=1@out/target/product/sp9832a_2h11/boot-sign.img
++TOS=1@out/target/product/sp9832a_2h11/tos-sign.bin
++VMM=1@out/target/product/sp9832a_2h11/vmm-sign.bin
++Recovery=1@out/target/product/sp9832a_2h11/recovery-sign.img
+ System=1@out/target/product/sp9832a_2h11/system.img
+ UserData=1@out/target/product/sp9832a_2h11/userdata.img
+ BootLogo=1@device/sprd/scx35l/sp9832a_2h11/modem/sprd_720p.bmp
+@@ -34,4 +34,4 @@
+ EraseMisc=1@
+ Persist=1@out/target/product/sp9832a_2h11/persist.img
+ SysInfo=1@out/target/product/sp9832a_2h11/sysinfo.img
+-UBOOTLoader=1@out/target/product/sp9832a_2h11/u-boot.bin
++UBOOTLoader=1@out/target/product/sp9832a_2h11/u-boot-sign.bin
+Index: vendor/sprd/build/tasks/otascripts/sprd_secure_boot_sign.py
+===================================================================
+--- vendor/sprd/build/tasks/otascripts/sprd_secure_boot_sign.py	(revision 170503)
++++ vendor/sprd/build/tasks/otascripts/sprd_secure_boot_sign.py	(revision 170504)
+@@ -43,7 +43,7 @@
+ 
+     self.debug = True
+     self.editor = os.getenv("EDITOR", None)
+-    self.cfgfile = os.getenv("SPRD_SECURE_BOOT_SIGN_CONFIG", None)
++    self.cfgfile = os.getenv("SPRD_SECURE_BOOT_SIGN_CONFIG", "vendor/sprd/proprietories-source/sprd_secure_boot_tool/key.txt")
+     self.single_key = single_key
+ 
+     self.sign_key_config = {}
+Index: vendor/sprd/proprietories-source/sprd_secure_boot_tool/sig_script.sh
+===================================================================
+--- vendor/sprd/proprietories-source/sprd_secure_boot_tool/sig_script.sh	(revision 0)
++++ vendor/sprd/proprietories-source/sprd_secure_boot_tool/sig_script.sh	(revision 170504)
+@@ -0,0 +1,225 @@
++#!/bin/bash
++
++IMG_PATH=
++
++# functions
++gen_key()
++{
++    echo "Generating $BSCKEY1 ......"
++    ./RSAKeyGen -pw $PASSW1 -pn $BSCKEY1 >/dev/null
++    #echo "RSAKeyGen key1 result =" $?
++    if [ $? -ne 0 ]; then
++        echo "Generate $BSCKEY1 failed!"
++        return 1;
++    else
++        echo "Generate $BSCKEY1 succeed!"
++    fi
++
++    echo "Generating $BSCKEY2 ......"
++    ./RSAKeyGen -pw $PASSW2 -pn $BSCKEY2 >/dev/null
++    if [ $? -ne 0 ]; then
++        echo "Generate $BSCKEY2 failed!"
++        return 1;
++    else
++        echo "Generate $BSCKEY2 succeed!"
++    fi
++
++    echo "Generating $VLRKEY ......"
++    ./RSAKeyGen -pw $PASSW3 -pn $VLRKEY >/dev/null
++    if [ $? -ne 0 ]; then
++        echo "Generate $VLRKEY failed!"
++        return 1;
++    else
++        echo "Generate $VLRKEY succeed!"
++    fi
++    return 0;
++}
++
++bsc_sign()
++{
++    local index=0
++
++    for i in ${BSC_BIN[@]}
++    do
++        echo "will sign $i to ${BSC_SIGN[index]}"
++        if [ ! -e $IMG_PATH/$i ]; then
++            echo "$IMG_PATH/$i not found, skip!"
++            continue
++        fi
++        ./BscGen -img $IMG_PATH/$i -out $IMG_PATH/${BSC_SIGN[index]} -pw $PASSW1 -pn $BSCKEY1 -ha sha1 -pw2 $PASSW2 -pn2 $BSCKEY2 >/dev/null
++        if [ $? -ne 0 ]; then
++            echo "Sign $i failed!"
++            #return 1;
++        else
++            echo -e "\033[32mSign $i succeed!\033[0m"
++        fi
++        index=$(($index+1))
++    done
++
++    return 0;
++}
++
++vlr_sign()
++{
++    local index=0
++
++    for i in ${VLR_BIN[@]}
++    do
++        echo "will sign $i to ${VLR_SIGN[index]}"
++        if [ ! -e $IMG_PATH/$i ]; then
++            echo "$IMG_PATH/$i not found, skip!"
++            continue
++        fi
++        ./VLRSign -img $IMG_PATH/$i -out $IMG_PATH/${VLR_SIGN[index]} -pw $PASSW2 -pn $BSCKEY2 -ipbk true -ha sha1 -pw2 $PASSW3 -pn2 $VLRKEY >/dev/null
++        if [ $? -ne 0 ]; then
++            echo "Sign $i failed!"
++            #return 1;
++        else
++            echo -e "\033[32mSign $i succeed!\033[0m"
++        fi
++        index=$(($index+1))
++    done
++
++    return 0;
++}
++
++vlr_sign_other()
++{
++    local index=0
++
++    for i in ${VLR_OTHER_BIN[@]}
++    do
++        echo "will sign $i to ${VLR_OTHER_SIGN[index]}"
++        if [ ! -e $IMG_PATH/$i ]; then
++            echo "$IMG_PATH/$i not found, skip!"
++            continue
++        fi
++        ./VLRSign -img $IMG_PATH/$i -out $IMG_PATH/${VLR_OTHER_SIGN[index]} -pw $PASSW3 -pn $VLRKEY >/dev/null
++        if [ $? -ne 0 ]; then
++            echo "Sign $i failed!"
++            #return 1;
++        else
++            echo -e "\033[32mSign $i succeed!\033[0m"
++        fi
++        index=$(($index+1))
++    done
++
++    return 0;
++}
++
++help_info()
++{
++    echo "missing parameter:"
++    echo "Usage: ./sig_script.sh IMAGE_PATH"
++}
++
++# Main function
++# read input parameter
++if [ $# -le 0 ]; then
++    help_info
++    exit
++fi
++IMG_PATH=$1
++
++# Read config
++while read line;do
++    eval "$line"
++done < sig_key.ini
++
++BSC_BIN=(`awk -F'BSC_BIN=' '{print $2}' sig_bin.ini`)
++BSC_SIGN=(`awk -F'BSC_SIGN=' '{print $2}' sig_bin.ini`)
++VLR_BIN=(`awk -F'VLR_BIN=' '{print $2}' sig_bin.ini`)
++VLR_SIGN=(`awk -F'VLR_SIGN=' '{print $2}' sig_bin.ini`)
++VLR_OTHER_BIN=(`awk -F'VLR_OTHER_BIN=' '{print $2}' sig_bin.ini`)
++VLR_OTHER_SIGN=(`awk -F'VLR_OTHER_SIGN=' '{print $2}' sig_bin.ini`)
++
++#echo "arr bsc_bin: ${BSC_BIN[@]}"
++#echo "arr bsc_sign: ${BSC_SIGN[@]}"
++#echo "arr vlr_bin: ${VLR_BIN[@]}"
++#echo "arr vlr_sign: ${VLR_SIGN[@]}"
++#echo "arr vlr_other_bin: ${VLR_OTHER_BIN[@]}"
++#echo "arr vlr_other_sign: ${VLR_OTHER_SIGN[@]}"
++
++#echo $PASSW1
++#echo $PASSW2
++#echo $PASSW3
++#echo $BSCKEY1
++#echo $BSCKEY2
++#echo $VLRKEY
++
++# Check tool files
++if [ ! -e BscGen ]; then
++    echo -e "\033[31mBscGen does not exist, please check! \033[0m"
++    exit
++fi
++if [ ! -e RSAKeyGen ]; then
++    echo -e "\033[31mRSAKeyGen does not exist, please check! \033[0m"
++    exit
++fi
++if [ ! -e VLRSign ]; then
++    echo -e "VLRSign does not exist, please check! \033[0m"
++    exit
++fi
++
++echo -e "\033[34m=========\033[0m"
++echo -e "\033[34m* START *\033[0m"
++echo -e "\033[34m=========\033[0m"
++if [ -e key.db ]; then
++# comments Start
++if false; then
++# comments Start
++    while true
++    do
++        read -p "key.db already exists, do you want to regenerate? [Y/N]?" answer
++        case $answer in
++        Y | y)
++            echo "Deleting key.db"
++            rm key.db
++            #echo "del key.db result is:" $?
++            echo "run function gen_key()"
++            gen_key
++            ret=$?
++            echo "gen_key ret = "$ret
++            break;;
++        N | n)
++            echo "Using existing keys"
++            break;;
++        *)
++            if [ -z "$answer" ]; then
++                echo "Using existing keys"
++                break;
++            else
++                echo "Please enter Y or N"
++            fi
++        esac
++    done
++# comments End
++fi
++# comments End
++else
++    echo "Generating keys......"
++    gen_key
++    ret=$?
++    echo "ret = "$ret
++fi
++
++echo "Start BSC sign......"
++bsc_sign
++ret=$?
++echo "BSC ret = "$ret
++
++echo "Start VLR sign......"
++vlr_sign
++ret=$?
++echo "VLR ret = "$ret
++
++echo "Start VLR sign other......"
++vlr_sign_other
++ret=$?
++echo "VLR other ret = "$ret
++
++echo -e "\033[34m========\033[0m"
++echo -e "\033[34m* EXIT *\033[0m"
++echo -e "\033[34m========\033[0m"
++
++
+Index: vendor/sprd/proprietories-source/sprd_secure_boot_tool/BscGen
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/proprietories-source/sprd_secure_boot_tool/BscGen
+===================================================================
+--- vendor/sprd/proprietories-source/sprd_secure_boot_tool/BscGen	(revision 0)
++++ vendor/sprd/proprietories-source/sprd_secure_boot_tool/BscGen	(revision 170504)
+
+Property changes on: vendor/sprd/proprietories-source/sprd_secure_boot_tool/BscGen
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/proprietories-source/sprd_secure_boot_tool/VLRSign
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/proprietories-source/sprd_secure_boot_tool/VLRSign
+===================================================================
+--- vendor/sprd/proprietories-source/sprd_secure_boot_tool/VLRSign	(revision 0)
++++ vendor/sprd/proprietories-source/sprd_secure_boot_tool/VLRSign	(revision 170504)
+
+Property changes on: vendor/sprd/proprietories-source/sprd_secure_boot_tool/VLRSign
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/proprietories-source/sprd_secure_boot_tool/key.txt
+===================================================================
+--- vendor/sprd/proprietories-source/sprd_secure_boot_tool/key.txt	(revision 0)
++++ vendor/sprd/proprietories-source/sprd_secure_boot_tool/key.txt	(revision 170504)
+@@ -0,0 +1,3 @@
++key1 [[[12345678]]] key1
++key2 [[[12345678]]] key2
++key3 [[[12345678]]] key3
+Index: vendor/sprd/proprietories-source/sprd_secure_boot_tool/RSAKeyGen
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/proprietories-source/sprd_secure_boot_tool/RSAKeyGen
+===================================================================
+--- vendor/sprd/proprietories-source/sprd_secure_boot_tool/RSAKeyGen	(revision 0)
++++ vendor/sprd/proprietories-source/sprd_secure_boot_tool/RSAKeyGen	(revision 170504)
+
+Property changes on: vendor/sprd/proprietories-source/sprd_secure_boot_tool/RSAKeyGen
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/proprietories-source/sprd_secure_boot_tool/sig_bin.ini
+===================================================================
+--- vendor/sprd/proprietories-source/sprd_secure_boot_tool/sig_bin.ini	(revision 0)
++++ vendor/sprd/proprietories-source/sprd_secure_boot_tool/sig_bin.ini	(revision 170504)
+@@ -0,0 +1,7 @@
++BSC_BIN=fdl1.bin u-boot-spl-16k.bin
++BSC_SIGN=fdl1-sign.bin u-boot-spl-16k-sign.bin
++VLR_BIN=fdl2.bin u-boot.bin
++VLR_SIGN=fdl2-sign.bin u-boot-sign.bin
++VLR_OTHER_BIN=boot.img recovery.img SHARKL_DM_DSP.bin LTE_DSP.bin SC9600_sharkls_3593.dat PM_sharkls_arm7.bin SC9600_sharkl_wphy_5mod_volte_zc.bin tos.bin vmm.bin
++VLR_OTHER_SIGN=boot-sign.img recovery-sign.img SHARKL_DM_DSP-sign.bin LTE_DSP-sign.bin SC9600_sharkls_3593-sign.dat PM_sharkls_arm7-sign.bin SC9600_sharkl_wphy_5mod_volte_zc-sign.bin tos-sign.bin vmm-sign.bin
++
+Index: vendor/sprd/proprietories-source/sprd_secure_boot_tool/sig_key.ini
+===================================================================
+--- vendor/sprd/proprietories-source/sprd_secure_boot_tool/sig_key.ini	(revision 0)
++++ vendor/sprd/proprietories-source/sprd_secure_boot_tool/sig_key.ini	(revision 170504)
+@@ -0,0 +1,8 @@
++# KEY define
++PASSW1=12345678
++PASSW2=12345678
++PASSW3=12345678
++BSCKEY1=key1
++BSCKEY2=key2
++VLRKEY=key3
++
+Index: vendor/sprd/proprietories-source/sprd_secure_boot_tool/sig_script_usage.txt
+===================================================================
+--- vendor/sprd/proprietories-source/sprd_secure_boot_tool/sig_script_usage.txt	(revision 0)
++++ vendor/sprd/proprietories-source/sprd_secure_boot_tool/sig_script_usage.txt	(revision 170504)
+@@ -0,0 +1,9 @@
++使用说明：
++1、请确保脚本所在路径中包含签名工具（BscGen，RSAKeyGen，VLRSign）；
++2、请确保脚本所在路径中包含key.db，且其中的key信息与sig_key.ini中的内容一致；
++   （如没有key.db，本脚本运行时会根据sig_key.ini中的信息自动生成新的key.db）
++3、如需替换key.db，请在替换后修改配置文件sig_key.ini（修改为替换后key.db所对应key的名称及密码）；
++4、sig_bin.ini，用于标识待签名以及签名之后的文件名称，请按照需要自行修改。
++   （=左边内容请勿修改；=右边为文件名，以空格为分割符）
++4、脚本执行方式：./sig_script.sh IMAGE_PATH  参数1为待签名镜像所在的路径，签名后的镜像也会放在此路径下；
++
+Index: vendor/sprd/proprietories-source/sprd_secure_boot_tool/readme.txt
+===================================================================
+--- vendor/sprd/proprietories-source/sprd_secure_boot_tool/readme.txt	(revision 0)
++++ vendor/sprd/proprietories-source/sprd_secure_boot_tool/readme.txt	(revision 170504)
+@@ -0,0 +1,46 @@
++1. key.db 
++   Store the rsa keys.
++
++2. RSAKeyGen.exe
++   Generate rsa key pair, key pair will be stored in the key.db
++
++   usage:
++   RSAKeyGen.exe -pw <"password"> -pn <"product-name">
++
++   -pw <"password">      --password must be 8 ASCII.
++   -pn <"product-name">  --not more than 49 chars
++
++
++2. VLRSign.exe
++   Sign image file.
++
++   usage:
++   VLRSign.exe -img <"vlr-image-file"> -out <"signed-file"> -pw <"password"> -pn <"product-name"> [-slen signed-length] [-plen padded-leng
++th] [-ipbk [true|false]] [-ha [sha1|md5]]
++
++   -img <"vlr-image-file">     --input vlr-image file.
++   -out <"signed-file">        --output signed image file
++   -pw <"password">            --password must be 8 ASCII.
++   -pn <"product-name">        --not more than 49 chars
++   -slen signed-length         --signed length of the vlr-image, default the whole image is signed.  
++   -plen padded-length         --pad the vlr-image
++   -ipbk [true|false]          --if true, insert RSA public key,default is true
++			         if not set, it's value depend on -pw2 and -pn2 if not set these two param, it is false, otherwise it is true.
++   -ha [sha1|md5]              --hash algorithm, sha1 or md5, default is sha1
++   -pw2 <"password">           --password must be 8 ASCII.
++   -pn2 <"product-name">       --not more than 49 chars
++
++
++3. BscGen.exe
++   Generate BSC file.
++   
++   usage:
++   BscGen.exe -img <"code-image-file"> -out <"bsc-file"> -pw <"password"> -pn <"product-name"> -pw <"password"> -pn <"product-name"> [-ha [sha1|md5]]
++
++   -img <"code-image-file">  --input code-image file.
++   -out <"bsc-file">         --output bsc image file
++   -pw <"password">          --password must be 8 ASCII.
++   -pn <"product-name">      --not more than 49 chars
++   -pw2 <"password">         --password must be 8 ASCII.
++   -pn2 <"product-name">     --not more than 49 chars
++   -ha [sha1|md5]            --hash algorithm, sha1 or md5, default is sha1
+Index: vendor/sprd/proprietories-source/sprd_secure_boot_tool/key.db
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/proprietories-source/sprd_secure_boot_tool/key.db
+===================================================================
+--- vendor/sprd/proprietories-source/sprd_secure_boot_tool/key.db	(revision 0)
++++ vendor/sprd/proprietories-source/sprd_secure_boot_tool/key.db	(revision 170504)
+
+Property changes on: vendor/sprd/proprietories-source/sprd_secure_boot_tool/key.db
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/proprietories-source/modem_control/modem_control.c
+===================================================================
+--- vendor/sprd/proprietories-source/modem_control/modem_control.c	(revision 170503)
++++ vendor/sprd/proprietories-source/modem_control/modem_control.c	(revision 170504)
+@@ -493,9 +493,11 @@
+       if (1 == tmp_table->is_secured) {
+         normal_boot_offset = get_boot_offset(tmp_table, secure_offset);
+           MODEM_LOGD("[secure]verify start");
++
++#ifndef SECURE_BOOT_JUST_SKIP_1K_HEAD
+           modem_verify_image(tmp_table->path_r, 0, tmp_table->size);
+           MODEM_LOGD("[secure]verify done.");
+-
++#endif
+         MODEM_LOGD("[secure]secure_offset = %d", secure_offset);
+         load_sipc_image(tmp_table->path_r, secure_offset + normal_boot_offset,
+                         tmp_table->path_w, 0, tmp_table->size);
+@@ -624,6 +626,7 @@
+   table_ptr->pmcp.is_secured = 1;
+   MODEM_LOGD("[secure]%s: is_shutdown = 0x%x", __FUNCTION__, need_load_pmcp);
+ 
++#ifndef SECURE_BOOT_JUST_SKIP_1K_HEAD
+   memset(s_modem_puk, 0, sizeof(s_modem_puk));
+   ret = modem_parse_puk_cmdline(s_modem_puk);
+   if (ret != 1) {
+@@ -631,6 +634,7 @@
+     return -1;
+   }
+ #endif
++#endif
+ 
+   MODEM_LOGD("cp_stop= %s", load_value.cp_stop);
+   /* write 1 to stop cp */
+Index: vendor/sprd/proprietories-source/modem_control/Android.mk
+===================================================================
+--- vendor/sprd/proprietories-source/modem_control/Android.mk	(revision 170503)
++++ vendor/sprd/proprietories-source/modem_control/Android.mk	(revision 170504)
+@@ -1,10 +1,10 @@
+ LOCAL_PATH:= $(call my-dir)
+ include $(CLEAR_VARS)
+ 
+-ifeq ($(BOARD_SECURE_BOOT_ENABLE), true)
+-    LOCAL_C_INCLUDES := \
+-        vendor/sprd/proprietories-source/sprd_verify
+-endif
++#ifeq ($(BOARD_SECURE_BOOT_ENABLE), true)
++#    LOCAL_C_INCLUDES := \
++#        vendor/sprd/proprietories-source/sprd_verify
++#endif
+ 
+ LOCAL_SRC_FILES:= \
+     main.c
+@@ -15,9 +15,9 @@
+     LOCAL_SRC_FILES += modem_control.c nv_read.c
+ endif
+ 
+-ifeq ($(BOARD_SECURE_BOOT_ENABLE), true)
++ifeq ($(BOARD_SECURE_BOOT_ENABLE4CP), true)
+     LOCAL_SRC_FILES += modem_verify.c
+-    LOCAL_STATIC_LIBRARIES += libsprd_verify
++#    LOCAL_STATIC_LIBRARIES += libsprd_verify
+ endif
+ 
+ LOCAL_SHARED_LIBRARIES := \
+@@ -28,8 +28,9 @@
+ LOCAL_CFLAGS := -DCONFIG_EMMC
+ endif
+ 
+-ifeq ($(BOARD_SECURE_BOOT_ENABLE), true)
++ifeq ($(BOARD_SECURE_BOOT_ENABLE4CP), true)
+   LOCAL_CFLAGS += -DSECURE_BOOT_ENABLE
++  LOCAL_CFLAGS += -DSECURE_BOOT_JUST_SKIP_1K_HEAD
+ endif
+ 
+ LOCAL_MODULE := modem_control

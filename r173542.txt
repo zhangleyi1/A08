@@ -1,0 +1,26 @@
+Index: device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 173541)
++++ device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 173542)
+@@ -28,7 +28,7 @@
+ BOARD_KERNEL_PAGESIZE := 2048
+ BOARD_KERNEL_SEPARATED_DT := true
+ 
+-TARGET_DM_VERITY := false
++TARGET_DM_VERITY := true
+ 
+ STORAGE_INTERNAL := emulated
+ STORAGE_PRIMARY := internal
+Index: build/tools/releasetools/ota_from_target_files.py
+===================================================================
+--- build/tools/releasetools/ota_from_target_files.py	(revision 173541)
++++ build/tools/releasetools/ota_from_target_files.py	(revision 173542)
+@@ -149,7 +149,7 @@
+ OPTIONS.two_step = False
+ OPTIONS.no_signing = False
+ #adups fota
+-OPTIONS.block_based = False
++OPTIONS.block_based = True
+ OPTIONS.updater_binary = None
+ OPTIONS.oem_source = None
+ OPTIONS.oem_no_mount = False

@@ -1,0 +1,13 @@
+Index: packages/apps/Dialer/InCallUI/res/values-in/strings.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/values-in/strings.xml	(revision 183153)
++++ packages/apps/Dialer/InCallUI/res/values-in/strings.xml	(revision 183154)
+@@ -193,5 +193,7 @@
+     <string name="closed_today_at" msgid="4060072663433467233">"Hari ini tutup pukul <xliff:g id="CLOSE_TIME">%s</xliff:g>"</string>
+     <string name="open_now" msgid="4615706338669555999">"Buka sekarang"</string>
+     <string name="closed_now" msgid="2635314668145282080">"Sekarang tutup"</string>
+-	<string name="calls_list">Daftar panggilan</string>
++    <string name="calls_list">Daftar panggilan</string>
++    <string name="onscreenVideoCallRxText">Hanya menerima video</string>
++    <string name="onscreenVideoCallTxText">Hanya mengirim video</string>
+ </resources>

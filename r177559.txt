@@ -1,0 +1,63 @@
+Index: packages/apps/Dialer/src/com/android/dialer/calllog/CallDetailHistoryAdapter.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/calllog/CallDetailHistoryAdapter.java	(revision 177558)
++++ packages/apps/Dialer/src/com/android/dialer/calllog/CallDetailHistoryAdapter.java	(revision 177559)
+@@ -151,18 +151,20 @@
+         } else {
+             /* SPRD: Add for volte and vowifi icon for Bug645018. @{*/
+             Log.d(TAG, "isVoLTECallEnable: " + (ImsManager.isVolteEnabledByPlatform(mContext)));
+-            if (isVolteCall && ImsManager.isVolteEnabledByPlatform(mContext)) {
++			volteCallIcon.setVisibility(View.GONE);
++            /*if (isVolteCall && ImsManager.isVolteEnabledByPlatform(mContext)) {
+                 volteCallIcon.setImageResource(R.drawable.ic_voltecall);
+             } else {
+                 volteCallIcon.setVisibility(View.GONE);
+-            }
++            }*/
+ 
+             Log.d(TAG, "isWifiCallEnable: " + (ImsManager.isWfcEnabledByPlatform(mContext)));
+-            if (isVoWifiCall && ImsManager.isWfcEnabledByPlatform(mContext)) {
++			vowifiCallIcon.setVisibility(View.GONE);
++            /*if (isVoWifiCall && ImsManager.isWfcEnabledByPlatform(mContext)) {
+                 vowifiCallIcon.setImageResource(R.drawable.ic_vowificall);
+             } else {
+                 vowifiCallIcon.setVisibility(View.GONE);
+-            }
++            }*/
+             /* @} */
+         }
+         callTypeIconView.clear();
+Index: packages/apps/Dialer/src/com/android/dialer/calllog/PhoneCallDetailsHelper.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/calllog/PhoneCallDetailsHelper.java	(revision 177558)
++++ packages/apps/Dialer/src/com/android/dialer/calllog/PhoneCallDetailsHelper.java	(revision 177559)
+@@ -215,7 +215,10 @@
+         } else {
+             /* SPRD: Add for volte and vowifi icon for Bug645018. @{*/
+             Log.d(TAG, "isVoLTECallEnable: " + (ImsManager.isVolteEnabledByPlatform(mContext)));
+-            if (isVolteCall && ImsManager.isVolteEnabledByPlatform(mContext)) {
++			views.volteIcon.setVisibility(View.GONE);
++			views.videoIcon.setVisibility(View.GONE);
++			views.voWifiIcon.setVisibility(View.GONE);
++           /* if (isVolteCall && ImsManager.isVolteEnabledByPlatform(mContext)) {
+                 views.volteIcon.setVisibility(View.VISIBLE);
+             } else {
+                 views.volteIcon.setVisibility(View.GONE);
+@@ -225,14 +228,14 @@
+                 views.videoIcon.setVisibility(View.VISIBLE);
+             } else {
+                 views.videoIcon.setVisibility(View.GONE);
+-            }
++            }*/
+ 
+             Log.d(TAG, "isWifiCallEnable: " + (ImsManager.isWfcEnabledByPlatform(mContext)));
+-            if (isVoWifiCall && ImsManager.isWfcEnabledByPlatform(mContext)) {
++            /*if (isVoWifiCall && ImsManager.isWfcEnabledByPlatform(mContext)) {
+                 views.voWifiIcon.setVisibility(View.VISIBLE);
+             } else {
+                 views.voWifiIcon.setVisibility(View.GONE);
+-            }
++            }*/
+             /* @} */
+         }
+         /* @} */

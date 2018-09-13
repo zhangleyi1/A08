@@ -1,0 +1,57 @@
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 167399)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 167400)
+@@ -73,7 +73,11 @@
+ import android.widget.TabHost.TabSpec;
+ import android.widget.TabHost;
+ import android.widget.Toast;
++import android.app.AlertDialog;
++import android.content.DialogInterface;
++import android.content.DialogInterface.OnClickListener;
+ 
++
+ /**
+  * "Mobile network settings" screen.  This preference screen lets you
+  * enable/disable mobile data, and control data roaming and other
+@@ -1227,6 +1231,20 @@
+             }
+             boolean enhanced4gMode = !enhanced4gModePref.isChecked();
+             enhanced4gModePref.setChecked(enhanced4gMode);
++
++            if (!enhanced4gMode) {
++                AlertDialog.Builder dialog = new AlertDialog.Builder(this);
++                dialog.setMessage(R.string.close_volte_info);
++                dialog.setPositiveButton("ok",
++                    new OnClickListener() {
++                        @Override
++                        public void onClick(DialogInterface dialog, int which) {
++                            // TODO Auto-generated method stub
++                        }
++                    });
++                    dialog.create();
++                    dialog.show();
++            }
+             ImsManager.setEnhanced4gLteModeSetting(this, enhanced4gModePref.isChecked());
+         } else if (preference == mButtonDataRoam) {
+             if (DBG) log("onPreferenceTreeClick: preference == mButtonDataRoam.");
+Index: packages/services/Telephony/res/values/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values/strings.xml	(revision 167399)
++++ packages/services/Telephony/res/values/strings.xml	(revision 167400)
+@@ -1333,5 +1333,5 @@
+     <!-- SPRD: 606404 Toast in Call settings when setting the VideoCallingEnable -->
+     <string name="call_end_try_again">Please try again after the call is end.</string>
+     <!-- @} -->
+-
++    <string name="close_volte_info">Disabling VoLTE will make call and sms unavailable. Are you sure?</string>
+ </resources>
+Index: packages/services/Telephony/res/values-in-rID/string.xml
+===================================================================
+--- packages/services/Telephony/res/values-in-rID/string.xml	(revision 0)
++++ packages/services/Telephony/res/values-in-rID/string.xml	(revision 167400)
+@@ -0,0 +1,4 @@
++<resources>
++    <string name="close_volte_info">Menonaktifkan VoLTE akan membuat Anda tidak dapat melakukan panggilan dan sms</string>
++</resources>
++

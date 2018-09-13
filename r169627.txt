@@ -1,0 +1,13 @@
+Index: kernel/drivers/power/fan54015_charge.c
+===================================================================
+--- kernel/drivers/power/fan54015_charge.c	(revision 169626)
++++ kernel/drivers/power/fan54015_charge.c	(revision 169627)
+@@ -574,7 +574,7 @@
+ 
+  		hl7059_set_vrechg(0x1);
+ 
+-		sprdchg_hl7059_termina_vol_set(4400);		
++		sprdchg_hl7059_termina_vol_set(4368);		
+ }
+ 
+ void sprdchg_hl7059_init(struct sprd_battery_platform_data *bdata)

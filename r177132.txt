@@ -1,0 +1,13 @@
+Index: frameworks/base/packages/SystemUI/res/values/dimens.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 177131)
++++ frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 177132)
+@@ -46,7 +46,7 @@
+     <dimen name="status_bar_clock_size">14sp</dimen>
+ 
+     <!-- The starting padding for the clock in the status bar. -->
+-    <dimen name="status_bar_clock_starting_padding">7dp</dimen>
++    <dimen name="status_bar_clock_starting_padding">4dp</dimen>
+ 
+     <!-- The end padding for the clock in the status bar. -->
+     <dimen name="status_bar_clock_end_padding">0dp</dimen>

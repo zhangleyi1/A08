@@ -1,0 +1,13 @@
+Index: packages/apps/Settings/res/values/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values/strings.xml	(revision 171247)
++++ packages/apps/Settings/res/values/strings.xml	(revision 171248)
+@@ -7683,7 +7683,7 @@
+     <string name="gesture_setting_shortcut_msg">Smart-Wake Mode Activated!</string>
+     <string name="gesture_setting_shortcut_ok">OK</string>
+     <string name="gesture_setting_double_click_switch_unlock">Screen Unlock</string>
+-    <string name="gesture_setting_double_click_switch_unlock_summary">Double tap any where to unlock the screen</string>
++    <string name="gesture_setting_double_click_switch_unlock_summary">Double tap where to unlock the screen</string>
+     <string name="gesture_type_double_click_switch_lock">Screen Lock</string>
+     <string name="gesture_type_double_click_switch_lock_summary">Double tap any where to lock the screen</string>
+     <string name="gesture_setting_gesture_camera">Camera</string>

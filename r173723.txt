@@ -1,0 +1,19 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 173722)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 173723)
+@@ -1383,6 +1383,14 @@
+             /* SPRD: Bug#474289, FAST DIAL FEATURE @{ */
+                 Intent intent = FastDialUtils.getFastDialIntent(this, digits, id);
+                 if (intent != null) {
++                   List<PhoneAccountHandle> subscriptionAccountHandles = PhoneAccountUtils
++                        .getSubscriptionPhoneAccounts(getActivity());
++                	if (subscriptionAccountHandles != null
++                        && subscriptionAccountHandles.size() > 1) {
++                    	PhoneAccountHandle accout = subscriptionAccountHandles
++                            .get(defaultSimSlot - 1);
++                    	intent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE,accout);
++                	}
+                     DialerUtils.startActivityWithErrorToast(getActivity(), intent);
+                     digits.clear();
+                     return true;

@@ -1,0 +1,13 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/version/Version.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/version/Version.java	(revision 169863)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/version/Version.java	(revision 169864)
+@@ -136,7 +136,7 @@
+ 		mSuccessButton = (Button)findViewById(R.id.version_bt_ok);
+ 		mFailButton = (Button)findViewById(R.id.version_bt_failed);
+ 
+-		mSuccessButton.setEnabled(false);
++		mSuccessButton.setEnabled(true);
+ 
+ 		mSuccessButton.setOnClickListener(new Button.OnClickListener() {
+ 

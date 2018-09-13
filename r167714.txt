@@ -1,0 +1,15 @@
+Index: kernel/arch/arm/boot/dts/sprd-scx35l_sp9832a_2h11_volte.dts
+===================================================================
+--- kernel/arch/arm/boot/dts/sprd-scx35l_sp9832a_2h11_volte.dts	(revision 167713)
++++ kernel/arch/arm/boot/dts/sprd-scx35l_sp9832a_2h11_volte.dts	(revision 167714)
+@@ -1098,8 +1098,8 @@
+ 	alm-soc = <5>;
+ 	alm-vol = <3500>;
+ 	soft-vbat-uvlo = <3100>;
+-	rint = <200>;
+-	cnom = <2100>;
++	rint = <250>;
++	cnom = <4000>;
+ 	rsense-real = <200>;
+ 	rsense-spec = <200>;
+ 	relax-current = <50>;

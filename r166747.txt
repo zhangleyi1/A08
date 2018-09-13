@@ -1,0 +1,55 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardFragment.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardFragment.java	(revision 166746)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardFragment.java	(revision 166747)
+@@ -1240,7 +1240,11 @@
+                     /* SPRD: show main/vice card feature. @{
+                     * @orig
+                     callStateLabel = label; */
+-                    callStateLabel = InCallUiUtils.getSlotInfoBySubId(context, subId) + label;
++                    if (isWifi) {
++                        callStateLabel = context.getString(VideoUtils.isVideoCall(videoState) ? R.string.video_call_wifi : R.string.voice_call_wifi);
++                    } else {
++                        callStateLabel = InCallUiUtils.getSlotInfoBySubId(context, subId) + label;
++                    }
+                     /* @} */
+                 } else if (sessionModificationState
+                         == Call.SessionModificationState.REQUEST_REJECTED) {
+@@ -1277,7 +1281,11 @@
+                     }
+                     /* @}*/
+                 } else {
+-                    callStateLabel = context.getString(R.string.card_title_dialing);
++                    if(isWifi){
++						callStateLabel = context.getString(VideoUtils.isVideoCall(videoState) ? R.string.video_call_wifi : R.string.voice_call_wifi);
++					}else{
++						 callStateLabel = context.getString(R.string.card_title_dialing);
++					}
+                 }
+                 break;
+             case Call.State.REDIALING:
+@@ -1286,7 +1294,8 @@
+             case Call.State.INCOMING:
+             case Call.State.CALL_WAITING:
+                 if (isWifi && hasSuggestedLabel) {
+-                    callStateLabel = label;
++                    //callStateLabel = label;
++                    callStateLabel = context.getString(VideoUtils.isVideoCall(videoState) ? R.string.video_call_wifi : R.string.voice_call_wifi);
+                 } else if (isAccount) {
+                     /* SPRD: show main/vice card feature. @{
+                      * @orig
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/Log.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/Log.java	(revision 166746)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/Log.java	(revision 166747)
+@@ -34,8 +34,8 @@
+     public static final boolean FORCE_DEBUG = Build.TYPE.equals("eng") || Build.TYPE.equals("userdebug"); /** SPRD: delete false and modify for debug*//* STOPSHIP if true */
+     public static final boolean DEBUG = FORCE_DEBUG ||
+             android.util.Log.isLoggable(TAG, android.util.Log.DEBUG);
+-    public static final boolean VERBOSE = FORCE_DEBUG ||
+-            android.util.Log.isLoggable(TAG, android.util.Log.VERBOSE);
++    public static final boolean VERBOSE = /*FORCE_DEBUG ||
++            android.util.Log.isLoggable(TAG, android.util.Log.VERBOSE)*/true;
+     public static final String TAG_DELIMETER = " - ";
+ 
+     public static void d(String tag, String msg) {

@@ -1,0 +1,41 @@
+Index: vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/activities/FilePickerActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/activities/FilePickerActivity.java	(revision 169905)
++++ vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/activities/FilePickerActivity.java	(revision 169906)
+@@ -10,6 +10,8 @@
+ import android.app.AlertDialog;
+ import android.app.AlertDialog.Builder;
+ import android.app.Dialog;
++import android.app.WallpaperManager;
++import android.os.Build;
+ import android.content.ActivityNotFoundException;
+ import android.content.ContentUris;
+ import android.content.DialogInterface;
+@@ -568,6 +570,27 @@
+                     Toast.makeText(this, R.string.file_type_wrong, Toast.LENGTH_SHORT).show();
+                     return;
+                 }
++				
++				if(FilePickerActivityUtils.getInstance().isDRMSetWallpaper(file.getPath(),this)){
++                    return;
++                }
++
++                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
++                    WallpaperManager wpm = WallpaperManager.getInstance(getApplicationContext());
++                    try {
++                        Log.e(TAG, "intent.getData() = " + intent.getData());
++                        Intent cropAndSetWallpaperIntent = wpm.getCropAndSetWallpaperIntent(intent.getData());
++                        startActivity(cropAndSetWallpaperIntent);
++                        finish();
++                        return;
++                    } catch (ActivityNotFoundException anfe) {
++                        // ignored; fallthru to existing crop activity
++                        Toast.makeText(this, R.string.failed_set_wallpaper, Toast.LENGTH_SHORT).show();
++                    } catch (IllegalArgumentException iae) {
++                        // ignored; fallthru to existing crop activity
++                    }
++                }
++				
+                 try {
+                     int targetId = getIntent().getIntExtra("wallpaper_target_id", 0);
+                     int width = getWallpaperDesiredMinimumWidth();

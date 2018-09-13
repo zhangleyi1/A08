@@ -1,0 +1,39 @@
+Index: packages/apps/Settings/src/com/android/settings/sim/SimSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/sim/SimSettings.java	(revision 177606)
++++ packages/apps/Settings/src/com/android/settings/sim/SimSettings.java	(revision 177607)
+@@ -407,7 +407,7 @@
+             SimFragmentDialog.show(SimSettings.this, ((SimPreference) preference).getSlotId());
+         } else if (preference instanceof DataPreference) {
+             intent.putExtra(SimDialogActivity.DIALOG_TYPE_KEY, SimDialogActivity.DATA_PICK);
+-            //context.startActivity(intent);
++            context.startActivity(intent);
+         } else if (findPreference(KEY_CALLS) == preference) {
+             intent.putExtra(SimDialogActivity.DIALOG_TYPE_KEY, SimDialogActivity.CALLS_PICK);
+             context.startActivity(intent);
+@@ -493,8 +493,23 @@
+                 setEnabled(false);
+             } else {
+                 //SPRD:add for bug 588861
+-                setEnabled(getActiveSubInfoList().size() > 1
+-                        && !WirelessUtils.isAirplaneModeOn(mContext) && !isPhoneInCall());
++				int[] subIds = SubscriptionManager.getSubId(0);
++				int subId =SubscriptionManager.INVALID_SUBSCRIPTION_ID;
++				if (subIds != null || subIds.length > 0) {
++			    	subId = subIds[0];
++				}
++			    	ServiceState state = null;
++		       if (mSubscriptionManager.isActiveSubId(subId)) {
++			   		state = TelephonyManager.from(mContext)
++						.getServiceStateForSubscriber(subId);
++			   }
++			   if (state.getState() ==ServiceState.STATE_IN_SERVICE) {
++					setEnabled(false);
++			   }else{
++                	setEnabled(getActiveSubInfoList().size() > 1
++                        	&& !WirelessUtils.isAirplaneModeOn(mContext) && !isPhoneInCall());
++					
++				}
+             }
+             //SPRD:modify bug 624568
+             setShouldDisableView(getActiveSubInfoList().size() == 0);

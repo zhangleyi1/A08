@@ -1,0 +1,33 @@
+Index: vendor/sprd/modules/libcamera/sensor/sensor_cfg.c
+===================================================================
+--- vendor/sprd/modules/libcamera/sensor/sensor_cfg.c	(revision 171502)
++++ vendor/sprd/modules/libcamera/sensor/sensor_cfg.c	(revision 171503)
+@@ -112,7 +112,7 @@
+ extern SENSOR_INFO_T g_gc5025_mipi_raw_info;
+ extern SENSOR_INFO_T g_s5k5e2yast55a_mipi_raw_info;
+ 
+-#define AUTO_TEST_CAMERA 1
++#define AUTO_TEST_CAMERA 0
+ 
+ /**---------------------------------------------------------------------------*
+  **                         Constant Variables                                *
+@@ -230,7 +230,8 @@
+ const SENSOR_MATCH_T  at_main_sensor_infor_tab[]=
+ {
+ #if (defined(CONFIG_CAMERA_ISP_VERSION_V3) || defined(CONFIG_CAMERA_ISP_VERSION_V4))
+-	{"autotest_ov13850_mipi_raw", &g_autotest_ov13850_mipi_raw_info},
++    {"ov5695_mipi", &g_ov5695_mipi_raw_info},
++    {"gc5025_mipi", &g_gc5025_mipi_raw_info},
+ #endif
+ 	{"autotest_ov5670_mipi_raw",&g_at_ov5670_mipi_raw_info},
+ #if !(defined(CONFIG_CAMERA_ISP_VERSION_V3) || defined(CONFIG_CAMERA_ISP_VERSION_V4))
+@@ -260,7 +261,8 @@
+ const SENSOR_MATCH_T  at_sub_sensor_infor_tab[]=
+ {
+ #if (defined(CONFIG_CAMERA_ISP_VERSION_V3) || defined(CONFIG_CAMERA_ISP_VERSION_V4))
+-    {"autotest_ov5648_mipi_raw", &g_at_ov5648_mipi_raw_info},
++    {"s5k5e2ya_mipi", &g_s5k5e2ya_mipi_raw_info},  
++    {"s5k5e2yast55a_mipi", &g_s5k5e2yast55a_mipi_raw_info},
+ #endif
+     {"autotest_GC0310_MIPI_yuv", &g_GC0310_MIPI_yuv_info},
+ #if !(defined(CONFIG_CAMERA_ISP_VERSION_V3) || defined(CONFIG_CAMERA_ISP_VERSION_V4))

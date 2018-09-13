@@ -1,0 +1,153 @@
+Index: frameworks/base/core/java/com/android/internal/app/ResolverActivity.java
+===================================================================
+--- frameworks/base/core/java/com/android/internal/app/ResolverActivity.java	(revision 179323)
++++ frameworks/base/core/java/com/android/internal/app/ResolverActivity.java	(revision 179324)
+@@ -113,6 +113,7 @@
+     protected ResolverDrawerLayout mResolverDrawerLayout;
+ 
+     private boolean mRegistered;
++	private boolean mOptionButtonVisibility = true;
+     private final PackageMonitor mPackageMonitor = new PackageMonitor() {
+         @Override public void onSomePackagesChanged() {
+             mAdapter.handlePackagesChanged();
+@@ -236,6 +237,9 @@
+         setTheme(R.style.Theme_DeviceDefault_Resolver);
+         super.onCreate(savedInstanceState);
+ 
++		if (!intent.getBooleanExtra("resolver.option.button.visibility", true)) {
++            mOptionButtonVisibility = false;
++        }
+         // Determine whether we should show that intent is forwarded
+         // from managed profile to owner or other way around.
+         setProfileSwitchMessageId(intent.getContentUserHint());
+@@ -293,6 +297,14 @@
+             final TextView titleView = (TextView) findViewById(R.id.title);
+             if (titleView != null) {
+                 titleView.setText(title);
++				if (!mOptionButtonVisibility && mAdapter.getFilteredItem() != null) {
++                    titleView.setOnClickListener(new View.OnClickListener() {
++                        @Override
++                        public void onClick(View v) {
++                            startSelected(mAdapter.getFilteredPosition(), false, false);
++                        }
++                    });
++                }
+             }
+             setTitle(title);
+ 
+@@ -318,11 +330,28 @@
+         final DisplayResolveInfo iconInfo = mAdapter.getFilteredItem();
+         if (iconView != null && iconInfo != null) {
+             new LoadIconIntoViewTask(iconInfo, iconView).execute();
++			if (!mOptionButtonVisibility) {
++                iconView.setOnClickListener(new View.OnClickListener() {
++                    @Override
++                    public void onClick(View v) {
++                        startSelected(mAdapter.getFilteredPosition(), false, false);
++                    }
++                });
++            }
++            if (!mOptionButtonVisibility) {
++                iconView.setOnClickListener(new View.OnClickListener() {
++                    @Override
++                    public void onClick(View v) {
++                        startSelected(mAdapter.getFilteredPosition(), false, false);
++                    }
++                });
++            }
+         }
+ 
+         if (alwaysUseOption || mAdapter.hasFilteredItem()) {
+             final ViewGroup buttonLayout = (ViewGroup) findViewById(R.id.button_bar);
+-            if (buttonLayout != null) {
++       //     if (buttonLayout != null) {
++		   if (buttonLayout != null && mOptionButtonVisibility) {
+                 buttonLayout.setVisibility(View.VISIBLE);
+                 mAlwaysButton = (Button) buttonLayout.findViewById(R.id.button_always);
+                 mOnceButton = (Button) buttonLayout.findViewById(R.id.button_once);
+@@ -333,7 +362,10 @@
+ 
+         if (mAdapter.hasFilteredItem()) {
+             setAlwaysButtonEnabled(true, mAdapter.getFilteredPosition(), false);
++		//     mOnceButton.setEnabled(true);
++	   if (mOnceButton != null) {
+             mOnceButton.setEnabled(true);
++            }
+         }
+ 
+         mProfileView = findViewById(R.id.profile_button);
+@@ -578,7 +610,10 @@
+             final boolean hasValidSelection = checkedPos != ListView.INVALID_POSITION;
+             mLastSelected = checkedPos;
+             setAlwaysButtonEnabled(hasValidSelection, checkedPos, true);
++//    mOnceButton.setEnabled(hasValidSelection);
++		if (mOnceButton != null) {
+             mOnceButton.setEnabled(hasValidSelection);
++            }
+             if (hasValidSelection) {
+                 mAdapterView.setSelection(checkedPos);
+             }
+@@ -623,7 +658,10 @@
+                 enabled = true;
+             }
+         }
++	//   mAlwaysButton.setEnabled(enabled);
++		if (mAlwaysButton != null) {
+         mAlwaysButton.setEnabled(enabled);
++        }
+     }
+ 
+     public void onButtonClick(View v) {
+Index: frameworks/base/core/java/android/preference/RingtonePreference.java
+===================================================================
+--- frameworks/base/core/java/android/preference/RingtonePreference.java	(revision 179323)
++++ frameworks/base/core/java/android/preference/RingtonePreference.java	(revision 179324)
+@@ -140,6 +140,7 @@
+     protected void onClick() {
+         // Launch the ringtone picker
+         Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
++		intent.putExtra("resolver.option.button.visibility", false);
+         onPrepareRingtonePickerIntent(intent);
+         PreferenceFragment owningFragment = getPreferenceManager().getFragment();
+         if (owningFragment != null) {
+Index: packages/providers/MediaProvider/res/values-in/strings.xml
+===================================================================
+--- packages/providers/MediaProvider/res/values-in/strings.xml	(revision 179323)
++++ packages/providers/MediaProvider/res/values-in/strings.xml	(revision 179324)
+@@ -17,7 +17,7 @@
+ <resources xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+     <string name="uid_label" msgid="8421971615411294156">"Media"</string>
+-    <string name="app_label" msgid="9035307001052716210">"Penyimpanan Media"</string>
++    <string name="app_label" msgid="9035307001052716210">"Nada Dering Sistem"</string>
+     <string name="artist_label" msgid="8105600993099120273">"Artis"</string>
+     <string name="ringtone_default" msgid="1744846699922263043">"Nada dering default"</string>
+     <string name="notification_sound_default" msgid="6541609166469990135">"Suara notifikasi default"</string>
+@@ -26,4 +26,5 @@
+     <string name="root_videos" msgid="8792703517064649453">"Video"</string>
+     <string name="root_audio" msgid="3505830755201326018">"Audio"</string>
+     <string name="default_timer_ringtone_title" msgid="1370799536406862317">"Timer Berakhir"</string>
++	<string name="android_custom_label">"Perekam Suara"</string>
+ </resources>
+Index: packages/providers/MediaProvider/res/values/strings.xml
+===================================================================
+--- packages/providers/MediaProvider/res/values/strings.xml	(revision 179323)
++++ packages/providers/MediaProvider/res/values/strings.xml	(revision 179324)
+@@ -19,7 +19,7 @@
+     <string name="uid_label">Media</string>
+ 
+     <!-- Label to show to user for this package. -->
+-    <string name="app_label">Media Storage</string>
++    <string name="app_label">System Rinigtone</string>
+ 
+     <!-- Description line for music artists in the search/suggestion results -->
+     <string name="artist_label">Artist</string>
+@@ -42,7 +42,7 @@
+     <string name="root_audio">Audio</string>
+ 
+     <!-- SPRD: Add new activity @{ -->
+-    <string name="android_custom_label">"Custom Ringtones"</string>
++    <string name="android_custom_label">"Sound Recorder"</string>
+     <string name="ringtone_dialog_message">There is not a ringtone that can be used.</string>
+     <string name="ringtone_default_message">"Sorry, the ringtone does not play"</string>
+     <string name="ringtone_set_fail">"Ringtone set failed, please try again!"</string>

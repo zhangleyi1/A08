@@ -1,0 +1,134 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 176549)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 176550)
+@@ -403,9 +403,9 @@
+         super.onCreate(state);
+ 
+         mFirstLaunch = state == null;
+-        WindowManager.LayoutParams lp =getActivity().getWindow().getAttributes();
+-                lp.flags |= WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED;
+-                getActivity().getWindow().setAttributes(lp);
++		WindowManager.LayoutParams lp =getActivity().getWindow().getAttributes();
++				lp.flags |= WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED;
++				getActivity().getWindow().setAttributes(lp);
+ 
+         mCurrentCountryIso = GeoUtil.getCurrentCountryIso(getActivity());
+ 
+@@ -553,18 +553,16 @@
+         }
+     }
+ 
+-    public void call(Context context, int id, String telNum){   
++    public void call(Context context, int id, String telNum){	
+         Log.d(TAG, "call:  accoutId = " + id);
+-        /*  modified by 104004
+         List<PhoneAccountHandle> subscriptionAccountHandles =
+                 PhoneAccountUtils.getSubscriptionPhoneAccounts(getActivity());
+         PhoneAccountHandle account = subscriptionAccountHandles.get(id);
+-        */
+         final Intent intent = new CallIntentBuilder(telNum)
+                 .setCallInitiationType(LogState.INITIATION_DIALPAD)
+-              //  .setPhoneAccountHandle(account)
+-                            .build();
+-            DialerUtils.startActivityWithErrorToast(getActivity(), intent);
++                .setPhoneAccountHandle(account)
++							.build();
++			DialerUtils.startActivityWithErrorToast(getActivity(), intent);
+     }
+ 
+     public void registerBoradcastReceiver(){
+@@ -925,12 +923,12 @@
+             tryRegisterImsListener();//SRPD: Add for VoLTE
+         }
+         /* @} */
+-        // add  by  yujunjie for bug 95827 start
+-        List<PhoneAccountHandle> subscriptionAccounts =
++		// add  by  yujunjie for bug 95827 start
++		List<PhoneAccountHandle> subscriptionAccounts =
+                 PhoneAccountUtils.getSubscriptionPhoneAccounts(getContext());
+         int size = subscriptionAccounts.size();
+         mSwitchBtn.setVisibility(size > 1 ? View.VISIBLE : View.GONE);
+-        // add  by  yujunjie for bug 95827 end
++		// add  by  yujunjie for bug 95827 end
+         Trace.endSection();
+     }
+ 
+@@ -1156,7 +1154,7 @@
+                     (CarrierConfigManagerEx) getContext().getSystemService("carrier_config_ex");
+             if (configManager.getConfigForDefaultPhone() != null) {
+                 boolean isIpEnabled = false;
+-                //      configManager.getConfigForDefaultPhone().getBoolean(
++				//		configManager.getConfigForDefaultPhone().getBoolean(
+                 //        CarrierConfigManagerEx.KEY_FEATURE_IP_DIAL_ENABLED_BOOL);
+ 
+                 if (isIpEnabled) {
+@@ -1250,7 +1248,7 @@
+             return;
+         }
+     }
+-    private static final String PHONE_PACKAGE = "com.android.callsettings";
++	private static final String PHONE_PACKAGE = "com.android.callsettings";
+     private static final String FAST_DIAL_SETTING_CLASS_NAME =
+             "com.android.callsettings.fastdial.FastDialSettingActivity";
+ 
+@@ -1387,22 +1385,22 @@
+                 if (intent != null) {
+                    List<PhoneAccountHandle> subscriptionAccountHandles = PhoneAccountUtils
+                         .getSubscriptionPhoneAccounts(getActivity());
+-                    if (subscriptionAccountHandles != null
++                	if (subscriptionAccountHandles != null
+                         && subscriptionAccountHandles.size() > 1) {
+-                        PhoneAccountHandle accout = subscriptionAccountHandles
++                    	PhoneAccountHandle accout = subscriptionAccountHandles
+                             .get(defaultSimSlot - 1);
+-                        intent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE,accout);
+-                    }
++                    	intent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE,accout);
++                	}
+                     DialerUtils.startActivityWithErrorToast(getActivity(), intent);
+                     digits.clear();
+                     return true;
+-                } else if (digits.length() <= 1) {
++				} else if (digits.length() <= 1) {
+                     final Intent fastDial = new Intent(Intent.ACTION_MAIN);
+                     fastDial.setClassName(PHONE_PACKAGE, FAST_DIAL_SETTING_CLASS_NAME);
+                     fastDial.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                     startActivity(fastDial);
+                     digits.clear();
+-                    return true;    
++                    return true;	
+                 }
+             /* @} */
+         }
+@@ -1553,16 +1551,14 @@
+                         Toast.makeText(getContext(), "Please switch to sim2", Toast.LENGTH_SHORT).show();
+                     } else {
+                         //call(getContext(), 0, number);
+-                       /* modified by 104004
+-                       List<PhoneAccountHandle> subscriptionAccountHandles =
++                        List<PhoneAccountHandle> subscriptionAccountHandles =
+                                 PhoneAccountUtils.getSubscriptionPhoneAccounts(getActivity());
+                         PhoneAccountHandle account = subscriptionAccountHandles.get(0);
+-                        */
+                         final Intent intent = new CallIntentBuilder(number)
+                                 .setCallInitiationType(LogState.INITIATION_DIALPAD)
+-                              //  .setPhoneAccountHandle(account)
++                                .setPhoneAccountHandle(account)
+                             .build();
+-                        Log.d("jiml", "DialpadFragment number is " + number);   
++						Log.d("jiml", "DialpadFragment number is " + number);	
+                         DialerUtils.startActivityWithErrorToast(getActivity(), intent);
+                     }
+ 
+@@ -1760,8 +1756,8 @@
+ 
+             showLteButton(false);
+             mDialpadChooser.setVisibility(View.VISIBLE);
+-            mGsmCallBtn.setVisibility( View.GONE);
+-            mSwitchBtn.setVisibility(View.GONE);
++			mGsmCallBtn.setVisibility( View.GONE);
++			mSwitchBtn.setVisibility(View.GONE);
+             // Instantiate the DialpadChooserAdapter and hook it up to the
+             // ListView.  We do this only once.
+             if (mDialpadChooserAdapter == null) {

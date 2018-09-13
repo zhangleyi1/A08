@@ -1,0 +1,43 @@
+Index: device/sprd/scx35l/sp9832a_2h11/9832_pac.ini
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/9832_pac.ini	(revision 169549)
++++ device/sprd/scx35l/sp9832a_2h11/9832_pac.ini	(revision 169550)
+@@ -28,7 +28,6 @@
+ System=1@out/target/product/sp9832a_2h11/system.img
+ UserData=1@out/target/product/sp9832a_2h11/userdata.img
+ BootLogo=1@device/sprd/scx35l/sp9832a_2h11/modem/sprd_720p.bmp
+-WarningLogo=1@device/sprd/scx35l/sp9832a_2h11/modem/warninglogo.bmp
+ Fastboot_Logo=1@device/sprd/scx35l/sp9832a_2h11/modem/sprd_720p.bmp
+ Cache=1@out/target/product/sp9832a_2h11/cache.img
+ FLASH_WLTE=1@
+Index: device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinTosVmmAndroid5.1.xml
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinTosVmmAndroid5.1.xml	(revision 169549)
++++ device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinTosVmmAndroid5.1.xml	(revision 169550)
+@@ -257,7 +257,6 @@
+ 				-->
+ 				<Partition id="pm_sys" size="1"/>
+ 				<Partition id="logo" size="1"/>
+-				<Partition id="warninglogo" size="1"/>
+ 				<Partition id="fbootlogo" size="1"/>
+ 				<Partition id="wcnfdl" size="1"/>
+ 				<Partition id="wcnmodem" size="10"/>
+@@ -635,18 +634,6 @@
+ 				<Description>BootLoader boot logo</Description>
+ 			</File>
+ 			<File>
+-				<ID>WarningLogo</ID>
+-				<IDAlias>WarningLogo</IDAlias>
+-				<Type>CODE2</Type>
+-				<Block id="warninglogo">
+-					<Base>0x0</Base>
+-					<Size>0x0</Size>
+-				</Block>
+-				<Flag>1</Flag>
+-				<CheckFlag>0</CheckFlag>
+-				<Description>BootLoader boot logo</Description>
+-			</File>
+-			<File>
+ 				<ID>Fastboot_Logo</ID>
+ 				<IDAlias>Fastboot_Logo</IDAlias>
+ 				<Type>CODE2</Type>

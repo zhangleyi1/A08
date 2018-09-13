@@ -1,0 +1,14 @@
+Index: frameworks/base/telephony/java/android/telephony/TelephonyManager.java
+===================================================================
+--- frameworks/base/telephony/java/android/telephony/TelephonyManager.java	(revision 171170)
++++ frameworks/base/telephony/java/android/telephony/TelephonyManager.java	(revision 171171)
+@@ -5172,6 +5172,9 @@
+         try {
+             final ITelephony telephony = getITelephony();
+             if (telephony != null) {
++                if(telephony.getLocaleFromDefaultSim() == null) {
++                    return "";
++                }
+                 return telephony.getLocaleFromDefaultSim();
+             }
+         } catch (RemoteException ex) {

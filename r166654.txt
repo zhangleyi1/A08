@@ -1,0 +1,61 @@
+Index: frameworks/opt/net/wifi/service/java/com/android/server/wifi/p2p/WifiP2pServiceImpl.java
+===================================================================
+--- frameworks/opt/net/wifi/service/java/com/android/server/wifi/p2p/WifiP2pServiceImpl.java	(revision 166653)
++++ frameworks/opt/net/wifi/service/java/com/android/server/wifi/p2p/WifiP2pServiceImpl.java	(revision 166654)
+@@ -2836,7 +2836,7 @@
+              * default that has low likelihood of collision with a peer */
+             String id = Settings.Secure.getString(mContext.getContentResolver(),
+                     Settings.Secure.ANDROID_ID);
+-            return "Android_" + id.substring(0,4);
++            return "Andromax A36C5H";
+         }
+         return deviceName;
+     }
+
+Property changes on: frameworks/opt/net/wifi/service/java/com/android/server/wifi/p2p/WifiP2pServiceImpl.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/frameworks/opt/net/wifi/service/java/com/android/server/wifi/p2p/WifiP2pServiceImpl.java:r163167
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/frameworks/opt/net/wifi/service/java/com/android/server/wifi/p2p/WifiP2pServiceImpl.java:r165568
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/frameworks/opt/net/wifi/service/java/com/android/server/wifi/p2p/WifiP2pServiceImpl.java:r163731
+Index: frameworks/base/core/res/res/values/strings.xml
+===================================================================
+--- frameworks/base/core/res/res/values/strings.xml	(revision 166653)
++++ frameworks/base/core/res/res/values/strings.xml	(revision 166654)
+@@ -2926,7 +2926,7 @@
+     <string name="wifi_watchdog_network_disabled_detailed">\u0020has a poor Internet connection.</string>
+ 
+     <!-- Do not translate. Default access point SSID used for tethering -->
+-    <string name="wifi_tether_configure_ssid_default" translatable="false">AndroidAP</string>
++    <string name="wifi_tether_configure_ssid_default" translatable="false">Andromax A36C5H</string>
+ 
+     <!-- A notification is shown the first time a connection is attempted on an app owned AP -->
+     <!-- title for this message -->
+
+Property changes on: frameworks/base/core/res/res/values/strings.xml
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/frameworks/base/core/res/res/values/strings.xml:r163167
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/frameworks/base/core/res/res/values/strings.xml:r165568
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/frameworks/base/core/res/res/values/strings.xml:r163731
+Index: system/bt/btif/src/btif_dm.c
+===================================================================
+--- system/bt/btif/src/btif_dm.c	(revision 166653)
++++ system/bt/btif/src/btif_dm.c	(revision 166654)
+@@ -202,7 +202,8 @@
+ /************************************************************************************
+ **  Static variables
+ ************************************************************************************/
+-static char btif_default_local_name[DEFAULT_LOCAL_NAME_MAX+1] = {'\0'};
++//static char btif_default_local_name[DEFAULT_LOCAL_NAME_MAX+1] = {'\0'};
++static char btif_default_local_name[DEFAULT_LOCAL_NAME_MAX+1] = {"Andromax A36C5H"};
+ static uid_set_t* uid_set = NULL;
+ 
+ /* A circular array to keep track of the most recent bond events */
+
+Property changes on: system/bt/btif/src/btif_dm.c
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/system/bt/btif/src/btif_dm.c:r163167
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/system/bt/btif/src/btif_dm.c:r165568
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/system/bt/btif/src/btif_dm.c:r163731

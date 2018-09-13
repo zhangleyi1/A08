@@ -1,0 +1,13 @@
+Index: packages/apps/Launcher3/ext/res/xml/dw_base_customize.xml
+===================================================================
+--- packages/apps/Launcher3/ext/res/xml/dw_base_customize.xml	(revision 178045)
++++ packages/apps/Launcher3/ext/res/xml/dw_base_customize.xml	(revision 178046)
+@@ -67,7 +67,7 @@
+                launcher:x="-4"
+                launcher:y="-1"
+                launcher:packageName="com.google.android.gm"
+-               launcher:className="com.google.android.gm.welcome.WelcomeTourActivity" />
++               launcher:className="com.google.android.gm.ConversationListActivityGmail" />
+ 	       
+ 		<favorite
+ 			   launcher:screen="0"

@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModuleVideo.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModuleVideo.java	(revision 178708)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModuleVideo.java	(revision 178709)
+@@ -136,7 +136,7 @@
+ 
+                 data.mEntries = slowMotionEntries;
+                 data.mEntryValues = slowMotionEntryValues;
+-                data.mDefaultValue = data.mEntryValues[0].toString();
++                data.mDefaultValue = data.mEntryValues[1].toString();
+             }
+         }
+     }

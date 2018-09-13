@@ -1,0 +1,15 @@
+Index: vendor/sprd/platform/packages/apps/FotaUpdate/app/withIcon/FotaUpdate.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/FotaUpdate/app/withIcon/FotaUpdate.apk
+===================================================================
+--- vendor/sprd/platform/packages/apps/FotaUpdate/app/withIcon/FotaUpdate.apk	(revision 0)
++++ vendor/sprd/platform/packages/apps/FotaUpdate/app/withIcon/FotaUpdate.apk	(revision 179907)
+
+Property changes on: vendor/sprd/platform/packages/apps/FotaUpdate/app/withIcon/FotaUpdate.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property

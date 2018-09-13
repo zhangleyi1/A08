@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/Settings/res/values/arrays.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Settings/res/values/arrays.xml	(revision 176172)
++++ vendor/sprd/platform/packages/apps/Settings/res/values/arrays.xml	(revision 176173)
+@@ -4,7 +4,7 @@
+ 
+     <string-array name="wifi_ap_security">
+         <item>@string/wifi_security_none</item>
+-        <item>@string/wifi_security_wpa</item>
++        <!--<item>@string/wifi_security_wpa</item>-->
+         <item>@string/wifi_security_wpa2</item>
+     </string-array>
+ 

@@ -1,0 +1,13 @@
+Index: packages/apps/Settings/res/values/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values/strings.xml	(revision 177208)
++++ packages/apps/Settings/res/values/strings.xml	(revision 177209)
+@@ -7591,7 +7591,7 @@
+     <string name="back_groud_data_usage_restrict_protocal">"Backgroud data usage protocal."</string>
+     <string name="byteShort">b</string>
+     <!-- Suffix added to a number to signify size in kilobytes. -->
+-    <string name="kilobyteShort">Kb</string>
++    <string name="kilobyteShort">KB</string>
+     <!-- Suffix added to a number to signify size in megabytes. -->
+     <string name="megabyteShort">Mb</string>
+     <!-- Suffix added to a number to signify size in gigabytes. -->

@@ -1,0 +1,75 @@
+Index: packages/services/Telephony/src/com/android/phone/GsmUmtsCallOptions.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/GsmUmtsCallOptions.java	(revision 170135)
++++ packages/services/Telephony/src/com/android/phone/GsmUmtsCallOptions.java	(revision 170136)
+@@ -35,7 +35,7 @@
+     private static final String CALL_FORWARDING_KEY = "call_forwarding_key";
+     private static final String CALL_BARRING_KEY = "call_barring_key";
+     private static final String ADDITIONAL_GSM_SETTINGS_KEY = "additional_gsm_call_settings_key";
+-    private static final String IP_DIAL_KEY = "ip_dial_key";
++    // private static final String IP_DIAL_KEY = "ip_dial_key";
+ 
+     @Override
+     protected void onCreate(Bundle icicle) {
+@@ -88,20 +88,20 @@
+         }
+         /* @} */
+         /* SPRD: function ip dialing support for bug474283 @{ */
+-        Preference ipDialPref = prefScreen.findPreference(IP_DIAL_KEY);
+-        Intent ipDialIntent = subInfoHelper.getCallSettingsIntent(null,
+-                ipDialPref.getIntent());
++        // Preference ipDialPref = prefScreen.findPreference(IP_DIAL_KEY);
++        // Intent ipDialIntent = subInfoHelper.getCallSettingsIntent(null,
++                // ipDialPref.getIntent());
+         // SPRD: add for bug610783
+-        ipDialIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+-        if (ipDialIntent != null) {
+-            Log.i(LOG_TAG, "ipDialIntent:" + ipDialIntent);
+-            ipDialPref.setIntent(ipDialIntent);
+-        } else {
+-            Log.i(LOG_TAG, "remove ipDialPreference");
+-            prefScreen.removePreference(ipDialPref);
+-        }
++        // ipDialIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
++        // if (ipDialIntent != null) {
++            // Log.i(LOG_TAG, "ipDialIntent:" + ipDialIntent);
++            // ipDialPref.setIntent(ipDialIntent);
++        // } else {
++            // Log.i(LOG_TAG, "remove ipDialPreference");
++            // prefScreen.removePreference(ipDialPref);
++        // }
+         /* @} */
+-		prefScreen.removePreference(ipDialPref);
++
+         Preference additionalGsmSettingsPref =
+                 prefScreen.findPreference(ADDITIONAL_GSM_SETTINGS_KEY);
+         additionalGsmSettingsPref.setIntent(
+Index: packages/services/Telephony/res/xml/gsm_umts_call_options.xml
+===================================================================
+--- packages/services/Telephony/res/xml/gsm_umts_call_options.xml	(revision 170135)
++++ packages/services/Telephony/res/xml/gsm_umts_call_options.xml	(revision 170136)
+@@ -26,15 +26,15 @@
+     </PreferenceScreen>
+     <!-- @} -->
+     <!-- SPRD: function call barring support for bug474283 @{ -->
+-    <PreferenceScreen
+-        android:key="ip_dial_key"
+-        android:title="@string/ip_dialing_setting"
+-        android:persistent="false">
+-        <intent
+-            android:action="android.intent.action.MAIN"
+-            android:targetClass="com.sprd.phone.settings.ipdial.IpNumberListActivity"
+-            android:targetPackage="com.android.phone" />
+-    </PreferenceScreen>
++    <!-- <PreferenceScreen -->
++        <!-- android:key="ip_dial_key" -->
++        <!-- android:title="@string/ip_dialing_setting" -->
++        <!-- android:persistent="false"> -->
++        <!-- <intent -->
++            <!-- android:action="android.intent.action.MAIN" -->
++            <!-- android:targetClass="com.sprd.phone.settings.ipdial.IpNumberListActivity" -->
++            <!-- android:targetPackage="com.android.phone" /> -->
++    <!-- </PreferenceScreen> -->
+     <!-- @} -->
+ 
+     <PreferenceScreen

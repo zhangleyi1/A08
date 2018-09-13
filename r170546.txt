@@ -1,0 +1,41 @@
+Index: packages/apps/DeskClock/src/com/android/deskclock/settings/SettingsActivity.java
+===================================================================
+--- packages/apps/DeskClock/src/com/android/deskclock/settings/SettingsActivity.java	(revision 170545)
++++ packages/apps/DeskClock/src/com/android/deskclock/settings/SettingsActivity.java	(revision 170546)
+@@ -199,12 +199,15 @@
+                     dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                     startActivity(dialogIntent);
+                     return true;
++				/*
+                 case KEY_ALARM_VOLUME:
++				
+                     final AudioManager audioManager =
+                             (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
+                     audioManager.adjustStreamVolume(AudioManager.STREAM_ALARM,
+                             AudioManager.ADJUST_SAME, AudioManager.FLAG_SHOW_UI);
+                     return true;
++			   */
+                 default:
+                     return false;
+             }
+Index: packages/apps/DeskClock/res/xml/settings_sprd.xml
+===================================================================
+--- packages/apps/DeskClock/res/xml/settings_sprd.xml	(revision 170545)
++++ packages/apps/DeskClock/res/xml/settings_sprd.xml	(revision 170546)
+@@ -51,10 +51,13 @@
+             android:title="@string/snooze_duration_title"
+             android:defaultValue="10"/>
+ 
+-        <Preference
+-            android:key="volume_setting"
+-            android:title="@string/alarm_volume_title" />
++         <VolumePreference 
++            android:key="volume_setting" 
++            android:title="@string/alarm_volume_title" 
++            android:dialogTitle="@string/alarm_volume_title" 
++            android:streamType="alarm" /> 
+ 
++
+         <com.android.deskclock.settings.CrescendoLengthDialog
+             android:key="alarm_crescendo_duration"
+             android:title="@string/crescendo_duration_title"

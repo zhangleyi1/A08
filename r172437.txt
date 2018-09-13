@@ -1,0 +1,57 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/DeviceProfile.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/DeviceProfile.java	(revision 172436)
++++ packages/apps/Launcher3/src/com/android/launcher3/DeviceProfile.java	(revision 172437)
+@@ -293,9 +293,10 @@
+         if(isLandscape){
+             numPredictiveAppCols = Math.max(inv.minAllAppsPredictionColumns, numAppsCols);
+         }else {
+-            numPredictiveAppCols =Math.min(inv.minAllAppsPredictionColumns, numAppsCols);
++            numPredictiveAppCols =Math.max(inv.minAllAppsPredictionColumns, numAppsCols);
+         }
+-        allAppsNumCols = numAppsCols;
++        //allAppsNumCols = numAppsCols;
++        allAppsNumCols = 4;
+         allAppsNumPredictiveCols = numPredictiveAppCols;
+     }
+ 
+Index: packages/apps/Launcher3/src/com/android/launcher3/InvariantDeviceProfile.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/InvariantDeviceProfile.java	(revision 172436)
++++ packages/apps/Launcher3/src/com/android/launcher3/InvariantDeviceProfile.java	(revision 172437)
+@@ -199,7 +199,7 @@
+         predefinedDeviceProfiles.add(new InvariantDeviceProfile("Nexus 4",
+                 359, 567,     4, 4, 4, 4, 4, DEFAULT_ICON_SIZE_DP, 13, 5, 56, R.xml.default_workspace_4x4));
+         predefinedDeviceProfiles.add(new InvariantDeviceProfile("Nexus 5",
+-                335, 567,     4, 4, 4, 4, 4, DEFAULT_ICON_SIZE_DP, 13, 5, 56, R.xml.default_workspace_4x4));
++                335, 567,     4, 4, 4, 4, 4, DEFAULT_ICON_SIZE_DP, 10, 5, 56, R.xml.default_workspace_4x4));//13
+         predefinedDeviceProfiles.add(new InvariantDeviceProfile("Large Phone",
+                 406, 694,     5, 5, 4, 4, 4, 64, 14.4f,  5, 56, R.xml.default_workspace_5x5));
+         // The tablet profile is odd in that the landscape orientation
+Index: packages/apps/Launcher3/res/values/styles.xml
+===================================================================
+--- packages/apps/Launcher3/res/values/styles.xml	(revision 172436)
++++ packages/apps/Launcher3/res/values/styles.xml	(revision 172437)
+@@ -33,7 +33,7 @@
+         <item name="android:gravity">center_horizontal</item>
+         <item name="android:singleLine">false</item>
+ 		<item name="android:maxLines">2</item>
+-        <item name="android:ellipsize">marquee</item>
++        <!--<item name="android:ellipsize">marquee</item>-->
+         <item name="android:textColor">@color/workspace_icon_text_color</item>
+         <item name="android:shadowRadius">2.0</item>
+         <item name="android:shadowColor">#B0000000</item>
+Index: packages/apps/Launcher3/res/values/dimens.xml
+===================================================================
+--- packages/apps/Launcher3/res/values/dimens.xml	(revision 172436)
++++ packages/apps/Launcher3/res/values/dimens.xml	(revision 172437)
+@@ -32,7 +32,8 @@
+     <dimen name="dynamic_grid_search_bar_bottom_negative_padding_short">-6dp</dimen>
+     <dimen name="dynamic_grid_search_bar_bottom_padding_tablet">16dp</dimen>
+     <dimen name="dynamic_grid_page_indicator_height">20dp</dimen>
+-    <dimen name="dynamic_grid_icon_drawable_padding">4dp</dimen>
++    <!--<dimen name="dynamic_grid_icon_drawable_padding">4dp</dimen>-->
++	<dimen name="dynamic_grid_icon_drawable_padding">0dp</dimen>
+     <dimen name="dynamic_grid_workspace_page_spacing">8dp</dimen>
+     <dimen name="dynamic_grid_overview_min_icon_zone_height">80dp</dimen>
+     <dimen name="dynamic_grid_overview_max_icon_zone_height">120dp</dimen>

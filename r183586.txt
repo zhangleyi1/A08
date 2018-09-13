@@ -1,0 +1,14 @@
+Index: vendor/sprd/platform/packages/apps/CarrierConfig/res/xml/vendor.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/CarrierConfig/res/xml/vendor.xml	(revision 183585)
++++ vendor/sprd/platform/packages/apps/CarrierConfig/res/xml/vendor.xml	(revision 183586)
+@@ -54,7 +54,7 @@
+  <string name="operator_show_ims_apn">20801,22610,52000,52004,502152,60201</string>
+  <!-- SPRD: add for bug721534 -->
+  <string name="operator_not_show_pdn">60201</string>
+- <string name="ut_priority">52000,52004,52005,52018,52003,51009,51028</string>
+- <string name="ut_fallback_volte">52000,52004,52005,52018,52003,51009,51028</string>
++ <string name="ut_priority">52000,52004,52005,52018,52003,51009,51028,520018,510028</string>
++ <string name="ut_fallback_volte">52000,52004,52005,52018,52003,51009,51028,520018,510028</string>
+ </carrier_config>
+ </carrier_config_list >

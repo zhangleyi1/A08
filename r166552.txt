@@ -1,0 +1,290 @@
+Index: kernel/arch/arm/boot/dts/sprd-sound.dtsi
+===================================================================
+--- kernel/arch/arm/boot/dts/sprd-sound.dtsi	(revision 166551)
++++ kernel/arch/arm/boot/dts/sprd-sound.dtsi	(revision 166552)
+@@ -130,6 +130,7 @@
+             sprd,vbc = <&vbc_r2p0>;
+             sprd,codec = <&sprd_codec>;
+             sprd,pcm = <&sprd_pcm>;
++	    gpio_audio_pa_en = <55>;/*according the sch. pa enable*/
+         };
+ 
+ 		vbc_sound1: sound@1 {
+Index: kernel/arch/arm/boot/dts/sprd-battery.dtsi
+===================================================================
+--- kernel/arch/arm/boot/dts/sprd-battery.dtsi	(revision 166551)
++++ kernel/arch/arm/boot/dts/sprd-battery.dtsi	(revision 166552)
+@@ -15,16 +15,16 @@
+ 		gpios = <&a_eic_gpio 0 0        /* chg int */
+ 			&a_eic_gpio 4 0        /* cv state */
+ 			&a_eic_gpio 6 0>;      /* chg ovi */
+-		chg-end-vol-h = <4225>;
+-		chg-end-vol-pure = <4200>;
+-		chg-end-vol-l = <4190>;
+-		chg-bat-safety-vol = <4280>;
+-		rechg-vol = <4131>;
+-		adp-cdp-cur = <700>;
+-		adp-dcp-cur = <700>;
++		chg-end-vol-h = <4370>;
++		chg-end-vol-pure = <4350>;//4330
++		chg-end-vol-l = <4320>;
++		chg-bat-safety-vol = <4430>;
++		rechg-vol = <4210>;
++		adp-cdp-cur = <450>;
++		adp-dcp-cur = <2000>;
+ 		adp-sdp-cur = <450>;
+-		ovp-stop = <6500>;
+-		ovp-restart = <5800>;
++		ovp-stop = <6000>;
++		ovp-restart = <5400>;
+ 		chg-timeout = <21600>;
+ 		chgtimeout-show-full = <0>;
+ 		chg-rechg-timeout = <5400>;
+@@ -31,11 +31,11 @@
+ 		chg-cv-timeout = <3600>;
+ 		chg-eoc-level = <3>;
+ 		cccv-default = <0>;
+-		chg-end-cur = <80>;
+-		otp-high-stop = <1600>;
+-		otp-high-restart = <1550>;
+-		otp-low-stop = <950>;
+-		otp-low-restart = <1000>;
++		chg-end-cur = <300>;
++		otp-high-stop = <1450>;//1550
++		otp-high-restart = <1400>;//1490
++		otp-low-stop = <1000>;//950
++		otp-low-restart = <1050>;//1000
+ 		chg-polling-time = <30>;
+ 		chg-polling-time-fast = <1>;
+ 		bat-polling-time = <15>;
+@@ -43,7 +43,7 @@
+ 		cap-one-per-time = <30>;
+ 		cap-valid-range-poweron = <0>;
+ 		chg-full-condition = <0>;	/*0 vol and cur,1 status and cur(need add),2 ext ic*/
+-		temp-support = <0>;
++		temp-support = <1>;
+ 		temp-adc-ch = <3>;
+ 		temp-adc-scale = <1>;
+ 		temp-adc-sample-cnt = <15>;
+@@ -64,17 +64,26 @@
+ 		fgu-mode = <1>;
+ 		alm-soc = <5>;
+ 		alm-vol = <3600>;
+-		soft-vbat-uvlo = <3100>;
+-		rint = <250>;
+-		cnom = <1500>;
+-		rsense-real = <215>;
+-		rsense-spec = <200>;
++		soft-vbat-uvlo = <3400>;
++		rint = <265>;
++		cnom = <2000>;
++		rsense-real = <265>;
++		rsense-spec = <250>;
+ 		relax-current = <50>;
+ 		fgu-cal-ajust = <0>;
+ 		ocv-type = <0>;		//0 for soft_ocv,1 for pocv
+ 		ocv-tab-size = <21>;
+-		ocv-tab-vol = <4185 4113 4066 4022 3983 3949 3917 3889 3864 3835 3805 3787 3777 3773 3770 3765 3752 3724 3680 3605 3400>;
++/*		
++		ocv-tab-vol = <4320 4280 4226 4170 4118 4070 4020 3973 3927 3880 3850 3825 3807 3790 3774 3760 3740 3719 3695 3665 3400>;
+ 		ocv-tab-cap = <100  95   90   85   80   75   70   65   60   55   50   45   40   35   30   25   20   15   10   5    0>;
++*/
++/*
++		ocv-tab-vol = <4320 4268 4208 4160 4099 4061 3995 3958 3912 3873 3841 3817 3800 3783 3772 3762 3743 3720 3688 3670 3400>;
++		ocv-tab-cap = <100  95   90   85   80   75   70   65   60   55   50   45   40   35   30   25   20   15   10   5    0>;
++*/
++		ocv-tab-vol = <4320 4268 4208 4160 4099 4061 3995 3958 3912 3873 3841 3817 3800 3783 3772 3762 3743 3720 3695 3670 3400>;
++		ocv-tab-cap = <100  95   90   85   80   75   70   65   60   55   50   45   40   35   30   25   20   15   10   5    0>;
++		
+ 		cnom-temp-tab = <1020 1800	/*value = 1000 + temp*/
+ 				1010 1300
+ 				1000 1070
+Index: kernel/arch/arm/boot/dts/sprd-scx35l_sp9832a_2h11_volte.dts
+===================================================================
+--- kernel/arch/arm/boot/dts/sprd-scx35l_sp9832a_2h11_volte.dts	(revision 166551)
++++ kernel/arch/arm/boot/dts/sprd-scx35l_sp9832a_2h11_volte.dts	(revision 166552)
+@@ -238,7 +238,7 @@
+ 			reg = <0 0x20300000 0 0x1000>;
+ 			interrupts = <0 57 0x0>;
+ 			sprd,name = "sdio_sd";
+-			detect_gpio = <141>;
++			detect_gpio = <53>;
+ 			SD_Pwr_Name = "vddsdcore";
+ 			_1_8V_signal_Name = "vddsdio";
+ 			signal_default_Voltage = <3000000>;
+@@ -321,13 +321,13 @@
+ 			brightness_min = <0>;
+ 			run_mode = <1>;
+ 		};
+-
++/*
+ 		leds_sprd_bltc_rgb {
+ 			compatible = "sprd,sprd-leds-bltc-rgb";
+ 			reg = <0x440 0x40>,
+ 			<0x800 0xff>;
+ 		};
+-
++*/
+ 		watchdog@40{
+ 			compatible = "sprd,watchdog";
+ 			reg = <0x40 0x40>;
+@@ -429,6 +429,7 @@
+ 			gpio-key,wakeup;
+ 		};
+ */
++/*
+ 		key_camerafocus {
+ 			label = "Camerafocus Key";
+ 			linux,code = <0x210>;
+@@ -436,6 +437,8 @@
+ 			debounce-interval = <2>;
+ 			gpio-key,wakeup;
+ 		};
++*/
++/*
+ 		key_camera {
+ 			label = "Camera Key";
+ 			linux,code = <212>;
+@@ -443,7 +446,8 @@
+ 			debounce-interval = <2>;
+ 			gpio-key,wakeup;
+ 		};
+-	};
++*/
++		};
+ 	rfkill {
+ 		compatible = "broadcom,rfkill";
+ 		gpios = <&d_gpio_gpio 131 0  /* power */
+@@ -509,9 +513,9 @@
+ 		reg = <0x70600000 0x1000>;
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+-		fan54015_chg@0x6a {
+-			compatible = "fairchild,fan54015_chg";
+-			reg = <0x6a>;
++		bq24259_chg@0x6b {
++			compatible = "fairchild, bq24259_chg";
++			reg = <0x6b>;
+ 		};
+ 	};
+ 	i2c2: i2c@70700000 {
+@@ -520,37 +524,26 @@
+ 		reg = <0x70700000 0x1000>;
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+-
+-		lis3dh_acc@18{
+-			compatible = "ST,lis3dh_acc";
+-			reg = <0x18>;
++		kxtj9_acc@0e{
++			compatible = "kionix,kxtj9_acc";
++			reg = <0x0e>;
+ 			gpios = <&d_gpio_gpio 139 0>;
+ 			poll_interval = <10>;
+-			min_interval = <1>;
++			min_interval = <10>;
+ 			g_range = <0>;
+-			axis_map_x = <1>;
+-			axis_map_y = <0>;
++			axis_map_x = <0>;
++			axis_map_y = <1>;
+ 			axis_map_z = <2>;
+ 			negate_x = <0>;
+-			negate_y = <1>;
++			negate_y = <0>;
+ 			negate_z = <0>;
+ 		};
+-		ltr_558als@23{
+-			compatible = "LITEON,ltr_558als";
+-			reg = <0x23>;
+-			gpios = <&d_gpio_gpio 140 0>;
+-			/*low sensitve(def):1500,250,220,1800,1600,1; have no sensitve=<> as def.
+-			  High sensitve:1000,40,35,1200,1000,48 */
+-			sensitive = <1000 40 35
+-						1200 1000 48>;
+-			luxcorrection = <2330>;
+-		};
+-                epl259x_pls@49{
+-                        compatible = "ELAN,epl259x_pls";
+-                        reg = <0x49>;
+-                        gpios = <&d_gpio_gpio 140 0>;
+-                };
++		stk3x1x_pls@48{
++               compatible = "Sensortek,stk3x1x_pls";
++               reg = <0x48>;              
++        };
+ 
++
+ 	};
+ 	i2c3: i2c@70800000 {
+ 		compatible  = "sprd,i2c";
+@@ -562,29 +555,28 @@
+ 		focaltech_ts@38{
+ 			compatible = "focaltech,focaltech_ts";
+ 			reg = <0x38>;
+-			gpios = <&d_gpio_gpio 145 0
++			gpios = <&d_gpio_gpio 141 0
+ 				&d_gpio_gpio 144 0>;
+-			vdd_name = "vdd18";
+-			virtualkeys = <580 1350 60 45
+-				360 1350 60 45
+-				160 1350 60 45>;
+-			TP_MAX_X = <720>;
+-			TP_MAX_Y = <1280>;
++			vdd_name = "vdd28";
++			virtualkeys = <80 900 60 45
++				240 900 60 45
++				400 900 60 45>;
++			TP_MAX_X = <480>;
++			TP_MAX_Y = <854>;
+ 		};
+-/*
+-		msg2138_ts@26{
+-			compatible = "Mstar,msg2138_ts";
++		msg2xxx@26{
++			compatible = "mstar,msg2xxx";
+ 			reg = <0x26>;
+-			gpios = <&d_gpio_gpio 145 0
+-                                 &d_gpio_gpio 144 0>;
++			gpios = <&d_gpio_gpio 141 0
++				&d_gpio_gpio 144 0>;
+ 			vdd_name = "vdd28";
+-			virtualkeys = <256 1068 64 64
+-				128 1068 64 64
+-				192 1068 64 64>;
++			virtualkeys = <80 900 60 45
++				240 900 60 45
++				400 900 60 45>;
+ 			TP_MAX_X = <480>;
+-			TP_MAX_Y = <800>;
++			TP_MAX_Y = <854>;
+ 		};
+-*/
++
+ 	};
+ 	sprd_dcam {
+ 		compatible = "sprd,sprd_dcam";
+@@ -641,7 +633,7 @@
+ 		compatible  = "sprd,usb";
+ 		interrupts = <0 55 0x0>;
+ 		vbus-gpios = <&a_eic_gpio 0 0>;
+-		id-gpios = <&d_gpio_gpio 90 0>;
++		id-gpios = <&d_gpio_gpio 126 0>;
+ 		reg = <0x20200000 0x1000>;
+ 		tune_value = <0x078e33>;
+ 		usb-supply = <&vddusb>;
+@@ -1096,11 +1088,11 @@
+ 	chg-end-vol-pure = <4340>;
+ 	chg-end-vol-l = <4330>;
+ 	chg-bat-safety-vol = <4430>;
+-	rechg-vol = <4260>;
++	rechg-vol = <4220>;
+ 	adp-cdp-cur = <700>;
+-	adp-dcp-cur = <1150>;
++	adp-dcp-cur = <2000>;
+ 	adp-sdp-cur = <450>;
+-	chg-end-cur = <100>;
++	chg-end-cur = <300>;
+ 	chg-polling-time = <15>;
+ 	fgu-mode = <0>;
+ 	alm-soc = <5>;

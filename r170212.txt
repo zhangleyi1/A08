@@ -1,0 +1,59 @@
+Index: vendor/sprd/modules/libcamera/isp2.0/ae/ae1/ae_sprd_ctrl.c
+===================================================================
+--- vendor/sprd/modules/libcamera/isp2.0/ae/ae1/ae_sprd_ctrl.c	(revision 170211)
++++ vendor/sprd/modules/libcamera/isp2.0/ae/ae1/ae_sprd_ctrl.c	(revision 170212)
+@@ -2706,19 +2706,30 @@
+ 	return;
+ }
+ 
+-static void ae_hdr_ctrl(struct ae_ctrl_cxt *cxt, struct ae_calc_in * param){
+-	cxt->hdr_up = cxt->hdr_down = 25;
+-	if (3 == cxt->hdr_flag){/*EV-*/
++static void ae_hdr_ctrl(struct ae_ctrl_cxt *cxt, struct ae_calc_in * param)
++{
++	cxt->hdr_up = cxt->hdr_down = 55;
++
++	if (4 == cxt->hdr_flag){/*EV0*/
+ 		cxt->hdr_flag--;
+ 		cxt->hdr_timestamp = (uint64_t)param->sec * 1000000 + (uint64_t)param->usec;
+ 		cxt->cur_status.settings.lock_ae = AE_STATE_LOCKED;
+ 		cxt->cur_status.settings.manual_mode = 1;
++		//cxt->cur_status.settings.table_idx = cxt->hdr_base_ae_idx - cxt->hdr_down;
++		cxt->cur_status.settings.table_idx = cxt->hdr_base_ae_idx;
++		AE_LOGD("_isp_hdr_4: %d sec_%d usec_%d %llu\n",
++			cxt->cur_status.settings.table_idx, param->sec, param->usec, cxt->hdr_timestamp);
++	}else if(3 == cxt->hdr_flag){/*EV-*/
++		cxt->cur_status.settings.lock_ae = AE_STATE_LOCKED;
++		cxt->cur_status.settings.manual_mode = 1;
++		//cxt->cur_status.settings.table_idx = cxt->hdr_base_ae_idx + cxt->hdr_up;
+ 		cxt->cur_status.settings.table_idx = cxt->hdr_base_ae_idx - cxt->hdr_down;
+-		AE_LOGD("_isp_hdr_3: %d sec_%d usec_%d %llu\n",
+-				cxt->cur_status.settings.table_idx, param->sec, param->usec, cxt->hdr_timestamp);
++		cxt->hdr_flag--;
++		AE_LOGD("_isp_hdr_3: %d\n", cxt->cur_status.settings.table_idx);
+ 	}else if(2 == cxt->hdr_flag){/*EV+*/
+ 		cxt->cur_status.settings.lock_ae = AE_STATE_LOCKED;
+ 		cxt->cur_status.settings.manual_mode = 1;
++		//cxt->cur_status.settings.table_idx = cxt->hdr_base_ae_idx;
+ 		cxt->cur_status.settings.table_idx = cxt->hdr_base_ae_idx + cxt->hdr_up;
+ 		cxt->hdr_flag--;
+ 		AE_LOGD("_isp_hdr_2: %d\n", cxt->cur_status.settings.table_idx);
+@@ -2729,8 +2740,8 @@
+ 		cxt->hdr_flag--;
+ 		AE_LOGD("_isp_hdr_1: %d\n", cxt->cur_status.settings.table_idx);
+ 	}else{
+-		;
+ 	}
++
+ 	return;
+ }
+ 
+@@ -3586,7 +3597,7 @@
+ 		break;
+ 
+ 		case AE_HDR_START:
+-			cxt->hdr_flag = 3;
++			cxt->hdr_flag = 4;
+ 			cxt->hdr_timestamp = 0;
+ 			cxt->hdr_base_ae_idx = cxt->sync_cur_result.wts.cur_index;
+ 			break;

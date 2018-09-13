@@ -1,0 +1,13 @@
+Index: kernel/drivers/input/touchscreen/msg5846/mstar_drv_common.h
+===================================================================
+--- kernel/drivers/input/touchscreen/msg5846/mstar_drv_common.h	(revision 168231)
++++ kernel/drivers/input/touchscreen/msg5846/mstar_drv_common.h	(revision 168232)
+@@ -360,7 +360,7 @@
+  * Else, Type A protocol is enabled.
+  * By default, this compile option is disabled.
+  */
+-#define CONFIG_ENABLE_TYPE_B_PROTOCOL
++//#define CONFIG_ENABLE_TYPE_B_PROTOCOL
+ 
+ 
+ /*

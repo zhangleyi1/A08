@@ -1,0 +1,178 @@
+Index: packages/apps/Settings/src/com/android/settings/sim/SimSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/sim/SimSettings.java	(revision 177576)
++++ packages/apps/Settings/src/com/android/settings/sim/SimSettings.java	(revision 177577)
+@@ -489,19 +489,7 @@
+             } else if (sir == null) {
+                 setSummary(R.string.sim_selection_required_pref);
+             }
+-           // if (mSubscriptionManager.getActiveSubscriptionInfoCount() <= 1) {
+-				int[] subIds = SubscriptionManager.getSubId(0);
+-				int subId =SubscriptionManager.INVALID_SUBSCRIPTION_ID;
+-				if (subIds != null || subIds.length > 0) {
+-			    	subId = subIds[0];
+-				}
+-			    	ServiceState state = null;
+-		       if (mSubscriptionManager.isActiveSubId(subId)) {
+-			   		state = TelephonyManager.from(mContext)
+-						.getServiceStateForSubscriber(subId);
+-			   }
+-			if (mSubscriptionManager.getActiveSubscriptionInfoCount() <= 1
+-					|| state.getState() ==ServiceState.STATE_IN_SERVICE) {
++            if (mSubscriptionManager.getActiveSubscriptionInfoCount() <= 1) {
+                 setEnabled(false);
+             } else {
+                 //SPRD:add for bug 588861
+Index: vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/AutoSetDataCardController.java
+===================================================================
+--- vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/AutoSetDataCardController.java	(revision 177576)
++++ vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/AutoSetDataCardController.java	(revision 177577)
+@@ -1,127 +0,0 @@
+-package com.android.internal.telephony;
+-
+-import com.android.internal.telephony.Phone;
+-import com.android.internal.telephony.PhoneFactory;
+-import com.android.internal.telephony.SubscriptionController;
+-
+-import android.content.Context;
+-import android.content.ContextWrapper;
+-import android.os.AsyncResult;
+-import android.os.Handler;
+-import android.telephony.ServiceState;
+-import android.telephony.SubscriptionManager;
+-import android.telephony.TelephonyManager;
+-import android.text.TextUtils;
+-import android.util.Log;
+-import android.os.Message;
+-import android.provider.Settings;
+-
+-public class AutoSetDataCardController extends ContextWrapper {
+-
+-    private static final String LOG_TAG = "AutoSetDataCard";
+-    private static final int EVENT_SERVICE_STATE_CHANGED = 0;
+-    private static final int EVENT_SEARCH_NETWORK_TIMEOUT = 1;
+-    private static final int SEARCH_TIMEOUT_MILLIS = 60000;
+-
+-    static AutoSetDataCardController mInstance;
+-    private Context mContext;
+-    private int mNumSlots;
+-    private boolean mCanAutoSetDataCard = false;
+-    private static final int PRE_PHONEID = 0;
+-    private int mOtherPhoneId = -1;
+-
+-    public static AutoSetDataCardController getInstance() {
+-        return mInstance;
+-    }
+-
+-    public static AutoSetDataCardController init(Context context) {
+-        synchronized (AutoSetDataCardController.class) {
+-            if (mInstance == null) {
+-                mInstance = new AutoSetDataCardController(context);
+-            } else {
+-                Log.wtf(LOG_TAG, "init() called multiple times!  mInstance = " + mInstance);
+-            }
+-            return mInstance;
+-        }
+-    }
+-
+-    public AutoSetDataCardController(Context context) {
+-        super(context);
+-        mContext = context;
+-        int numSlots = TelephonyManager.from(mContext).getSimCount();
+-        for (int i = 0; i < numSlots; i++) {
+-            Phone phone = PhoneFactory.getPhone(i);
+-            if (phone != null) {
+-                phone.registerForServiceStateChanged(mHandler,
+-                        EVENT_SERVICE_STATE_CHANGED, null);
+-            }
+-        }
+-        findOtherPhone();
+-
+-    }
+-
+-    private Handler mHandler = new Handler() {
+-        public void handleMessage(Message msg) {
+-            int phoneId = msg.arg1;
+-            log("mHandler: " + msg.what + " phoneId: " + phoneId);
+-            switch (msg.what) {
+-                case EVENT_SERVICE_STATE_CHANGED:
+-                    autoSetDefaultDataSubId();
+-                    break;
+-                case EVENT_SEARCH_NETWORK_TIMEOUT:
+-                    mCanAutoSetDataCard = true;
+-                    autoSetDefaultDataSubId();
+-                    break;
+-            }
+-        };
+-    };
+-
+-    private void findOtherPhone() {
+-        mOtherPhoneId = 1;
+-    }
+-
+-    private static void log(String msg) {
+-        Log.d(LOG_TAG, msg);
+-    }
+-
+-    private boolean isAirplaneModeOn() {
+-        return Settings.Global.getInt(mContext.getContentResolver(),
+-                Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
+-    }
+-
+-    private void autoSetDefaultDataSubId() {
+-        if (isAirplaneModeOn()) {
+-            return;
+-        }
+-        if (isInService(PRE_PHONEID)) {
+-            mHandler.removeMessages(EVENT_SEARCH_NETWORK_TIMEOUT);
+-            setDefaultDataSubId(PRE_PHONEID);
+-        } else {
+-            if (isInService(mOtherPhoneId) && mCanAutoSetDataCard) {
+-                setDefaultDataSubId(mOtherPhoneId);
+-            } else if (!mCanAutoSetDataCard) {
+-                mHandler.sendMessageDelayed(
+-                        mHandler.obtainMessage(EVENT_SEARCH_NETWORK_TIMEOUT, PRE_PHONEID, -1),
+-                        SEARCH_TIMEOUT_MILLIS);
+-            }
+-        }
+-    }
+-
+-    private boolean isInService(int phoneId) {
+-        Phone phone = PhoneFactory.getPhone(phoneId);
+-        if (phone != null) {
+-            return phone.getServiceState().getState() == ServiceState.STATE_IN_SERVICE;
+-        }
+-        return false;
+-    }
+-
+-    private void setDefaultDataSubId(int phoneId) {
+-        mCanAutoSetDataCard = false;
+-        SubscriptionController subscriptionController = SubscriptionController.getInstance();
+-        int subId = subscriptionController.getSubIdUsingPhoneId(phoneId);
+-        int dataSubId = subscriptionController.getDefaultDataSubId();
+-        if (subscriptionController.isActiveSubId(subId) && subId != dataSubId) {
+-            subscriptionController.setDefaultDataSubId(subId);
+-        }
+-    }
+-}
+\ No newline at end of file
+Index: vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/TeleFrameworkFactoryEx.java
+===================================================================
+--- vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/TeleFrameworkFactoryEx.java	(revision 177576)
++++ vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/TeleFrameworkFactoryEx.java	(revision 177577)
+@@ -47,7 +47,6 @@
+ import com.android.internal.telephony.uicc.UiccCardApplication;
+ import com.android.internal.telephony.dataconnection.DcTracker;
+ import com.android.internal.telephony.dataconnection.DcTrackerEx;
+-import com.android.internal.telephony.AutoSetDataCardController;
+ 
+ public class TeleFrameworkFactoryEx extends TeleFrameworkFactory {
+     private static final String TAG = "TeleFrameworkFactoryEx";
+@@ -58,7 +57,6 @@
+         ExtraIccRecordsController.init(context, ci);
+         OperatorNameHandler.init(context);
+         GlobalConfigController.getInstance().init(context);
+-		AutoSetDataCardController.init(context);
+     }
+ 
+     /*SPRD: 474587 Feature for PhoneBook @{ */

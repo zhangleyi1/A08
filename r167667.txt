@@ -1,0 +1,13 @@
+Index: packages/apps/Launcher3/res/xml/default_workspace_4x4.xml
+===================================================================
+--- packages/apps/Launcher3/res/xml/default_workspace_4x4.xml	(revision 167666)
++++ packages/apps/Launcher3/res/xml/default_workspace_4x4.xml	(revision 167667)
+@@ -33,7 +33,7 @@
+         launcher:className="com.android.alarmclock.AnalogAppWidgetProvider"
+         launcher:screen="0"
+         launcher:x="1"
+-        launcher:y="0"
++        launcher:y="1"
+         launcher:spanX="2"
+         launcher:spanY="2" />
+ <!--

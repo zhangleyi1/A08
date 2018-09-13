@@ -1,0 +1,14 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/NotificationPanelView.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/NotificationPanelView.java	(revision 177328)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/NotificationPanelView.java	(revision 177329)
+@@ -1353,7 +1353,8 @@
+      * @return Whether we should intercept a gesture to open Quick Settings.
+      */
+     private boolean shouldQuickSettingsIntercept(float x, float y, float yDiff) {
+-        if (!mQsExpansionEnabled || mCollapsedOnDown||true) {
++		boolean isLockscreenStatus = mStatusBar.getBarState() == StatusBarState.KEYGUARD;
++        if (!mQsExpansionEnabled || mCollapsedOnDown||isLockscreenStatus) {
+             return false;
+         }
+         View header = mKeyguardShowing ? mKeyguardStatusBar : mQsContainer.getHeader();

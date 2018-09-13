@@ -1,0 +1,14 @@
+Index: u-boot64/common/loader/boot_mode.c
+===================================================================
+--- u-boot64/common/loader/boot_mode.c	(revision 171515)
++++ u-boot64/common/loader/boot_mode.c	(revision 171516)
+@@ -9,6 +9,9 @@
+ 	vibrator_hw_init();
+ 
+ 	set_vibrator(1);
++	mdelay(350);
++	set_vibrator(0);
++
+ 	vlx_nand_boot(BOOT_PART, BACKLIGHT_ON);
+ 	return;
+ }

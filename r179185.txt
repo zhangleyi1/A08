@@ -1,0 +1,11 @@
+Index: vendor/sprd/platform/packages/apps/Dialer/res/values/config.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Dialer/res/values/config.xml	(revision 179184)
++++ vendor/sprd/platform/packages/apps/Dialer/res/values/config.xml	(revision 179185)
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+     <!-- SPRD: Support For Reliance CallLog Icon Display in bug645018. -->
+-    <bool name="config_show_calllog_ex_icon">false</bool>
++    <bool name="config_show_calllog_ex_icon">true</bool>
+ </resources>

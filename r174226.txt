@@ -1,0 +1,57 @@
+Index: vendor/sprd/platform/packages/apps/SprdStk/src/com/android/stk/StkAppService.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdStk/src/com/android/stk/StkAppService.java	(revision 174225)
++++ vendor/sprd/platform/packages/apps/SprdStk/src/com/android/stk/StkAppService.java	(revision 174226)
+@@ -82,6 +82,7 @@
+ import com.android.internal.telephony.GsmAlphabet;
+ import com.android.internal.telephony.cat.CatServiceSprd;
+ import com.android.internal.telephony.TeleFrameworkFactory;
++import android.database.Cursor;
+ 
+ import java.util.Iterator;
+ import java.util.LinkedList;
+@@ -1487,6 +1488,17 @@
+         ContentResolver resolver = getContentResolver();
+         ContentValues values = new ContentValues();
+ 
++		Cursor cursor = resolver.query(Telephony.Carriers.CONTENT_URI,
++                 new String[] {"apn", "type"},
++                 Telephony.Carriers.APN + "='"+channeldata.NetAccessName+"'" + " AND " + Telephony.Carriers.TYPE + " LIKE '%"+TYPE_STK+"%'",
++                 null,
++                 null);
++ 
++         if (cursor != null) {
++             return;
++         }
++
++
+         String numeric = TelephonyManager.from(mContext).getSimOperatorNumericForPhone(slotId);
+         CatLog.d(this, "[stkapp] numeric = " + numeric);
+         if (numeric == null || numeric.length() < 5) {
+@@ -1707,12 +1719,24 @@
+     }
+ 
+     private void newRequest(int slotId) {
++		String numeric = TelephonyManager.from(mContext).getSimOperatorNumericForPhone(slotId);
+         final int sId = SubscriptionController.getInstance().getSubIdUsingPhoneId(slotId);
+         final int id = slotId;
+-        mStkContext[slotId].mNetworkRequest = new NetworkRequest.Builder()
++       /* mStkContext[slotId].mNetworkRequest = new NetworkRequest.Builder()
+                 .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+                 .addCapability(NetworkCapabilities.NET_CAPABILITY_SUPL)
+-                .setNetworkSpecifier(Integer.toString(sId)).build();
++                .setNetworkSpecifier(Integer.toString(sId)).build();*/
++        if("51009".equals(numeric)){
++             mStkContext[slotId].mNetworkRequest = new NetworkRequest.Builder()
++             .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
++             .addCapability(NetworkCapabilities.NET_CAPABILITY_SUPL)
++             .build();
++         } else {
++             mStkContext[slotId].mNetworkRequest = new NetworkRequest.Builder()
++             .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
++             .addCapability(NetworkCapabilities.NET_CAPABILITY_SUPL)
++             .setNetworkSpecifier(Integer.toString(sId)).build();
++         }
+         mStkContext[slotId].mNetworkCallback = new ConnectivityManager.NetworkCallback() {
+             public void onAvailable(Network network) {
+                 super.onAvailable(network);

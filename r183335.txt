@@ -1,0 +1,205 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/CallButtonFragment.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/CallButtonFragment.java	(revision 183334)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/CallButtonFragment.java	(revision 183335)
+@@ -87,9 +87,9 @@
+         public static final int BUTTON_AUDIO = 0;
+         public static final int BUTTON_MUTE = 1;
+         public static final int BUTTON_DIALPAD = 2;
+-        public static final int BUTTON_HOLD = 3;
+-        public static final int BUTTON_SWAP = 4;
+-        public static final int BUTTON_UPGRADE_TO_VIDEO = 5;
++        public static final int BUTTON_HOLD = 4;
++        public static final int BUTTON_SWAP = 5;
++        public static final int BUTTON_UPGRADE_TO_VIDEO = 3;
+         public static final int BUTTON_SWITCH_CAMERA = 6;
+         public static final int BUTTON_DOWNGRADE_TO_AUDIO = 7;
+         public static final int BUTTON_ADD_CALL = 8;
+@@ -336,7 +336,8 @@
+         /* @} */
+         /*SPRD: add for received/broadcast video call only{@*/
+         else if(id == R.id.changeToVideoRxButton || id == R.id.changeToVideoTxButton){
+-            getPresenter().changeToCallTypeClicked(id);
++            //getPresenter().changeToCallTypeClicked(id);
++            getPresenter().changeToVideoOnlyClicked(id);
+         }
+         /* @} */
+         else {
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/CallButtonPresenter.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/CallButtonPresenter.java	(revision 183334)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/CallButtonPresenter.java	(revision 183335)
+@@ -556,19 +556,29 @@
+         final boolean showMerge = InCallUICmccHelper.getInstance(ui.getContext())
+                 .showMergeButton(call);
+         /* @} */
++
++        /*SPRD: Modify for bug 786384{@*/
++        boolean showVideoByUseExt;
++        if(useExt(ui.getContext())){
++            showVideoByUseExt = true;
++        }
++        else{
++            showVideoByUseExt = !VideoUtils.isBidirectionalVideoCall(call);
++        }
++        /* @} */
+         /*SPRD: Modify for bug594043 and 598376{@*/
+-        final boolean showUpgradeToVideo = !VideoUtils.isBidirectionalVideoCall(call) && hasVideoCallCapabilities(call)
++        final boolean showUpgradeToVideo = showVideoByUseExt && hasVideoCallCapabilities(call)
++                && call.getChildCallIds().isEmpty() && CallUtil.isVideoEnabled(ui.getContext())
++                && !isCallOnHold;
++        /* @} */
++        final boolean showDowngradeToAudio = !(useExt(ui.getContext())) && isVideo && isDowngradeToAudioSupported(call) && isCallActive && !((call.isConferenceCall() && !call.hasProperty(Details.PROPERTY_GENERIC_CONFERENCE)) || call.isConferenceCall());
++        final boolean showChangeToVideoRx = !(useExt(ui.getContext())) && (VideoUtils.isBidirectionalVideoCall(call) && isVideo) && hasVideoCallCapabilities(call)
+                  && call.getChildCallIds().isEmpty() && CallUtil.isVideoEnabled(ui.getContext())
+                  && !isCallOnHold;
+-        /* @} */
+-        final boolean showDowngradeToAudio = isVideo && isDowngradeToAudioSupported(call) && isCallActive && !((call.isConferenceCall() && !call.hasProperty(Details.PROPERTY_GENERIC_CONFERENCE)) || call.isConferenceCall());
+-        final boolean showChangeToVideoRx = (VideoUtils.isBidirectionalVideoCall(call) && isVideo) && hasVideoCallCapabilities(call)
+-                && call.getChildCallIds().isEmpty() && CallUtil.isVideoEnabled(ui.getContext())
+-                && !isCallOnHold;
+-
+-        final boolean showChangeToVideoTx = (VideoUtils.isBidirectionalVideoCall(call) && isVideo) && hasVideoCallCapabilities(call)
+-                && call.getChildCallIds().isEmpty() && CallUtil.isVideoEnabled(ui.getContext())
+-                && !isCallOnHold;
++ 
++        final boolean showChangeToVideoTx = !(useExt(ui.getContext())) && (VideoUtils.isBidirectionalVideoCall(call) && isVideo) && hasVideoCallCapabilities(call)
++                 && call.getChildCallIds().isEmpty() && CallUtil.isVideoEnabled(ui.getContext())
++                 && !isCallOnHold;
+         final boolean showPauseVideo = false;//VideoUtils.isBidirectionalVideoCall(call) || misVideoPaused;
+         final boolean showMute = call.can(android.telecom.Call.Details.CAPABILITY_MUTE);
+         /*SPRD: add for VoLTE{@*/
+@@ -1001,12 +1011,15 @@
+         }
+ 
+         if (hasVideoCallCapabilities(call)) {
+-            items.add(res.getText(R.string.onscreenVideoCallRxText));
+-            itemToCallType.add(VideoProfile.STATE_RX_ENABLED);
++            if(!VideoUtils.isRxOnlyVideoCall(call)){
++                items.add(res.getText(R.string.onscreenVideoCallTxText));
++                itemToCallType.add(VideoProfile.STATE_TX_ENABLED);
++            }
++            if(!VideoUtils.isTxOnlyVideoCall(call)){
++                items.add(res.getText(R.string.onscreenVideoCallRxText));
++                itemToCallType.add(VideoProfile.STATE_RX_ENABLED);
++            }
+ 
+-            items.add(res.getText(R.string.onscreenVideoCallTxText));
+-            itemToCallType.add(VideoProfile.STATE_TX_ENABLED);
+-
+             items.add(res.getText(R.string.onscreenVideoCallText));
+             itemToCallType.add(VideoProfile.STATE_BIDIRECTIONAL);
+         }
+@@ -1020,11 +1033,7 @@
+             public void onClick(DialogInterface dialog, int item) {
+                 Toast.makeText(context, items.get(item), Toast.LENGTH_SHORT).show();
+                 final int selCallType = itemToCallType.get(item);
+-                /*Log.v(this, "Videocall: ModifyCall: upgrade/downgrade to "
+-                        + callTypeToString(selCallType));*/
+-                VideoProfile videoProfile = new VideoProfile(selCallType);
+-                changeToCallTypeClicked(item);
+-                //changeToVideoClicked(call, videoProfile);
++                changeToCallTypeClicked(call, selCallType);
+                 dialog.dismiss();
+             }
+         };
+@@ -1038,43 +1047,48 @@
+     /**
+      * Sends a session modify request to the telephony framework
+      */
+-    private void changeToVideoClicked(Call call, VideoProfile videoProfile) {
++    private void changeToCallTypeClicked(Call call, int videoState) {
++        if(call == null){
++            Log.d(this,"changeToCallTypeClicked: call = null");
++            return;
++        }
+         VideoCall videoCall = call.getVideoCall();
+         if (videoCall == null) {
++            Log.d(this,"changeToCallTypeClicked videoCall = null");
+             return;
+         }
+-        videoCall.sendSessionModifyRequest(videoProfile);
+-        call.setSessionModificationState(Call.SessionModificationState.WAITING_FOR_RESPONSE);
+-        //InCallAudioManager.getInstance().onModifyCallClicked(call, videoProfile.getVideoState());//ͬ������Audio״̬
+-    }
+ 
+-    public void changeToCallTypeClicked(int id) {
+-        int selectedCallProfile = -1;
+-        if(mCall == null){
+-            Log.d(this,"mCall == null");
+-            return;
++        if(videoState == VideoProfile.STATE_BIDIRECTIONAL){
++            int currVideoState = call.getVideoState();
++            int currUnpausedVideoState = VideoUtils.getUnPausedVideoState(currVideoState);
++            videoState |= currUnpausedVideoState;
+         }
+-        VideoCall videoCall = mCall.getVideoCall();
+-        if (videoCall == null) {
+-            Log.d(this,"videoCall == null");
+-            return;
++
++        VideoProfile videoProfile = new VideoProfile(videoState);
++
++        if(!VideoUtils.isVideoCall(call)){
++            if (CallUtil.isBatteryLow()) {
++                android.telecom.Call telecomCall = InCallPresenter.getInstance().getTelecomCallById(mCall.getId());
++                CallUtil.showLowBatteryChangeToVideoDialog(telecomCall,videoProfile);
++            } else {
++                videoCall.sendSessionModifyRequest(videoProfile);
++                call.setSessionModificationState(Call.SessionModificationState.WAITING_FOR_RESPONSE);
++            }
++        }else{
++            videoCall.sendSessionModifyRequest(videoProfile);
+         }
++    }
+ 
+-        Log.d(this,"changeToCallTypeClicked id = "+id);
++    public void changeToVideoOnlyClicked(int id) {
++        int selectedCallType = -1;
+         switch (id){
+             case R.id.changeToVideoRxButton:
+-                selectedCallProfile = VideoProfile.STATE_RX_ENABLED;
++                selectedCallType = VideoProfile.STATE_RX_ENABLED;
+                 break;
+             case R.id.changeToVideoTxButton:
+-                selectedCallProfile = VideoProfile.STATE_TX_ENABLED;
++                selectedCallType = VideoProfile.STATE_TX_ENABLED;
+                 break;
+         }
+-
+-        VideoProfile videoProfile = new VideoProfile(selectedCallProfile);
+-        videoCall.sendSessionModifyRequest(videoProfile);
+-
+-        if(!VideoUtils.isVideoCall(mCall)){
+-            mCall.setSessionModificationState(Call.SessionModificationState.WAITING_FOR_RESPONSE);
+-        }
++        changeToCallTypeClicked(mCall, selectedCallType);
+     }
+ }
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/VideoUtils.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/VideoUtils.java	(revision 183334)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/VideoUtils.java	(revision 183335)
+@@ -49,6 +49,22 @@
+         return VideoProfile.isBidirectional(call.getVideoState());
+     }
+ 
++    public static boolean isRxOnlyVideoCall(Call call) {
++        if (!CompatUtils.isVideoCompatible() || call == null || !InCallPresenter.getInstance().isVideoCallEnabaled()) {
++            return false;
++        }
++
++        return VideoProfile.isReceptionEnabled(call.getVideoState()) && !VideoProfile.isTransmissionEnabled(call.getVideoState());
++    }
++
++    public static boolean isTxOnlyVideoCall(Call call) {
++        if (!CompatUtils.isVideoCompatible() || call == null || !InCallPresenter.getInstance().isVideoCallEnabaled()) {
++            return false;
++        }
++
++        return !VideoProfile.isReceptionEnabled(call.getVideoState()) && VideoProfile.isTransmissionEnabled(call.getVideoState());
++    }
++
+     public static boolean isIncomingVideoCall(Call call) {
+         if (!VideoUtils.isVideoCall(call)) {
+             return false;

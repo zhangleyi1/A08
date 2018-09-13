@@ -1,0 +1,13 @@
+Index: packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java	(revision 166467)
++++ packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java	(revision 166468)
+@@ -421,7 +421,7 @@
+ 					int sort=0;
+                     if (!TextUtils.isEmpty(deviceId)) {
+ 						sort=slot+1;
+-                        deviceIds.add("MEI"+sort+": "+deviceId);
++                        deviceIds.add("IMEI"+sort+": "+deviceId);
+                     }
+                 }
+             } else {

@@ -1,0 +1,24 @@
+Index: frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java	(revision 179990)
++++ frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java	(revision 179991)
+@@ -20259,6 +20259,19 @@
+         mLmkWhiteList.add("com.whatsapp");
+         mLmkWhiteList.add("com.bitsmedia.android.muslimpro");
+         mLmkWhiteList.add("jp.naver.line.android");
++        mLmkWhiteList.add("com.tencent.mm");
++        mLmkWhiteList.add("com.bbm");
++        mLmkWhiteList.add("com.facebook.katana");
++        mLmkWhiteList.add("com.facebook.orca");
++        mLmkWhiteList.add("com.instagram.android");
++        mLmkWhiteList.add("com.kakao.talk");
++        mLmkWhiteList.add("com.skype.raider");
++        mLmkWhiteList.add("com.twitter.android");
++        mLmkWhiteList.add("com.yahoo.mobile.client.android.mail");
++        mLmkWhiteList.add("org.telegram.messenger");
++        mLmkWhiteList.add("com.path");
++        mLmkWhiteList.add("com.android.email");
++        mLmkWhiteList.add("com.google.android.gm");
+     }
+ 
+     private void increaseAppAdjLocked(ProcessRecord app) {

@@ -1,0 +1,16 @@
+Index: vendor/sprd/platform/frameworks/base/packages/Keyguard/src/com/android/keyguard/CarrierTextLayout.java
+===================================================================
+--- vendor/sprd/platform/frameworks/base/packages/Keyguard/src/com/android/keyguard/CarrierTextLayout.java	(revision 179165)
++++ vendor/sprd/platform/frameworks/base/packages/Keyguard/src/com/android/keyguard/CarrierTextLayout.java	(revision 179166)
+@@ -212,7 +212,10 @@
+             }
+             for (int i = 0; i < count; i++) {
+                 TextView view = (TextView) getChildAt(i);
+-                view.setText(displayText[i]);
++				if(i==0 && count >1)
++                    view.setText(displayText[i]+"-");
++			    else
++                    view.setText(displayText[i]);					
+                 view.setVisibility(TextUtils.isEmpty(displayText[i]) ? View.INVISIBLE : View.VISIBLE);
+             }
+         } catch (Exception e) {

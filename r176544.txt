@@ -1,0 +1,39 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/allapps/AllAppsContainerView.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/allapps/AllAppsContainerView.java	(revision 176543)
++++ packages/apps/Launcher3/src/com/android/launcher3/allapps/AllAppsContainerView.java	(revision 176544)
+@@ -289,6 +289,7 @@
+         mAppsRecyclerView.setHasFixedSize(true);
+         mAppsRecyclerView.addOnScrollListener(mElevationController);
+         mAppsRecyclerView.setElevationController(mElevationController);
++        mAppsRecyclerView.setFlingRatio(0.3);
+ 
+         if (mItemDecoration != null) {
+             mAppsRecyclerView.addItemDecoration(mItemDecoration);
+Index: packages/apps/Launcher3/src/com/android/launcher3/allapps/AllAppsRecyclerView.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/allapps/AllAppsRecyclerView.java	(revision 176543)
++++ packages/apps/Launcher3/src/com/android/launcher3/allapps/AllAppsRecyclerView.java	(revision 176544)
+@@ -55,6 +55,7 @@
+ 
+     private HeaderElevationController mElevationController;
+ 
++    private double flingRatio;
+     public AllAppsRecyclerView(Context context) {
+         this(context, null);
+     }
+@@ -208,6 +209,14 @@
+         }
+     }
+ 
++    public void setFlingRatio(double ratio) {
++        flingRatio = ratio;
++    }
++    @Override
++    public boolean fling(int velocityX, int velocityY) {
++        velocityY = (int)(velocityY*flingRatio);
++        return super.fling(velocityX, velocityY);
++    }
+     /**
+      * Maps the touch (from 0..1) to the adapter position that should be visible.
+      */

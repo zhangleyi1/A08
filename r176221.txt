@@ -1,0 +1,289 @@
+Index: vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/adapters/MultiSelectFileAdapter.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/adapters/MultiSelectFileAdapter.java	(revision 176220)
++++ vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/adapters/MultiSelectFileAdapter.java	(revision 176221)
+@@ -11,6 +11,7 @@
+ import android.content.res.Resources;
+ import android.graphics.Bitmap;
+ import android.graphics.drawable.Drawable;
++import android.graphics.Color;
+ import android.preference.PreferenceManager;
+ import android.util.Log;
+ import android.view.View;
+@@ -48,7 +49,7 @@
+     private Drawable mDefaultImageIcon;
+     private Drawable mDefaultFolderIcon;
+     private Drawable mDefaultApkIcon;
+-
++	private static final int COLOR_TRANSPARENT = Color.parseColor("#00000000");
+     public MultiSelectFileAdapter(Context context, ListView listView) {
+         super(context);
+         mFolderStack = new Stack<String>();
+@@ -130,6 +131,11 @@
+                 }
+             }
+         }
++		if(isChecked(position)){
++            vHolder.itemView.setBackgroundResource(R.drawable.file_select_background);
++        }else{
++            vHolder.itemView.setBackgroundColor(COLOR_TRANSPARENT);
++        }
+         vHolder.selectCb.setVisibility(View.VISIBLE);
+         vHolder.selectCb.setChecked(isChecked(position));
+         vHolder.fileIcon.setClickable(false);
+Index: vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/adapters/FileAdapter.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/adapters/FileAdapter.java	(revision 176220)
++++ vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/adapters/FileAdapter.java	(revision 176221)
+@@ -283,6 +283,7 @@
+     }
+     
+     public static class ViewHolder {
++		public View itemView;
+         public ImageView fileIcon;
+         public TextView fileName;
+         public TextView fileMessage;
+@@ -315,6 +316,8 @@
+             vHolder = new ViewHolder();
+             convertView = LayoutInflater.from(parent.getContext()).inflate(
+                     R.layout.detailed_filelist_item, null);
++			vHolder.itemView = (View) convertView
++                    .findViewById(R.id.item_view);
+             vHolder.fileIcon = (ImageView) convertView
+                     .findViewById(R.id.file_icon);
+             vHolder.fileIcon.setOnClickListener(this);
+Index: vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/adapters/QuickScanCursorAdapter.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/adapters/QuickScanCursorAdapter.java	(revision 176220)
++++ vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/adapters/QuickScanCursorAdapter.java	(revision 176221)
+@@ -16,6 +16,7 @@
+ import android.database.Cursor;
+ import android.graphics.Bitmap;
+ import android.graphics.drawable.Drawable;
++import android.graphics.Color;
+ import android.net.Uri;
+ import android.os.Bundle;
+ import android.os.CountDownTimer;
+@@ -82,7 +83,7 @@
+     private Drawable mDefaultImageIcon;
+ 
+     private Drawable mDefaultApkIcon;
+-
++	private static final int COLOR_TRANSPARENT = Color.parseColor("#00000000");
+     public QuickScanCursorAdapter(Activity context, int resourceType,
+             String orderStr) {
+         super(context);
+@@ -582,8 +583,10 @@
+         if(mIsSelectMode){
+             vHolder.selectCb.setVisibility(View.VISIBLE);
+             if(isChecked(position)){
++				vHolder.itemView.setBackgroundResource(R.drawable.file_select_background);
+                 vHolder.selectCb.setChecked(true);
+             }else{
++				vHolder.itemView.setBackgroundColor(COLOR_TRANSPARENT);
+                 vHolder.selectCb.setChecked(false);
+             }
+             vHolder.fileIcon.setClickable(false);
+Index: vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/activities/MultiSelectActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/activities/MultiSelectActivity.java	(revision 176220)
++++ vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/activities/MultiSelectActivity.java	(revision 176221)
+@@ -414,11 +414,13 @@
+                     installSelectItem.setVisible(false);
+                 }
+             }
++			/*
+             if(mAdapterForOverView == null){
+                 if(shareSelectItem != null){
+                 shareSelectItem.setVisible(false);
+                 }
+             }
++			*/
+             if (mSelectedFiles != null && !mSelectedFiles.isEmpty()) {
+                 if (multiSelectItem != null) {
+                     multiSelectItem.setEnabled(true);
+Index: vendor/sprd/platform/packages/apps/FileExplorer/res/drawable/copy_selector.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/FileExplorer/res/drawable/copy_selector.xml	(revision 0)
++++ vendor/sprd/platform/packages/apps/FileExplorer/res/drawable/copy_selector.xml	(revision 176221)
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:drawable="@drawable/menu_copy_disable" android:state_enabled="false"/>
++    <item android:drawable="@drawable/menu_copy" />
++</selector>
+\ No newline at end of file
+Index: vendor/sprd/platform/packages/apps/FileExplorer/res/drawable/cut_selector.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/FileExplorer/res/drawable/cut_selector.xml	(revision 0)
++++ vendor/sprd/platform/packages/apps/FileExplorer/res/drawable/cut_selector.xml	(revision 176221)
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:drawable="@drawable/menu_cut_disable" android:state_enabled="false"/>
++    <item android:drawable="@drawable/menu_cut" />
++</selector>
+\ No newline at end of file
+Index: vendor/sprd/platform/packages/apps/FileExplorer/res/drawable/share_selector.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/FileExplorer/res/drawable/share_selector.xml	(revision 0)
++++ vendor/sprd/platform/packages/apps/FileExplorer/res/drawable/share_selector.xml	(revision 176221)
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:drawable="@drawable/menu_share_disable" android:state_enabled="false"/>
++    <item android:drawable="@drawable/menu_share" />
++</selector>
+\ No newline at end of file
+Index: vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_cut.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_cut.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_cut.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_cut.png	(revision 176221)
+
+Property changes on: vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_cut.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_share_disable.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_share_disable.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_share_disable.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_share_disable.png	(revision 176221)
+
+Property changes on: vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_share_disable.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_copy_disable.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_copy_disable.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_copy_disable.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_copy_disable.png	(revision 176221)
+
+Property changes on: vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_copy_disable.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_cut_disable.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_cut_disable.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_cut_disable.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_cut_disable.png	(revision 176221)
+
+Property changes on: vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_cut_disable.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_share.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_share.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_share.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_share.png	(revision 176221)
+
+Property changes on: vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_share.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_copy.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_copy.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_copy.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_copy.png	(revision 176221)
+
+Property changes on: vendor/sprd/platform/packages/apps/FileExplorer/res/drawable-hdpi/menu_copy.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/FileExplorer/res/layout/detailed_filelist_item.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/FileExplorer/res/layout/detailed_filelist_item.xml	(revision 176220)
++++ vendor/sprd/platform/packages/apps/FileExplorer/res/layout/detailed_filelist_item.xml	(revision 176221)
+@@ -1,5 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    android:id="@+id/item_view"
+     android:layout_width="fill_parent"
+     android:layout_height="fill_parent"
+     android:orientation="horizontal"
+Index: vendor/sprd/platform/packages/apps/FileExplorer/res/menu/multi_select_menu.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/FileExplorer/res/menu/multi_select_menu.xml	(revision 176220)
++++ vendor/sprd/platform/packages/apps/FileExplorer/res/menu/multi_select_menu.xml	(revision 176221)
+@@ -1,22 +1,26 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <menu xmlns:android="http://schemas.android.com/apk/res/android" >
+ 
++   <item
++        android:id="@+id/menu_copy"
++        android:title="@string/menu_copy"
++        android:icon="@drawable/copy_selector"
++        android:showAsAction="always"/>
+     <item
++        android:id="@+id/menu_cut"
++        android:title="@string/menu_cut"
++        android:icon="@drawable/cut_selector"
++        android:showAsAction="always"/>
++    <item
+         android:id="@+id/menu_delete"
+         android:title="@string/operate_delete"
+         android:icon="@drawable/delete_selector"
+         android:showAsAction="always"/>
+     <item
+-        android:id="@+id/menu_copy"
+-        android:title="@string/menu_copy"/>
+-    <item
+-        android:id="@+id/menu_cut"
+-        android:title="@string/menu_cut"/>
+-    
+-    <item
+         android:id="@+id/menu_share"
+-        android:title="@string/operate_share"/>
+-    
++        android:title="@string/operate_share"
++        android:icon="@drawable/share_selector"
++        android:showAsAction="always"/>
+     <item
+         android:id="@+id/menu_install"
+         android:title="@string/overview_menu_install"/>
+Index: vendor/sprd/platform/packages/apps/FileExplorer/res/layout-sw768dp/detailed_filelist_item.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/FileExplorer/res/layout-sw768dp/detailed_filelist_item.xml	(revision 176220)
++++ vendor/sprd/platform/packages/apps/FileExplorer/res/layout-sw768dp/detailed_filelist_item.xml	(revision 176221)
+@@ -1,5 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    android:id="@+id/item_view"
+     android:layout_width="fill_parent"
+     android:layout_height="fill_parent"
+     android:orientation="horizontal"

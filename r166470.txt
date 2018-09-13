@@ -1,0 +1,33 @@
+Index: packages/apps/Messaging/src/com/android/messaging/datamodel/MessageNotificationState.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/datamodel/MessageNotificationState.java	(revision 166469)
++++ packages/apps/Messaging/src/com/android/messaging/datamodel/MessageNotificationState.java	(revision 166470)
+@@ -553,14 +553,14 @@
+             //builder.setContentText(mContent);   // for collapsed state
+             final Context context = Factory.get().getApplicationContext();
+             String unReadMsgCoutTips;
+-            if (convInfo.mTotalMessageCount <= getMaxMessagesInConversationNotification())  {
++            //if (convInfo.mTotalMessageCount <= getMaxMessagesInConversationNotification())  {
+                 unReadMsgCoutTips = messageCount+" "+context.getString(R.string.unread_message_count);
+-            } else {
+-                unReadMsgCoutTips = messageCount+"+ "+context.getString(R.string.unread_message_count);
+-            }
++           // } else {
++           //     unReadMsgCoutTips = messageCount+"+ "+context.getString(R.string.unread_message_count);
++          //  }
+             builder.setContentText(unReadMsgCoutTips);
+             LogUtil.v(TAG, "===notify=====NotificationCompat.Style==build===========unReadMsgCoutTips: "+unReadMsgCoutTips+"   mContent: "+mContent);
+-            if (messageCount == 1) {
++           /* if (messageCount == 1) {
+                 final boolean shouldShowImage = ContentType.isImageType(mAttachmentType)
+                         || (ContentType.isVideoType(mAttachmentType)
+                         && VideoThumbnailRequest.shouldShowIncomingVideoThumbnails());
+@@ -626,7 +626,7 @@
+ 
+                 // Show a single notification -- big style with the text of all the messages
+                 notifStyle = new NotificationCompat.BigTextStyle(builder).bigText(buf);
+-            }
++            }*/
+             builder.setWhen(convInfo.mReceivedTimestamp);
+             return notifStyle;
+         }

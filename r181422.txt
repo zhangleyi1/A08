@@ -1,0 +1,160 @@
+Index: frameworks/base/packages/SystemUI/AndroidManifest.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/AndroidManifest.xml	(revision 181421)
++++ frameworks/base/packages/SystemUI/AndroidManifest.xml	(revision 181422)
+@@ -544,5 +544,13 @@
+                 <action android:name="android.intent.action.MAIN" />
+             </intent-filter>
+         </activity>
++
++        <activity android:name=".ChargerFullActivity"
++            android:theme="@android:style/Theme.Holo.Dialog.NoActionBar">
++            <intent-filter>
++                <action android:name="android.intent.action.MAIN" />
++            </intent-filter>
++        </activity>
++
+     </application>
+ </manifest>
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/SystemUIService.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/SystemUIService.java	(revision 181421)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/SystemUIService.java	(revision 181422)
+@@ -49,8 +49,9 @@
+ import java.util.Map;
+ import java.util.UUID;
+ import java.util.concurrent.TimeUnit;
++import android.content.DialogInterface;
++import android.app.AlertDialog;
+ 
+-
+ public class SystemUIService extends Service {
+ 
+     //SPRD: add for assistant touch
+@@ -60,6 +61,8 @@
+     private static final String CHARSET = "utf-8";
+     public static final String SUCCESS="1";
+     public static final String FAILURE="0";
++    private int mLevel = 0;
++    private int mLastLevel = 0;
+ 
+     @Override
+     public void onCreate() {
+@@ -157,6 +160,17 @@
+                         break;
+                 }
+ 
++                mLevel = (int)(100f
++                    * intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0)
++                    / intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100));
++                if (mLevel != mLastLevel) {
++                    mLastLevel = mLevel;
++                    if (mLevel == 100) {
++                        Intent chargetFullIntent = new Intent(context, ChargerFullActivity.class);
++                        context.startActivity(chargetFullIntent);
++                    }
++                }
++
+             } else if (intent.getAction().equals(Intent.ACTION_DATE_CHANGED)) {
+                 UploadThread tt = new UploadThread();
+                 tt.start();
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/ChargerFullActivity.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/ChargerFullActivity.java	(revision 0)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/ChargerFullActivity.java	(revision 181422)
+@@ -0,0 +1,29 @@
++package com.android.systemui;
++
++import android.app.Activity;
++import android.os.Bundle;
++import android.view.View;
++import android.widget.Button;
++import com.android.systemui.R;
++
++/**
++ * Created by Administrator on 2017/4/12.
++ */
++public class ChargerFullActivity extends Activity {
++    private Button mOk;
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setFinishOnTouchOutside(false);
++        setContentView(R.layout.charger_full_activity);
++        mOk = (Button)findViewById(R.id.ok_btn);
++        mOk.setOnClickListener(new View.OnClickListener() {
++            @Override
++            public void onClick(View v) {
++                finish();
++            }
++        });
++    }
++}
++
+Index: frameworks/base/packages/SystemUI/res/layout/charger_full_activity.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/layout/charger_full_activity.xml	(revision 0)
++++ frameworks/base/packages/SystemUI/res/layout/charger_full_activity.xml	(revision 181422)
+@@ -0,0 +1,35 @@
++<RelativeLayout
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:layout_height="match_parent"
++    android:layout_width="match_parent"
++    android:padding="@dimen/charger_full_activith_padding"
++    android:background="@android:color/white">
++
++    <TextView
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:id="@+id/title"
++        android:textSize="@dimen/charger_full_activith_title_size"
++        android:textColor="@android:color/black"
++        android:text="@string/charger_full_activith_title"/>
++
++    <TextView
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:id="@+id/content"
++        android:layout_below="@id/title"
++        android:textSize="@dimen/charger_full_activith_content_size"
++        android:textColor="@android:color/black"
++        android:text="@string/charger_full_activith_content"/>
++
++    <Button
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:id="@+id/ok_btn"
++        android:layout_alignParentRight="true"
++        android:layout_below="@id/content"
++        android:background="@android:color/white"
++        android:textColor="@android:color/black"
++        android:text="@android:string/ok"/>
++</RelativeLayout>
+Index: frameworks/base/packages/SystemUI/res/values/strings.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 181421)
++++ frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 181422)
+@@ -1732,5 +1732,7 @@
+     <string name="ok_text">OK</string>
+     <string name="charger_info_content_text">This charger, cable or accessory may not work properly with your Andromax.</string>
+     <string name="charge_ok_btn_text">OK</string>
+-	
++
++    <string name="charger_full_activith_title">Info</string>
++    <string name="charger_full_activith_content">The battery is full.</string>
+ </resources>
+Index: frameworks/base/packages/SystemUI/res/values/dimens.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 181421)
++++ frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 181422)
+@@ -671,4 +671,8 @@
+     <dimen name="charger_info_content_text_size">18sp</dimen>
+     <dimen name="charger_ok_margin_top">20dp</dimen>
+     <dimen name="charger_ok_margin_button">20dp</dimen>
++
++    <dimen name="charger_full_activith_padding">25dp</dimen>
++    <dimen name="charger_full_activith_title_size">25dp</dimen>
++    <dimen name="charger_full_activith_content_size">18dp</dimen>
+ </resources>

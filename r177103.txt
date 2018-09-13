@@ -1,0 +1,33 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardPresenter.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardPresenter.java	(revision 177102)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardPresenter.java	(revision 177103)
+@@ -1268,13 +1268,13 @@
+             view.setTag("ON");
+             mNormalCallVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL);
+             mAudioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, mMaxCallVolume, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+-            bt.setImageResource(R.drawable.f_blue);
++            bt.setImageResource(R.drawable.f_red);
+             Toast.makeText(mContext, mContext.getString(R.string.volume_boost_on),Toast.LENGTH_SHORT).show();
+             Log.i("this", "set volume max:" + mMaxCallVolume) ;
+         }else{
+            view.setTag("OFF");
+            mAudioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, mNormalCallVolume, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+-           bt.setImageResource(R.drawable.f_red);
++           bt.setImageResource(R.drawable.f_blue);
+            Toast.makeText(mContext, mContext.getString(R.string.volume_boost_off),Toast.LENGTH_SHORT).show();
+            Log.i("this", "set volume normal:" + mNormalCallVolume) ;
+          }
+Index: packages/apps/Dialer/InCallUI/res/layout-h400dp/call_card_fragment.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/layout-h400dp/call_card_fragment.xml	(revision 177102)
++++ packages/apps/Dialer/InCallUI/res/layout-h400dp/call_card_fragment.xml	(revision 177103)
+@@ -140,7 +140,7 @@
+                 android:layout_height="wrap_content"
+                 android:layout_below="@id/telcel_info"
+                 android:padding="@dimen/call_banner_side_padding"
+-                android:src="@drawable/f_red"
++                android:src="@drawable/f_blue"
+                 android:background="#00000000"
+                 android:visibility="visible" />   
+ 

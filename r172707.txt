@@ -1,0 +1,202 @@
+Index: device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 172706)
++++ device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 172707)
+@@ -215,6 +215,8 @@
+     libtrusty \
+     keystore.trusty
+ 
++PRODUCT_COPY_FILES += $(BOARDDIR)/blackAppList.xml:system/etc/blackAppList.xml
++
+ TRUSTY_SEPOLICY_DIR :=vendor/sprd/proprietories-source/sprdtrusty/vendor/sprd/modules/common/sepolicy
+ BOARD_SEPOLICY_DIRS += $(TRUSTY_SEPOLICY_DIR)
+ endif
+Index: device/sprd/scx35l/sp9832a_2h11/blackAppList.xml
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/blackAppList.xml	(revision 0)
++++ device/sprd/scx35l/sp9832a_2h11/blackAppList.xml	(revision 172707)
+@@ -0,0 +1,15 @@
++<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
++<app_list>
++<packageItem>
++<pkg_name>com.google.android.googlequicksearchbox</pkg_name>
++</packageItem>
++<packageItem>
++<pkg_name>com.google.android.gms</pkg_name>
++</packageItem>
++<packageItem>
++<pkg_name>com.android.vending</pkg_name>
++</packageItem>
++<packageItem>
++<pkg_name>com.google.android.partnersetup</pkg_name>
++</packageItem>
++</app_list>
+Index: vendor/sprd/platform/frameworks/base/services/core/java/com/android/server/alarm/AlarmAlignHelperEx.java
+===================================================================
+--- vendor/sprd/platform/frameworks/base/services/core/java/com/android/server/alarm/AlarmAlignHelperEx.java	(revision 172706)
++++ vendor/sprd/platform/frameworks/base/services/core/java/com/android/server/alarm/AlarmAlignHelperEx.java	(revision 172707)
+@@ -1,5 +1,6 @@
+ package com.android.server;
+ 
++import android.os.Binder;
+ import android.os.SystemProperties;
+ import static android.app.AlarmManager.RTC_WAKEUP;
+ import static android.app.AlarmManager.RTC;
+@@ -23,7 +24,7 @@
+ 
+     private static final String ALIGN_LENGTH = "persist.sys.align_length";
+     private static final String ALIGN_ENABLE = "persist.sys.heartbeat.enable";
+-    private static final int DEFAULT_LENGTH = 5;
++    private static final int DEFAULT_LENGTH = 30;
+     private static final int MIN_LENGTH = 3;
+     private static final int MAX_LENGTH = 60;
+     private static final String TAG = "AlarmManagerHelperEx";
+@@ -160,24 +161,31 @@
+     }
+ 
+     protected PowerGuruAlarmInfo matchBeatListPackage(final PendingIntent pi){
+-        if(pi != null && mBeatlist != null && mBeatlist.size() > 0){
+-            String pn = pi.getCreatorPackage();
+-            Intent in = pi.getIntent();
+-            String action = null;
+-            String component = null;
+-            if(in != null){
+-                action = in.getAction();
+-                if(in.getComponent() != null){
+-                    component = in.getComponent().getClassName();
++        // getIntent need android.permission.GET_INTENT_SENDER_INTENT
++        // so clearCallingIdentity first
++        long ident = Binder.clearCallingIdentity();
++        try {
++            if (pi != null && mBeatlist != null && mBeatlist.size() > 0) {
++                String pn = pi.getCreatorPackage();
++                Intent in = pi.getIntent();
++                String action = null;
++                String component = null;
++                if (in != null) {
++                    action = in.getAction();
++                    if (in.getComponent() != null) {
++                        component = in.getComponent().getClassName();
++                    }
+                 }
++                for (PowerGuruAlarmInfo palarm : mBeatlist) {
++                    if (pn.equals(palarm.packageName) &&
++                            ((action != null && action.equals(palarm.actionName)) || (action == null && palarm.actionName == null)) &&
++                            ((component != null && component.equals(palarm.componentName)) || (component == null && palarm.componentName == null))
++                            )
++                        return palarm;
++                }
+             }
+-            for(PowerGuruAlarmInfo palarm : mBeatlist){
+-                if(pn.equals(palarm.packageName) &&
+-                ((action != null && action.equals(palarm.actionName)) || (action == null && palarm.actionName == null)) &&
+-                ((component != null && component.equals(palarm.componentName)) || (component == null && palarm.componentName == null))
+-                )
+-                return palarm;
+-            }
++        } finally {
++            Binder.restoreCallingIdentity(ident);
+         }
+         return null;
+     }
+Index: vendor/sprd/platform/frameworks/base/services/core/java/com/android/server/power/PowerGuruService.java
+===================================================================
+--- vendor/sprd/platform/frameworks/base/services/core/java/com/android/server/power/PowerGuruService.java	(revision 172706)
++++ vendor/sprd/platform/frameworks/base/services/core/java/com/android/server/power/PowerGuruService.java	(revision 172707)
+@@ -451,6 +451,7 @@
+                 case SCREEN_OFF:
+                     log("SCREEN_OFF, mPluggedType = " + mPluggedType);
+                     mScreenOff = true;
++                    getAlarmManager();
+                     if (shouldApplyAlarmAdjust(mPluggedType)) {
+                         if (mAlarmManager == null) {
+                             mAlarmManager = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
+@@ -474,6 +475,7 @@
+                 case SCREEN_ON:
+                     log("SCREEN_ON, mCurrentAdjustEnabled = " + mCurrentAdjustEnabled);
+                     mScreenOff = false;
++                    getAlarmManager();
+                     if (mCurrentAdjustEnabled) { //current is enabled, now screen is on, disable it
+                         if (mAlarmManager != null) {
+                             mAlarmManager.setHeartBeatAdjustEnable(false, mHeartbeatListUpdate);
+@@ -480,6 +482,7 @@
+                             mCurrentAdjustEnabled = false;
+                         } else {
+                             mAlarmManager = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
++                            log("mAlarmManager is null when SCREEN_ON");
+                         }
+                     }
+                     break;
+@@ -569,6 +572,8 @@
+                      */
+                     log("CMD_BATTERY_CHANGED (newPlugType = " + newPlugType + ")");
+ 
++                    getAlarmManager();
++
+                     boolean needApplyByPlugType = shouldApplyAlarmAdjust(newPlugType);
+                     if (mScreenOff && shouldApplyAlarmAdjust(mPluggedType) != needApplyByPlugType) {
+                         if (mAlarmManager != null) {
+@@ -1060,7 +1065,17 @@
+         log("receive input alarm:");
+         dumpAlarm(alarm);
+ 
++        /*check if a GMS alarm*/
++        if (isGMSAlarm(alarm)) {
+ 
++            log("Alarm from GMS app");
++
++            if (processGMSAlarm(alarm)) {
++                return;
++            }
++        }
++
++
+         if (isSupportBlackList()) {
+             /* check if an alarm from black app list */
+             if (isInBlackAppList(alarm)) {
+@@ -1076,16 +1091,7 @@
+             }
+         }
+ 
+-        /*check if a GMS alarm*/
+-        if (isGMSAlarm(alarm)) {
+ 
+-            log("Alarm from GMS app");
+-
+-            if (processGMSAlarm(alarm)) {
+-                return;
+-            }
+-        }
+-
+         /*check if a ThirdParty alarm */
+         if (!isThirdParty(alarm) && !alarm.isFromGms) {
+             log("Alarm is not from ThirdParty, is not care about!");
+@@ -2059,6 +2065,8 @@
+     public boolean notifyPowerguruAlarm(int type, long when,long whenElapsed, long windowLength,
+             long maxWhen, long interval, PendingIntent operation) {
+ 
++        long ident = Binder.clearCallingIdentity();
++
+         try {
+             AlarmInfo alarm = new AlarmInfo(type, when, whenElapsed, windowLength,
+                 maxWhen, interval, operation);
+@@ -2066,6 +2074,8 @@
+             mHandler.sendMessage(mHandler.obtainMessage(NEW_ALARM, alarm));
+         } catch(Exception e) {
+             loge("Unkown Exception:" + e);
++        } finally {
++            Binder.restoreCallingIdentity(ident);
+         }
+ 
+         return true;
+@@ -2213,5 +2223,10 @@
+         return Build.TYPE.equals("eng") || Build.TYPE.equals("userdebug");
+     }
+ 
++    private void getAlarmManager() {
++        if (mAlarmManager == null) {
++            mAlarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
++        }
++    }
+ 
+ }

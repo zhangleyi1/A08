@@ -1,0 +1,28 @@
+Index: u-boot64/lib/secureboot/native/secure_verify.c
+===================================================================
+--- u-boot64/lib/secureboot/native/secure_verify.c	(revision 176837)
++++ u-boot64/lib/secureboot/native/secure_verify.c	(revision 176838)
+@@ -292,6 +292,7 @@
+ 		*pintdst++ = (unsigned int)simple_strtoul(tmp, 0, 16);
+ 	}
+ }
++extern void disp_warning_logo(void);
+ 
+ int secure_verify(uchar * name, uint8_t * header, uint8_t * code)
+ {
+@@ -318,6 +319,7 @@
+ 	if (name && strcmp("splloader0", name) != 0) {
+ 		if (!secure_header_parser(header)) {
+ 			printf("header name dismatch HEADER NAME\n");
++			disp_warning_logo();
+ 			while (1) ;
+ 		}
+ 	}
+@@ -356,6 +358,7 @@
+ 				printf("efuse hash compare successful\n");
+ 			} else {
+ 				printf("efuse hash compare difference\n");
++				disp_warning_logo();
+ 				while (1) ;
+ 			}
+ 		}

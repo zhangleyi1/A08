@@ -1,0 +1,23 @@
+Index: vendor/sprd/platform/frameworks/base/services/core/java/com/android/server/am/LmKillerTracker.java
+===================================================================
+--- vendor/sprd/platform/frameworks/base/services/core/java/com/android/server/am/LmKillerTracker.java	(revision 171727)
++++ vendor/sprd/platform/frameworks/base/services/core/java/com/android/server/am/LmKillerTracker.java	(revision 171728)
+@@ -151,14 +151,13 @@
+         if (pkgName == null) return;
+ 
+         // Found nothing, no processes found, abort directly.
+-        if (pr == null && parent == null) return;
++        if (pr == null) return;
+ 
++        if (parent != null && pr.pid != parent.pid) return;
++
+         // Current process record can not be stopped.
+-        if (pr != null && !shouldForceStop(pr)) return;
++        if (!shouldForceStop(pr)) return;
+ 
+-        // package process record can not be stopped.
+-        if (parent != null && !shouldForceStop(parent)) return;
+-
+         Slog.i(TAG, "force stop pkg:" + pkgName + ", pid:" + pid
+                 + " (adj " + pr.setAdj + ")");
+         mService.forceStopPackage(pkgName, UserHandle.USER_CURRENT);

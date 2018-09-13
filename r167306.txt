@@ -1,0 +1,91 @@
+Index: kernel/drivers/power/fan54015_charge.c
+===================================================================
+--- kernel/drivers/power/fan54015_charge.c	(revision 167305)
++++ kernel/drivers/power/fan54015_charge.c	(revision 167306)
+@@ -11,6 +11,22 @@
+ 
+ #define SPRDCHG_DEBUG(format, arg...) pr_info("hl7059: " format, ## arg)
+ 
++#define EN_HIZ 0x0
++#define SYS_MIN 0x5 //Minimum system voltage 3.5V	
++
++#define WTD_TIME_40S 0x1 
++#define WTD_TIME_80S 0x2
++
++#define EN_TIME 0x1 //Disable charge timer
++#define INT_MASK_1 0x0 //Disable fault interrupt
++
++#define IINLIMSET_2P5_A 0x7
++#define IINLIMSET_2_A 0x6
++#define IINLIMSET_1P5_A 0x5
++#define IINLIMSET_1P2_A 0x4
++#define IINLIMSET_900_MA 0x3
++#define IINLIMSET_500_MA 0x2
++
+ static struct sprd_battery_platform_data *bat_drv_data;
+ 
+ void sprdchg_hl7059_set_vindpm(int vin)
+@@ -458,6 +474,10 @@
+ 
+ 	SPRDCHG_DEBUG("%s reg_val=%d\n", __func__, reg_val);
+ 	hl7059_set_chg_current(reg_val);
++	if(cur <= 500)
++		hl7059_set_iinlim(IINLIMSET_500_MA);
++	else
++		hl7059_set_iinlim(IINLIMSET_2_A);
+ }
+ 
+ void sprdchg_hl7059_enable_chg(int cur)
+@@ -532,22 +552,7 @@
+ #endif
+ }
+ 
+-#define EN_HIZ 0x0
+-#define SYS_MIN 0x5 //Minimum system voltage 3.5V	
+ 
+-#define WTD_TIME_40S 0x1 
+-#define WTD_TIME_80S 0x2
+-
+-#define EN_TIME 0x1 //Disable charge timer
+-#define INT_MASK_1 0x0 //Disable fault interrupt
+-
+-#define IINLIMSET_2P5_A 0x7
+-#define IINLIMSET_2_A 0x6
+-#define IINLIMSET_1P5_A 0x5
+-#define IINLIMSET_1P2_A 0x4
+-#define IINLIMSET_900_MA 0x3
+-#define IINLIMSET_500_MA 0x2
+-
+ void hl7059_ic_init(void)
+ {        
+         hl7059_set_reg_rst(1);
+@@ -555,13 +560,13 @@
+ 		hl7059_set_en_hiz(EN_HIZ);
+         //hl7059_set_reg_rst(0x0);
+         hl7059_reset_timer();
+-        hl7059_set_iinlim(IINLIMSET_2P5_A);
++        hl7059_set_iinlim(IINLIMSET_2_A);
+ 
+         hl7059_set_sys_min( SYS_MIN);
+         
+         hl7059_set_en_timer( EN_TIME);
+ 
+-        hl7059_set_en_term(0x2); //Enable termination
++        hl7059_set_en_term(0x0); //Enable termination
+ 
+         hl7059_set_watchdog( WTD_TIME_40S);
+ 
+@@ -581,10 +586,10 @@
+ 
+       hl7059_ic_init();
+         
+-	sprdchg_hl7059_set_safety_vol(bat_drv_data->chg_end_vol_pure);
+-	sprdchg_hl7059_set_safety_cur(bat_drv_data->adp_dcp_cur);
++	//sprdchg_hl7059_set_safety_vol(bat_drv_data->chg_end_vol_pure);
++	//sprdchg_hl7059_set_safety_cur(bat_drv_data->adp_dcp_cur);
+ 	sprdchg_hl7059_set_vindpm(4440);//(bat_drv_data->chg_end_vol_pure);
+-	hl7059_set_iprechg(4);	//512ma
++	//hl7059_set_iprechg(4);	//512ma
+ 	//hl7059_set_vreg(4350);
+ 
+ 	

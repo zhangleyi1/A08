@@ -1,0 +1,45 @@
+Index: vendor/sprd/platform/frameworks/base/packages/Keyguard/src/com/android/keyguard/KeyguardEmergencyButton.java
+===================================================================
+--- vendor/sprd/platform/frameworks/base/packages/Keyguard/src/com/android/keyguard/KeyguardEmergencyButton.java	(revision 168807)
++++ vendor/sprd/platform/frameworks/base/packages/Keyguard/src/com/android/keyguard/KeyguardEmergencyButton.java	(revision 168808)
+@@ -236,8 +236,9 @@
+         if (mIsVoiceCapable) {
+             if (isInsideKeyguardBottomArea()) {
+                 // SPRD: [CUCC] NO Sim card,Do not show emergency button
+-                visible = mShowBtnInLockScreenForCarrier
+-                        && !KeyguardPluginsHelper.getInstance().makeEmergencyInvisible();
++                visible = true;
++			//		mShowBtnInLockScreenForCarrier
++            //            && !KeyguardPluginsHelper.getInstance().makeEmergencyInvisible();
+             } else {
+                 // Emergency calling requires voice capability.
+                 if (isInCall()) {
+Index: packages/services/Telephony/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values-zh-rCN/strings.xml	(revision 168807)
++++ packages/services/Telephony/res/values-zh-rCN/strings.xml	(revision 168808)
+@@ -558,4 +558,9 @@
+     <string name="callFailed_cdma_activation" msgid="2307989779233262164">"SIM 卡已启用您的服务，并更新了您手机的漫游功能。"</string>
+     <string name="callFailed_cdma_call_limit" msgid="1556916577171457086">"进行中的通话过多。请结束现有通话或将其合并，然后再拨打新的电话。"</string>
+     <string name="call_end_try_again">"通话中，请通话结束后重试。"</string>
++	
++	<string name="user_input">用户输入</string>
++	<string name="police">报警</string>
++	<string name="emergency">急救</string>
++	<string name="emergency_call_list">紧急电话</string>
+ </resources>
+Index: packages/services/Telephony/res/values-in-rID/string.xml
+===================================================================
+--- packages/services/Telephony/res/values-in-rID/string.xml	(revision 168807)
++++ packages/services/Telephony/res/values-in-rID/string.xml	(revision 168808)
+@@ -4,5 +4,10 @@
+     <string name="enhanced_4g_lte_mode_summary">Gunakan VoLTE untuk pengalaman panggilan suara dan video yang lebih baik</string>
+     <string name="confirm">OKE</string>
+     <string name="votle_cancel">BATAL</string>
++	
++	<string name="user_input">Masukan pengguna</string>
++	<string name="police">Polisi</string>
++	<string name="emergency">Darurat</string>
++	<string name="emergency_call_list">Daftar Panggilan Darurat</string>
+ </resources>
+ 

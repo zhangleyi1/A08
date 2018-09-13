@@ -1,0 +1,19 @@
+Index: vendor/custom/cts/frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java
+===================================================================
+--- vendor/custom/cts/frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java	(revision 172813)
++++ vendor/custom/cts/frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java	(revision 172814)
+@@ -10113,12 +10113,12 @@
+                     }
+                 } break;
+             }
+-            
++    /***        
+             if (pkg.packageName.equals("com.google.android.setupwizard")
+                     && (perm.equals("android.permission.WRITE_CONTACTS") ||  perm.equals("android.permission.READ_CONTACTS"))) {
+                 grant = GRANT_INSTALL;
+             }
+-
++***/
+             if (DEBUG_INSTALL) {
+                 Log.i(TAG, "Package " + pkg.packageName + " granting " + perm+" grant "+grant);
+             }

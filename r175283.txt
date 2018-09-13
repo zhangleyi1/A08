@@ -1,0 +1,335 @@
+Index: bootable/recovery/res-xxhdpi/images/icon_checkrepart.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: bootable/recovery/res-xxhdpi/images/icon_checkrepart.png
+===================================================================
+--- bootable/recovery/res-xxhdpi/images/icon_checkrepart.png	(revision 0)
++++ bootable/recovery/res-xxhdpi/images/icon_checkrepart.png	(revision 175283)
+
+Property changes on: bootable/recovery/res-xxhdpi/images/icon_checkrepart.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: bootable/recovery/res-xxhdpi/images/checkrepart_text.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: bootable/recovery/res-xxhdpi/images/checkrepart_text.png
+===================================================================
+--- bootable/recovery/res-xxhdpi/images/checkrepart_text.png	(revision 0)
++++ bootable/recovery/res-xxhdpi/images/checkrepart_text.png	(revision 175283)
+
+Property changes on: bootable/recovery/res-xxhdpi/images/checkrepart_text.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: bootable/recovery/screen_ui.h
+===================================================================
+--- bootable/recovery/screen_ui.h	(revision 175282)
++++ bootable/recovery/screen_ui.h	(revision 175283)
+@@ -81,11 +81,13 @@
+     bool is_large_;
+ 
+     GRSurface* error_icon;
++    GRSurface* checkrepart_icon;
+ 
+     GRSurface* erasing_text;
+     GRSurface* error_text;
+     GRSurface* installing_text;
+     GRSurface* no_command_text;
++    GRSurface* checkrepart_text;
+ 
+     GRSurface** introFrames;
+     GRSurface** loopFrames;
+Index: bootable/recovery/res-hdpi/images/checkrepart_text.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: bootable/recovery/res-hdpi/images/checkrepart_text.png
+===================================================================
+--- bootable/recovery/res-hdpi/images/checkrepart_text.png	(revision 0)
++++ bootable/recovery/res-hdpi/images/checkrepart_text.png	(revision 175283)
+
+Property changes on: bootable/recovery/res-hdpi/images/checkrepart_text.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: bootable/recovery/res-hdpi/images/icon_checkrepart.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: bootable/recovery/res-hdpi/images/icon_checkrepart.png
+===================================================================
+--- bootable/recovery/res-hdpi/images/icon_checkrepart.png	(revision 0)
++++ bootable/recovery/res-hdpi/images/icon_checkrepart.png	(revision 175283)
+
+Property changes on: bootable/recovery/res-hdpi/images/icon_checkrepart.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: bootable/recovery/recovery.cpp
+===================================================================
+--- bootable/recovery/recovery.cpp	(revision 175282)
++++ bootable/recovery/recovery.cpp	(revision 175283)
+@@ -1116,6 +1116,8 @@
+     //repart -d /dev/block/mmcblk0 -c /storage/sdcard0/partition.cfg -b /storage/sdcard0 -k 1
+     const char* cmd[] ={REPART_PATH, "-d", DISK_NAME, "-c", CFG_PATH, "-b", SDCARD_ROOT, "-k", "1", NULL};
+ 
++    ui->SetBackground(RecoveryUI::CHECK_REPART);
++
+     if (INSTALL_SUCCESS != (status = unzip_partition_file(path))) {
+         if (status == INSTALL_NONE) {
+             status = INSTALL_SUCCESS;
+Index: bootable/recovery/res-xxxhdpi/images/icon_checkrepart.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: bootable/recovery/res-xxxhdpi/images/icon_checkrepart.png
+===================================================================
+--- bootable/recovery/res-xxxhdpi/images/icon_checkrepart.png	(revision 0)
++++ bootable/recovery/res-xxxhdpi/images/icon_checkrepart.png	(revision 175283)
+
+Property changes on: bootable/recovery/res-xxxhdpi/images/icon_checkrepart.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: bootable/recovery/res-xxxhdpi/images/checkrepart_text.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: bootable/recovery/res-xxxhdpi/images/checkrepart_text.png
+===================================================================
+--- bootable/recovery/res-xxxhdpi/images/checkrepart_text.png	(revision 0)
++++ bootable/recovery/res-xxxhdpi/images/checkrepart_text.png	(revision 175283)
+
+Property changes on: bootable/recovery/res-xxxhdpi/images/checkrepart_text.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: bootable/recovery/screen_ui.cpp
+===================================================================
+--- bootable/recovery/screen_ui.cpp	(revision 175282)
++++ bootable/recovery/screen_ui.cpp	(revision 175283)
+@@ -86,6 +86,9 @@
+     if (currentIcon == INSTALLING_UPDATE || currentIcon == ERASING) {
+         return intro_done ? loopFrames[current_frame] : introFrames[current_frame];
+     }
++    if (currentIcon == CHECK_REPART) {
++        return checkrepart_icon;
++    }
+     return error_icon;
+ }
+ 
+@@ -95,6 +98,7 @@
+         case ERROR: return error_text;
+         case INSTALLING_UPDATE: return installing_text;
+         case NO_COMMAND: return no_command_text;
++        case CHECK_REPART: return checkrepart_text;
+         case NONE: abort();
+     }
+ }
+@@ -456,6 +460,7 @@
+     text_top_ = 1;
+ 
+     LoadBitmap("icon_error", &error_icon);
++    LoadBitmap("icon_checkrepart", &checkrepart_icon);
+ 
+     LoadBitmap("progress_empty", &progressBarEmpty);
+     LoadBitmap("progress_fill", &progressBarFill);
+@@ -470,6 +475,7 @@
+     LoadLocalizedBitmap("erasing_text", &erasing_text);
+     LoadLocalizedBitmap("no_command_text", &no_command_text);
+     LoadLocalizedBitmap("error_text", &error_text);
++    LoadLocalizedBitmap("checkrepart_text", &checkrepart_text);
+ 
+     LoadAnimation();
+ 
+Index: bootable/recovery/tools/recovery_l10n/src/com/android/recovery_l10n/Main.java
+===================================================================
+--- bootable/recovery/tools/recovery_l10n/src/com/android/recovery_l10n/Main.java	(revision 175282)
++++ bootable/recovery/tools/recovery_l10n/src/com/android/recovery_l10n/Main.java	(revision 175283)
+@@ -139,6 +139,7 @@
+                     case 1: mStringId = R.string.recovery_erasing; break;
+                     case 2: mStringId = R.string.recovery_no_command; break;
+                     case 3: mStringId = R.string.recovery_error; break;
++                    case 4: mStringId = R.string.recovery_checkrepart; break;
+                 }
+             }
+             @Override public void onNothingSelected(AdapterView parent) { }
+Index: bootable/recovery/tools/recovery_l10n/res/values-zh-rCN/strings.xml
+===================================================================
+--- bootable/recovery/tools/recovery_l10n/res/values-zh-rCN/strings.xml	(revision 175282)
++++ bootable/recovery/tools/recovery_l10n/res/values-zh-rCN/strings.xml	(revision 175283)
+@@ -5,5 +5,6 @@
+     <string name="recovery_erasing" msgid="7334826894904037088">"正在清空"</string>
+     <string name="recovery_no_command" msgid="4465476568623024327">"无命令"</string>
+     <string name="recovery_error" msgid="5748178989622716736">"出错了！"</string>
+-    <string name="recovery_installing_security" msgid="9184031299717114342">"正在安装安全更新"</string>
++	<string name="recovery_installing_security" msgid="9184031299717114342">"正在安装安全更新"</string>
++	<string name="recovery_checkrepart" msgid="">"正在检查是否重新分区"</string>
+ </resources>
+Index: bootable/recovery/tools/recovery_l10n/res/values/strings.xml
+===================================================================
+--- bootable/recovery/tools/recovery_l10n/res/values/strings.xml	(revision 175282)
++++ bootable/recovery/tools/recovery_l10n/res/values/strings.xml	(revision 175283)
+@@ -9,6 +9,7 @@
+     <item>erasing</item>
+     <item>no_command</item>
+     <item>error</item>
++    <item>checkrepart</item>
+   </string-array>
+ 
+   <!-- Displayed on the screen beneath the animated android while the
+@@ -35,4 +36,8 @@
+        system is installing a security update. [CHAR LIMIT=60] -->
+   <string name="recovery_installing_security">Installing security update</string>
+ 
++  <!-- Displayed on the screen when checking if need to repartition
++       before the real installing. [CHAR LIMIT=60] -->
++  <string name="recovery_checkrepart">Checking if need repart</string>
++
+ </resources>
+Index: bootable/recovery/tools/recovery_l10n/res/values-en-rAU/strings.xml
+===================================================================
+--- bootable/recovery/tools/recovery_l10n/res/values-en-rAU/strings.xml	(revision 175282)
++++ bootable/recovery/tools/recovery_l10n/res/values-en-rAU/strings.xml	(revision 175283)
+@@ -6,4 +6,5 @@
+     <string name="recovery_no_command" msgid="4465476568623024327">"No command"</string>
+     <string name="recovery_error" msgid="5748178989622716736">"Error!"</string>
+     <string name="recovery_installing_security" msgid="9184031299717114342">"Installing security update"</string>
++    <string name="recovery_checkrepart" msgid="">"Checking if need repart"</string>
+ </resources>
+Index: bootable/recovery/tools/recovery_l10n/res/values-en-rIN/strings.xml
+===================================================================
+--- bootable/recovery/tools/recovery_l10n/res/values-en-rIN/strings.xml	(revision 175282)
++++ bootable/recovery/tools/recovery_l10n/res/values-en-rIN/strings.xml	(revision 175283)
+@@ -5,5 +5,6 @@
+     <string name="recovery_erasing" msgid="7334826894904037088">"Erasing"</string>
+     <string name="recovery_no_command" msgid="4465476568623024327">"No command"</string>
+     <string name="recovery_error" msgid="5748178989622716736">"Error!"</string>
+-    <string name="recovery_installing_security" msgid="9184031299717114342">"Installing security update"</string>
++	<string name="recovery_installing_security" msgid="9184031299717114342">"Installing security update"</string>
++	<string name="recovery_checkrepart" msgid="">"Checking if need repart"</string>
+ </resources>
+Index: bootable/recovery/tools/recovery_l10n/res/values-zh-rHK/strings.xml
+===================================================================
+--- bootable/recovery/tools/recovery_l10n/res/values-zh-rHK/strings.xml	(revision 175282)
++++ bootable/recovery/tools/recovery_l10n/res/values-zh-rHK/strings.xml	(revision 175283)
+@@ -5,5 +5,6 @@
+     <string name="recovery_erasing" msgid="7334826894904037088">"正在清除"</string>
+     <string name="recovery_no_command" msgid="4465476568623024327">"沒有指令"</string>
+     <string name="recovery_error" msgid="5748178989622716736">"錯誤！"</string>
+-    <string name="recovery_installing_security" msgid="9184031299717114342">"正在安裝安全性更新"</string>
++	<string name="recovery_installing_security" msgid="9184031299717114342">"正在安裝安全性更新"</string>
++	<string name="recovery_checkrepart" msgid="">"正在检查是否重新分区"</string>
+ </resources>
+Index: bootable/recovery/tools/recovery_l10n/res/values-zh-rTW/strings.xml
+===================================================================
+--- bootable/recovery/tools/recovery_l10n/res/values-zh-rTW/strings.xml	(revision 175282)
++++ bootable/recovery/tools/recovery_l10n/res/values-zh-rTW/strings.xml	(revision 175283)
+@@ -5,5 +5,6 @@
+     <string name="recovery_erasing" msgid="7334826894904037088">"清除中"</string>
+     <string name="recovery_no_command" msgid="4465476568623024327">"沒有指令"</string>
+     <string name="recovery_error" msgid="5748178989622716736">"錯誤！"</string>
+-    <string name="recovery_installing_security" msgid="9184031299717114342">"正在安裝安全性更新"</string>
++	<string name="recovery_installing_security" msgid="9184031299717114342">"正在安裝安全性更新"</string>
++	<string name="recovery_checkrepart" msgid="">"正在检查是否重新分区"</string>
+ </resources>
+Index: bootable/recovery/tools/recovery_l10n/res/values-en-rGB/strings.xml
+===================================================================
+--- bootable/recovery/tools/recovery_l10n/res/values-en-rGB/strings.xml	(revision 175282)
++++ bootable/recovery/tools/recovery_l10n/res/values-en-rGB/strings.xml	(revision 175283)
+@@ -5,5 +5,6 @@
+     <string name="recovery_erasing" msgid="7334826894904037088">"Erasing"</string>
+     <string name="recovery_no_command" msgid="4465476568623024327">"No command"</string>
+     <string name="recovery_error" msgid="5748178989622716736">"Error!"</string>
+-    <string name="recovery_installing_security" msgid="9184031299717114342">"Installing security update"</string>
++	<string name="recovery_installing_security" msgid="9184031299717114342">"Installing security update"</string>
++	<string name="recovery_checkrepart" msgid="">"Checking if need repart"</string>
+ </resources>
+Index: bootable/recovery/res-xhdpi/images/checkrepart_text.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: bootable/recovery/res-xhdpi/images/checkrepart_text.png
+===================================================================
+--- bootable/recovery/res-xhdpi/images/checkrepart_text.png	(revision 0)
++++ bootable/recovery/res-xhdpi/images/checkrepart_text.png	(revision 175283)
+
+Property changes on: bootable/recovery/res-xhdpi/images/checkrepart_text.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: bootable/recovery/res-xhdpi/images/icon_checkrepart.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: bootable/recovery/res-xhdpi/images/icon_checkrepart.png
+===================================================================
+--- bootable/recovery/res-xhdpi/images/icon_checkrepart.png	(revision 0)
++++ bootable/recovery/res-xhdpi/images/icon_checkrepart.png	(revision 175283)
+
+Property changes on: bootable/recovery/res-xhdpi/images/icon_checkrepart.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: bootable/recovery/ui.h
+===================================================================
+--- bootable/recovery/ui.h	(revision 175282)
++++ bootable/recovery/ui.h	(revision 175283)
+@@ -37,7 +37,7 @@
+     virtual void SetLocale(const char* locale) = 0;
+ 
+     // Set the overall recovery state ("background image").
+-    enum Icon { NONE, INSTALLING_UPDATE, ERASING, NO_COMMAND, ERROR };
++    enum Icon { NONE, INSTALLING_UPDATE, ERASING, NO_COMMAND, ERROR, CHECK_REPART };
+     virtual void SetBackground(Icon icon) = 0;
+     virtual void SetSystemUpdateText(bool security_update) = 0;
+ 
+Index: bootable/recovery/res-mdpi/images/checkrepart_text.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: bootable/recovery/res-mdpi/images/checkrepart_text.png
+===================================================================
+--- bootable/recovery/res-mdpi/images/checkrepart_text.png	(revision 0)
++++ bootable/recovery/res-mdpi/images/checkrepart_text.png	(revision 175283)
+
+Property changes on: bootable/recovery/res-mdpi/images/checkrepart_text.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: bootable/recovery/res-mdpi/images/icon_checkrepart.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: bootable/recovery/res-mdpi/images/icon_checkrepart.png
+===================================================================
+--- bootable/recovery/res-mdpi/images/icon_checkrepart.png	(revision 0)
++++ bootable/recovery/res-mdpi/images/icon_checkrepart.png	(revision 175283)
+
+Property changes on: bootable/recovery/res-mdpi/images/icon_checkrepart.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property

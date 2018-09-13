@@ -1,0 +1,17 @@
+Index: device/sprd/scx35l/sp9832a_2h11/system.prop
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/system.prop	(revision 166611)
++++ device/sprd/scx35l/sp9832a_2h11/system.prop	(revision 166612)
+@@ -88,6 +88,7 @@
+ 
+ persist.sys.cam.gps=true
+ 
++persist.sys.language=in 
+ debug.hwui.use_partial_updates=false
+ 
+ # verified boot config
+
+Property changes on: device/sprd/scx35l/sp9832a_2h11/system.prop
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/device/sprd/scx35l/sp9832a_2h11/system.prop:r165452

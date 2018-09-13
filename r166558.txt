@@ -1,0 +1,237 @@
+Index: kernel/drivers/misc/Makefile
+===================================================================
+--- kernel/drivers/misc/Makefile	(revision 166557)
++++ kernel/drivers/misc/Makefile	(revision 166558)
+@@ -80,3 +80,4 @@
+ obj-$(CONFIG_SCX35L_SCENARIO_DFS) += scx35_scenario_dmc.o
+ obj-$(CONFIG_SPRD_OSC)   += sprd_osc.o
+ obj-$(CONFIG_SPRD_7SRESET) +=sprd_7sreset.o
++obj-y +=log_node.o
+\ No newline at end of file
+Index: kernel/drivers/misc/log_node.c
+===================================================================
+--- kernel/drivers/misc/log_node.c	(revision 0)
++++ kernel/drivers/misc/log_node.c	(revision 166558)
+@@ -0,0 +1,222 @@
++/*
++ * drivers/input/touchscreen/ft5x0x_ts.c
++ *
++ * FocalTech ft5x0x TouchScreen driver.
++ *
++ * Copyright (c) 2010  Focal tech Ltd.
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * VERSION      	DATE			AUTHOR
++ *    1.0		  2010-01-05			WenFS
++ *
++ * note: only support mulititouch	Wenfs 2010-10-01
++ */
++
++#include <linux/firmware.h>
++#include <linux/platform_device.h>
++#include <linux/delay.h>
++#include <linux/module.h>
++#include <linux/interrupt.h>
++#include <linux/slab.h>
++#include <linux/input.h>
++#include <asm/uaccess.h>
++#include <linux/gpio.h>
++#include <linux/regulator/consumer.h>
++
++#include <soc/sprd/regulator.h>
++#include <linux/input/mt.h>
++#include <linux/of_device.h>
++#include <linux/of_address.h>
++#include <linux/of_gpio.h>
++#include <linux/of_irq.h>
++
++#include <linux/sched.h>
++#include <linux/kthread.h>
++#include <linux/completion.h>
++#include <linux/err.h>
++#include <linux/delay.h>
++#include <linux/errno.h>
++#include <linux/fs.h>
++#include <linux/io.h>
++#include <linux/kernel.h>
++#include <linux/kthread.h>
++#include <linux/miscdevice.h>
++#include <linux/mm.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
++#include <linux/of.h>
++#include <linux/of_device.h>
++#include <linux/platform_device.h>
++#include <linux/uaccess.h>
++#include <linux/wakelock.h>
++#include <linux/vmalloc.h>
++#include <linux/sprd_iommu.h>
++
++
++
++#define LOG_FILE_PATH  "/storage/emulated/0/log_node.txt"
++#define WR_SIZE 4096
++static ssize_t log_node_write(struct file *file, char __user *buffer, size_t count, loff_t *ppos)
++{
++	struct file * fp=NULL;
++	mm_segment_t fs;	
++	loff_t pos = 0;
++	char temp[WR_SIZE]={0};
++	char *p=NULL;	
++	int err = 0;
++	unsigned int i = 0, size = 0;
++	unsigned int write_size = 0, start_addr = 0;
++
++	printk("%s start,count:%d\n", __func__,count);
++
++
++	if(count > WR_SIZE)
++	{
++		printk("log_node_write count:%d > 4096,error\n", count);
++	}
++
++	memset(temp, 0, WR_SIZE);
++
++	if(copy_from_user(temp, buffer, sizeof(temp)))
++	{
++		printk("log_node_write: call copy_from_user() fail!!\r\n");
++		return -EFAULT;
++	}
++
++	printk("log_node_write,buffer:%s\n",temp);
++	
++	
++	fp = filp_open(LOG_FILE_PATH, O_CREAT|O_RDWR, 0666);
++	if (IS_ERR(fp)) {
++		pr_err("log_node while opening file %s.\n");
++		return 0;
++	}
++	size = count;
++	vfs_llseek(fp, 0, SEEK_END);
++	//read start
++	fs = get_fs();//get old fs;
++	set_fs(KERNEL_DS);
++	for (i = 0; i < size; i += WR_SIZE) {
++		write_size =((size - i) > WR_SIZE) ? WR_SIZE : (size - i);
++		start_addr = temp + i;
++		pos = fp->f_pos;
++
++		err = vfs_write(fp, (char *)start_addr, write_size, &pos);
++		if (err < 0)
++			pr_err("error log_node vfs_write\n");
++		
++		fp->f_pos = pos;
++	}
++
++	if (fp)
++		filp_close(fp, NULL);
++	fp = NULL;
++	set_fs(fs);
++	
++	printk("%s end\n", __func__);
++	return count;
++}
++
++static ssize_t log_node_read(struct file *file, char __user *buffer, size_t count, loff_t *ppos)
++{
++	char buf[WR_SIZE] = {0};
++	struct file * fp=NULL;
++	mm_segment_t fs;
++	unsigned int i = 0, ret = 0;
++
++	printk("%s start,count:%d,ppos:%d\n", __func__,count,*ppos);
++
++	fp = filp_open(LOG_FILE_PATH , O_RDONLY , 0);
++	if(IS_ERR(fp))
++	{
++		printk("log_node Open file fail !!\n");
++		return -EFAULT;
++	}
++#if 1
++	if(count > WR_SIZE)
++	{
++		printk("log_node count > 4096, log_node_read too long !!\n");
++		return -EFAULT; 
++	}
++#endif
++	memset(buf, 0, sizeof(buf));
++	fs = get_fs();//get old fs;
++	set_fs(KERNEL_DS);
++
++	ret = vfs_read(fp,buf,count,ppos);
++
++	filp_close(fp,NULL);
++	set_fs(fs);
++
++	if(ret < 0)
++	{
++		printk("log_node_read vfs_read failed !!\n");
++		return -EFAULT;
++	}
++	if(copy_to_user(buffer, buf, sizeof(buf)))
++	{
++		printk("%s copy_to_user fial!!\r\n", __func__);
++		return -EFAULT;
++	}
++
++
++	printk("%s end\n", __func__);
++	return ret;
++}
++
++static int log_node_open(struct inode *inode, struct file *f)
++{
++	return 0;
++}
++
++static int log_node_release(struct inode *inode, struct file *f)
++{
++	return 0;
++}
++
++static const struct file_operations log_node_fops =
++{
++	.owner = THIS_MODULE,
++	.open = log_node_open,
++	.write = log_node_write,
++	.read = log_node_read,
++	.release = log_node_release
++};
++
++static struct miscdevice log_node_struct = {
++	.name = "lognode",
++	.fops = &log_node_fops,
++	.minor = MISC_DYNAMIC_MINOR,
++};
++
++static int __init log_node_init(void)
++{
++	printk("%s start\n", __func__);
++	if (misc_register(&log_node_struct) < 0)
++	{
++		printk("%s: Creat log_node device file error!!\n", __func__);
++	}
++	
++	return 0;
++}
++
++static void __exit log_node_exit(void)
++{
++
++}
++
++module_init(log_node_init);
++module_exit(log_node_exit);
++
++MODULE_AUTHOR("<techain.com>");
++MODULE_DESCRIPTION("log node driver");
++MODULE_LICENSE("GPL");
++

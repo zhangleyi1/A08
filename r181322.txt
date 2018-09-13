@@ -1,0 +1,167 @@
+Index: packages/apps/Settings/src/com/sprd/settings/wifi/WifiSoftApSleepPolicy.java
+===================================================================
+--- packages/apps/Settings/src/com/sprd/settings/wifi/WifiSoftApSleepPolicy.java	(revision 181321)
++++ packages/apps/Settings/src/com/sprd/settings/wifi/WifiSoftApSleepPolicy.java	(revision 181322)
+@@ -1,5 +1,7 @@
+ package com.sprd.settings.wifi;
+ 
++import android.app.AlarmManager;
++import android.app.PendingIntent;
+ import android.content.BroadcastReceiver;
+ import android.content.Context;
+ import android.content.Intent;
+@@ -26,35 +28,16 @@
+ 
+     public static final int FIVE_MINS = 300000;
+     public static final int TEN_MINS = 600000;
+-	public static final int FIFTEEN_MINS = 900000;
++    public static final int FIFTEEN_MINS = 900000;
++    public static final String ALARM_FOR_HOTSPOT_IDLE_ACTION = "sprd.wifi.alarm.IDLE_HOTSPOT";
+ 
+     private static WifiManager mWifiManager = null;
+-    private static SoftApConnHandler mHandler;
++    private static AlarmManager mAlarmManager = null;
++    private static PendingIntent mPendingIntent = null;
+     private static boolean isSoftApRunning = false;
++    private static boolean isAlarmRunning = false;
+     private static Context mContext = null;
+ 
+-    private static class SoftApConnHandler extends Handler {
+-
+-        @Override
+-        public void handleMessage(Message message) {
+-            Log.e(TAG,"handlemsg:" + message.what + "-" + message);
+-            mWifiManager.setWifiApEnabled(null, false);
+-        }
+-
+-        void cancel() {
+-            removeMessages(0);
+-        }
+-
+-        void start(long when) {
+-            removeMessages(0);
+-            sendEmptyMessageDelayed(0, when);
+-        }
+-
+-        boolean hasMsg(){
+-            return hasMessages(0);
+-        }
+-    }
+-
+     public static ContentObserver mObserver = new ContentObserver(new Handler()) {
+         @Override
+         public void onChange(boolean selfChange) {
+@@ -62,7 +45,8 @@
+             if (!isSoftApRunning)
+                 return;
+             Log.e(TAG,"change policy and soft ap running");
+-            mHandler.cancel();
++            mAlarmManager.cancel(mPendingIntent);
++            isAlarmRunning = false;
+             onSoftApConnChanged();
+         }
+     };
+@@ -72,10 +56,11 @@
+     }
+ 
+     public static void init(Context context) {
+-        mWifiManager = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
+-        if (mHandler == null) {
+-            Log.e(TAG,"first");
+-            mHandler = new SoftApConnHandler();
++        if (mWifiManager == null) {
++            Log.e(TAG,"init");
++            mWifiManager = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
++            mAlarmManager = (AlarmManager) context.getSystemService(context.ALARM_SERVICE);
++            mPendingIntent = PendingIntent.getBroadcast(context, 0, new Intent(ALARM_FOR_HOTSPOT_IDLE_ACTION), 0);
+             context.getContentResolver().registerContentObserver(
+                     Settings.System.getUriFor(WIFI_SOFT_AP_SLEEP_POLICY), true, mObserver);
+         }
+@@ -85,14 +70,11 @@
+     public void onReceive(Context context, Intent intent) {
+         mContext = context;
+         String action = intent.getAction();
+-        if (mHandler == null) {
+-            Log.e(TAG,"receive before init");
+-            mWifiManager = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
+-            mHandler = new SoftApConnHandler();
+-            context.getContentResolver().registerContentObserver(
+-                    Settings.System.getUriFor(WIFI_SOFT_AP_SLEEP_POLICY), true, mObserver);
++        //check null pointer
++        init(mContext);
++        if (action != null) {
++            Log.e(TAG,"Receive " + action);
+         }
+-
+         if (WifiManager.WIFI_AP_STATE_CHANGED_ACTION.equals(action)) {
+             isSoftApRunning = true;
+             int hotspotState = intent.getIntExtra(
+@@ -102,16 +84,17 @@
+                 Log.e(TAG,"open");
+                 checkAndSendMsg();
+             } else if (hotspotState == WifiManager.WIFI_AP_STATE_DISABLED) {
+-                //SPRD: Bug #590722 The switch status of softAp/BluetoothTether shows exception BEG-->
+-                if (mHandler != null) {
+-                    mHandler.cancel();
++                if (mAlarmManager != null) {
++                    mAlarmManager.cancel(mPendingIntent);
++                    isAlarmRunning = false;
+                 }
+-                //<-- The switch status of softAp/BluetoothTether shows exception END
+                 Log.e(TAG,"close");
+                 isSoftApRunning = false;
+             }
+         }else if (WifiManager.WIFI_AP_CONNECTION_CHANGED_ACTION.equals(action) || HotspotSettings.STATIONS_STATE_CHANGED_ACTION.equals(action)) {
+             onSoftApConnChanged();
++        } else if (ALARM_FOR_HOTSPOT_IDLE_ACTION.equals(action)) {
++            mWifiManager.setWifiApEnabled(null, false);
+         }
+     }
+ 
+@@ -120,11 +103,12 @@
+         Log.e(TAG, "mConnectedStationsStr = " + mConnectedStationsStr);
+         if (mConnectedStationsStr == null || mConnectedStationsStr.length() == 0) {
+             Log.e(TAG,"no ap connected");
+-            if(mHandler.hasMsg())
++            if(isAlarmRunning)
+                 return;
+             checkAndSendMsg();
+         } else {
+-            mHandler.cancel();
++            mAlarmManager.cancel(mPendingIntent);
++            isAlarmRunning = false;
+             Log.e(TAG,"coming sta");
+         }
+     }
+@@ -131,17 +115,24 @@
+ 
+     private static boolean checkAndSendMsg(){
+         int value = Settings.System.getInt(mContext.getContentResolver(),WIFI_SOFT_AP_SLEEP_POLICY,
+-                          WifiSoftApSleepPolicy.WIFI_SOFT_AP_SLEEP_POLICY_15_MINS);
++                          WifiSoftApSleepPolicy.WIFI_SOFT_AP_SLEEP_POLICY_NEVER);
+         if (value == WIFI_SOFT_AP_SLEEP_POLICY_NEVER) {
+             Log.e(TAG,"always! and return");
+             return false;
+         }
+-        if (value == WIFI_SOFT_AP_SLEEP_POLICY_5_MINS)
+-            mHandler.start(FIVE_MINS);
+-        else if (value == WIFI_SOFT_AP_SLEEP_POLICY_10_MINS)
+-            mHandler.start(TEN_MINS);
+-		else if(value==WIFI_SOFT_AP_SLEEP_POLICY_15_MINS)
+-			mHandler.start(FIFTEEN_MINS);
++        if (value == WIFI_SOFT_AP_SLEEP_POLICY_5_MINS) {
++            Log.e(TAG,"Set Alarm WIFI_SOFT_AP_SLEEP_POLICY_5_MINS");
++            mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+FIVE_MINS, mPendingIntent);
++            isAlarmRunning = true;
++        } else if (value == WIFI_SOFT_AP_SLEEP_POLICY_10_MINS) {
++            Log.e(TAG,"Set Alarm WIFI_SOFT_AP_SLEEP_POLICY_10_MINS");
++            mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+TEN_MINS, mPendingIntent);
++            isAlarmRunning = true;
++        } else if (value == WIFI_SOFT_AP_SLEEP_POLICY_15_MINS) {
++            Log.e(TAG,"Set Alarm WIFI_SOFT_AP_SLEEP_POLICY_10_MINS");
++            mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+FIFTEEN_MINS, mPendingIntent);
++            isAlarmRunning = true;
++        }
+         return true;
+     }
+ }

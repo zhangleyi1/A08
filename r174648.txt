@@ -1,0 +1,112 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/arrays.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/arrays.xml	(revision 174647)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/arrays.xml	(revision 174648)
+@@ -110,8 +110,8 @@
+         <item>@drawable/ic_pic_with_sound_mode_sprd_unselected</item>
+         <item>@drawable/ic_gesture_mode_sprd_unselected</item>
+         <item>@drawable/ic_qr_code_mode_sprd_unselected</item>
+-        <item>@drawable/ic_face_detect_status_sprd</item>
+-        <item>@drawable/ic_gesture_mode_sprd_unselected</item>
++        <item>@drawable/ic_smile_status_sprd_unselected</item>
++        <item>@drawable/ic_touch_module_status_sprd_unselected</item>
+     </array>
+ 
+     <array name="camera_mode_selected_icon">
+@@ -135,8 +135,8 @@
+         <item>@drawable/ic_pic_with_sound_mode_sprd_selected</item>
+         <item>@drawable/ic_gesture_mode_sprd_selected</item>
+         <item>@drawable/ic_qr_code_mode_sprd_selected</item>
+-        <item>@drawable/ic_face_detect_status_sprd</item>
+-        <item>@drawable/ic_gesture_mode_sprd_selected</item>
++        <item>@drawable/ic_smile_status_sprd_selected</item>
++        <item>@drawable/ic_touch_module_status_sprd_selected</item>
+     </array>
+ 
+     <string-array name="camera_mode_text">
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/dimens.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/dimens.xml	(revision 174647)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/dimens.xml	(revision 174648)
+@@ -36,7 +36,8 @@
+ 
+     <dimen name="mode_selector_icon_block_width">64dp</dimen>
+     <dimen name="mode_selector_icon_drawable_size">64dp</dimen>
+-    <dimen name="mode_selector_item_height">112dp</dimen>
++    <dimen name="mode_selector_item_height">105dp</dimen>
++    
+     <dimen name="mode_selector_item_text_height">24dp</dimen>
+     <dimen name="dream_mode_selector_text_size">14sp</dimen>
+ 
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/drawable-mdpi/ic_touch_module_status_sprd_unselected.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/drawable-mdpi/ic_touch_module_status_sprd_unselected.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/drawable-mdpi/ic_touch_module_status_sprd_unselected.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/drawable-mdpi/ic_touch_module_status_sprd_unselected.png	(revision 174648)
+
+Property changes on: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/drawable-mdpi/ic_touch_module_status_sprd_unselected.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/drawable-mdpi/ic_smile_status_sprd_selected.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/drawable-mdpi/ic_smile_status_sprd_selected.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/drawable-mdpi/ic_smile_status_sprd_selected.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/drawable-mdpi/ic_smile_status_sprd_selected.png	(revision 174648)
+
+Property changes on: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/drawable-mdpi/ic_smile_status_sprd_selected.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/drawable-mdpi/ic_touch_module_status_sprd_selected.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/drawable-mdpi/ic_touch_module_status_sprd_selected.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/drawable-mdpi/ic_touch_module_status_sprd_selected.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/drawable-mdpi/ic_touch_module_status_sprd_selected.png	(revision 174648)
+
+Property changes on: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/drawable-mdpi/ic_touch_module_status_sprd_selected.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/drawable-mdpi/ic_smile_status_sprd_unselected.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/drawable-mdpi/ic_smile_status_sprd_unselected.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/drawable-mdpi/ic_smile_status_sprd_unselected.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/drawable-mdpi/ic_smile_status_sprd_unselected.png	(revision 174648)
+
+Property changes on: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/drawable-mdpi/ic_smile_status_sprd_unselected.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/dream_mode_list_layout.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/dream_mode_list_layout.xml	(revision 174647)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/dream_mode_list_layout.xml	(revision 174648)
+@@ -26,6 +26,7 @@
+         android:id="@+id/mode_list"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
++        android:layout_marginBottom="30dp"
+         android:layout_gravity="center"
+         android:layout_marginLeft="@dimen/mode_selector_margin_left_right"
+         android:layout_marginRight="@dimen/mode_selector_margin_left_right"

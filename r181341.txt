@@ -1,0 +1,30 @@
+Index: vendor/sprd/platform/packages/apps/CallSettings/src/com/android/callsettings/callbarring/CallBarringChgPwdPreference.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/CallSettings/src/com/android/callsettings/callbarring/CallBarringChgPwdPreference.java	(revision 181340)
++++ vendor/sprd/platform/packages/apps/CallSettings/src/com/android/callsettings/callbarring/CallBarringChgPwdPreference.java	(revision 181341)
+@@ -20,6 +20,7 @@
+ 
+ import static com.android.callsettings.TimeConsumingPreferenceActivity.EXCEPTION_ERROR;
+ import static com.android.callsettings.TimeConsumingPreferenceActivity.RESPONSE_ERROR;
++import android.app.Activity;
+ 
+ public class CallBarringChgPwdPreference extends EditPassWordPreference {
+     private static final String LOG_TAG = "CallBarringChgPwdPreference";
+@@ -114,7 +115,7 @@
+                     // mTimes = 0;
+                     CharSequence s = null;
+                     s = getContext().getText(R.string.cb_pw_no_match);
+-                    if (s != null) {
++                    if (s != null && !((Activity) getContext()).isFinishing()) {
+                         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                         builder.setNeutralButton(R.string.close_dialog, null);
+                         builder.setTitle(getContext().getText(R.string.error_updating_title));
+@@ -188,7 +189,7 @@
+                         if (DBG)
+                             Log.d(LOG_TAG, "handleChgPwdResponse: INCORRECT PASSWORD");
+                         s = getContext().getText(R.string.cb_pw_error);
+-                        if (s != null) {
++                        if (s != null && !(((Activity)getContext()).isFinishing())) {
+                             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                             builder.setNeutralButton(R.string.close_dialog, null);
+                             builder.setTitle(getContext().getText(R.string.error_updating_title));

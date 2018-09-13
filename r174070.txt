@@ -1,0 +1,43 @@
+Index: vendor/custom/cts/frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java
+===================================================================
+--- vendor/custom/cts/frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java	(revision 174069)
++++ vendor/custom/cts/frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java	(revision 174070)
+@@ -11479,4 +11479,38 @@
+             }
+         }
+     }
++
++    /* SPRD: add for STK 27.22.7.5.1/27.22.7.6.1 @{ */
++    private boolean mUserActivityEventNeeded = false;
++    private boolean mIdleScreenEventNeeded = false;
++    private boolean mIsInIdleScreen = false;
++
++    public void setEventUserActivityNeeded(boolean bEventNeeded) {
++        mUserActivityEventNeeded = bEventNeeded;
++    }
++
++    public void setEventIdleScreenNeeded(boolean bEventNeeded) {
++        mIdleScreenEventNeeded = bEventNeeded;
++    }
++
++    public boolean isEventIdleScreenNeeded() {
++        return mIdleScreenEventNeeded;
++    }
++
++    public void setInIdleScreen(boolean isInIdleScreen) {
++        mIsInIdleScreen = isInIdleScreen;
++    }
++
++    public boolean isInIdleScreen() {
++        return mIsInIdleScreen;
++    }
++
++    public void notifyStkUserActivity() {
++        if (mSystemBooted && mUserActivityEventNeeded) {
++            Log.d(TAG, "notify Stk user activity from WMS");
++            Intent intent = new Intent("com.sprd.action.stk.user_activity");
++            mContext.sendBroadcast(intent, "android.permission.RECEIVE_STK_COMMANDS");
++        }
++    }
++    /* @} */
+ }

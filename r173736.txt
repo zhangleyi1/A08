@@ -1,0 +1,12 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/arrays.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/arrays.xml	(revision 173735)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/arrays.xml	(revision 173736)
+@@ -238,6 +238,7 @@
+         <item>@drawable/ic_capture_camera_sprd</item>
+         <item>@drawable/ic_capture_camera_sprd</item>
+         <item>@drawable/ic_capture_video_sprd</item>
++		<item>@drawable/ic_capture_camera_sprd</item>
+     </array>
+ 
+     <integer name="mode_support_all">-1</integer>

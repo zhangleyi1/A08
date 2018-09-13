@@ -1,0 +1,151 @@
+Index: vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/gsm/UsimPhoneBookManagerEx.java
+===================================================================
+--- vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/gsm/UsimPhoneBookManagerEx.java	(revision 179291)
++++ vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/gsm/UsimPhoneBookManagerEx.java	(revision 179292)
+@@ -59,6 +59,7 @@
+     private int[] mIapRecordSizeArray;
+     private int[] mAnrRecordSizeArray;
+     public int mAnrFileCount = 0;
++    public int mAnrNum = -1;
+     private int mDoneAdnCount = 0;
+     public int mGrpCount = 0;
+     private int changedCounter;
+@@ -192,6 +193,7 @@
+         mAasList = new ArrayList<String>();
+         mEmailsForAdnRec = new SparseArray<ArrayList<String>>();
+         mSfiEfidTable = new SparseIntArray();
++        mAnrNum = -1;
+     }
+ 
+     public void reset() {
+@@ -213,6 +215,7 @@
+         mAasList.clear();
+         mEmailsForAdnRec.clear();
+         mSfiEfidTable.clear();
++        mAnrNum = -1;
+     }
+ 
+     public ArrayList<AdnRecordEx> loadEfFilesFromUsimEx() {
+@@ -2054,6 +2057,11 @@
+     }
+ 
+     public int getAnrNum() {
++        if (mAnrNum != -1) {
++            log("getAnrNum : mAnrNum = " + mAnrNum);
++            return mAnrNum;
++        }
++
+         int num = 0;
+         int[] efids = getSubjectEfids(USIM_SUBJCET_ANR, 0);
+         if (efids == null) {
+@@ -2446,7 +2454,10 @@
+                     }
+ 					if (size == null) {
+ 						log("readAnrFileAndWait size is null");
++                                                mAnrNum = 0;
+ 						return;
++                                        } else {
++                                            mAnrNum = -1;
+ 					}
+                     log("readAnrFileAndWait size[0] = " + size[0] + " size[2] = " + size[2]);
+ 
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/sprd/contacts/common/model/account/SimAccountType.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/sprd/contacts/common/model/account/SimAccountType.java	(revision 179291)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/sprd/contacts/common/model/account/SimAccountType.java	(revision 179292)
+@@ -50,6 +50,7 @@
+     private static final String TAG = "SimAccountType";
+ 
+     public static final String ACCOUNT_TYPE = "sprd.com.android.account.sim";
++    public DataKind mDataKind;
+     protected static int[] simIconRes = {
+             R.drawable.ic_sim_card_multi_sim1_account, R.drawable.ic_sim_card_multi_sim2_account,
+             R.drawable.ic_sim_card_multi_sim3_account, R.drawable.ic_sim_card_multi_sim4_account,
+@@ -62,7 +63,8 @@
+         try {
+             addDataKindStructuredName(context);
+             addDataKindDisplayName(context);
+-            addDataKindPhone(context);
++            //addDataKindPhone(context);
++            mDataKind = addDataKindPhone(context);
+             mIsInitialized = true;
+         } catch (DefinitionException e) {
+             Log.e(TAG, "Problem building account type", e);
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/sprd/contacts/common/model/account/USimAccountType.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/sprd/contacts/common/model/account/USimAccountType.java	(revision 179291)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/sprd/contacts/common/model/account/USimAccountType.java	(revision 179292)
+@@ -69,6 +69,9 @@
+                 addDataKindGroupMembership(context);
+             if (isEmaiFieldEditable())
+                 addDataKindEmail(context);
++            if (isAnrSupport()) {
++                addDataKindPhone1(context);
++            }
+             mIsInitialized = true;
+         } catch (DefinitionException e) {
+             Log.e(TAG, "Problem building account type", e);
+@@ -146,9 +149,12 @@
+         return kind;
+     }
+ 
+-    @Override
+-    protected DataKind addDataKindPhone(Context context) throws DefinitionException {
+-        final DataKind kind = super.addDataKindPhone(context);
++//    @Override
++//    protected DataKind addDataKindPhone(Context context) throws DefinitionException {
++//        final DataKind kind = super.addDataKindPhone(context);
++    //@Override
++    protected DataKind addDataKindPhone1(Context context) throws DefinitionException {
++        final DataKind kind = mDataKind;
+ 
+         kind.typeColumn = Phone.TYPE;
+         kind.typeOverallMax = 2;
+@@ -233,4 +239,22 @@
+         }
+         return false;
+     }
++
++    //SPRD: add for bug723997, anr size load fail, Usim only support one phone number.
++    public boolean isAnrSupport() {
++        AccountManager am = AccountManager.get(this.context);
++        Account[] accountMatch = am.getAccountsByType(this.accountType);
++        if (accountMatch.length > 0) {
++            String length = am.getUserData(accountMatch[0], Phone.CONTENT_ITEM_TYPE + "_typeoverallmax");
++            if (null != length) {
++                int anrLength = Integer.parseInt(length);
++                Log.d(TAG, "isAnrSupport : anrLength = " + anrLength);
++                if (anrLength <= 1) {
++                    return false;
++                }
++            }
++        }
++        return true;
++    }
++
+ }
+Index: vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/sprd/providers/contacts/SyncSimAccountsReceiver.java
+===================================================================
+--- vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/sprd/providers/contacts/SyncSimAccountsReceiver.java	(revision 179291)
++++ vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/sprd/providers/contacts/SyncSimAccountsReceiver.java	(revision 179292)
+@@ -349,8 +349,20 @@
+                 log("setIsSyncable: " + mAccount + " " + syncable);
+             cr.setIsSyncable(mAccount, ContactsContract.AUTHORITY, syncable);
+         }
++
++        reLoadAnrNum();
+     }
+ 
++    private void reLoadAnrNum() {
++        if (mAccount != null && !"sprd.com.android.account.usim".equals(mAccount.type)) {
++            Log.d(TAG, "sim card, no need to reload anr num");
++            return;
++        }
++        int phoneTypeOverallMax = SimUtils.getSimContactPhoneTypeOverallMax(mSubId);
++        Log.d("pingp.jia", "phoneTypeOverallMax = " + phoneTypeOverallMax);
++        AccountManager.get(mContext).setUserData(mAccount, Phone.CONTENT_ITEM_TYPE + "_typeoverallmax", Integer.toString(phoneTypeOverallMax));
++    }
++
+     /* *
+      * Remove this function and replace it w/ {@link ContactAccountManager.getPhoneAccount}. private
+      * Account phoneToAccount(int phoneId) { AccountManager am = AccountManager.get(mContext);

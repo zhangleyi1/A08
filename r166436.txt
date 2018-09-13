@@ -1,0 +1,82 @@
+Index: vendor/sprd/platform/packages/apps/SprdEmail/Email/res/drawable-mdpi/ic_mail_type_yahoo.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdEmail/Email/res/drawable-mdpi/ic_mail_type_yahoo.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdEmail/Email/res/drawable-mdpi/ic_mail_type_yahoo.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/SprdEmail/Email/res/drawable-mdpi/ic_mail_type_yahoo.png	(revision 166436)
+
+Property changes on: vendor/sprd/platform/packages/apps/SprdEmail/Email/res/drawable-mdpi/ic_mail_type_yahoo.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/SprdEmail/Email/res/drawable-xxxhdpi/ic_mail_type_yahoo.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdEmail/Email/res/drawable-xxxhdpi/ic_mail_type_yahoo.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdEmail/Email/res/drawable-xxxhdpi/ic_mail_type_yahoo.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/SprdEmail/Email/res/drawable-xxxhdpi/ic_mail_type_yahoo.png	(revision 166436)
+
+Property changes on: vendor/sprd/platform/packages/apps/SprdEmail/Email/res/drawable-xxxhdpi/ic_mail_type_yahoo.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/SprdEmail/Email/res/drawable-xxhdpi/ic_mail_type_yahoo.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdEmail/Email/res/drawable-xxhdpi/ic_mail_type_yahoo.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdEmail/Email/res/drawable-xxhdpi/ic_mail_type_yahoo.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/SprdEmail/Email/res/drawable-xxhdpi/ic_mail_type_yahoo.png	(revision 166436)
+
+Property changes on: vendor/sprd/platform/packages/apps/SprdEmail/Email/res/drawable-xxhdpi/ic_mail_type_yahoo.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/SprdEmail/Email/res/drawable-xhdpi/ic_mail_type_yahoo.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdEmail/Email/res/drawable-xhdpi/ic_mail_type_yahoo.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdEmail/Email/res/drawable-xhdpi/ic_mail_type_yahoo.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/SprdEmail/Email/res/drawable-xhdpi/ic_mail_type_yahoo.png	(revision 166436)
+
+Property changes on: vendor/sprd/platform/packages/apps/SprdEmail/Email/res/drawable-xhdpi/ic_mail_type_yahoo.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/SprdEmail/Email/res/values/arrays_guide.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdEmail/Email/res/values/arrays_guide.xml	(revision 166435)
++++ vendor/sprd/platform/packages/apps/SprdEmail/Email/res/values/arrays_guide.xml	(revision 166436)
+@@ -27,7 +27,7 @@
+         <!--<item>@string/account_type_display_qq</item>-->
+         <!-- TYPE_GMAIL = 5 -->
+         <item>@string/account_type_display_gmail</item>
+-	<item>@string/account_type_display_yahoo</item>
++		<item>@string/account_type_display_yahoo</item>
+     </string-array>
+ 
+     <array name="account_type_display_icons" translatable="false">
+@@ -43,7 +43,7 @@
+         <!--<item>@drawable/ic_mail_type_qq</item>-->
+         <!-- 5 -->
+         <item>@drawable/ic_mail_type_gmail</item>
+-	<item>@drawable/ic_mail_type_gmail</item>
++		<item>@drawable/ic_mail_type_yahoo</item>
+     </array>
+ 
+     <string-array name="account_type_domain_names" translatable="false">

@@ -1,0 +1,13 @@
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/values/strings.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 172159)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 172160)
+@@ -27,7 +27,7 @@
+     <string name="dialog_messages_link">"Internet package"</string>
+     <string name="dialog_messages_full">Some applications of this device require data connection which may involve some cost. We suggest that you order an Internet package. Contact with your operator for details.</string>
+     <!-- @} -->
+-	<string name="qs_vowifi_off">"VOWIFI"</string>
++	<string name="qs_vowifi_off">"VoWiFi"</string>
+         <string name="qs_vowifi_on">"CONNECTED"</string>
+ 	<string name="qs_vowifi_disconnected">"DISCONNECTED"</string>
+ 	

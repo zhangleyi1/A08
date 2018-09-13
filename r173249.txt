@@ -1,0 +1,35 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 173248)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 173249)
+@@ -1227,11 +1227,7 @@
+                 }
+             }
+         } else if (resId == R.id.switchBtn) {
+-            if (1 == defaultSimSlot) {
+-                showLteButton(false);
+-            } else {
+-                showLteButton(true);
+-            }
++            showLteButton(is4GNetType());
+         } else if (resId == R.id.dialpad_floating_action_gsm_button) {
+             if (!mStateSaved) {
+                 handleGSMDialButtonPressed();
+@@ -1778,7 +1774,7 @@
+             if (!oneSimState && twoSimState) {
+                 showLteButton(false);
+             } else {
+-                showLteButton(true);
++                showLteButton(is4GNetType());
+             }
+ 
+             mDialpadChooser.setVisibility(View.GONE);
+@@ -2244,7 +2240,7 @@
+             if (!oneSimState && twoSimState) {
+                 showLteButton(false);
+             } else {
+-                showLteButton(true);
++                showLteButton(is4GNetType());
+                 mFloatingActionButtonController.scaleIn(mAnimate ? mDialpadSlideInDuration : 0);
+             }
+             activity.onDialpadShown();

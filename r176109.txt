@@ -1,0 +1,40 @@
+Index: frameworks/base/core/java/android/provider/Settings.java
+===================================================================
+--- frameworks/base/core/java/android/provider/Settings.java	(revision 176108)
++++ frameworks/base/core/java/android/provider/Settings.java	(revision 176109)
+@@ -6654,6 +6654,11 @@
+          */
+         public static final String AIRPLANE_MODE_ON = "airplane_mode_on";
+ 
++	/**
++         * Whether Flip to mute call.
++         */
++        public static final String FLIP_TO_MUTE_CALL = "flipping_silence_data";
++	
+ 
+         /**
+          * Whether Theater Mode is on.
+Index: frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java
+===================================================================
+--- frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java	(revision 176108)
++++ frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java	(revision 176109)
+@@ -2639,6 +2639,7 @@
+ 
+             loadIntegerSetting(stmt, Settings.Global.WIFI_SLEEP_POLICY,
+                     R.integer.def_wifi_sleep_policy);
++			loadIntegerSetting(stmt, Settings.Global.FLIP_TO_MUTE_CALL, R.integer.flipping_silence_data);
+             loadSetting(stmt, Settings.Global.MODE_RINGER,
+                     AudioManager.RINGER_MODE_NORMAL);
+ 
+Index: frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+===================================================================
+--- frameworks/base/packages/SettingsProvider/res/values/defaults.xml	(revision 176108)
++++ frameworks/base/packages/SettingsProvider/res/values/defaults.xml	(revision 176109)
+@@ -22,6 +22,7 @@
+     <integer name="def_button_light_off_timeout">1500</integer>
+     <integer name="def_sleep_timeout">-1</integer>
+ 	<integer name="battery_percentage_enabled">1</integer>
++	<integer name="flipping_silence_data">1</integer>
+     <bool name="def_airplane_mode_on">false</bool>
+     <bool name="def_theater_mode_on">false</bool>
+     <!-- Comma-separated list of bluetooth, wifi, and cell. -->

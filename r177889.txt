@@ -1,0 +1,13 @@
+Index: build/tools/buildinfo.sh
+===================================================================
+--- build/tools/buildinfo.sh	(revision 177888)
++++ build/tools/buildinfo.sh	(revision 177889)
+@@ -45,7 +45,7 @@
+ echo "ro.product.name=A36C5H"
+ echo "ro.product.device=A36C5H"
+ echo "ro.product.board=$TARGET_BOOTLOADER_BOARD_NAME"
+-echo "ro.product.manufacturer=A36C5H"
++echo "ro.product.manufacturer=Haier"
+ echo "ro.build.fingerprint=Smartfren/A36C5H/A36C5H:7.0/NRD90M/YNC1TBS1ZM:user/release-keys"
+ 
+ # redstone

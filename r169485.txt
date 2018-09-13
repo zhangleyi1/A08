@@ -1,0 +1,74 @@
+Index: kernel/security/rootrecorder/root_recorder.c
+===================================================================
+--- kernel/security/rootrecorder/root_recorder.c	(revision 169484)
++++ kernel/security/rootrecorder/root_recorder.c	(revision 169485)
+@@ -248,7 +248,61 @@
+ 	}
+ 	return 1;
+ }
++#include <linux/time.h>
++#include <linux/timex.h>
++#include <linux/rtc.h>
++#include <linux/delay.h>
+ 
++void write_root_to_log(void)
++{
++
++	struct file *fp = NULL;
++	char flag_buf[1024];
++	struct tm *t;
++	struct timex  txc;
++	struct rtc_time tm;
++	loff_t pos = 0;
++	mm_segment_t fs; 
++
++	memset(flag_buf, 0, sizeof(flag_buf));
++	do_gettimeofday(&(txc.time));
++	rtc_time_to_tm(txc.time.tv_sec,&tm);
++
++	//pr_err("Tianyuan->%s 1\n",__func__);
++
++	fs = get_fs();
++	set_fs(KERNEL_DS);
++	fp = filp_open("/devicelog/log.txt", O_CREAT|O_RDWR, 0777);
++	//pr_err("write_root_to_log fp:%p\n",fp);
++	if (IS_ERR(fp)) {
++		  pr_err("error occured while opening file, exiting...\n");
++		  set_fs(fs);
++		  return;
++	}
++
++	//pr_err("Tianyuan->%s 2\n",__func__);
++	vfs_llseek(fp, 0, SEEK_END);
++	//pr_err("Tianyuan->%s 3\n",__func__);
++	sprintf(flag_buf,"%d-%d-%d:%d-%d-%d:root\n" ,
++				  tm.tm_year+1900,tm.tm_mon, tm.tm_mday,tm.tm_hour,tm.tm_min,tm.tm_sec);
++	//pr_err("Tianyuan->%s 4\n",__func__);
++	pos = fp->f_pos;
++	if(vfs_write(fp, flag_buf, strlen(flag_buf), &pos) < 0)
++	{
++		pr_err("write_root_to_log vfs_write error\n");
++	}
++	//pr_err("Tianyuan->%s 5\n",__func__);
++	mdelay(10);
++
++	filp_close(fp,NULL);
++	fp = NULL;
++	set_fs(fs);
++
++	//pr_err("Tianyuan->%s 6\n",__func__);
++
++}
++
++
+ static void write_root_stat_emmc(void)
+ {
+ 	int errno, i;
+@@ -258,6 +312,7 @@
+ 	mm_segment_t old_fs;
+ 	char *miscdata_name;
+ 
++	write_root_to_log();
+ 	if(!is_stat_has_path) {
+ 		miscdata_name = NULL;
+ 		iterate_bdevs(find_miscdata, &miscdata_name);

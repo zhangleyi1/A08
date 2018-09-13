@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/services/Telephony/res/values-in/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/services/Telephony/res/values-in/strings.xml	(revision 172638)
++++ vendor/sprd/platform/packages/services/Telephony/res/values-in/strings.xml	(revision 172639)
+@@ -27,7 +27,7 @@
+ <string name="ip_dialing_num_repeat">Ulangi nomor, penambahan gagal</string>
+ <string name="menu_selected_all">pilih semua</string>
+ <string name="menu_select_none">Batal pilih semua</string>
+-<string name="lnd_list">"Daftar SDN"</string>
++<string name="lnd_list">"Daftar LDN"</string>
+ <string name="sdn_list">"Daftar SDN"</string>
+ <string name="network_wcdma_only">"WCDMA saja"</string>
+ <string name="network_3g_2g">"3G/2G Mode tunggal"</string>

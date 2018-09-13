@@ -1,0 +1,87 @@
+Index: device/sprd/scx35l/common/device.mk
+===================================================================
+--- device/sprd/scx35l/common/device.mk	(revision 173913)
++++ device/sprd/scx35l/common/device.mk	(revision 173914)
+@@ -259,9 +259,9 @@
+ 
+ # add sprd browser
+ PRODUCT_PACKAGES += \
+-    SprdBrowser \
+-    SprdBrowserCustomAddon \
+-    SprdBrowserStorageAddon
++#    SprdBrowser \
++#     SprdBrowserCustomAddon \
++#     SprdBrowserStorageAddon
+ 
+ # add drm for sprd browser
+ PRODUCT_PACKAGES += \
+Index: vendor/sprd/platform/packages/apps/SprdBrowser/Android.mk.bak
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdBrowser/Android.mk.bak	(revision 173913)
++++ vendor/sprd/platform/packages/apps/SprdBrowser/Android.mk.bak	(revision 173914)
+@@ -1,30 +0,0 @@
+-LOCAL_PATH:= $(call my-dir)
+-include $(CLEAR_VARS)
+-
+-LOCAL_MODULE_TAGS := optional
+-
+-LOCAL_STATIC_JAVA_LIBRARIES := \
+-        android-common \
+-        guava \
+-        android-support-v13 \
+-        android-support-v4 \
+-
+-LOCAL_SRC_FILES := \
+-        $(call all-java-files-under, src) \
+-        src/com/android/browser/EventLogTags.logtags
+-
+-LOCAL_PACKAGE_NAME := SprdBrowser
+-LOCAL_CERTIFICATE := platform
+-LOCAL_PROGUARD_FLAG_FILES := proguard.flags
+-
+-LOCAL_EMMA_COVERAGE_FILTER := *,-com.android.common.*
+-
+-# We need the sound recorder for the Media Capture API.
+-LOCAL_REQUIRED_MODULES := DreamSoundRecorder
+-
+-LOCAL_OVERRIDES_PACKAGES := Browser Browser2 BookmarkProvider
+-
+-include $(BUILD_PACKAGE)
+-
+-# additionally, build tests in sub-folders in a separate .apk
+-include $(call all-makefiles-under,$(LOCAL_PATH))
+Index: vendor/sprd/platform/packages/apps/SprdBrowser/Android.mk
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdBrowser/Android.mk	(revision 0)
++++ vendor/sprd/platform/packages/apps/SprdBrowser/Android.mk	(revision 173914)
+@@ -0,0 +1,30 @@
++LOCAL_PATH:= $(call my-dir)
++include $(CLEAR_VARS)
++
++LOCAL_MODULE_TAGS := optional
++
++LOCAL_STATIC_JAVA_LIBRARIES := \
++        android-common \
++        guava \
++        android-support-v13 \
++        android-support-v4 \
++
++LOCAL_SRC_FILES := \
++        $(call all-java-files-under, src) \
++        src/com/android/browser/EventLogTags.logtags
++
++LOCAL_PACKAGE_NAME := SprdBrowser
++LOCAL_CERTIFICATE := platform
++LOCAL_PROGUARD_FLAG_FILES := proguard.flags
++
++LOCAL_EMMA_COVERAGE_FILTER := *,-com.android.common.*
++
++# We need the sound recorder for the Media Capture API.
++LOCAL_REQUIRED_MODULES := DreamSoundRecorder
++
++LOCAL_OVERRIDES_PACKAGES := Browser Browser2 BookmarkProvider
++
++include $(BUILD_PACKAGE)
++
++# additionally, build tests in sub-folders in a separate .apk
++include $(call all-makefiles-under,$(LOCAL_PATH))

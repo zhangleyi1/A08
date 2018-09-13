@@ -1,0 +1,65 @@
+Index: frameworks/base/packages/Keyguard/res/values-en-rAU/strings.xml
+===================================================================
+--- frameworks/base/packages/Keyguard/res/values-en-rAU/strings.xml	(revision 172320)
++++ frameworks/base/packages/Keyguard/res/values-en-rAU/strings.xml	(revision 172321)
+@@ -109,7 +109,7 @@
+     <string name="kg_pin_accepted" msgid="1448241673570020097">"Code accepted"</string>
+     <string name="keyguard_carrier_default" msgid="8700650403054042153">"No service."</string>
+     <string name="accessibility_ime_switch_button" msgid="2829803408288433429">"Switch input method"</string>
+-    <string name="airplane_mode" msgid="3122107900897202805">"AEROPLANE MODE"</string>
++    <string name="airplane_mode" msgid="3122107900897202805">"Airplane mode"</string>
+     <string name="kg_prompt_reason_restart_pattern" msgid="5519822969283306009">"Pattern required after device restarts"</string>
+     <string name="kg_prompt_reason_restart_pin" msgid="4411398237158448198">"PIN required after device restarts"</string>
+     <string name="kg_prompt_reason_restart_password" msgid="6504585392626524695">"Password required after device restarts"</string>
+Index: frameworks/base/packages/Keyguard/res/values-en-rIN/strings.xml
+===================================================================
+--- frameworks/base/packages/Keyguard/res/values-en-rIN/strings.xml	(revision 172320)
++++ frameworks/base/packages/Keyguard/res/values-en-rIN/strings.xml	(revision 172321)
+@@ -109,7 +109,7 @@
+     <string name="kg_pin_accepted" msgid="1448241673570020097">"Code accepted"</string>
+     <string name="keyguard_carrier_default" msgid="8700650403054042153">"No service."</string>
+     <string name="accessibility_ime_switch_button" msgid="2829803408288433429">"Switch input method"</string>
+-    <string name="airplane_mode" msgid="3122107900897202805">"AEROPLANE MODE"</string>
++    <string name="airplane_mode" msgid="3122107900897202805">"Airplane mode"</string>
+     <string name="kg_prompt_reason_restart_pattern" msgid="5519822969283306009">"Pattern required after device restarts"</string>
+     <string name="kg_prompt_reason_restart_pin" msgid="4411398237158448198">"PIN required after device restarts"</string>
+     <string name="kg_prompt_reason_restart_password" msgid="6504585392626524695">"Password required after device restarts"</string>
+Index: frameworks/base/packages/Keyguard/res/values/strings.xml
+===================================================================
+--- frameworks/base/packages/Keyguard/res/values/strings.xml	(revision 172320)
++++ frameworks/base/packages/Keyguard/res/values/strings.xml	(revision 172321)
+@@ -306,7 +306,7 @@
+     <string name="accessibility_ime_switch_button" msgid="5032926134740456424">Switch input method</string>
+ 
+     <!-- Description of airplane mode -->
+-    <string name="airplane_mode">AEROPLANE MODE</string>
++    <string name="airplane_mode">Airplane mode</string>
+ 
+     <!-- An explanation text that the pattern needs to be solved since the device has just been restarted. [CHAR LIMIT=80] -->
+     <string name="kg_prompt_reason_restart_pattern">Pattern required after device restarts</string>
+Index: frameworks/base/packages/Keyguard/res/values-en-rGB/strings.xml
+===================================================================
+--- frameworks/base/packages/Keyguard/res/values-en-rGB/strings.xml	(revision 172320)
++++ frameworks/base/packages/Keyguard/res/values-en-rGB/strings.xml	(revision 172321)
+@@ -109,7 +109,7 @@
+     <string name="kg_pin_accepted" msgid="1448241673570020097">"Code accepted"</string>
+     <string name="keyguard_carrier_default" msgid="8700650403054042153">"No service."</string>
+     <string name="accessibility_ime_switch_button" msgid="2829803408288433429">"Switch input method"</string>
+-    <string name="airplane_mode" msgid="3122107900897202805">"AEROPLANE MODE"</string>
++    <string name="airplane_mode" msgid="3122107900897202805">"Airplane mode"</string>
+     <string name="kg_prompt_reason_restart_pattern" msgid="5519822969283306009">"Pattern required after device restarts"</string>
+     <string name="kg_prompt_reason_restart_pin" msgid="4411398237158448198">"PIN required after device restarts"</string>
+     <string name="kg_prompt_reason_restart_password" msgid="6504585392626524695">"Password required after device restarts"</string>
+Index: frameworks/base/packages/SystemUI/res/values/dimens.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 172320)
++++ frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 172321)
+@@ -183,7 +183,7 @@
+     <dimen name="qs_page_indicator_width">16dp</dimen>
+     <dimen name="qs_page_indicator_height">8dp</dimen>
+     <dimen name="qs_tile_icon_size">24dp</dimen>
+-    <dimen name="qs_tile_text_size">9sp</dimen>
++    <dimen name="qs_tile_text_size">10sp</dimen>
+     <dimen name="qs_tile_divider_height">1dp</dimen>
+     <dimen name="qs_panel_padding">16dp</dimen>
+     <dimen name="qs_dual_tile_height">112dp</dimen>

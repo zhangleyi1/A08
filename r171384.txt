@@ -1,0 +1,39 @@
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 171383)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 171384)
+@@ -648,7 +648,10 @@
+         };
+         getContentResolver().registerContentObserver(Settings.Global.getUriFor(android.provider.Settings.Global.ENHANCED_4G_MODE_ENABLED),
+                 true, mEnhancedLTEObserver);
+-        /* @} */
++		if(mPreferredSetResolution != null){
++            mPreferredSetResolution.setValueIndex(getVideoQualityFromPreference());
++            mPreferredSetResolution.setSummary(mPreferredSetResolution.getEntry());
++        }
+         if (DBG) log("onCreate:-");
+     }
+ 
+@@ -700,10 +703,10 @@
+         /* @} */
+ 
+         /* SPRD: FEATURE_RESOLUTION_SETTING @{ */
+-        if(mPreferredSetResolution != null){
++       /* if(mPreferredSetResolution != null){
+             mPreferredSetResolution.setValueIndex(getVideoQualityFromPreference());
+             mPreferredSetResolution.setSummary(mPreferredSetResolution.getEntry());
+-        }
++        }*/
+         /* @} */
+ 
+         if (getPreferenceScreen().findPreference(BUTTON_PREFERED_NETWORK_MODE) != null
+@@ -786,7 +789,8 @@
+             if(ImsManager.isVolteEnabledByPlatform(this)){
+                 /* SPRD: add for bug 596388 @{ */
+                 if (mPreferredSetResolution != null && defaultDataSubId == phoneSubId) {
+-                    prefSet.addPreference(mPreferredSetResolution);
++                    //prefSet.addPreference(mPreferredSetResolution);
++                    prefSet.removePreference(mPreferredSetResolution);
+                 }
+                 /* @} */
+             }

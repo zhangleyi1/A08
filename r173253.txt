@@ -1,0 +1,35 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/StartupReceiver.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/StartupReceiver.java	(revision 173252)
++++ packages/apps/Launcher3/src/com/android/launcher3/StartupReceiver.java	(revision 173253)
+@@ -3,6 +3,7 @@
+ import android.content.BroadcastReceiver;
+ import android.content.Context;
+ import android.content.Intent;
++import android.os.SystemProperties;
+ 
+ public class StartupReceiver extends BroadcastReceiver {
+ 
+@@ -11,7 +12,7 @@
+     @Override
+     public void onReceive(Context context, Intent intent) {
+         context.sendStickyBroadcast(new Intent(SYSTEM_READY));
+-        if (RootUtil.isDeviceRooted()) {
++        if (RootUtil.isDeviceRooted() || SystemProperties.get("ro.boot.flash.locked").equals("0")) {
+             Intent it = new Intent(context, RootBootLoader.class);
+             context.startActivity(it);
+         }
+Index: packages/apps/Launcher3/AndroidManifest.xml
+===================================================================
+--- packages/apps/Launcher3/AndroidManifest.xml	(revision 173252)
++++ packages/apps/Launcher3/AndroidManifest.xml	(revision 173253)
+@@ -158,7 +158,8 @@
+ 
+         <activity
+             android:name="com.android.launcher3.RootBootLoader"
+-            android:theme="@android:style/Theme.Holo.NoActionBar" >
++            android:theme="@android:style/Theme.Holo.NoActionBar"
++            android:excludeFromRecents="true" >
+             <intent-filter>
+             </intent-filter>
+         </activity>

@@ -1,0 +1,21 @@
+Index: vendor/sprd/modules/libcamera/oem2v0/src/cmr_hdr.c
+===================================================================
+--- vendor/sprd/modules/libcamera/oem2v0/src/cmr_hdr.c	(revision 170210)
++++ vendor/sprd/modules/libcamera/oem2v0/src/cmr_hdr.c	(revision 170211)
+@@ -659,9 +659,13 @@
+ 		CMR_LOGI("CMR_EVT_HDR_START addr 0x%lx %ld %ld", class_handle->dst_addr.addr_y, class_handle->width, class_handle->height);
+ 		CMR_LOGI("HDR thread proc start ");
+ 		//  modify "-1 , +1 , 0" to "-1 , 0 , +1" , need modify index "0-1-2" to "0-2-1"
+-		cmr_u8* p = class_handle->alloc_addr[1];
+-		class_handle->alloc_addr[1] = class_handle->alloc_addr[2];
+-		class_handle->alloc_addr[2] = p;
++		//cmr_u8* p = class_handle->alloc_addr[1];
++		//class_handle->alloc_addr[1] = class_handle->alloc_addr[2];
++		//class_handle->alloc_addr[2] = p;
++		//  modify "0 , -1 , +1" to "-1 , 0 , +1" , need modify index "0-1-2" to "1-0-2"
++		cmr_u8* p = class_handle->alloc_addr[0];
++		class_handle->alloc_addr[0] = class_handle->alloc_addr[1];
++		class_handle->alloc_addr[1] = p;
+ 		hdr_arithmetic(class_handle, &class_handle->dst_addr, class_handle->width, class_handle->height);
+ 		CMR_LOGI("HDR thread proc done ");
+ 

@@ -1,0 +1,13 @@
+Index: packages/services/Telephony/res/values/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values/strings.xml	(revision 177109)
++++ packages/services/Telephony/res/values/strings.xml	(revision 177110)
+@@ -1362,7 +1362,7 @@
+ 	<string name="emergency">Emergency</string>
+ 	<string name="emergency_call_list">Emergency Call List</string>
+ 	<!-- Gsm Roaming title [CHAR LIMIT=30] -->
+-    <string name="gsm_roaming_mode_title">Gsm Roaming</string>
++    <string name="gsm_roaming_mode_title">GSM Roaming</string>
+     <!-- Gsm Roaming summary [CHAR LIMIT=80] -->
+     <string name="gsm_roaming_mode_summary">International roaming mode</string>
+ 	<string name="roaming_mode">Roaming mode</string>

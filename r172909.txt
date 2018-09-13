@@ -1,0 +1,24 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 172908)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 172909)
+@@ -1550,7 +1550,8 @@
+                         DialerUtils.startActivityWithErrorToast(getActivity(), intent);
+                     }
+ 
+-                    hideAndClearDialpad(false);
++                     //hideAndClearDialpad(false);
++                      clearDialpad();
+                     //Added by zhangleyi for 20170321 end
+                 }
+             }
+@@ -1595,7 +1596,8 @@
+                         call(getContext(), 0, number);
+                     }
+ 
+-                    hideAndClearDialpad(false);
++                    //hideAndClearDialpad(false);
++                     clearDialpad();
+                 }
+             }
+         }

@@ -1,0 +1,70 @@
+Index: packages/apps/Settings/src/com/sprd/settings/wifi/WifiSoftApSleepPolicy.java
+===================================================================
+--- packages/apps/Settings/src/com/sprd/settings/wifi/WifiSoftApSleepPolicy.java	(revision 170486)
++++ packages/apps/Settings/src/com/sprd/settings/wifi/WifiSoftApSleepPolicy.java	(revision 170487)
+@@ -21,10 +21,12 @@
+     public static final int WIFI_SOFT_AP_SLEEP_POLICY_NEVER = 0;
+     public static final int WIFI_SOFT_AP_SLEEP_POLICY_5_MINS = 1;
+     public static final int WIFI_SOFT_AP_SLEEP_POLICY_10_MINS = 2;
++	public static final int WIFI_SOFT_AP_SLEEP_POLICY_15_MINS = 3;
+     public static final String WIFI_SOFT_AP_SLEEP_POLICY = "wifi_soft_ap_sleep_policy_key";
+ 
+     public static final int FIVE_MINS = 300000;
+     public static final int TEN_MINS = 600000;
++	public static final int FIFTEEN_MINS = 900000;
+ 
+     private static WifiManager mWifiManager = null;
+     private static SoftApConnHandler mHandler;
+@@ -138,6 +140,8 @@
+             mHandler.start(FIVE_MINS);
+         else if (value == WIFI_SOFT_AP_SLEEP_POLICY_10_MINS)
+             mHandler.start(TEN_MINS);
++		else if(value==WIFI_SOFT_AP_SLEEP_POLICY_15_MINS)
++			mHandler.start(FIFTEEN_MINS);
+         return true;
+     }
+ }
+Index: vendor/sprd/platform/packages/apps/Settings/res/values-in/arrays_wifi.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Settings/res/values-in/arrays_wifi.xml	(revision 170486)
++++ vendor/sprd/platform/packages/apps/Settings/res/values-in/arrays_wifi.xml	(revision 170487)
+@@ -8,6 +8,7 @@
+ <item>"Selalu"</item>
+ <item>"Dinonaktihkan ketika diam untuk 5 menit"</item>
+ <item>"Dinonaktihkan ketika diam untuk 10 menit"</item>
++<item>"Dinonaktihkan ketika diam untuk 15 menit"</item>
+ </string-array>
+ <string-array name="hotspot_wps_mode">
+ <item>"Tombol WPS"</item>
+Index: vendor/sprd/platform/packages/apps/Settings/res/values-zh-rCN/arrays_wifi.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Settings/res/values-zh-rCN/arrays_wifi.xml	(revision 170486)
++++ vendor/sprd/platform/packages/apps/Settings/res/values-zh-rCN/arrays_wifi.xml	(revision 170487)
+@@ -36,6 +36,7 @@
+      <item>总是</item>
+      <item>空闲5分钟后关闭</item>
+      <item>空闲10分钟后关闭</item>
++	 <item>空闲15分钟后关闭</item>
+    </string-array>
+    <!-- @} -->
+    <!-- SPRD: Bug#505201 Add for softap support wps connect mode and hidden ssid Feature BEG -->
+Index: vendor/sprd/platform/packages/apps/Settings/res/values/arrays_wifi.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Settings/res/values/arrays_wifi.xml	(revision 170486)
++++ vendor/sprd/platform/packages/apps/Settings/res/values/arrays_wifi.xml	(revision 170487)
+@@ -80,6 +80,7 @@
+         <item>Always</item>
+         <item>Turn off when idle for 5 mins</item>
+         <item>Turn off when idle for 10 mins</item>
++		<item>Turn off when idle for 15 mins</item>
+     </string-array>
+     <!-- add for keep Wi-Fi hotspot on entry values-->
+     <string-array name="soft_ap_sleep_policy_entryvalues">
+@@ -86,6 +87,7 @@
+         <item>0</item>
+         <item>1</item>
+         <item>2</item>
++		<item>3</item>
+     </string-array>
+     <!-- SPRD: Bug#505201 Add for softap support wps connect mode and hidden ssid Feature BEG -->
+     <string-array name="hotspot_wps_mode">

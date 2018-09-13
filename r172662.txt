@@ -1,0 +1,85 @@
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 172661)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 172662)
+@@ -658,10 +658,7 @@
+         };
+         getContentResolver().registerContentObserver(Settings.Global.getUriFor(android.provider.Settings.Global.ENHANCED_4G_MODE_ENABLED),
+                 true, mEnhancedLTEObserver);
+-		if(mPreferredSetResolution != null){
+-            mPreferredSetResolution.setValueIndex(getVideoQualityFromPreference());
+-            mPreferredSetResolution.setSummary(mPreferredSetResolution.getEntry());
+-        }
++        /* @} */
+         if (DBG) log("onCreate:-");
+     }
+ 
+@@ -713,10 +710,11 @@
+         /* @} */
+ 
+         /* SPRD: FEATURE_RESOLUTION_SETTING @{ */
+-       /* if(mPreferredSetResolution != null){
++        if(mPreferredSetResolution != null){
+             mPreferredSetResolution.setValueIndex(getVideoQualityFromPreference());
+             mPreferredSetResolution.setSummary(mPreferredSetResolution.getEntry());
+-        }*/
++        }
++		 
+         /* @} */
+ 
+         if (getPreferenceScreen().findPreference(BUTTON_PREFERED_NETWORK_MODE) != null
+@@ -826,8 +824,8 @@
+             if(ImsManager.isVolteEnabledByPlatform(this)){
+                 /* SPRD: add for bug 596388 @{ */
+                 if (mPreferredSetResolution != null && defaultDataSubId == phoneSubId) {
+-                    //prefSet.addPreference(mPreferredSetResolution);
+-                    prefSet.removePreference(mPreferredSetResolution);
++                    prefSet.addPreference(mPreferredSetResolution);
++                    //prefSet.removePreference(mPreferredSetResolution);
+                 }
+                 /* @} */
+             }
+@@ -1994,7 +1992,7 @@
+     }
+ 
+     private int getVideoQualityFromPreference(){
+-        int videoQuality = mSharedPrefs.getInt(VT_RESOLUTION , 0);
++        int videoQuality = mSharedPrefs.getInt(VT_RESOLUTION , 2);
+         log("getVideoQualityFromSharedPrefs :videoQuality "+videoQuality);
+         return videoQuality;
+     }
+Index: vendor/sprd/platform/packages/services/Telephony/res/values/strings_ex.xml
+===================================================================
+--- vendor/sprd/platform/packages/services/Telephony/res/values/strings_ex.xml	(revision 172661)
++++ vendor/sprd/platform/packages/services/Telephony/res/values/strings_ex.xml	(revision 172662)
+@@ -24,20 +24,20 @@
+     <!-- SPRD: add for vt resolution choices @{ -->
+     <string name="vt_resolution_setting">Select the video resolution</string>
+     <string-array name="vt_resolution_choices">
+-        <!--<item>VGA_15</item>-->
+-        <!--<item>VGA_30</item>-->
++        <item>VGA_15</item>
++        <item>VGA_30</item>
+         <item>QVGA_15</item>
+-        <!--<item>QVGA_30</item>-->
+-        <!--<item>CIF</item>-->
+-        <!--<item>QCIF</item>-->
++        <item>QVGA_30</item>
++        <item>CIF</item>
++        <item>QCIF</item>
+     </string-array>
+     <string-array name="vt_resolution_choices_values">
+         <item>"0"</item>
+-        <!--<item>"1"</item>-->
+-        <!--<item>"2"</item>-->
+-        <!--<item>"3"</item>-->
+-        <!--<item>"4"</item>-->
+-        <!--<item>"5"</item>-->
++        <item>"1"</item>
++        <item>"2"</item>
++        <item>"3"</item>
++        <item>"4"</item>
++        <item>"5"</item>
+     </string-array>
+     <!-- @} -->
+     <string name="turn_off_ims_error">Can not turn off IMS when WiFi calling enabled, please turn off WiFi calling first.</string>

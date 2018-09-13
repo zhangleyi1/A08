@@ -1,0 +1,14 @@
+Index: kernel/include/linux/headset_sprd_sc2723.h
+===================================================================
+--- kernel/include/linux/headset_sprd_sc2723.h	(revision 166555)
++++ kernel/include/linux/headset_sprd_sc2723.h	(revision 166556)
+@@ -53,6 +53,9 @@
+         int irq_detect;
+         int irq_button;
+ 		int irq_detect_mic;
++#ifdef CONFIG_INPUT_HEADSET_AVOID_INVALID_BUTTON
++        struct hrtimer timer;
++#endif		
+         struct sprd_headset_platform_data *platform_data;
+         struct switch_dev sdev;
+         struct input_dev *input_dev;

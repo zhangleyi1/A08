@@ -1,0 +1,13 @@
+Index: frameworks/base/services/core/java/com/android/server/TextServicesManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/TextServicesManagerService.java	(revision 176410)
++++ frameworks/base/services/core/java/com/android/server/TextServicesManagerService.java	(revision 176411)
+@@ -1172,7 +1172,7 @@
+         }
+ 
+         public boolean isSpellCheckerEnabled() {
+-            return getBoolean(Settings.Secure.SPELL_CHECKER_ENABLED, true);
++            return getBoolean(Settings.Secure.SPELL_CHECKER_ENABLED, false);
+         }
+ 
+         public void dumpLocked(final PrintWriter pw, final String prefix) {

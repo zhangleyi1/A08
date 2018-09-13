@@ -1,0 +1,23 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 169201)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 169202)
+@@ -63,6 +63,8 @@
+ import android.view.MotionEvent;
+ import android.view.View;
+ import android.view.ViewGroup;
++import android.view.Window;
++import android.view.WindowManager;
+ import android.widget.AdapterView;
+ import android.widget.BaseAdapter;
+ import android.widget.EditText;
+@@ -383,6 +385,9 @@
+         super.onCreate(state);
+ 
+         mFirstLaunch = state == null;
++		WindowManager.LayoutParams lp =getActivity().getWindow().getAttributes();
++				lp.flags |= WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED;
++				getActivity().getWindow().setAttributes(lp);
+ 
+         mCurrentCountryIso = GeoUtil.getCurrentCountryIso(getActivity());
+ 

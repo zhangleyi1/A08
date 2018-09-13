@@ -1,0 +1,22 @@
+Index: kernel/drivers/gpu/sprd_iommu/sprd_iommu_common.c
+===================================================================
+--- kernel/drivers/gpu/sprd_iommu/sprd_iommu_common.c	(revision 169709)
++++ kernel/drivers/gpu/sprd_iommu/sprd_iommu_common.c	(revision 169710)
+@@ -318,9 +318,17 @@
+ 	mutex_lock(&dev->mutex_pgt);
+ 	mmu_reg_write(dev->init_data->ctrl_reg, MMU_EN(0), MMU_EN_MASK);
+ #ifdef SPRD_IOMMU_SUSPEND
++#ifdef CONFIG_TRUSTY
++	int i;
++	for (i = 0; i < dev->init_data->pgt_size / sizeof(u32); i++) {
++		__set_pte(dev->init_data, dev->init_data->pgt_base, i,
++				((ulong *)(dev->pgt))[i]);
++	}
++#else
+ 	memcpy((ulong *)dev->init_data->pgt_base, (ulong *)dev->pgt,
+ 		dev->init_data->pgt_size);
+ #endif
++#endif
+ 	sprd_iommu_reg_init(dev->init_data);
+ 	mutex_unlock(&dev->mutex_pgt);
+ 

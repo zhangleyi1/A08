@@ -1,0 +1,43 @@
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/imsphone/ImsPhone.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/imsphone/ImsPhone.java	(revision 177602)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/imsphone/ImsPhone.java	(revision 177603)
+@@ -1663,7 +1663,7 @@
+     /* SPRD: add for VoWiFi @{ */
+     public AlertDialog showVolteCallMediaUpdateAlert(Context context) {
+         AlertDialog.Builder builder = new AlertDialog.Builder(context);
+-        builder.setTitle("USSI over WiFi is not ready yet, USSI will run over LTE.");
++        builder.setTitle(context.getString(com.android.internal.R.string.ussi_title));
+         builder.setPositiveButton(context.getString(com.android.internal.R.string.ok), new android.content.DialogInterface.OnClickListener() {
+             public void onClick(DialogInterface dialog, int which) {
+                 if(dialog != null){
+Index: frameworks/base/core/res/res/values-in/strings.xml
+===================================================================
+--- frameworks/base/core/res/res/values-in/strings.xml	(revision 177602)
++++ frameworks/base/core/res/res/values-in/strings.xml	(revision 177603)
+@@ -1654,4 +1654,5 @@
+     <string name="audit_safemode_notification" msgid="6416076898350685856">"Dikembalikan ke setelan pabrik agar perangkat ini dapat digunakan tanpa batasan"</string>
+     <string name="audit_safemode_notification_details" msgid="1860601176690176413">"Sentuh untuk mempelajari lebih lanjut."</string>
+     <string name="suspended_widget_accessibility" msgid="6712143096475264190">"<xliff:g id="LABEL">%1$s</xliff:g> dinonaktifkan"</string>
++	<string name="ussi_title">"Layanan USSI pada jaringan Wi-Fi belum siap, gunakan layanan USSI pada jaringan LTE."</string>
+ </resources>
+Index: frameworks/base/core/res/res/values/symbols.xml
+===================================================================
+--- frameworks/base/core/res/res/values/symbols.xml	(revision 177602)
++++ frameworks/base/core/res/res/values/symbols.xml	(revision 177603)
+@@ -2648,4 +2648,5 @@
+   <!-- SPRD: Bug 635939 Telcel Query USSD Balance -->
+   <java-symbol type="bool" name="config_telcel_operator" />
+   <java-symbol type="string" name="tempNofity" />
++  <java-symbol type="string" name="ussi_title" />
+ </resources>
+Index: frameworks/base/core/res/res/values/strings.xml
+===================================================================
+--- frameworks/base/core/res/res/values/strings.xml	(revision 177602)
++++ frameworks/base/core/res/res/values/strings.xml	(revision 177603)
+@@ -4381,4 +4381,5 @@
+     <!-- Accessibilty string added to a widget that has been suspended [CHAR LIMIT=20] -->
+     <string name="suspended_widget_accessibility">Disabled <xliff:g id="label" example="Calendar">%1$s</xliff:g></string>
+     <string name="tempNofity">It\'s too hot to charge</string>
++	<string name="ussi_title">USSI over WiFi is not ready yet, USSI will run over LTE.</string>
+ </resources>

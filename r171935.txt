@@ -1,0 +1,21 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/touchscreen/BlockTest.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/touchscreen/BlockTest.java	(revision 171934)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/touchscreen/BlockTest.java	(revision 171935)
+@@ -72,11 +72,14 @@
+     public boolean onKeyUp(int keyCode, KeyEvent event) {
+         switch (keyCode) {
+         case KeyEvent.KEYCODE_HOME:
+-            Toast.makeText(this, "The whole test process, home and back keys shielding", Toast.LENGTH_SHORT).show();
++            Toast.makeText(this, "The whole test process, home key shielding", Toast.LENGTH_SHORT).show();
+             return true;
+             
+         case KeyEvent.KEYCODE_BACK:
+-            Toast.makeText(this, "The whole test process, home and back keys shielding", Toast.LENGTH_SHORT).show();
++            //Toast.makeText(this, "The whole test process, home and back keys shielding", Toast.LENGTH_SHORT).show();
++            Intent intent = new Intent(BlockTest.this, FactoryMode.class);
++			setResult(FactoryMode.TEST_CANCEL,intent);
++			finish();
+             return true;
+         }
+         return super.onKeyUp(keyCode, event);

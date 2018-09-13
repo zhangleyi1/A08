@@ -1,0 +1,129 @@
+Index: vendor/sprd/plugins/frameworks/base/packages/SystemUI/addons/SystemUITelephonyAddon/src/plugin/sprd/systemuifeatures/qstile/VoWifiTile.java
+===================================================================
+--- vendor/sprd/plugins/frameworks/base/packages/SystemUI/addons/SystemUITelephonyAddon/src/plugin/sprd/systemuifeatures/qstile/VoWifiTile.java	(revision 166718)
++++ vendor/sprd/plugins/frameworks/base/packages/SystemUI/addons/SystemUITelephonyAddon/src/plugin/sprd/systemuifeatures/qstile/VoWifiTile.java	(revision 166719)
+@@ -94,7 +94,7 @@
+     }
+ 
+     public CharSequence getTileLabel() {
+-        return mContext.getString(R.string.quick_settings_vowifi_label);
++        return getState().label;
+     }
+ 
+     @Override
+@@ -137,9 +137,7 @@
+ 
+         state.value = mVoWifiEnabled;
+ //      state.visible = true;
+-//      state.label = mContext.getString(R.string.quick_settings_vowifi_label);
+-        state.label = removeDoubleQuotes(getSSID());
+-
++		state.label = removeDoubleQuotes(getSSID());
+         mVoWifiAvailable = ImsManager.isWfcEnabledByPlatform(mContext);
+ 
+         if (DBG) Log.d(TAG, "handleUpdateState: mVoWifiEnabled = "
+@@ -147,10 +145,11 @@
+ 
+         if (mVoWifiEnabled && mVoWifiAvailable) {
+             state.icon = ResourceIcon.get(R.drawable.ic_qs_vowifi_on_sprd);
+-            state.label = removeDoubleQuotes(getSSID());
++			state.label = removeDoubleQuotes(getSSID());
++			state.label = mContext.getString(R.string.qs_vowifi_on);
+         } else {
+             state.icon = ResourceIcon.get(R.drawable.ic_qs_vowifi_off_sprd);
+-            state.label = mContext.getString(R.string.quick_settings_vowifi_label);
++			state.label = mContext.getString(R.string.qs_vowifi_off);
+         }
+     }
+ 
+
+Property changes on: vendor/sprd/plugins/frameworks/base/packages/SystemUI/addons/SystemUITelephonyAddon/src/plugin/sprd/systemuifeatures/qstile/VoWifiTile.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/plugins/frameworks/base/packages/SystemUI/addons/SystemUITelephonyAddon/src/plugin/sprd/systemuifeatures/qstile/VoWifiTile.java:r165624
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/values-zh-rCN/strings.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/values-zh-rCN/strings.xml	(revision 166718)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/values-zh-rCN/strings.xml	(revision 166719)
+@@ -15,4 +15,7 @@
+     <string name="dialog_messages_ok">确定</string>
+     <string name="dialog_messages_nomore">不再显示</string>
+     <!-- @} -->
++	<string name="qs_vowifi_off">"VoWifi"</string>
++	<string name="qs_vowifi_on">"已链接"</string>
++	<string name="qs_vowifi_disconnected">"未连接"</string>
+ </resources>
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/values/strings.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 166718)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 166719)
+@@ -27,4 +27,7 @@
+     <string name="dialog_messages_link">"Internet package"</string>
+     <string name="dialog_messages_full">Some applications of this device require data connection which may involve some cost. We suggest that you order an Internet package. Contact with your operator for details.</string>
+     <!-- @} -->
++	<string name="qs_vowifi_off">"VoWifi"</string>
++	<string name="qs_vowifi_on">"Connected"</string>
++	<string name="qs_vowifi_disconnected">"Disconnected"</string>
+ </resources>
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/ic_qs_vowifi_off_sprd.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/ic_qs_vowifi_off_sprd.png
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/ic_qs_vowifi_off_sprd.png	(revision 0)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/ic_qs_vowifi_off_sprd.png	(revision 166719)
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/ic_qs_vowifi_off_sprd.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/ic_qs_vowifi_on_sprd.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/ic_qs_vowifi_on_sprd.xml	(revision 166718)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/ic_qs_vowifi_on_sprd.xml	(revision 166719)
+@@ -1,24 +1,22 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="50dp"
+-    android:height="50dp"
+-    android:viewportWidth="50"
+-    android:viewportHeight="50">
+-
++    android:viewportWidth="300"
++    android:viewportHeight="105.554"
++    android:width="300dp"
++    android:height="105.554dp">
+     <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M14.999,23.026c-1.933,0-3.5,1.56-3.5,3.488c0,1.926,1.567,3.487,3.5,3.487s3.5-1.563,3.5-3.487
+-C18.498,24.586,16.931,23.026,14.999,23.026z
+-M14.999,28.008c-0.828,0-1.5-0.668-1.5-1.494c0-0.824,0.672-1.494,1.5-1.494
+-s1.5,0.667,1.5,1.494S15.827,28.008,14.999,28.008z
+-M7.498,27.262l-2-8.221h-2l3,10.961h2l3-10.961h-2L7.498,27.262z
+-M28.496,27.262l-2-8.221h-2l-2,8.221l-2-8.221h-2l3,10.961h2l2-8.222l2,8.222h2l3.001-10.961h-2L28.496,27.262z
+-M33.497,30.002 h2v-6.976h-2V30.002z M43.497,19.041v1.991h2v-1.991H43.497z
+-M37.497,30.002h2v-3.984h3v-1.994h-3v-2.991h3v-1.991h-5V30.002z
+-M43.497,30.002h2v-6.976h-2V30.002z M33.497,21.032h2v-1.991h-2V21.032z" />
++        android:pathData="M6.87172 -0.0828412l286.257 0c3.77953 0 6.87172 3.09219 6.87172 6.87172l0 91.9767002c0 3.779531 -3.09219 6.871721 -6.87172 6.871721l-286.257 0C3.09219 105.6373 0 102.54511 0 98.765579L0 6.7888788c0 -3.77953 3.09219 -6.87172 6.87172 -6.87172z"
++        android:fillColor="#000000" />
+     <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M25,1C11.746,1,1,11.745,1,25s10.746,24,24,24c13.255,0,24-10.745,24-24S38.255,1,25,1z
+-M25,48
+-C12.297,48,2,37.702,2,25C2,12.297,12.297,2,25,2c12.702,0,23,10.297,23,23C48,37.702,37.702,48,25,48z" />
++        android:pathData="M6.87172 1.30577l286.257 0c3.01591 0 5.4831 2.46719 5.4831 5.4831l0 91.9767c0 3.01591 -2.46719 5.4831 -5.4831 5.4831l-286.257 0c-3.01591 0 -5.4831 -2.46719 -5.4831 -5.4831l0 -91.9767c0 -3.01591 2.46719 -5.4831 5.4831 -5.4831z"
++        android:fillColor="#ffffff" />
++    <path
++        android:pathData="M106.404 8.26608l185.247 0 0 89.0223 -150.094 0c-19.3611 0 -35.1534 -15.7915 -35.1534 -35.1526l0 -53.8698z"
++        android:fillColor="#000000" />
++    <path
++        android:pathData="M6.30413 26.7667l15.6718 0 10.9178 34.8991 10.7489 -34.8991 15.219 0 -17.997 48.4933 -16.2361 0 -18.3243 -48.4933zm52.3302 31.0269c0 -5.35187 1.80692 -9.77854 5.41995 -13.2439 3.62369 -3.47769 8.50148 -5.21654 14.6547 -5.21654 7.03412 0 12.354 2.04232 15.9424 6.11959 2.89124 3.28412 4.33563 7.33842 4.33563 12.1481 0 5.39698 -1.79298 9.82612 -5.37402 13.2784 -3.57694 3.4457 -8.53593 5.1706 -14.8704 5.1706 -5.64469 0 -10.2124 -1.42635 -13.695 -4.30118 -4.28478 -3.53757 -6.41322 -8.19718 -6.41322 -13.9551zm13.4925 -0.03445c0 3.13894 0.638123 5.44865 1.90781 6.9439 1.27051 1.49606 2.85679 2.25804 4.77608 2.25804 1.94226 0 3.531 -0.748031 4.77608 -2.22441 1.24918 -1.4813 1.87418 -3.83858 1.87418 -7.11286 0 -3.03724 -0.629921 -5.3084 -1.88566 -6.79708 -1.25 -1.48048 -2.81168 -2.22441 -4.66289 -2.22441 -1.9644 0 -3.59334 0.754593 -4.86631 2.25886 -1.27871 1.51001 -1.91929 3.81562 -1.91929 6.89797z"
++        android:fillColor="#000000" />
++    <path
++        android:pathData="M112.115 26.7667l14.2257 0 5.12631 27.0858 7.47457 -27.0858 14.1921 0 7.5082 27.0858 5.12549 -27.0858 14.1585 0 -10.6808 48.4933 -14.6891 0 -8.50148 -30.5299 -8.46785 30.5299 -14.6891 0 -10.7825 -48.4933zm79.1035 0l13.4695 0 0 9.16831 -13.4695 0 0 -9.16831zm0 13.3678l13.4695 0 0 35.1255 -13.4695 0 0 -35.1255zm27.5402 -13.3678l37.0554 0 0 10.4216 -22.0054 0 0 8.46785 18.7877 0 0 9.78839 -18.7877 0 0 19.8155 -15.05 0 0 -48.4933zm49.2397 0l13.4695 0 0 9.16831 -13.4695 0 0 -9.16831zm0 13.3678l13.4695 0 0 35.1255 -13.4695 0 0 -35.1255z"
++        android:fillColor="#ffffff" />
+ </vector>
+\ No newline at end of file

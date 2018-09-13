@@ -1,0 +1,25 @@
+Index: packages/apps/Provision/Android.mk
+===================================================================
+--- packages/apps/Provision/Android.mk	(revision 170052)
++++ packages/apps/Provision/Android.mk	(revision 170053)
+@@ -4,7 +4,7 @@
+ LOCAL_MODULE_TAGS := optional
+ 
+ LOCAL_SRC_FILES := $(call all-subdir-java-files)
+-LOCAL_RESOURCE_DIR := packages/apps/Provision/res
++LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+ 
+ LOCAL_PACKAGE_NAME := Provision
+ LOCAL_CERTIFICATE := platform
+Index: packages/apps/Provision/AndroidManifest.xml
+===================================================================
+--- packages/apps/Provision/AndroidManifest.xml	(revision 170052)
++++ packages/apps/Provision/AndroidManifest.xml	(revision 170053)
+@@ -32,7 +32,6 @@
+                 <action android:name="android.intent.action.MAIN" />
+                 <category android:name="android.intent.category.HOME" />
+                 <category android:name="android.intent.category.DEFAULT" />
+-                <category android:name="android.intent.category.SETUP_WIZARD" />
+             </intent-filter>
+         </activity>
+ 

@@ -1,0 +1,17 @@
+Index: kernel/arch/arm/boot/dts/sprd-scx35l_sp9832a_2h11_volte.dts
+===================================================================
+--- kernel/arch/arm/boot/dts/sprd-scx35l_sp9832a_2h11_volte.dts	(revision 168661)
++++ kernel/arch/arm/boot/dts/sprd-scx35l_sp9832a_2h11_volte.dts	(revision 168662)
+@@ -1084,9 +1084,9 @@
+ 		&a_eic_gpio 4 0        /* cv state */
+ 		&a_eic_gpio 6 0		/* chg ovi */
+ 		&a_eic_gpio 9 0>;	/* battery detect */
+-	chg-end-vol-h = <4365>;
+-	chg-end-vol-pure = <4340>;
+-	chg-end-vol-l = <4330>;
++	chg-end-vol-h = <4400>;
++	chg-end-vol-pure = <4375>;
++	chg-end-vol-l = <4365>;
+ 	chg-bat-safety-vol = <4430>;
+ 	rechg-vol = <4220>;
+ 	adp-cdp-cur = <700>;

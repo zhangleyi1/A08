@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/res/values-in/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/res/values-in/strings.xml	(revision 177377)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/res/values-in/strings.xml	(revision 177378)
+@@ -535,7 +535,7 @@
+      <string-array name="planets_array">
+         <item>"Semua video"</item>
+         <item>"Video Lokal"</item>
+-        <item>"Video diflmkan"</item>
++        <item>"Video Film"</item>
+         <item>"Baru Dimainkan"</item>
+     </string-array>
+      <string name="last_play">"Terakhir Mainkan:"</string>

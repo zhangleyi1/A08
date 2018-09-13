@@ -1,0 +1,12 @@
+Index: device/sprd/scx35l/common/rootdir/root/init.sc8830_ieb.rc
+===================================================================
+--- device/sprd/scx35l/common/rootdir/root/init.sc8830_ieb.rc	(revision 182386)
++++ device/sprd/scx35l/common/rootdir/root/init.sc8830_ieb.rc	(revision 182387)
+@@ -81,6 +81,7 @@
+     chmod 0771 /productinfo
+     chown system system /devicelog
+     chmod 0777 /devicelog
++    chmod 0777 /dev/tp_gesture_switch
+     chmod 0777 /devicelog/log.txt
+     insmod /lib/modules/mali.ko
+ #   insmod /lib/modules/trout_fm.ko

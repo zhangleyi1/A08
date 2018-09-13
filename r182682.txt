@@ -1,0 +1,18 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/CallButtonPresenter.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/CallButtonPresenter.java	(revision 182681)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/CallButtonPresenter.java	(revision 182682)
+@@ -562,11 +562,11 @@
+                  && !isCallOnHold;
+         /* @} */
+         final boolean showDowngradeToAudio = isVideo && isDowngradeToAudioSupported(call) && isCallActive && !((call.isConferenceCall() && !call.hasProperty(Details.PROPERTY_GENERIC_CONFERENCE)) || call.isConferenceCall());
+-        final boolean showChangeToVideoRx = (VideoUtils.isBidirectionalVideoCall(call) || !isVideo) && hasVideoCallCapabilities(call)
++        final boolean showChangeToVideoRx = (VideoUtils.isBidirectionalVideoCall(call) && isVideo) && hasVideoCallCapabilities(call)
+                 && call.getChildCallIds().isEmpty() && CallUtil.isVideoEnabled(ui.getContext())
+                 && !isCallOnHold;
+ 
+-        final boolean showChangeToVideoTx = (VideoUtils.isBidirectionalVideoCall(call) || !isVideo) && hasVideoCallCapabilities(call)
++        final boolean showChangeToVideoTx = (VideoUtils.isBidirectionalVideoCall(call) && isVideo) && hasVideoCallCapabilities(call)
+                 && call.getChildCallIds().isEmpty() && CallUtil.isVideoEnabled(ui.getContext())
+                 && !isCallOnHold;
+         final boolean showPauseVideo = false;//VideoUtils.isBidirectionalVideoCall(call) || misVideoPaused;

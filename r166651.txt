@@ -1,0 +1,27 @@
+Index: packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java	(revision 166650)
++++ packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java	(revision 166651)
+@@ -137,7 +137,8 @@
+         if (!SupportCPVersion.getInstance().isSupport()) {
+             setValueSummary(KEY_BASEBAND_VERSION, "gsm.version.baseband");
+         } else {
+-            SupportCPVersion.getInstance().initPreference((Context)getActivity(), findPreference(KEY_BASEBAND_VERSION));
++            //SupportCPVersion.getInstance().initPreference((Context)getActivity(), findPreference(KEY_BASEBAND_VERSION));
++            setValueSummary(KEY_BASEBAND_VERSION, "gsm.version.baseband");
+         }
+         /* @} */
+         setStringSummary(KEY_DEVICE_MODEL, Build.MODEL + DeviceInfoUtils.getMsvSuffix());
+Index: vendor/sprd/plugins/packages/apps/Settings/addons/OtaUpdate/src/plugin/sprd/otaupdate/AddonOtaUpdate.java
+===================================================================
+--- vendor/sprd/plugins/packages/apps/Settings/addons/OtaUpdate/src/plugin/sprd/otaupdate/AddonOtaUpdate.java	(revision 166650)
++++ vendor/sprd/plugins/packages/apps/Settings/addons/OtaUpdate/src/plugin/sprd/otaupdate/AddonOtaUpdate.java	(revision 166651)
+@@ -43,7 +43,7 @@
+     }
+ 
+     public boolean isSupport(){
+-        return true;
++        return false;
+     }
+ 
+     /* SPRD BUG: 616438  */

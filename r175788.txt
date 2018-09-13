@@ -1,0 +1,57 @@
+Index: frameworks/base/core/res/res/drawable-sw720dp-nodpi/default_wallpaper.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/core/res/res/drawable-xhdpi/default_wallpaper.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/core/res/res/drawable-sw600dp-nodpi/default_wallpaper.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/core/res/res/drawable-nodpi/default_wallpaper.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_07.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_07.png
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_07.png	(revision 0)
++++ packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_07.png	(revision 175788)
+
+Property changes on: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_07.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_07_small.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_07_small.png
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_07_small.png	(revision 0)
++++ packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_07_small.png	(revision 175788)
+
+Property changes on: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_07_small.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Launcher3/WallpaperPicker/res/values-nodpi/wallpapers.xml
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/res/values-nodpi/wallpapers.xml	(revision 175787)
++++ packages/apps/Launcher3/WallpaperPicker/res/values-nodpi/wallpapers.xml	(revision 175788)
+@@ -24,5 +24,6 @@
+     <item>wallpaper_04</item>
+     <item>wallpaper_05</item>
+     <item>wallpaper_06</item>
++    <item>wallpaper_07</item>
+ </string-array>
+ </resources>

@@ -1,0 +1,32 @@
+Index: packages/apps/Messaging/src/com/android/messaging/receiver/SmsReceiver.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/receiver/SmsReceiver.java	(revision 166749)
++++ packages/apps/Messaging/src/com/android/messaging/receiver/SmsReceiver.java	(revision 166750)
+@@ -68,6 +68,7 @@
+ import com.android.messaging.util.BuglePrefsKeys;
+ import com.android.messaging.Factory;
+ import com.android.messaging.R;
++import android.os.PowerManager;
+ 
+ /**
+  * Class that receives incoming SMS messages through android.provider.Telephony.SMS_RECEIVED
+@@ -80,6 +81,8 @@
+     private static final String TAG = LogUtil.BUGLE_TAG;
+ 
+     private static ArrayList<Pattern> sIgnoreSmsPatterns;
++    private static final int WAKE_LOCK_TIMEOUT = 5000;
++    private static PowerManager.WakeLock mWakeLock;
+ 
+     /**
+      * Enable or disable the SmsReceiver as appropriate. Pre-KLP we use this receiver for
+@@ -241,6 +244,10 @@
+             final ReceiveSmsMessageAction action = new ReceiveSmsMessageAction(messageValues);
+             action.start();
+         }
++        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
++        mWakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "updateNewMessageIndicator");
++        mWakeLock.setReferenceCounted(true);
++        mWakeLock.acquire(WAKE_LOCK_TIMEOUT);
+     }
+ 
+     @Override

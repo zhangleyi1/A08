@@ -1,0 +1,44 @@
+Index: kernel/drivers/video/backlight/sprd_pwm_bl.c
+===================================================================
+--- kernel/drivers/video/backlight/sprd_pwm_bl.c	(revision 166547)
++++ kernel/drivers/video/backlight/sprd_pwm_bl.c	(revision 166548)
+@@ -64,7 +64,7 @@
+ #define        PWM_LOW             0xffff
+ #define        PWM_HIG             0xffff
+ #define        PWM_SCALE       1
+-#define        PWM2_SCALE           0x0
++#define        PWM2_SCALE           0x1
+ #define        PWM_REG_MSK     0xffff
+ #define        PWM_MOD_MAX     0xff
+ #define        PWM_DUTY_MAX     0x7f
+@@ -155,7 +155,7 @@
+                 pwm_write(sprd_pwm_bl.pwm_index, (led_level << 8) | PWM_MOD_MAX, PWM_CNT);
+                 pwm_write(sprd_pwm_bl.pwm_index, PWM_REG_MSK, PWM_PAT_LOW);
+                 pwm_write(sprd_pwm_bl.pwm_index, PWM_REG_MSK, PWM_PAT_HIG);
+-                pwm_write(sprd_pwm_bl.pwm_index, PWM_ENABLE, PWM_PRESCALE);
++                pwm_write(sprd_pwm_bl.pwm_index, PWM_ENABLE|PWM2_SCALE, PWM_PRESCALE);//
+ #else
+                 backlight_control(bldev->props.brightness);
+ #endif
+@@ -197,6 +197,7 @@
+ 
+ static void sprd_backlight_lateresume(struct early_suspend *h)
+ {
++	msleep(300);//100
+         if(-1 != sprd_pwm_bl.gpio_ctrl_pin)
+                 set_gpio_ctrll_pin_state(1);
+ 
+@@ -326,10 +327,10 @@
+ 
+         sprd_pwm_bl.brightness_max= pdata->brightness_max;
+ 		if (sprd_pwm_bl.brightness_max >= 255)
+-			sprd_pwm_bl.brightness_max = 170;/*use default value*/
++			sprd_pwm_bl.brightness_max = 255;/*use default value*/
+         sprd_pwm_bl.brightness_min= pdata->brightness_min;
+-		if (sprd_pwm_bl.brightness_min <= 0)
+-			sprd_pwm_bl.brightness_min = 7;/*use default value*/
++		if (sprd_pwm_bl.brightness_min <= 2)
++			sprd_pwm_bl.brightness_min = 2;/*use default value*/
+         sprd_pwm_bl.pwm_index = pdata->pwm_index;
+ 
+         /*fixme, the pwm's clk name must like this:clk_pwmx*/

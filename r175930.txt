@@ -1,0 +1,26 @@
+Index: frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java	(revision 175929)
++++ frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java	(revision 175930)
+@@ -5943,7 +5943,8 @@
+     }
+ 
+     private boolean checkBootAnimationCompleteLocked() {
+-        if (SystemService.isRunning(BOOT_ANIMATION_SERVICE)) {
++        //if (SystemService.isRunning(BOOT_ANIMATION_SERVICE)) {
++        if (!SystemProperties.get("service.bootanim.exit", "0").equals("1")) {//add this
+             mH.removeMessages(H.CHECK_IF_BOOT_ANIMATION_FINISHED);
+             mH.sendEmptyMessageDelayed(H.CHECK_IF_BOOT_ANIMATION_FINISHED,
+                     BOOT_ANIMATION_POLL_INTERVAL);
+Index: frameworks/base/cmds/bootanimation/BootAnimation.cpp
+===================================================================
+--- frameworks/base/cmds/bootanimation/BootAnimation.cpp	(revision 175929)
++++ frameworks/base/cmds/bootanimation/BootAnimation.cpp	(revision 175930)
+@@ -462,6 +462,7 @@
+     property_get(EXIT_PROP_NAME, value, "0");
+     int exitnow = atoi(value);
+     if (exitnow) {
++		sleep(5); //add 
+         requestExit();
+         if (mAudioPlayer != NULL) {
+             mAudioPlayer->requestExit();

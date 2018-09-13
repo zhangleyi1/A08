@@ -1,0 +1,481 @@
+Index: frameworks/base/telephony/java/android/telephony/CarrierConfigManager.java
+===================================================================
+--- frameworks/base/telephony/java/android/telephony/CarrierConfigManager.java	(revision 179541)
++++ frameworks/base/telephony/java/android/telephony/CarrierConfigManager.java	(revision 179542)
+@@ -655,7 +655,6 @@
+     public static final String KEY_MMS_UA_PROF_TAG_NAME_STRING = "uaProfTagName";
+     public static final String KEY_MMS_UA_PROF_URL_STRING = "uaProfUrl";
+     public static final String KEY_MMS_USER_AGENT_STRING = "userAgent";
+-    public static final String KEY_CARRIER_ADD_VIDEO_MENU_BOOL = "carrier_add_video_Menu_bool";
+ 
+     /**
+      * If carriers require differentiate un-provisioned status: cold sim or out of credit sim
+@@ -871,7 +870,6 @@
+         // Used for Sim card State detection app
+         sDefaults.putStringArray(KEY_SIM_PROVISIONING_STATUS_DETECTION_CARRIER_APP_STRING_ARRAY,
+                 null);
+-        sDefaults.putBoolean(KEY_CARRIER_ADD_VIDEO_MENU_BOOL,false);
+     }
+ 
+     /**
+Index: frameworks/base/api/current.txt
+===================================================================
+--- frameworks/base/api/current.txt	(revision 179541)
++++ frameworks/base/api/current.txt	(revision 179542)
+@@ -36705,7 +36705,6 @@
+     field public static final java.lang.String KEY_ALWAYS_SHOW_EMERGENCY_ALERT_ONOFF_BOOL = "always_show_emergency_alert_onoff_bool";
+     field public static final java.lang.String KEY_APN_EXPAND_BOOL = "apn_expand_bool";
+     field public static final java.lang.String KEY_AUTO_RETRY_ENABLED_BOOL = "auto_retry_enabled_bool";
+-    field public static final java.lang.String KEY_CARRIER_ADD_VIDEO_MENU_BOOL = "carrier_add_video_Menu_bool";
+     field public static final java.lang.String KEY_CARRIER_ALLOW_TURNOFF_IMS_BOOL = "carrier_allow_turnoff_ims_bool";
+     field public static final java.lang.String KEY_CARRIER_FORCE_DISABLE_ETWS_CMAS_TEST_BOOL = "carrier_force_disable_etws_cmas_test_bool";
+     field public static final java.lang.String KEY_CARRIER_IMS_GBA_REQUIRED_BOOL = "carrier_ims_gba_required_bool";
+Index: frameworks/base/api/system-current.txt
+===================================================================
+--- frameworks/base/api/system-current.txt	(revision 179541)
++++ frameworks/base/api/system-current.txt	(revision 179542)
+@@ -39640,7 +39640,6 @@
+     field public static final java.lang.String KEY_ALWAYS_SHOW_EMERGENCY_ALERT_ONOFF_BOOL = "always_show_emergency_alert_onoff_bool";
+     field public static final java.lang.String KEY_APN_EXPAND_BOOL = "apn_expand_bool";
+     field public static final java.lang.String KEY_AUTO_RETRY_ENABLED_BOOL = "auto_retry_enabled_bool";
+-    field public static final java.lang.String KEY_CARRIER_ADD_VIDEO_MENU_BOOL = "carrier_add_video_Menu_bool";
+     field public static final java.lang.String KEY_CARRIER_ALLOW_TURNOFF_IMS_BOOL = "carrier_allow_turnoff_ims_bool";
+     field public static final java.lang.String KEY_CARRIER_FORCE_DISABLE_ETWS_CMAS_TEST_BOOL = "carrier_force_disable_etws_cmas_test_bool";
+     field public static final java.lang.String KEY_CARRIER_IMS_GBA_REQUIRED_BOOL = "carrier_ims_gba_required_bool";
+Index: frameworks/base/api/test-current.txt
+===================================================================
+--- frameworks/base/api/test-current.txt	(revision 179541)
++++ frameworks/base/api/test-current.txt	(revision 179542)
+@@ -36782,7 +36782,6 @@
+     field public static final java.lang.String KEY_ALWAYS_SHOW_EMERGENCY_ALERT_ONOFF_BOOL = "always_show_emergency_alert_onoff_bool";
+     field public static final java.lang.String KEY_APN_EXPAND_BOOL = "apn_expand_bool";
+     field public static final java.lang.String KEY_AUTO_RETRY_ENABLED_BOOL = "auto_retry_enabled_bool";
+-    field public static final java.lang.String KEY_CARRIER_ADD_VIDEO_MENU_BOOL = "carrier_add_video_Menu_bool";
+     field public static final java.lang.String KEY_CARRIER_ALLOW_TURNOFF_IMS_BOOL = "carrier_allow_turnoff_ims_bool";
+     field public static final java.lang.String KEY_CARRIER_FORCE_DISABLE_ETWS_CMAS_TEST_BOOL = "carrier_force_disable_etws_cmas_test_bool";
+     field public static final java.lang.String KEY_CARRIER_IMS_GBA_REQUIRED_BOOL = "carrier_ims_gba_required_bool";
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/GlowPadWrapper.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/GlowPadWrapper.java	(revision 179541)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/GlowPadWrapper.java	(revision 179542)
+@@ -183,12 +183,6 @@
+         } else if (resId == R.drawable.ic_lockscreen_decline_video) {
+             mAnswerFragment.onDeclineUpgradeRequest(getContext());
+             mTargetTriggered = true;
+-        }  else if (resId == R.drawable.ic_videocam_left) {
+-             mAnswerFragment.setAnswerWithoutTx();
+-             mAnswerFragment.onAnswer(mVideoState, getContext());
+-        } else if (resId == R.drawable.ic_videocam_right) {
+-             mAnswerFragment.setAnswerWithoutRx();
+-             mAnswerFragment.onAnswer(mVideoState, getContext());
+         } else {
+             // Code should never reach here.
+             Log.e(this, "Trigger detected on unhandled resource. Skipping.");
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/GlowPadAnswerFragment.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/GlowPadAnswerFragment.java	(revision 179541)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/GlowPadAnswerFragment.java	(revision 179542)
+@@ -171,15 +171,6 @@
+                         .incoming_call_widget_video_request_target_direction_descriptions;
+                 handleDrawableResourceId = R.drawable.ic_incall_video_handle;
+                 break;
+-             case TARGET_SET_FOR_VIDEO_ADD_MENU:
+-                 targetResourceId =
+-                         R.array.incoming_call_widget_video_with_add_menu;
+-                 targetDescriptionsResourceId =
+-                         R.array.incoming_call_widget_video_with_add_menu_text;
+-                 directionDescriptionsResourceId =
+-                         R.array.incoming_call_widget_audio_with_sms_direction_descriptions;
+-                 handleDrawableResourceId = R.drawable.ic_incall_audio_handle;
+-                 break;
+             case TARGET_SET_FOR_AUDIO_WITHOUT_SMS:
+             default:
+                 targetResourceId = R.array.incoming_call_widget_audio_without_sms_targets;
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/AnswerFragment.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/AnswerFragment.java	(revision 179541)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/AnswerFragment.java	(revision 179542)
+@@ -38,8 +38,6 @@
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+-import android.telecom.InCallService.VideoCall;
+-import android.telecom.VideoProfile;
+ 
+ 
+ /**
+@@ -53,7 +51,6 @@
+     public static final int TARGET_SET_FOR_VIDEO_WITHOUT_SMS = 2;
+     public static final int TARGET_SET_FOR_VIDEO_WITH_SMS = 3;
+     public static final int TARGET_SET_FOR_VIDEO_ACCEPT_REJECT_REQUEST = 4;
+-    public static final int TARGET_SET_FOR_VIDEO_ADD_MENU = 5;
+ 
+     // SPRD: fix aob for bug602525
+     private static final int INPUT_MAX_LEN = 1024;
+@@ -350,22 +347,4 @@
+         getPresenter().rejectCallWithStartSmsApplication();
+     }
+     /* @} */
+-    public void setAnswerWithoutRx() {
+-        if (InCallPresenter.getInstance().getCallList().getFirstCall() != null &&
+-              InCallPresenter.getInstance().getCallList().getFirstCall().getVideoCall() != null) {
+-            Call mCall = InCallPresenter.getInstance().getCallList().getFirstCall();
+-            VideoCall mVideoCall = InCallPresenter.getInstance().getCallList().getFirstCall().getVideoCall();
+-            VideoProfile videoProfile = new VideoProfile(mCall.getVideoState() & ~VideoProfile.STATE_RX_ENABLED);
+-            mVideoCall.sendSessionModifyRequest(videoProfile);
+-        }
+-    }
+-    public void setAnswerWithoutTx() {
+-        if (InCallPresenter.getInstance().getCallList().getFirstCall() != null &&
+-               InCallPresenter.getInstance().getCallList().getFirstCall().getVideoCall() != null) {
+-             Call mCall = InCallPresenter.getInstance().getCallList().getFirstCall();
+-             VideoCall mVideoCall = InCallPresenter.getInstance().getCallList().getFirstCall().getVideoCall();
+-             VideoProfile videoProfile = new VideoProfile(mCall.getVideoState() & ~VideoProfile.STATE_TX_ENABLED);
+-             mVideoCall.sendSessionModifyRequest(videoProfile);
+-         }
+-    }
+ }
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/AnswerPresenter.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/AnswerPresenter.java	(revision 179541)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/AnswerPresenter.java	(revision 179542)
+@@ -35,11 +35,6 @@
+ import android.text.TextUtils;
+ import android.net.Uri;
+ import android.content.Intent;
+-import android.os.SystemProperties;
+-import android.telephony.CarrierConfigManager;
+-import android.telephony.CarrierConfigManagerEx;
+-import com.android.sprd.incallui.InCallUiUtils;
+-
+ /**
+  * Presenter for the Incoming call widget. The {@link AnswerPresenter} handles the logic during
+  * incoming calls. It is also in charge of responding to incoming calls, so there needs to be
+@@ -382,19 +377,13 @@
+         Context context = getUi().getContext();
+         UserManager um = (UserManager) context.getSystemService(Context.USER_SERVICE);
+         /* @} */
+-        CarrierConfigManagerEx carrierMgr = CarrierConfigManagerEx.from(context);
+         // modify for bug 604177
+         if (VideoUtils.isVideoCall(call)&& um.isSystemUser()) {
+-            if (carrierMgr.getConfigForPhoneId(InCallUiUtils.
+-                    getCurrentPhoneId(getUi().getContext())).getBoolean(CarrierConfigManager.KEY_CARRIER_ADD_VIDEO_MENU_BOOL)) {
+-                getUi().showTargets(AnswerFragment.TARGET_SET_FOR_VIDEO_ADD_MENU);
++            if (withSms) {
++                getUi().showTargets(AnswerFragment.TARGET_SET_FOR_VIDEO_WITH_SMS);
++                getUi().configureMessageDialog(textMsgs);
+             } else {
+-                if (withSms) {
+-                    getUi().showTargets(AnswerFragment.TARGET_SET_FOR_VIDEO_WITH_SMS);
+-                    getUi().configureMessageDialog(textMsgs);
+-                } else {
+-                    getUi().showTargets(AnswerFragment.TARGET_SET_FOR_VIDEO_WITHOUT_SMS);
+-                }
++                getUi().showTargets(AnswerFragment.TARGET_SET_FOR_VIDEO_WITHOUT_SMS);
+             }
+         } else {
+             if (withSms) {
+Index: packages/apps/Dialer/InCallUI/res/drawable/ic_lockscreen_answer_video_left_normal_layer.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/drawable/ic_lockscreen_answer_video_left_normal_layer.xml	(revision 179541)
++++ packages/apps/Dialer/InCallUI/res/drawable/ic_lockscreen_answer_video_left_normal_layer.xml	(revision 179542)
+@@ -1,34 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  ~ Copyright (C) 2014 The Android Open Source Project
+-  ~
+-  ~ Licensed under the Apache License, Version 2.0 (the "License");
+-  ~ you may not use this file except in compliance with the License.
+-  ~ You may obtain a copy of the License at
+-  ~
+-  ~      http://www.apache.org/licenses/LICENSE-2.0
+-  ~
+-  ~ Unless required by applicable law or agreed to in writing, software
+-  ~ distributed under the License is distributed on an "AS IS" BASIS,
+-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  ~ See the License for the specific language governing permissions and
+-  ~ limitations under the License
+-  -->
+-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-    <!-- A fake circle to fix the size of this layer asset. -->
+-    <item>
+-        <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+-            <solid android:color="#00000000"/>
+-            <size
+-                android:width="@dimen/incoming_call_widget_circle_size"
+-                android:height="@dimen/incoming_call_widget_circle_size" />
+-        </shape>
+-    </item>
+-    <item>
+-        <bitmap
+-            android:gravity="center"
+-            android:src="@drawable/ic_videocam_left"
+-            android:tint="@color/glowpad_call_widget_normal_tint"
+-            android:autoMirrored="true" />
+-    </item>
+-</layer-list>
+Index: packages/apps/Dialer/InCallUI/res/drawable/ic_lockscreen_answer_video_left_activated_layer.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/drawable/ic_lockscreen_answer_video_left_activated_layer.xml	(revision 179541)
++++ packages/apps/Dialer/InCallUI/res/drawable/ic_lockscreen_answer_video_left_activated_layer.xml	(revision 179542)
+@@ -1,26 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  ~ Copyright (C) 2014 The Android Open Source Project
+-  ~
+-  ~ Licensed under the Apache License, Version 2.0 (the "License");
+-  ~ you may not use this file except in compliance with the License.
+-  ~ You may obtain a copy of the License at
+-  ~
+-  ~      http://www.apache.org/licenses/LICENSE-2.0
+-  ~
+-  ~ Unless required by applicable law or agreed to in writing, software
+-  ~ distributed under the License is distributed on an "AS IS" BASIS,
+-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  ~ See the License for the specific language governing permissions and
+-  ~ limitations under the License
+-  -->
+-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-    <item android:drawable="@drawable/fab_blue" />
+-    <item>
+-        <bitmap
+-            android:gravity="center"
+-            android:src="@drawable/ic_videocam_left"
+-            android:tint="@color/glowpad_widget_active_color"
+-            android:autoMirrored="true" />
+-    </item>
+-</layer-list>
+Index: packages/apps/Dialer/InCallUI/res/drawable/ic_lockscreen_answer_video_right.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/drawable/ic_lockscreen_answer_video_right.xml	(revision 179541)
++++ packages/apps/Dialer/InCallUI/res/drawable/ic_lockscreen_answer_video_right.xml	(revision 179542)
+@@ -1,28 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  ~ Copyright (C) 2014 The Android Open Source Project
+-  ~
+-  ~ Licensed under the Apache License, Version 2.0 (the "License");
+-  ~ you may not use this file except in compliance with the License.
+-  ~ You may obtain a copy of the License at
+-  ~
+-  ~      http://www.apache.org/licenses/LICENSE-2.0
+-  ~
+-  ~ Unless required by applicable law or agreed to in writing, software
+-  ~ distributed under the License is distributed on an "AS IS" BASIS,
+-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  ~ See the License for the specific language governing permissions and
+-  ~ limitations under the License
+-  -->
+-<!-- Used with incoming call wigdet. -->
+-<selector xmlns:android="http://schemas.android.com/apk/res/android">
+-    <item
+-        android:state_enabled="true" android:state_active="false" android:state_focused="false"
+-        android:drawable="@drawable/ic_lockscreen_answer_video_right_normal_layer"/>
+-    <item
+-        android:state_enabled="true" android:state_active="true"  android:state_focused="false"
+-        android:drawable="@drawable/ic_lockscreen_answer_video_right_activated_layer" />
+-   <item
+-        android:state_enabled="true" android:state_active="false"  android:state_focused="true"
+-        android:drawable="@drawable/ic_lockscreen_answer_video_right_activated_layer" />
+-</selector>
+Index: packages/apps/Dialer/InCallUI/res/drawable/ic_lockscreen_answer_video_right_activated_layer.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/drawable/ic_lockscreen_answer_video_right_activated_layer.xml	(revision 179541)
++++ packages/apps/Dialer/InCallUI/res/drawable/ic_lockscreen_answer_video_right_activated_layer.xml	(revision 179542)
+@@ -1,26 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  ~ Copyright (C) 2014 The Android Open Source Project
+-  ~
+-  ~ Licensed under the Apache License, Version 2.0 (the "License");
+-  ~ you may not use this file except in compliance with the License.
+-  ~ You may obtain a copy of the License at
+-  ~
+-  ~      http://www.apache.org/licenses/LICENSE-2.0
+-  ~
+-  ~ Unless required by applicable law or agreed to in writing, software
+-  ~ distributed under the License is distributed on an "AS IS" BASIS,
+-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  ~ See the License for the specific language governing permissions and
+-  ~ limitations under the License
+-  -->
+-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-    <item android:drawable="@drawable/fab_blue" />
+-    <item>
+-        <bitmap
+-            android:gravity="center"
+-            android:src="@drawable/ic_videocam_right"
+-            android:tint="@color/glowpad_widget_active_color"
+-            android:autoMirrored="true" />
+-    </item>
+-</layer-list>
+Index: packages/apps/Dialer/InCallUI/res/drawable/ic_lockscreen_answer_video_right_normal_layer.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/drawable/ic_lockscreen_answer_video_right_normal_layer.xml	(revision 179541)
++++ packages/apps/Dialer/InCallUI/res/drawable/ic_lockscreen_answer_video_right_normal_layer.xml	(revision 179542)
+@@ -1,34 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  ~ Copyright (C) 2014 The Android Open Source Project
+-  ~
+-  ~ Licensed under the Apache License, Version 2.0 (the "License");
+-  ~ you may not use this file except in compliance with the License.
+-  ~ You may obtain a copy of the License at
+-  ~
+-  ~      http://www.apache.org/licenses/LICENSE-2.0
+-  ~
+-  ~ Unless required by applicable law or agreed to in writing, software
+-  ~ distributed under the License is distributed on an "AS IS" BASIS,
+-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  ~ See the License for the specific language governing permissions and
+-  ~ limitations under the License
+-  -->
+-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+-    <!-- A fake circle to fix the size of this layer asset. -->
+-    <item>
+-        <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+-            <solid android:color="#00000000"/>
+-            <size
+-                android:width="@dimen/incoming_call_widget_circle_size"
+-                android:height="@dimen/incoming_call_widget_circle_size" />
+-        </shape>
+-    </item>
+-    <item>
+-        <bitmap
+-            android:gravity="center"
+-            android:src="@drawable/ic_videocam_right"
+-            android:tint="@color/glowpad_call_widget_normal_tint"
+-            android:autoMirrored="true" />
+-    </item>
+-</layer-list>
+Index: packages/apps/Dialer/InCallUI/res/drawable/ic_lockscreen_answer_video_left.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/drawable/ic_lockscreen_answer_video_left.xml	(revision 179541)
++++ packages/apps/Dialer/InCallUI/res/drawable/ic_lockscreen_answer_video_left.xml	(revision 179542)
+@@ -1,28 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!--
+-  ~ Copyright (C) 2014 The Android Open Source Project
+-  ~
+-  ~ Licensed under the Apache License, Version 2.0 (the "License");
+-  ~ you may not use this file except in compliance with the License.
+-  ~ You may obtain a copy of the License at
+-  ~
+-  ~      http://www.apache.org/licenses/LICENSE-2.0
+-  ~
+-  ~ Unless required by applicable law or agreed to in writing, software
+-  ~ distributed under the License is distributed on an "AS IS" BASIS,
+-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-  ~ See the License for the specific language governing permissions and
+-  ~ limitations under the License
+-  -->
+-<!-- Used with incoming call wigdet. -->
+-<selector xmlns:android="http://schemas.android.com/apk/res/android">
+-    <item
+-        android:state_enabled="true" android:state_active="false" android:state_focused="false"
+-        android:drawable="@drawable/ic_lockscreen_answer_video_left_normal_layer"/>
+-    <item
+-        android:state_enabled="true" android:state_active="true"  android:state_focused="false"
+-        android:drawable="@drawable/ic_lockscreen_answer_video_left_activated_layer" />
+-   <item
+-        android:state_enabled="true" android:state_active="false"  android:state_focused="true"
+-        android:drawable="@drawable/ic_lockscreen_answer_video_left_activated_layer" />
+-</selector>
+Index: packages/apps/Dialer/InCallUI/res/drawable-hdpi/ic_videocam_left.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/InCallUI/res/drawable-hdpi/ic_videocam_right.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/InCallUI/res/drawable-xxxhdpi/ic_videocam_left.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/InCallUI/res/drawable-xxxhdpi/ic_videocam_right.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/InCallUI/res/drawable-xxhdpi/ic_videocam_right.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/InCallUI/res/drawable-xxhdpi/ic_videocam_left.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/InCallUI/res/drawable-xhdpi/ic_videocam_right.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/InCallUI/res/drawable-xhdpi/ic_videocam_left.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/InCallUI/res/values/array.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/values/array.xml	(revision 179541)
++++ packages/apps/Dialer/InCallUI/res/values/array.xml	(revision 179542)
+@@ -52,14 +52,6 @@
+         <item>@drawable/ic_lockscreen_decline</item>
+         <item>@null</item>"
+     </array>
+-    <array name="incoming_call_widget_video_with_add_menu">
+-        <item>@drawable/ic_lockscreen_answer</item>
+-        <item>@drawable/ic_lockscreen_text</item>
+-        <item>@drawable/ic_videocam_left</item>
+-        <item>@drawable/ic_lockscreen_decline</item>
+-        <item>@drawable/ic_lockscreen_answer_video</item>"
+-        <item>@drawable/ic_videocam_right</item>
+-   </array>
+     <array name="incoming_call_widget_audio_with_sms_target_descriptions">
+         <item>@string/description_target_answer</item>
+         <item>@string/description_target_send_sms</item>
+@@ -72,14 +64,6 @@
+         <item>@string/description_direction_left</item>
+         <item>@null</item>
+     </array>
+-     <array name="incoming_call_widget_video_with_add_menu_text">
+-        <item>@string/description_direction_right</item>
+-        <item>@string/description_direction_up</item>
+-        <item>@string/description_direction_left</item>
+-        <item>@string/description_direction_down</item>
+-        <item>@string/description_direction_down</item>
+-        <item>@string/description_direction_down</item>
+-    </array>
+ 
+     <!-- For video calls, if respond via SMS is disabled:
+          - Answer as video call (drag right)
+Index: packages/apps/Dialer/InCallUI/res/drawable-mdpi/ic_videocam_left.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/InCallUI/res/drawable-mdpi/ic_videocam_right.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_5109.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_5109.xml	(revision 179541)
++++ vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_5109.xml	(revision 179542)
+@@ -1,7 +0,0 @@
+-<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+-
+-<carrier_config_list>
+-    <carrier_config network_preferred="true">
+-        <boolean name="carrier_add_video_Menu_bool" value="true"/>
+-    </carrier_config>
+-</carrier_config_list>
+Index: vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_51028.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_51028.xml	(revision 179541)
++++ vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_51028.xml	(revision 179542)
+@@ -8,7 +8,6 @@
+         <string name="ecclist_nocard">110@1,112,113@4,118@2</string>
+         <string name="ecclist_withcard">110@1,112,113@4,118@2</string>
+         <int name="networkRATPrefer" value="1" />
+-        <boolean name="carrier_add_video_Menu_bool" value="true"/>
+     </carrier_config>
+ 	<carrier_config>
+         <string name="vmnumber">*88</string>

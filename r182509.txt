@@ -1,0 +1,15 @@
+Index: frameworks/opt/net/ims/src/java/com/android/ims/ImsManager.java
+===================================================================
+--- frameworks/opt/net/ims/src/java/com/android/ims/ImsManager.java	(revision 182508)
++++ frameworks/opt/net/ims/src/java/com/android/ims/ImsManager.java	(revision 182509)
+@@ -262,8 +262,8 @@
+ 
+         return context.getResources().getBoolean(
+                 com.android.internal.R.bool.config_device_volte_available)
+-                && getBooleanCarrierConfig(context,
+-                        CarrierConfigManager.KEY_CARRIER_VOLTE_AVAILABLE_BOOL)
++                //&& getBooleanCarrierConfig(context,
++                //        CarrierConfigManager.KEY_CARRIER_VOLTE_AVAILABLE_BOOL)
+                 && isGbaValid(context) && SystemProperties.getBoolean("persist.sys.volte.enable",false);//modify by bug600294
+     }
+ 

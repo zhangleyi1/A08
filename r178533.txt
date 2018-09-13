@@ -1,0 +1,13 @@
+Index: packages/inputmethods/LatinIME/java/src/com/android/inputmethod/latin/settings/Settings.java
+===================================================================
+--- packages/inputmethods/LatinIME/java/src/com/android/inputmethod/latin/settings/Settings.java	(revision 178532)
++++ packages/inputmethods/LatinIME/java/src/com/android/inputmethod/latin/settings/Settings.java	(revision 178533)
+@@ -216,7 +216,7 @@
+ 
+     public static boolean readAutoCorrectEnabled(final SharedPreferences prefs,
+             final Resources res) {
+-        return prefs.getBoolean(PREF_AUTO_CORRECTION, true);
++        return prefs.getBoolean(PREF_AUTO_CORRECTION, false);
+     }
+ 
+     public static float readPlausibilityThreshold(final Resources res) {

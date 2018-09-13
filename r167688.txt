@@ -1,0 +1,315 @@
+Index: vendor/widevine/libwvdrmengine/level3/x86/libwvlevel3.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/widevine/libwvdrmengine/level3/x86/libwvlevel3.a
+===================================================================
+--- vendor/widevine/libwvdrmengine/level3/x86/libwvlevel3.a	(revision 0)
++++ vendor/widevine/libwvdrmengine/level3/x86/libwvlevel3.a	(revision 167688)
+
+Property changes on: vendor/widevine/libwvdrmengine/level3/x86/libwvlevel3.a
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/widevine/libwvdrmengine/level3/mips/libwvlevel3.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/widevine/libwvdrmengine/level3/mips/libwvlevel3.a
+===================================================================
+--- vendor/widevine/libwvdrmengine/level3/mips/libwvlevel3.a	(revision 0)
++++ vendor/widevine/libwvdrmengine/level3/mips/libwvlevel3.a	(revision 167688)
+
+Property changes on: vendor/widevine/libwvdrmengine/level3/mips/libwvlevel3.a
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/widevine/libwvdrmengine/level3/arm/libwvlevel3.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/widevine/libwvdrmengine/level3/arm/libwvlevel3.a
+===================================================================
+--- vendor/widevine/libwvdrmengine/level3/arm/libwvlevel3.a	(revision 0)
++++ vendor/widevine/libwvdrmengine/level3/arm/libwvlevel3.a	(revision 167688)
+
+Property changes on: vendor/widevine/libwvdrmengine/level3/arm/libwvlevel3.a
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/mips/libwvdrm_L1.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/mips/libwvdrm_L1.so
+===================================================================
+--- vendor/widevine/proprietary/drmwvmplugin/lib/mips/libwvdrm_L1.so	(revision 0)
++++ vendor/widevine/proprietary/drmwvmplugin/lib/mips/libwvdrm_L1.so	(revision 167688)
+
+Property changes on: vendor/widevine/proprietary/drmwvmplugin/lib/mips/libwvdrm_L1.so
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/mips/libwvocs_L1.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/mips/libwvocs_L1.a
+===================================================================
+--- vendor/widevine/proprietary/drmwvmplugin/lib/mips/libwvocs_L1.a	(revision 0)
++++ vendor/widevine/proprietary/drmwvmplugin/lib/mips/libwvocs_L1.a	(revision 167688)
+
+Property changes on: vendor/widevine/proprietary/drmwvmplugin/lib/mips/libwvocs_L1.a
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/mips/libwvdrm_L3.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/mips/libwvdrm_L3.so
+===================================================================
+--- vendor/widevine/proprietary/drmwvmplugin/lib/mips/libwvdrm_L3.so	(revision 0)
++++ vendor/widevine/proprietary/drmwvmplugin/lib/mips/libwvdrm_L3.so	(revision 167688)
+
+Property changes on: vendor/widevine/proprietary/drmwvmplugin/lib/mips/libwvdrm_L3.so
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/mips/libwvocs_L3.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/mips/libwvocs_L3.a
+===================================================================
+--- vendor/widevine/proprietary/drmwvmplugin/lib/mips/libwvocs_L3.a	(revision 0)
++++ vendor/widevine/proprietary/drmwvmplugin/lib/mips/libwvocs_L3.a	(revision 167688)
+
+Property changes on: vendor/widevine/proprietary/drmwvmplugin/lib/mips/libwvocs_L3.a
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/arm/libwvdrm_L1.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/arm/libwvdrm_L1.so
+===================================================================
+--- vendor/widevine/proprietary/drmwvmplugin/lib/arm/libwvdrm_L1.so	(revision 0)
++++ vendor/widevine/proprietary/drmwvmplugin/lib/arm/libwvdrm_L1.so	(revision 167688)
+
+Property changes on: vendor/widevine/proprietary/drmwvmplugin/lib/arm/libwvdrm_L1.so
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/arm/libwvocs_L1.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/arm/libwvocs_L1.a
+===================================================================
+--- vendor/widevine/proprietary/drmwvmplugin/lib/arm/libwvocs_L1.a	(revision 0)
++++ vendor/widevine/proprietary/drmwvmplugin/lib/arm/libwvocs_L1.a	(revision 167688)
+
+Property changes on: vendor/widevine/proprietary/drmwvmplugin/lib/arm/libwvocs_L1.a
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/arm/libwvdrm_L3.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/arm/libwvdrm_L3.so
+===================================================================
+--- vendor/widevine/proprietary/drmwvmplugin/lib/arm/libwvdrm_L3.so	(revision 0)
++++ vendor/widevine/proprietary/drmwvmplugin/lib/arm/libwvdrm_L3.so	(revision 167688)
+
+Property changes on: vendor/widevine/proprietary/drmwvmplugin/lib/arm/libwvdrm_L3.so
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/arm/libwvocs_L3.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/arm/libwvocs_L3.a
+===================================================================
+--- vendor/widevine/proprietary/drmwvmplugin/lib/arm/libwvocs_L3.a	(revision 0)
++++ vendor/widevine/proprietary/drmwvmplugin/lib/arm/libwvocs_L3.a	(revision 167688)
+
+Property changes on: vendor/widevine/proprietary/drmwvmplugin/lib/arm/libwvocs_L3.a
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/x86/libwvdrm_L1.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/x86/libwvdrm_L1.so
+===================================================================
+--- vendor/widevine/proprietary/drmwvmplugin/lib/x86/libwvdrm_L1.so	(revision 0)
++++ vendor/widevine/proprietary/drmwvmplugin/lib/x86/libwvdrm_L1.so	(revision 167688)
+
+Property changes on: vendor/widevine/proprietary/drmwvmplugin/lib/x86/libwvdrm_L1.so
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/x86/libwvocs_L1.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/x86/libwvocs_L1.a
+===================================================================
+--- vendor/widevine/proprietary/drmwvmplugin/lib/x86/libwvocs_L1.a	(revision 0)
++++ vendor/widevine/proprietary/drmwvmplugin/lib/x86/libwvocs_L1.a	(revision 167688)
+
+Property changes on: vendor/widevine/proprietary/drmwvmplugin/lib/x86/libwvocs_L1.a
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/x86/libwvdrm_L3.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/x86/libwvdrm_L3.so
+===================================================================
+--- vendor/widevine/proprietary/drmwvmplugin/lib/x86/libwvdrm_L3.so	(revision 0)
++++ vendor/widevine/proprietary/drmwvmplugin/lib/x86/libwvdrm_L3.so	(revision 167688)
+
+Property changes on: vendor/widevine/proprietary/drmwvmplugin/lib/x86/libwvdrm_L3.so
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/x86/libwvocs_L3.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/widevine/proprietary/drmwvmplugin/lib/x86/libwvocs_L3.a
+===================================================================
+--- vendor/widevine/proprietary/drmwvmplugin/lib/x86/libwvocs_L3.a	(revision 0)
++++ vendor/widevine/proprietary/drmwvmplugin/lib/x86/libwvocs_L3.a	(revision 167688)
+
+Property changes on: vendor/widevine/proprietary/drmwvmplugin/lib/x86/libwvocs_L3.a
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/widevine/proprietary/streamcontrol/lib/mips/libWVStreamControlAPI_L1.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/widevine/proprietary/streamcontrol/lib/mips/libWVStreamControlAPI_L1.so
+===================================================================
+--- vendor/widevine/proprietary/streamcontrol/lib/mips/libWVStreamControlAPI_L1.so	(revision 0)
++++ vendor/widevine/proprietary/streamcontrol/lib/mips/libWVStreamControlAPI_L1.so	(revision 167688)
+
+Property changes on: vendor/widevine/proprietary/streamcontrol/lib/mips/libWVStreamControlAPI_L1.so
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/widevine/proprietary/streamcontrol/lib/mips/libWVStreamControlAPI_L3.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/widevine/proprietary/streamcontrol/lib/mips/libWVStreamControlAPI_L3.so
+===================================================================
+--- vendor/widevine/proprietary/streamcontrol/lib/mips/libWVStreamControlAPI_L3.so	(revision 0)
++++ vendor/widevine/proprietary/streamcontrol/lib/mips/libWVStreamControlAPI_L3.so	(revision 167688)
+
+Property changes on: vendor/widevine/proprietary/streamcontrol/lib/mips/libWVStreamControlAPI_L3.so
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/widevine/proprietary/streamcontrol/lib/arm/libWVStreamControlAPI_L1.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/widevine/proprietary/streamcontrol/lib/arm/libWVStreamControlAPI_L1.so
+===================================================================
+--- vendor/widevine/proprietary/streamcontrol/lib/arm/libWVStreamControlAPI_L1.so	(revision 0)
++++ vendor/widevine/proprietary/streamcontrol/lib/arm/libWVStreamControlAPI_L1.so	(revision 167688)
+
+Property changes on: vendor/widevine/proprietary/streamcontrol/lib/arm/libWVStreamControlAPI_L1.so
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/widevine/proprietary/streamcontrol/lib/arm/libWVStreamControlAPI_L3.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/widevine/proprietary/streamcontrol/lib/arm/libWVStreamControlAPI_L3.so
+===================================================================
+--- vendor/widevine/proprietary/streamcontrol/lib/arm/libWVStreamControlAPI_L3.so	(revision 0)
++++ vendor/widevine/proprietary/streamcontrol/lib/arm/libWVStreamControlAPI_L3.so	(revision 167688)
+
+Property changes on: vendor/widevine/proprietary/streamcontrol/lib/arm/libWVStreamControlAPI_L3.so
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/widevine/proprietary/streamcontrol/lib/x86/libWVStreamControlAPI_L1.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/widevine/proprietary/streamcontrol/lib/x86/libWVStreamControlAPI_L1.so
+===================================================================
+--- vendor/widevine/proprietary/streamcontrol/lib/x86/libWVStreamControlAPI_L1.so	(revision 0)
++++ vendor/widevine/proprietary/streamcontrol/lib/x86/libWVStreamControlAPI_L1.so	(revision 167688)
+
+Property changes on: vendor/widevine/proprietary/streamcontrol/lib/x86/libWVStreamControlAPI_L1.so
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/widevine/proprietary/streamcontrol/lib/x86/libWVStreamControlAPI_L3.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/widevine/proprietary/streamcontrol/lib/x86/libWVStreamControlAPI_L3.so
+===================================================================
+--- vendor/widevine/proprietary/streamcontrol/lib/x86/libWVStreamControlAPI_L3.so	(revision 0)
++++ vendor/widevine/proprietary/streamcontrol/lib/x86/libWVStreamControlAPI_L3.so	(revision 167688)
+
+Property changes on: vendor/widevine/proprietary/streamcontrol/lib/x86/libWVStreamControlAPI_L3.so
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property

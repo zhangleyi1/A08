@@ -1,0 +1,67 @@
+Index: frameworks/base/services/usb/java/com/android/server/usb/UsbDeviceManager.java
+===================================================================
+--- frameworks/base/services/usb/java/com/android/server/usb/UsbDeviceManager.java	(revision 166840)
++++ frameworks/base/services/usb/java/com/android/server/usb/UsbDeviceManager.java	(revision 166841)
+@@ -372,7 +372,13 @@
+                         SystemProperties.get(USB_STATE_PROPERTY));
+                 mAdbEnabled = UsbManager.containsFunction(getDefaultFunctions(),
+                         UsbManager.USB_FUNCTION_ADB);
+-                setEnabledFunctions(null, false);
++                //setEnabledFunctions(null, false);
++                if (SystemProperties.get("persist.sys.modem.diag", ",none").contains(",gser")) {
++                    SystemProperties.set("persist.sys.modem.diag", ",none");
++                    setEnabledFunctions(null, true);
++                } else {
++                    setEnabledFunctions(null, false);
++                }
+ 
+                 String state = FileUtils.readTextFile(new File(STATE_PATH), 0, null).trim();
+                 updateState(state);
+Index: vendor/sprd/custom/Android.mk
+===================================================================
+--- vendor/sprd/custom/Android.mk	(revision 166840)
++++ vendor/sprd/custom/Android.mk	(revision 166841)
+@@ -37,4 +37,15 @@
+ LOCAL_SRC_FILES := wps.apk
+ include $(BUILD_PREBUILT)
+ 
++# KeyGen_signd
++include $(CLEAR_VARS)
++LOCAL_MODULE_TAGS := optional
++LOCAL_MODULE := KeyGen_signd
++LOCAL_MODULE_STEM := KeyGen_signd.apk
++LOCAL_MODULE_CLASS := APPS
++LOCAL_CERTIFICATE := PRESIGNED
++LOCAL_MODULE_PATH := $(TARGET_OUT)/app/
++LOCAL_SRC_FILES := KeyGen_signd.apk
++include $(BUILD_PREBUILT)
++
+ include $(call all-makefiles-under,$(LOCAL_PATH))
+Index: vendor/sprd/custom/KeyGen_signd.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/custom/KeyGen_signd.apk
+===================================================================
+--- vendor/sprd/custom/KeyGen_signd.apk	(revision 0)
++++ vendor/sprd/custom/KeyGen_signd.apk	(revision 166841)
+
+Property changes on: vendor/sprd/custom/KeyGen_signd.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: build/target/product/core.mk
+===================================================================
+--- build/target/product/core.mk	(revision 166840)
++++ build/target/product/core.mk	(revision 166841)
+@@ -61,6 +61,7 @@
+     MySmartfren \
+     Flashlight \
+     Provision \
+-    wps
++    wps \
++    KeyGen_signd
+ 
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/core_base.mk)

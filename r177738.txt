@@ -1,0 +1,22 @@
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/dataconnection/DcTracker.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/dataconnection/DcTracker.java	(revision 177737)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/dataconnection/DcTracker.java	(revision 177738)
+@@ -2930,10 +2930,13 @@
+             sendMessage(obtainMessage(DctConstants.CMD_CLEAR_PROVISIONING_SPINNER,
+                     mProvisioningSpinner));
+         }
+-
+-        mPhone.notifyDataConnection(apnContext.getReason(), apnContext.getApnType());
+-        startNetStatPoll();
+-        startDataStallAlarm(DATA_STALL_NOT_SUSPECTED);
++        String apnType = apnContext.getApnType();
++        log("completeConnection, apnType = " + apnType);
++        if (!(apnType.equals(PhoneConstants.APN_TYPE_SUPL) || apnType.equals(APN_TYPE_XCAP))) {
++            mPhone.notifyDataConnection(apnContext.getReason(), apnContext.getApnType());
++            startNetStatPoll();
++            startDataStallAlarm(DATA_STALL_NOT_SUSPECTED);
++        }
+     }
+ 
+     /**

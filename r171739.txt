@@ -1,0 +1,4 @@
+Index: packages/apps/Messaging/res/raw/message_sent.wav
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream

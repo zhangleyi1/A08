@@ -1,0 +1,88 @@
+Index: kernel/drivers/media/sprd_dcam/common/dcam_img.c
+===================================================================
+--- kernel/drivers/media/sprd_dcam/common/dcam_img.c	(revision 166548)
++++ kernel/drivers/media/sprd_dcam/common/dcam_img.c	(revision 166549)
+@@ -3842,6 +3842,9 @@
+ static void sprd_img_shutdown(struct platform_device *pdev)
+ {
+ 	sprd_flash_close();
++	/**add frontflash*/
++	sprd_front_flash_close();
++	/**frontflash*/	
+ }
+ 
+ LOCAL const struct of_device_id  of_match_table_dcam[] = {
+Index: kernel/drivers/media/sprd_dcam/common/flash_test.c
+===================================================================
+--- kernel/drivers/media/sprd_dcam/common/flash_test.c	(revision 166548)
++++ kernel/drivers/media/sprd_dcam/common/flash_test.c	(revision 166549)
+@@ -24,22 +24,36 @@
+ #define SENSOR_K_TRUE                     1
+ 
+ static struct class* flash_test_class = NULL;
++/**add frontflash*/
+ static int g_flash_mode=0;
++static int g_front_flash_mode = 0;
+ 
+-int setflash(uint32_t flash_mode)
++int setflash(uint32_t flash_mode, uint32_t flash_index)
+ {
+ 	switch (flash_mode) {
+ 	case FLASH_OPEN:        /*flash on */
+ 	case FLASH_TORCH:        /*for torch low light */
+-		sprd_flash_on();
++		if (0 == flash_index) {
++			sprd_flash_on();
++		} else {
++			sprd_front_flash_on();
++		}
+ 		break;
+ 	case FLASH_HIGH_LIGHT: /*high light */
+-		sprd_flash_on();
++		if (0 == flash_index) {
++			sprd_flash_on();
++		} else {
++			sprd_front_flash_on();
++		}
+ 		break;
+ 	case FLASH_CLOSE_AFTER_OPEN:     /*close flash */
+ 	case FLASH_CLOSE_AFTER_AUTOFOCUS:
+ 	case FLASH_CLOSE:
+-		sprd_flash_close();
++		if (0 == flash_index) {
++			sprd_flash_close();
++		} else {
++			sprd_front_flash_close();
++		}
+ 		break;
+ 	default:
+ 		printk("sprd_v4l2_setflash unknow mode:flash_mode 0x%x \n", flash_mode);
+@@ -51,7 +65,7 @@
+ static ssize_t flash_test_show(struct device* dev,
+ 			   struct device_attribute* attr,  char* buf)
+ {
+-    return snprintf(buf, PAGE_SIZE, "flash_mode is :0x%x\n", g_flash_mode);
++    return snprintf(buf, PAGE_SIZE, "flash_mode is :0x%x; front_flash_mode is: 0x%xd\n", g_flash_mode, g_front_flash_mode);
+ }
+ 
+ static ssize_t flash_test_store(struct device *dev,
+@@ -63,11 +77,16 @@
+ 	ret = kstrtoul(buf, 16, &flash_mode);
+ 	if (ret)
+ 		return ret;
+-	g_flash_mode=flash_mode;
+-	setflash(flash_mode);
++	if (0 == (flash_mode>>8)) {
++		g_flash_mode = flash_mode;
++	} else {
++		g_front_flash_mode = flash_mode & 0xFF;
++	}
++	setflash((flash_mode&0xFF), (flash_mode >> 8));
+ 	return c;
+ }
+-static DEVICE_ATTR(flash_value, 0644, flash_test_show, flash_test_store);
++/** frontflash*/
++static DEVICE_ATTR(flash_value, 0777, flash_test_show, flash_test_store);
+ 
+ static int __init flash_test_init(void){
+ 	int err = -1;

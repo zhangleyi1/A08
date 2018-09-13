@@ -1,0 +1,580 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 166629)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 166630)
+@@ -278,6 +278,10 @@
+     private CallStateReceiver mCallStateReceiver;
+     // SPRD: add for bug613747
+     private boolean mStateSaved;
++    private ImageButton mVideoCallBtn;
++    private ImageButton mSwitchBtn;
++    private ImageButton mGsmCallBtn;
++    private int defaultSimSlot = 1;  //lte
+ 
+     private class CallStateReceiver extends BroadcastReceiver {
+         /**
+@@ -464,11 +468,84 @@
+         floatingActionButton.setOnClickListener(this);
+         mFloatingActionButtonController = new FloatingActionButtonController(getActivity(),
+                 floatingActionButtonContainer, floatingActionButton);
++
++        //Added by zhangleyi for 20170320 begin
++        mVideoCallBtn = (ImageButton)fragmentView.findViewById(R.id.videoCallBtn);
++        mVideoCallBtn.setOnClickListener(this);
++
++        getSlotState();
++
++        if (CallUtil.isVideoEnabled(getActivity())) {
++            mVideoCallBtn.setVisibility(View.VISIBLE);
++        }
++
++        mSwitchBtn = (ImageButton)fragmentView.findViewById(R.id.switchBtn);
++        mSwitchBtn.setOnClickListener(this);
++        if (oneSimState && twoSimState) {
++            mSwitchBtn.setVisibility(View.VISIBLE);
++        }
++
++        mGsmCallBtn = (ImageButton)fragmentView.findViewById(R.id.dialpad_floating_action_gsm_button);
++        mGsmCallBtn.setOnClickListener(this);
++        if (!oneSimState && twoSimState) {
++            showLteButton(false);
++        } else {
++            showLteButton(true);
++        }
++
++        //Added by zhangleyi for 20170320 end
++
+         Trace.endSection();
+         Trace.endSection();
+         return fragmentView;
+     }
+ 
++    //Added by zhangleyi for 20170321 begin
++    private boolean oneSimState = false;
++    private boolean twoSimState = false;
++    private void getSlotState() {
++        TelephonyManager tm = (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
++        for (int i = 0; i < 2; i++) {
++            if (TelephonyManager.SIM_STATE_READY == tm.getSimState(i)) {
++                if (0 == i) {
++                    oneSimState = true;
++                } else {
++                    twoSimState = true;
++                }
++            } else {
++                if (0 == i) {
++                    oneSimState = false;
++                } else {
++                    twoSimState = false;
++                }
++            }
++        }
++    }
++
++    public void call(Context context, int id, String telNum){
++        TelecomManager telecomManager = (TelecomManager) context.getSystemService(Context.TELECOM_SERVICE);
++
++        if(telecomManager != null){
++            List<PhoneAccountHandle> phoneAccountHandleList = telecomManager.getCallCapablePhoneAccounts();
++            Intent intent = new Intent();
++            intent.setAction(Intent.ACTION_CALL);
++            intent.setData(Uri.parse("tel:" + telNum));
++            intent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, phoneAccountHandleList.get(id));
++            context.startActivity(intent);
++        }
++    }
++
++    private void showLteButton(boolean flag) {
++        mFloatingActionButtonController.setVisible(flag);
++        mGsmCallBtn.setVisibility(flag ? View.GONE:View.VISIBLE);
++        if (CallUtil.isVideoEnabled(getActivity())) {
++            mVideoCallBtn.setVisibility(flag ? View.VISIBLE:View.GONE);
++        }
++
++        defaultSimSlot = flag ? 1:2;
++    }
++    //Added by zhangleyi for 20170321 end
++
+     private boolean isLayoutReady() {
+         return mDigits != null;
+     }
+@@ -1062,7 +1139,32 @@
+                 handleDialButtonPressed();
+             }
+             /* @} */
+-        } else if (resId == R.id.deleteButton) {
++        }
++        //Added by zhangleyi for 20170320 begin
++        else if (resId == R.id.videoCallBtn) {
++            if (mDigits != null) {
++                String number = mDigits.getText().toString();
++                final Intent intent = new CallIntentBuilder(number).setIsVideoCall(true).build();
++                if (getActivity() != null) {
++                    DialerUtils.startActivityWithErrorToast(getActivity(), intent);
++                    clearDialpad();
++                }
++            }
++        } else if (resId == R.id.switchBtn) {
++            if (1 == defaultSimSlot) {
++                showLteButton(false);
++            } else {
++                showLteButton(true);
++            }
++        } else if (resId == R.id.dialpad_floating_action_gsm_button) {
++            if (!mStateSaved) {
++                handleGSMDialButtonPressed();
++            }
++            //call(getContext(), 1, number);
++        }
++        //Added by zhangleyi for 20170320 end
++
++        else if (resId == R.id.deleteButton) {
+             keyPressed(KeyEvent.KEYCODE_DEL);
+         } else if (resId == R.id.digits) {
+             if (!isDigitsEmpty()) {
+@@ -1349,17 +1451,72 @@
+                     dialogFragment.show(getFragmentManager(),
+                             "make_call_request_during_airplane_mode");
+                 } else {
++                    //Added by zhangleyi for 20170321 begin
++                    /*
+                     final Intent intent = new CallIntentBuilder(number).
+                             setCallInitiationType(LogState.INITIATION_DIALPAD)
+                             .build();
+                     DialerUtils.startActivityWithErrorToast(getActivity(), intent);
++                    */
++
++                    if (!oneSimState && twoSimState) {
++                        Toast.makeText(getContext(), "Please switch to sim2", Toast.LENGTH_SHORT).show();
++                    } else {
++                        call(getContext(), 0, number);
++                    }
++
+                     hideAndClearDialpad(false);
++                    //Added by zhangleyi for 20170321 end
+                 }
+-                /* @} */
+             }
+         }
+     }
++    //Added by zhangleyi for 20170321 begin
++    private void handleGSMDialButtonPressed() {
++        if (isDigitsEmpty()) { // No number entered.
++            handleDialButtonClickWithEmptyDigits();
++        } else {
++            final String number = mDigits.getText().toString();
+ 
++            if (number != null
++                    && !TextUtils.isEmpty(mProhibitedPhoneNumberRegexp)
++                    && number.matches(mProhibitedPhoneNumberRegexp)) {
++                Log.i(TAG, "The phone number is prohibited explicitly by a rule.");
++                if (getActivity() != null) {
++
++                    DialogFragment dialogFragment = ErrorDialogFragment.newInstance(
++                            R.string.dialog_phone_call_prohibited_message);
++                    dialogFragment.show(getFragmentManager(), "phone_prohibited_dialog");
++
++                }
++
++                // Clear the digits just in case.
++                clearDialpad();
++
++            } else {
++                final boolean isAirplaneModeOn = Settings.System.getInt(
++                        getActivity().getContentResolver(),
++                        Settings.System.AIRPLANE_MODE_ON, 0) != 0;
++                if (isAirplaneModeOn
++                        && !PhoneNumberUtils.isEmergencyNumber(number)) {
++                    DialogFragment dialogFragment = ErrorDialogFragment
++                            .newInstance(R.string.dialog_make_call_airplane_mode_message);
++                    dialogFragment.show(getFragmentManager(),
++                            "make_call_request_during_airplane_mode");
++                } else {
++                    if (oneSimState && twoSimState) {
++                        call(getContext(), 1, number);
++                    } else if (!oneSimState && twoSimState) {
++                        call(getContext(), 0, number);
++                    }
++
++                    hideAndClearDialpad(false);
++                }
++            }
++        }
++    }
++    //Added by zhangleyi for 20170321 end
++
+     public void clearDialpad() {
+         if (mDigits != null) {
+             mDigits.getText().clear();
+@@ -1498,7 +1655,7 @@
+                 mDialpadView.setVisibility(View.GONE);
+             }
+ 
+-            mFloatingActionButtonController.setVisible(false);
++            showLteButton(false);
+             mDialpadChooser.setVisibility(View.VISIBLE);
+ 
+             // Instantiate the DialpadChooserAdapter and hook it up to the
+@@ -1517,7 +1674,12 @@
+ 
+             // SPRD: modify for bug627208
+             mFloatingActionButtonController.scaleIn(AnimUtils.NO_DELAY);
+-            mFloatingActionButtonController.setVisible(true);
++            if (!oneSimState && twoSimState) {
++                showLteButton(false);
++            } else {
++                showLteButton(true);
++            }
++
+             mDialpadChooser.setVisibility(View.GONE);
+         }
+     }
+@@ -1977,7 +2139,7 @@
+             if (mAnimate) {
+                 dialpadView.animateShow();
+             }
+-            mFloatingActionButtonController.setVisible(false);
++            showLteButton(true);
+             mFloatingActionButtonController.scaleIn(mAnimate ? mDialpadSlideInDuration : 0);
+             activity.onDialpadShown();
+             mDigits.requestFocus();
+@@ -1986,7 +2148,7 @@
+             if (mAnimate) {
+                 mFloatingActionButtonController.scaleOut();
+             } else {
+-                mFloatingActionButtonController.setVisible(false);
++                showLteButton(false);
+             }
+         }
+     }
+
+Property changes on: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java:r163715
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java:r162632
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java:r165513
+Index: packages/apps/Dialer/res/drawable-xhdpi/ic_lte_call.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/res/drawable-xhdpi/ic_lte_call.png
+===================================================================
+--- packages/apps/Dialer/res/drawable-xhdpi/ic_lte_call.png	(revision 0)
++++ packages/apps/Dialer/res/drawable-xhdpi/ic_lte_call.png	(revision 166630)
+
+Property changes on: packages/apps/Dialer/res/drawable-xhdpi/ic_lte_call.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Dialer/res/drawable-xhdpi/ic_lte_call.png:r162632
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Dialer/res/drawable-xhdpi/ic_lte_call.png:r165513
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Dialer/res/drawable-xhdpi/ic_lte_call.png:r163715
+Index: packages/apps/Dialer/res/drawable-xhdpi/ic_video_call.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/res/drawable-xhdpi/ic_video_call.png
+===================================================================
+--- packages/apps/Dialer/res/drawable-xhdpi/ic_video_call.png	(revision 0)
++++ packages/apps/Dialer/res/drawable-xhdpi/ic_video_call.png	(revision 166630)
+
+Property changes on: packages/apps/Dialer/res/drawable-xhdpi/ic_video_call.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Dialer/res/drawable-xhdpi/ic_video_call.png:r162632
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Dialer/res/drawable-xhdpi/ic_video_call.png:r165513
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Dialer/res/drawable-xhdpi/ic_video_call.png:r163715
+Index: packages/apps/Dialer/res/drawable-xhdpi/ic_switch_lte_gsm.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/res/drawable-xhdpi/ic_switch_lte_gsm.png
+===================================================================
+--- packages/apps/Dialer/res/drawable-xhdpi/ic_switch_lte_gsm.png	(revision 0)
++++ packages/apps/Dialer/res/drawable-xhdpi/ic_switch_lte_gsm.png	(revision 166630)
+
+Property changes on: packages/apps/Dialer/res/drawable-xhdpi/ic_switch_lte_gsm.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Dialer/res/drawable-xhdpi/ic_switch_lte_gsm.png:r162632
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Dialer/res/drawable-xhdpi/ic_switch_lte_gsm.png:r165513
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Dialer/res/drawable-xhdpi/ic_switch_lte_gsm.png:r163715
+Index: packages/apps/Dialer/res/drawable-xhdpi/ic_gsm_call.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/res/drawable-xhdpi/ic_gsm_call.png
+===================================================================
+--- packages/apps/Dialer/res/drawable-xhdpi/ic_gsm_call.png	(revision 0)
++++ packages/apps/Dialer/res/drawable-xhdpi/ic_gsm_call.png	(revision 166630)
+
+Property changes on: packages/apps/Dialer/res/drawable-xhdpi/ic_gsm_call.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Dialer/res/drawable-xhdpi/ic_gsm_call.png:r162632
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Dialer/res/drawable-xhdpi/ic_gsm_call.png:r165513
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Dialer/res/drawable-xhdpi/ic_gsm_call.png:r163715
+Index: packages/apps/Dialer/res/drawable-mdpi/ic_video_call.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/res/drawable-mdpi/ic_video_call.png
+===================================================================
+--- packages/apps/Dialer/res/drawable-mdpi/ic_video_call.png	(revision 0)
++++ packages/apps/Dialer/res/drawable-mdpi/ic_video_call.png	(revision 166630)
+
+Property changes on: packages/apps/Dialer/res/drawable-mdpi/ic_video_call.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Dialer/res/drawable-mdpi/ic_video_call.png:r162632
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Dialer/res/drawable-mdpi/ic_video_call.png:r165513
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Dialer/res/drawable-mdpi/ic_video_call.png:r163715
+Index: packages/apps/Dialer/res/drawable-mdpi/ic_switch_lte_gsm.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/res/drawable-mdpi/ic_switch_lte_gsm.png
+===================================================================
+--- packages/apps/Dialer/res/drawable-mdpi/ic_switch_lte_gsm.png	(revision 0)
++++ packages/apps/Dialer/res/drawable-mdpi/ic_switch_lte_gsm.png	(revision 166630)
+
+Property changes on: packages/apps/Dialer/res/drawable-mdpi/ic_switch_lte_gsm.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Dialer/res/drawable-mdpi/ic_switch_lte_gsm.png:r162632
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Dialer/res/drawable-mdpi/ic_switch_lte_gsm.png:r165513
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Dialer/res/drawable-mdpi/ic_switch_lte_gsm.png:r163715
+Index: packages/apps/Dialer/res/drawable-mdpi/ic_gsm_call.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/res/drawable-mdpi/ic_gsm_call.png
+===================================================================
+--- packages/apps/Dialer/res/drawable-mdpi/ic_gsm_call.png	(revision 0)
++++ packages/apps/Dialer/res/drawable-mdpi/ic_gsm_call.png	(revision 166630)
+
+Property changes on: packages/apps/Dialer/res/drawable-mdpi/ic_gsm_call.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Dialer/res/drawable-mdpi/ic_gsm_call.png:r162632
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Dialer/res/drawable-mdpi/ic_gsm_call.png:r165513
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Dialer/res/drawable-mdpi/ic_gsm_call.png:r163715
+Index: packages/apps/Dialer/res/drawable-mdpi/ic_lte_call.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/res/drawable-mdpi/ic_lte_call.png
+===================================================================
+--- packages/apps/Dialer/res/drawable-mdpi/ic_lte_call.png	(revision 0)
++++ packages/apps/Dialer/res/drawable-mdpi/ic_lte_call.png	(revision 166630)
+
+Property changes on: packages/apps/Dialer/res/drawable-mdpi/ic_lte_call.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Dialer/res/drawable-mdpi/ic_lte_call.png:r162632
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Dialer/res/drawable-mdpi/ic_lte_call.png:r165513
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Dialer/res/drawable-mdpi/ic_lte_call.png:r163715
+Index: packages/apps/Dialer/res/drawable/fab_yellow_ex.xml
+===================================================================
+--- packages/apps/Dialer/res/drawable/fab_yellow_ex.xml	(revision 0)
++++ packages/apps/Dialer/res/drawable/fab_yellow_ex.xml	(revision 166630)
+@@ -0,0 +1,10 @@
++<?xml version="1.0" encoding="utf-8"?>
++<shape
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    android:shape="oval"
++    android:useLevel="false">
++    <solid android:color="#FFF7941E"/>
++    <size android:width="@dimen/floating_action_button_width_ex"
++          android:height="@dimen/floating_action_button_height_ex"/>
++</shape>
++
+
+Property changes on: packages/apps/Dialer/res/drawable/fab_yellow_ex.xml
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Dialer/res/drawable/fab_yellow_ex.xml:r162632
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Dialer/res/drawable/fab_yellow_ex.xml:r165513
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Dialer/res/drawable/fab_yellow_ex.xml:r163715
+Index: packages/apps/Dialer/res/drawable/fab_blue_ex.xml
+===================================================================
+--- packages/apps/Dialer/res/drawable/fab_blue_ex.xml	(revision 0)
++++ packages/apps/Dialer/res/drawable/fab_blue_ex.xml	(revision 166630)
+@@ -0,0 +1,10 @@
++<?xml version="1.0" encoding="utf-8"?>
++<shape
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    android:shape="oval"
++    android:useLevel="false">
++    <solid android:color="#FF279ED0"/>
++
++    <size android:width="@dimen/floating_action_button_width_ex"
++          android:height="@dimen/floating_action_button_height_ex"/>
++</shape>
+
+Property changes on: packages/apps/Dialer/res/drawable/fab_blue_ex.xml
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Dialer/res/drawable/fab_blue_ex.xml:r163715
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Dialer/res/drawable/fab_blue_ex.xml:r162632
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Dialer/res/drawable/fab_blue_ex.xml:r165513
+Index: packages/apps/Dialer/res/drawable-hdpi/ic_video_call.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/res/drawable-hdpi/ic_video_call.png
+===================================================================
+--- packages/apps/Dialer/res/drawable-hdpi/ic_video_call.png	(revision 0)
++++ packages/apps/Dialer/res/drawable-hdpi/ic_video_call.png	(revision 166630)
+
+Property changes on: packages/apps/Dialer/res/drawable-hdpi/ic_video_call.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Dialer/res/drawable-hdpi/ic_video_call.png:r162632
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Dialer/res/drawable-hdpi/ic_video_call.png:r165513
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Dialer/res/drawable-hdpi/ic_video_call.png:r163715
+Index: packages/apps/Dialer/res/drawable-hdpi/ic_switch_lte_gsm.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/res/drawable-hdpi/ic_switch_lte_gsm.png
+===================================================================
+--- packages/apps/Dialer/res/drawable-hdpi/ic_switch_lte_gsm.png	(revision 0)
++++ packages/apps/Dialer/res/drawable-hdpi/ic_switch_lte_gsm.png	(revision 166630)
+
+Property changes on: packages/apps/Dialer/res/drawable-hdpi/ic_switch_lte_gsm.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Dialer/res/drawable-hdpi/ic_switch_lte_gsm.png:r163715
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Dialer/res/drawable-hdpi/ic_switch_lte_gsm.png:r162632
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Dialer/res/drawable-hdpi/ic_switch_lte_gsm.png:r165513
+Index: packages/apps/Dialer/res/drawable-hdpi/ic_gsm_call.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/res/drawable-hdpi/ic_gsm_call.png
+===================================================================
+--- packages/apps/Dialer/res/drawable-hdpi/ic_gsm_call.png	(revision 0)
++++ packages/apps/Dialer/res/drawable-hdpi/ic_gsm_call.png	(revision 166630)
+
+Property changes on: packages/apps/Dialer/res/drawable-hdpi/ic_gsm_call.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Dialer/res/drawable-hdpi/ic_gsm_call.png:r162632
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Dialer/res/drawable-hdpi/ic_gsm_call.png:r165513
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Dialer/res/drawable-hdpi/ic_gsm_call.png:r163715
+Index: packages/apps/Dialer/res/drawable-hdpi/ic_lte_call.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/res/drawable-hdpi/ic_lte_call.png
+===================================================================
+--- packages/apps/Dialer/res/drawable-hdpi/ic_lte_call.png	(revision 0)
++++ packages/apps/Dialer/res/drawable-hdpi/ic_lte_call.png	(revision 166630)
+
+Property changes on: packages/apps/Dialer/res/drawable-hdpi/ic_lte_call.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Dialer/res/drawable-hdpi/ic_lte_call.png:r162632
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Dialer/res/drawable-hdpi/ic_lte_call.png:r165513
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Dialer/res/drawable-hdpi/ic_lte_call.png:r163715
+Index: packages/apps/Dialer/res/layout/dialpad_fragment.xml
+===================================================================
+--- packages/apps/Dialer/res/layout/dialpad_fragment.xml	(revision 166629)
++++ packages/apps/Dialer/res/layout/dialpad_fragment.xml	(revision 166630)
+@@ -69,8 +69,38 @@
+             android:layout_height="match_parent"
+             android:background="@drawable/floating_action_button"
+             android:contentDescription="@string/description_dial_button"
+-            android:src="@drawable/fab_ic_call_ex"/>
+-
++            android:src="@drawable/ic_lte_call"/>
+     </FrameLayout>
+ 
++    <ImageButton
++        android:id="@+id/dialpad_floating_action_gsm_button"
++        android:layout_width="@dimen/floating_action_button_width_ex"
++        android:layout_height="@dimen/floating_action_button_height_ex"
++        android:background="@drawable/fab_green_ex"
++        android:layout_above="@id/dialpad_floating_action_button_margin_bottom"
++        android:layout_centerHorizontal="true"
++        android:src="@drawable/ic_gsm_call"
++        android:visibility="gone" />
++
++    <ImageButton
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:src="@drawable/ic_video_call"
++        android:layout_alignParentLeft="true"
++        android:layout_above="@id/dialpad_floating_action_button_margin_bottom"
++        android:visibility="gone"
++        android:layout_marginLeft="20dp"
++        android:background="@drawable/fab_blue_ex"
++        android:id="@+id/videoCallBtn"/>
++
++    <ImageButton
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_marginRight="20dp"
++        android:src="@drawable/ic_switch_lte_gsm"
++        android:layout_alignParentRight="true"
++        android:background="@drawable/fab_yellow_ex"
++        android:layout_above="@id/dialpad_floating_action_button_margin_bottom"
++        android:visibility="gone"
++        android:id="@+id/switchBtn"/>
+ </view>
+
+Property changes on: packages/apps/Dialer/res/layout/dialpad_fragment.xml
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Dialer/res/layout/dialpad_fragment.xml:r165513
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Dialer/res/layout/dialpad_fragment.xml:r163715
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Dialer/res/layout/dialpad_fragment.xml:r162632

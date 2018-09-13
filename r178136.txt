@@ -1,0 +1,28 @@
+Index: device/sprd/scx35l/sp9832a_2h11/modem/nvitem.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: device/sprd/scx35l/sp9832a_2h11/modem_bins/ltedsp.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: device/sprd/scx35l/sp9832a_2h11/modem_bins/ltewarm.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: device/sprd/scx35l/sp9832a_2h11/modem_bins/ltegdsp.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: device/sprd/scx35l/sp9832a_2h11/modem_bins/ltemodem.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: device/sprd/scx35l/sp9832a_2h11/modem_bins/ltenvitem.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: device/sprd/scx35l/sp9832a_2h11/modem_unlock/nvitem.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream

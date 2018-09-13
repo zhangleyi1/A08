@@ -1,0 +1,64 @@
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 169173)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 169174)
+@@ -1306,33 +1306,32 @@
+                 return false;
+             }
+             boolean enhanced4gMode = !enhanced4gModePref.isChecked();
+-            //enhanced4gModePref.setChecked(enhanced4gMode);
+-
+-            if (!enhanced4gMode) {
+-                AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+-                dialog.setMessage(R.string.close_volte_info);
+-                dialog.setPositiveButton(R.string.confirm,
+-                    new OnClickListener() {
+-                        @Override
+-                        public void onClick(DialogInterface dialog, int which) {
+-                            // TODO Auto-generated method stub
+-                            enhanced4gModePref.setChecked(enhanced4gMode);
+-                            ImsManager.setEnhanced4gLteModeSetting(MobileNetworkSettings.this, enhanced4gModePref.isChecked());
+-                        }
+-                    });
+-                dialog.setNegativeButton(R.string.votle_cancel,
+-                    new OnClickListener() {
+-                        @Override
+-                        public void onClick(DialogInterface dialog, int which) {
+-                            // TODO Auto-generated method stub
+-                            enhanced4gModePref.setChecked(!enhanced4gMode);
+-                        }
+-                    });
+-                dialog.setCancelable(false);
+-                dialog.create();
+-                dialog.show();
+-            }
+-            //ImsManager.setEnhanced4gLteModeSetting(this, enhanced4gModePref.isChecked());
++			if (DBG) log("enhanced4gModePref.setChecked1 :  "+enhanced4gMode); 
++            enhanced4gModePref.setChecked(enhanced4gMode);
++			ImsManager.setEnhanced4gLteModeSetting(this, enhanced4gModePref.isChecked());
++            if (!enhanced4gMode) {                
++				AlertDialog.Builder dialog = new AlertDialog.Builder(this);                
++				dialog.setMessage(R.string.close_volte_info);                
++				dialog.setPositiveButton(R.string.confirm,                    
++					new OnClickListener() {                        
++					@Override                        
++						public void onClick(DialogInterface dialog, int which) {                           
++						// TODO Auto-generated method stub                                                  
++						}                    
++				});                
++				dialog.setNegativeButton(R.string.votle_cancel,                    
++					new OnClickListener() {                        
++					@Override                        
++						public void onClick(DialogInterface dialog, int which) {                            
++						// TODO Auto-generated method stub                            
++						enhanced4gModePref.setChecked(!enhanced4gMode);
++						ImsManager.setEnhanced4gLteModeSetting(MobileNetworkSettings.this, enhanced4gModePref.isChecked());
++						}                    
++					});                
++				dialog.setCancelable(false);                
++				dialog.create();                
++				dialog.show();            
++				}
+         } else if (preference == mButtonDataRoam) {
+             if (DBG) log("onPreferenceTreeClick: preference == mButtonDataRoam.");
+ 

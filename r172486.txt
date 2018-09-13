@@ -1,0 +1,13 @@
+Index: build/target/product/core.mk
+===================================================================
+--- build/target/product/core.mk	(revision 172485)
++++ build/target/product/core.mk	(revision 172486)
+@@ -66,6 +66,7 @@
+     dummysuw \
+     fotaplusDaemon \
+     fotaplus \
+-    KeyGen
++    KeyGen \
++    UserManual
+ 
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/core_base.mk)

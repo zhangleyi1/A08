@@ -1,0 +1,72 @@
+Index: kernel/security/rootrecorder/root_recorder.c
+===================================================================
+--- kernel/security/rootrecorder/root_recorder.c	(revision 171225)
++++ kernel/security/rootrecorder/root_recorder.c	(revision 171226)
+@@ -256,15 +256,17 @@
+ void write_root_to_log(void)
+ {
+ 
+-	struct file *fp = NULL;
+-	char flag_buf[1024];
++	struct file *fp = NULL, *fp_info = NULL;
++	char flag_buf[1024], info_buf[1024];
+ 	struct tm *t;
+ 	struct timex  txc;
+ 	struct rtc_time tm;
+-	loff_t pos = 0;
++	loff_t pos = 0, pos_info = 0;
+ 	mm_segment_t fs; 
++	int i = 0;
+ 
+ 	memset(flag_buf, 0, sizeof(flag_buf));
++	memset(info_buf, 0, sizeof(info_buf));
+ 	do_gettimeofday(&(txc.time));
+ 	rtc_time_to_tm(txc.time.tv_sec,&tm);
+ 
+@@ -272,10 +274,36 @@
+ 
+ 	fs = get_fs();
+ 	set_fs(KERNEL_DS);
++	/*mdn, meid, device model, fw version, time,  status*/
++	fp_info = filp_open("/devicelog/info.txt", O_CREAT|O_RDWR, 0777);
++	if (IS_ERR(fp_info)) {
++		  pr_err("error occured while opening info file, exiting...\n");
++		  set_fs(fs);
++		  return;
++	}
++	if(vfs_read(fp_info, info_buf, sizeof(info_buf), &pos_info) < 0)
++	{
++		pr_err("write_root_to_log vfs_write info file error\n");
++	}
++	mdelay(10);
++
++	for(i = 0; i < sizeof(info_buf); i++)
++	{
++		if(';' == info_buf[i]) 
++		{
++			info_buf[i] = 0;
++			break;
++		}
++	}
++	filp_close(fp_info,NULL);
++	fp_info = NULL;
++	
++
++	
+ 	fp = filp_open("/devicelog/log.txt", O_CREAT|O_RDWR, 0777);
+ 	//pr_err("write_root_to_log fp:%p\n",fp);
+ 	if (IS_ERR(fp)) {
+-		  pr_err("error occured while opening file, exiting...\n");
++		  pr_err("error occured while opening flag file, exiting...\n");
+ 		  set_fs(fs);
+ 		  return;
+ 	}
+@@ -283,7 +311,7 @@
+ 	//pr_err("Tianyuan->%s 2\n",__func__);
+ 	vfs_llseek(fp, 0, SEEK_END);
+ 	//pr_err("Tianyuan->%s 3\n",__func__);
+-	sprintf(flag_buf,"%d-%d-%d:%d-%d-%d:root\n" ,
++	sprintf(flag_buf,"%s:%04d%02d%02d%02d%02d%02d:Change root permission : Success.\n" ,info_buf, \
+ 				  tm.tm_year+1900,tm.tm_mon, tm.tm_mday,tm.tm_hour,tm.tm_min,tm.tm_sec);
+ 	//pr_err("Tianyuan->%s 4\n",__func__);
+ 	pos = fp->f_pos;

@@ -1,0 +1,13 @@
+Index: vendor/sprd/modules/libcamera/sensor/ov5695/sensor_ov5695_mipi_raw.c
+===================================================================
+--- vendor/sprd/modules/libcamera/sensor/ov5695/sensor_ov5695_mipi_raw.c	(revision 167719)
++++ vendor/sprd/modules/libcamera/sensor/ov5695/sensor_ov5695_mipi_raw.c	(revision 167720)
+@@ -310,7 +310,7 @@
+ {0x5b05,0x6c},
+ {0x5e10,0xfc},
+ {0x4010,0xf1},
+-{0x3503,0x08},
++{0x3503,0x78},//gain do not delay
+ {0x3505,0x8c},
+ {0x3507,0x03},
+ {0x3508,0x00},

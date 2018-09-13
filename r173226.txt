@@ -1,0 +1,16 @@
+Index: frameworks/base/core/java/android/view/GestureDetector.java
+===================================================================
+--- frameworks/base/core/java/android/view/GestureDetector.java	(revision 173225)
++++ frameworks/base/core/java/android/view/GestureDetector.java	(revision 173226)
+@@ -620,9 +620,9 @@
+                  * SPRD: modify 20161123 Spreadtrum of Bug 614061 If
+                  * mCurrentDownEvent is not a null comply.@{
+                  */
+-                if (mCurrentDownEvent != null) {
++              //  if (mCurrentDownEvent != null) {
+                     handled = mListener.onScroll(mCurrentDownEvent, ev, scrollX, scrollY);
+-                }
++               // }       modify for bug 96384
+                 /* @} */
+                 mLastFocusX = focusX;
+                 mLastFocusY = focusY;

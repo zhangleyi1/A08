@@ -1,0 +1,645 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/src/com/ucamera/ucam/modules/BasicModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/src/com/ucamera/ucam/modules/BasicModule.java	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/src/com/ucamera/ucam/modules/BasicModule.java	(revision 166698)
+@@ -1485,7 +1485,11 @@
+ 
+         mHardwareSpec = new HardwareSpecImpl(getCameraProvider(), mCameraCapabilities,
+                 mAppController.getCameraFeatureConfig(), isCameraFrontFacing());
+-
++        if(mHardwareSpec.isFlashSupported()){
++            mUI.setButtonVisibility(ButtonManagerDream.BUTTON_FLASH_DREAM,View.VISIBLE);
++        }else{
++            mUI.setButtonVisibility(ButtonManagerDream.BUTTON_FLASH_DREAM,View.GONE);
++        }
+         ButtonManager buttonManager = mActivity.getButtonManager();
+         buttonManager.enableCameraButton();
+     }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamucamoverlay/ucam/modules/BasicModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamucamoverlay/ucam/modules/BasicModule.java	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamucamoverlay/ucam/modules/BasicModule.java	(revision 166698)
+@@ -129,6 +129,7 @@
+ import java.util.Vector;
+ 
+ import com.dream.camera.settings.DataModulePhoto;
++import com.dream.camera.ButtonManagerDream;
+ 
+ public abstract class BasicModule
+         extends CameraModule
+@@ -172,7 +173,7 @@
+     protected int mCameraId;
+     protected CameraCapabilities mCameraCapabilities;
+     protected CameraSettings mCameraSettings;
+-    private HardwareSpec mHardwareSpec;
++    protected HardwareSpec mHardwareSpec;
+     protected boolean mPaused;
+     protected Parameters mParameters;
+     protected ShutterSound mShutterSound;
+@@ -1545,7 +1546,12 @@
+ 
+         mHardwareSpec = new HardwareSpecImpl(getCameraProvider(), mCameraCapabilities,
+                 mAppController.getCameraFeatureConfig(), isCameraFrontFacing());
+-
++        Log.i(TAG, "xuehui, basicmodule£¬isFlashSupported" + mHardwareSpec.isFlashSupported());
++        if(mHardwareSpec.isFlashSupported()){
++            mUI.setButtonVisibility(ButtonManagerDream.BUTTON_FLASH_DREAM,View.VISIBLE);
++        }else{
++            mUI.setButtonVisibility(ButtonManagerDream.BUTTON_FLASH_DREAM,View.GONE);
++        }
+         ButtonManager buttonManager = mActivity.getButtonManager();
+         buttonManager.enableCameraButton();
+ 
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamucamoverlay/ucam/modules/ui/BasicUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamucamoverlay/ucam/modules/ui/BasicUI.java	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamucamoverlay/ucam/modules/ui/BasicUI.java	(revision 166698)
+@@ -54,6 +54,7 @@
+ import com.dream.camera.settings.DataModuleBasic;
+ import com.dream.camera.DreamOrientation;
+ import com.dream.camera.DreamUI;
++import com.dream.camera.ButtonManagerDream;
+ 
+ public class BasicUI extends DreamUI implements PreviewStatusListener,
+     CameraAgent.CameraFaceDetectionCallback, PreviewStatusListener.PreviewAreaChangedListener,
+@@ -612,4 +613,7 @@
+     public void enablePreviewOverlayHint(boolean enable) {
+         mPreviewOverlay.setDetector(enable);
+     }
++    public void setButtonVisibility(int buttonId, int visibility) {
++        ((ButtonManagerDream)mActivity.getButtonManager()).setButtonVisibility(buttonId,visibility);
++    }
+ }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/gifvideo/GifVideoUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/gifvideo/GifVideoUI.java	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/gifvideo/GifVideoUI.java	(revision 166698)
+@@ -51,8 +51,8 @@
+         if(DreamUtil.BACK_CAMERA == mDreamUtil.getRightCamera(DataModuleManager
+                 .getInstance(mActivity).getDataModuleCamera()
+                 .getInt(Keys.KEY_CAMERA_ID))){
+-            bindFlashButton();
+         }
++        bindFlashButton();
+ 
+         mSettingsButton = (ImageButton) topPanel.findViewById(R.id.settings_button_dream);
+ 
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/gifvideo/GifVideoModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/gifvideo/GifVideoModule.java	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/gifvideo/GifVideoModule.java	(revision 166698)
+@@ -14,6 +14,7 @@
+ import com.dream.camera.modules.gifvideo.GifVideoUI;
+ import com.dream.camera.settings.DataModuleBasic;
+ import com.android.ex.camera2.portability.CameraCapabilities;
++import com.android.ex.camera2.portability.CameraAgent.CameraProxy;
+ 
+ public class GifVideoModule extends DreamGifModule {
+ 
+@@ -84,6 +85,7 @@
+             mCameraDevice.applySettings(mCameraSettings);
+             mCameraSettings = mCameraDevice.getSettings();
+         }
++        android.util.Log.i("xuehui", "gifVideo enableTorchMode:" + flashMode);
+     }
+     /* @} */
+     @Override
+@@ -90,4 +92,14 @@
+     public void updateBatteryLevel(int level) {
+         super.updateBatteryLevel(level, Keys.KEY_VIDEOCAMERA_FLASH_MODE, ButtonManagerDream.BUTTON_VIDEO_FLASH_DREAM);
+     }
++
++    @Override
++    public void onCameraAvailable(CameraProxy cameraProxy) {
++        super.onCameraAvailable(cameraProxy);
++        if(mHardwareSpec.isFlashSupported()){
++            mUI.setButtonVisibility(ButtonManagerDream.BUTTON_VIDEO_FLASH_DREAM,View.VISIBLE);
++        }else{
++            mUI.setButtonVisibility(ButtonManagerDream.BUTTON_VIDEO_FLASH_DREAM,View.GONE);
++        }
++    }
+ }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/AudioPicture/AudioPictureUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/AudioPicture/AudioPictureUI.java	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/AudioPicture/AudioPictureUI.java	(revision 166698)
+@@ -61,7 +61,6 @@
+ 
+             mActivity.getButtonManager().load(topPanel);
+ 
+-            bindFlashButton();
+ 
+ 
+ 
+@@ -74,7 +73,7 @@
+             mActivity.getButtonManager().load(topPanel);
+             bindMakeupButton();
+         }
+-
++        bindFlashButton();
+         mSettingsButton = (ImageButton) topPanel
+                 .findViewById(R.id.settings_button_dream);
+         bindSettingsButton(mSettingsButton);
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/filterdream/DreamFilterModuleUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/filterdream/DreamFilterModuleUI.java	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/filterdream/DreamFilterModuleUI.java	(revision 166698)
+@@ -311,7 +311,7 @@
+ 
+             tSettingsButton = (ImageButton) topPanel
+                     .findViewById(R.id.settings_button_dream);
+-
++            bindFlashButton();
+             bindSettingsButton(tSettingsButton);
+             bindCountDownButton();
+             bindCameraButton();
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/intervalphoto/IntervalPhotoUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/intervalphoto/IntervalPhotoUI.java	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/intervalphoto/IntervalPhotoUI.java	(revision 166698)
+@@ -69,6 +69,7 @@
+         bindMakeupButton();
+ 
+         bindCameraButton();
++        bindFlashButton();
+     }
+ 
+     @Override
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/autovideo/AutoVideoUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/autovideo/AutoVideoUI.java	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/autovideo/AutoVideoUI.java	(revision 166698)
+@@ -68,6 +68,7 @@
+             }
+ 
+             mActivity.getButtonManager().load(topPanel);
++            bindFlashButton();
+         }
+ 
+         mSettingsButton = (ImageButton) topPanel.findViewById(R.id.settings_button_dream);
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/gifphoto/GifPhotoUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/gifphoto/GifPhotoUI.java	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/gifphoto/GifPhotoUI.java	(revision 166698)
+@@ -51,8 +51,8 @@
+         if(DreamUtil.BACK_CAMERA == mDreamUtil.getRightCamera(DataModuleManager
+                 .getInstance(mActivity).getDataModuleCamera()
+                 .getInt(Keys.KEY_CAMERA_ID))){
+-            bindFlashButton();
+         }
++        bindFlashButton();
+ 
+         mSettingsButton = (ImageButton) topPanel.findViewById(R.id.settings_button_dream);
+ 
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/gifphoto/GifPhotoModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/gifphoto/GifPhotoModule.java	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/gifphoto/GifPhotoModule.java	(revision 166698)
+@@ -14,6 +14,7 @@
+ import com.dream.camera.util.DreamUtil;
+ import com.dream.camera.settings.DataModuleBasic;
+ import com.android.ex.camera2.portability.CameraCapabilities;
++import com.android.ex.camera2.portability.CameraAgent.CameraProxy;
+ 
+ import com.ucamera.ucam.modules.ugif.GifUI;
+ 
+@@ -95,4 +96,14 @@
+     public void updateBatteryLevel(int level) {
+         super.updateBatteryLevel(level, Keys.KEY_DREAM_FLASH_GIF_PHOTO_MODE, ButtonManagerDream.BUTTON_GIF_PHOTO_FLASH_DREAM);
+     }
++
++    @Override
++    public void onCameraAvailable(CameraProxy cameraProxy) {
++        super.onCameraAvailable(cameraProxy);
++        if(mHardwareSpec.isFlashSupported()){
++            mUI.setButtonVisibility(ButtonManagerDream.BUTTON_GIF_PHOTO_FLASH_DREAM,View.VISIBLE);
++        }else{
++            mUI.setButtonVisibility(ButtonManagerDream.BUTTON_GIF_PHOTO_FLASH_DREAM,View.GONE);
++        }
++    }
+ }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/scenerydream/DreamSceneryUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/scenerydream/DreamSceneryUI.java	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/scenerydream/DreamSceneryUI.java	(revision 166698)
+@@ -62,6 +62,7 @@
+             bindSettingsButton(tSettingsButton);
+             bindCountDownButton();
+             bindCameraButton();
++            bindFlashButton();
+         }
+     }
+ 
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/autophoto/AutoPhotoUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/autophoto/AutoPhotoUI.java	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/autophoto/AutoPhotoUI.java	(revision 166698)
+@@ -55,7 +55,6 @@
+                         topPanelParent);
+             }
+             mActivity.getButtonManager().load(topPanel);
+-            bindFlashButton();
+ 
+         } else {
+             if (topPanel == null) {
+@@ -75,7 +74,7 @@
+ //                vgestureLayout.setVisibility(View.GONE);
+ //            }
+         }
+-
++        bindFlashButton();
+         mSettingsButton = (ImageButton) topPanel
+                 .findViewById(R.id.settings_button_dream);
+         bindSettingsButton(mSettingsButton);
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/intentcapture/DreamIntentCaptureUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/intentcapture/DreamIntentCaptureUI.java	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/intentcapture/DreamIntentCaptureUI.java	(revision 166698)
+@@ -54,7 +54,6 @@
+             }
+ 
+             mActivity.getButtonManager().load(topPanel);
+-            bindFlashButton();
+ 
+         } else {
+             if (topPanel == null) {
+@@ -64,6 +63,7 @@
+             }
+             mActivity.getButtonManager().load(topPanel);
+         }
++        bindFlashButton();
+         bindCountDownButton();
+         bindCameraButton();
+     }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/PhotoModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/PhotoModule.java	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/PhotoModule.java	(revision 166698)
+@@ -2241,7 +2241,11 @@
+         mHardwareSpec = new HardwareSpecImpl(getCameraProvider(),
+                 mCameraCapabilities, mAppController.getCameraFeatureConfig(),
+                 isCameraFrontFacing());
+-
++        if(mHardwareSpec.isFlashSupported()){
++            mUI.setButtonVisibility(ButtonManagerDream.BUTTON_FLASH_DREAM,View.VISIBLE);
++        }else{
++            mUI.setButtonVisibility(ButtonManagerDream.BUTTON_FLASH_DREAM,View.GONE);
++        }
+         ButtonManager buttonManager = mActivity.getButtonManager();
+         buttonManager.enableCameraButton();
+         mBurstCount = getCurrentBurstCountFromSettings();
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoUI.java	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoUI.java	(revision 166698)
+@@ -44,6 +44,7 @@
+ import com.dream.camera.DreamUI;
+ import com.android.camera.settings.Keys;
+ import com.dream.camera.settings.DataModuleManager;
++import com.dream.camera.ButtonManagerDream;
+ 
+ public class VideoUI extends DreamUI implements PreviewStatusListener {
+     private static final Log.Tag TAG = new Log.Tag("VideoUI");
+@@ -438,4 +439,7 @@
+ 
+         return false;
+     }
++    public void setButtonVisibility(int buttonId, int visibility) {
++        ((ButtonManagerDream)mActivity.getButtonManager()).setButtonVisibility(buttonId,visibility);
++    }
+ }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoModule.java	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoModule.java	(revision 166698)
+@@ -861,6 +861,11 @@
+         mHardwareSpec = new HardwareSpecImpl(getCameraProvider(),
+                 mCameraCapabilities, mAppController.getCameraFeatureConfig(),
+                 isCameraFrontFacing());
++        if(mHardwareSpec.isFlashSupported()){
++            mUI.setButtonVisibility(ButtonManagerDream.BUTTON_VIDEO_FLASH_DREAM,View.VISIBLE);
++        }else{
++            mUI.setButtonVisibility(ButtonManagerDream.BUTTON_VIDEO_FLASH_DREAM,View.GONE);
++        }
+ 
+         ButtonManager buttonManager = mActivity.getButtonManager();
+         buttonManager.enableCameraButton();
+@@ -2378,7 +2383,7 @@
+         }
+ 
+         if (mActivity.getCameraAppUI().getFilmstripVisibility() != View.VISIBLE) {
+-            enableTorchMode(Keys.isCameraBackFacing(mDataModule));
++            enableTorchMode(true);
+         }
+ 
+         // Set zoom.
+@@ -2436,7 +2441,7 @@
+         // SPRD Bug:474696 Feature:Slow-Motion.
+         setSlowmotionParameters();
+ 
+-        // SPRD： update makeup
++        //
+         updateMakeLevel();
+ 
+         if (mCameraDevice != null) {
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/gifvideo_front_top_panel.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/gifvideo_front_top_panel.xml	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/gifvideo_front_top_panel.xml	(revision 166698)
+@@ -29,7 +29,12 @@
+         android:layout_width="0dp"
+         android:layout_height="wrap_content"
+         android:layout_weight="1" >
+-
++        <com.android.camera.MultiToggleImageButton
++            android:id="@+id/video_flash_toggle_button_dream"
++            style="@style/TopPanelIcon"
++            android:scaleType="center"
++            camera:contentDescriptionIds="@array/video_flash_descriptions"
++            camera:imageIds="@array/video_flashmode_icons" />
+     </FrameLayout>
+ 
+     <FrameLayout
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/intentcapture_back_top_panel.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/intentcapture_back_top_panel.xml	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/intentcapture_back_top_panel.xml	(revision 166698)
+@@ -11,11 +11,11 @@
+         android:layout_weight="1" >
+ 
+         <com.android.camera.MultiToggleImageButton
+-            android:id="@+id/flash_toggle_button_dream"
++            android:id="@+id/countdown_toggle_button_dream"
+             style="@style/TopPanelIcon"
+             android:scaleType="center"
+-            camera:contentDescriptionIds="@array/camera_flash_descriptions"
+-            camera:imageIds="@array/camera_flashmode_icons" />
++            camera:contentDescriptionIds="@array/countdown_duration_descriptions"
++            camera:imageIds="@array/countdown_duration_icons" />
+     </FrameLayout>
+ 
+     <FrameLayout
+@@ -30,11 +30,11 @@
+         android:layout_weight="1" >
+ 
+         <com.android.camera.MultiToggleImageButton
+-            android:id="@+id/countdown_toggle_button_dream"
++            android:id="@+id/flash_toggle_button_dream"
+             style="@style/TopPanelIcon"
+             android:scaleType="center"
+-            camera:contentDescriptionIds="@array/countdown_duration_descriptions"
+-            camera:imageIds="@array/countdown_duration_icons" />
++            camera:contentDescriptionIds="@array/camera_flash_descriptions"
++            camera:imageIds="@array/camera_flashmode_icons" />
+     </FrameLayout>
+ 
+     <FrameLayout
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/filterphoto_front_top_panel.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/filterphoto_front_top_panel.xml	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/filterphoto_front_top_panel.xml	(revision 166698)
+@@ -24,6 +24,19 @@
+         android:layout_weight="1" >
+ 
+         <com.android.camera.MultiToggleImageButton
++            android:id="@+id/flash_toggle_button_dream"
++            style="@style/TopPanelIcon"
++            android:scaleType="center"
++            camera:contentDescriptionIds="@array/camera_flash_descriptions"
++            camera:imageIds="@array/camera_flashmode_icons" />
++    </FrameLayout>
++
++    <FrameLayout
++        android:layout_width="0dp"
++        android:layout_height="wrap_content"
++        android:layout_weight="1" >
++
++        <com.android.camera.MultiToggleImageButton
+             android:id="@+id/countdown_toggle_button_dream"
+             style="@style/TopPanelIcon"
+             android:scaleType="center"
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/gifphoto_front_top_panel.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/gifphoto_front_top_panel.xml	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/gifphoto_front_top_panel.xml	(revision 166698)
+@@ -29,7 +29,12 @@
+         android:layout_width="0dp"
+         android:layout_height="wrap_content"
+         android:layout_weight="1" >
+-
++        <com.android.camera.MultiToggleImageButton
++            android:id="@+id/gif_photo_flash_toggle_button_dream"
++            style="@style/TopPanelIcon"
++            android:scaleType="center"
++            camera:contentDescriptionIds="@array/video_flash_descriptions"
++            camera:imageIds="@array/video_flashmode_icons"  />
+     </FrameLayout>
+ 
+     <FrameLayout
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/autophoto_front_top_panel.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/autophoto_front_top_panel.xml	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/autophoto_front_top_panel.xml	(revision 166698)
+@@ -16,6 +16,18 @@
+             android:scaleType="center"
+             android:src="@drawable/ic_setting_indicator_sprd" />
+     </FrameLayout>
++    <FrameLayout
++        android:layout_width="0dp"
++        android:layout_height="wrap_content"
++        android:layout_weight="1" >
++
++        <com.android.camera.MultiToggleImageButton
++            android:id="@+id/flash_toggle_button_dream"
++            style="@style/TopPanelIcon"
++            android:scaleType="center"
++            camera:contentDescriptionIds="@array/camera_flash_descriptions"
++            camera:imageIds="@array/camera_flashmode_icons" />
++    </FrameLayout>
+ <!-- 
+     <FrameLayout
+         android:id="@+id/vgesture_layout"
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/autovideo_makeup_front_top_panel.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/autovideo_makeup_front_top_panel.xml	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/autovideo_makeup_front_top_panel.xml	(revision 166698)
+@@ -22,6 +22,12 @@
+         android:layout_width="0dp"
+         android:layout_height="wrap_content"
+         android:layout_weight="1" >
++        <com.android.camera.MultiToggleImageButton
++            android:id="@+id/video_flash_toggle_button_dream"
++            style="@style/TopPanelIcon"
++            android:scaleType="center"
++            camera:contentDescriptionIds="@array/video_flash_descriptions"
++            camera:imageIds="@array/video_flashmode_icons" />
+ 
+     </FrameLayout>
+ 
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/sceneryphoto_front_top_panel.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/sceneryphoto_front_top_panel.xml	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/sceneryphoto_front_top_panel.xml	(revision 166698)
+@@ -24,6 +24,19 @@
+         android:layout_weight="1" >
+ 
+         <com.android.camera.MultiToggleImageButton
++            android:id="@+id/flash_toggle_button_dream"
++            style="@style/TopPanelIcon"
++            android:scaleType="center"
++            camera:contentDescriptionIds="@array/camera_flash_descriptions"
++            camera:imageIds="@array/camera_flashmode_icons" />
++    </FrameLayout>
++
++    <FrameLayout
++        android:layout_width="0dp"
++        android:layout_height="wrap_content"
++        android:layout_weight="1" >
++
++        <com.android.camera.MultiToggleImageButton
+             android:id="@+id/countdown_toggle_button_dream"
+             style="@style/TopPanelIcon"
+             android:scaleType="center"
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/intentcapture_front_top_panel.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/intentcapture_front_top_panel.xml	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/intentcapture_front_top_panel.xml	(revision 166698)
+@@ -29,6 +29,12 @@
+         android:layout_width="0dp"
+         android:layout_height="wrap_content"
+         android:layout_weight="1" >
++        <com.android.camera.MultiToggleImageButton
++            android:id="@+id/flash_toggle_button_dream"
++            style="@style/TopPanelIcon"
++            android:scaleType="center"
++            camera:contentDescriptionIds="@array/camera_flash_descriptions"
++            camera:imageIds="@array/camera_flashmode_icons" />
+     </FrameLayout>
+ 
+     <FrameLayout
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/intervalphoto_top_panel.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/intervalphoto_top_panel.xml	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/intervalphoto_top_panel.xml	(revision 166698)
+@@ -17,7 +17,18 @@
+             android:scaleType="center"
+             android:src="@drawable/ic_setting_indicator_sprd" />
+     </FrameLayout>
++    <FrameLayout
++        android:layout_width="0dp"
++        android:layout_height="wrap_content"
++        android:layout_weight="1" >
+ 
++        <com.android.camera.MultiToggleImageButton
++            android:id="@+id/flash_toggle_button_dream"
++            style="@style/TopPanelIcon"
++            android:scaleType="center"
++            camera:contentDescriptionIds="@array/camera_flash_descriptions"
++            camera:imageIds="@array/camera_flashmode_icons" />
++    </FrameLayout>
+     <FrameLayout
+         android:layout_width="0dp"
+         android:layout_height="wrap_content"
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/autovideo_makeup_top_panel.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/autovideo_makeup_top_panel.xml	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/autovideo_makeup_top_panel.xml	(revision 166698)
+@@ -17,7 +17,12 @@
+             android:scaleType="center"
+             android:src="@drawable/ic_setting_indicator_sprd" />
+     </FrameLayout>
++    <FrameLayout
++        android:layout_width="0dp"
++        android:layout_height="wrap_content"
++        android:layout_weight="1" >
+ 
++    </FrameLayout>
+     <FrameLayout
+         android:layout_width="0dp"
+         android:layout_height="wrap_content"
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/dream_camera_arrays_video_part.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/dream_camera_arrays_video_part.xml	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/dream_camera_arrays_video_part.xml	(revision 166698)
+@@ -343,11 +343,13 @@
+         <item>@array/pref_video_color_effect_key_array</item>
+         <item>@array/pref_eois_dv_front_key_array</item>
+         <item>@array/pref_camera_zoom_enable_true_key_array</item>
++        <item>@array/pref_video_flashmode_key_array</item>
+     </integer-array>
+     <integer-array name="video_front_mode_gif_setting">
+         <item>@array/pref_gif_mode_pic_size_key_array</item>
+         <item>@array/pref_gif_mode_pic_number_key_array</item>
+         <item>@array/pref_camera_zoom_enable_true_key_array</item>
++        <item>@array/pref_video_flashmode_key_array</item>
+     </integer-array>
+ 
+     <integer-array name="video_back_mode_public_setting">
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/dream_camera_arrays_photo_part.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/dream_camera_arrays_photo_part.xml	(revision 166697)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/dream_camera_arrays_photo_part.xml	(revision 166698)
+@@ -764,6 +764,7 @@
+         <item>@string/pref_camera_beauty_entered_key</item>
+         <item>@string/pref_front_camera_mirror_key</item>
+         <item>@string/pref_eois_dc_front_key</item>
++        <item>@array/pref_camera_flashmode_key_array</item>
+     </integer-array>
+     <integer-array name="photo_front_mode_vgesture_setting_display">
+         <item>@string/pref_camera_picturesize_front_key</item>
+@@ -892,6 +893,7 @@
+         <item>@array/pref_camera_burst_key_one_array</item>
+         <item>@array/pref_eois_dc_front_key_array</item>
+         <item>@array/pref_camera_zoom_enable_true_key_array</item>
++        <item>@array/pref_camera_flashmode_key_array</item>
+     </integer-array>
+     <integer-array name="photo_front_interval_pic_setting">
+         <item>@array/pref_camera_picturesize_front_key_array</item>
+@@ -909,6 +911,7 @@
+         <item>@array/pref_camera_burst_key_one_array</item>
+         <item>@array/pref_eois_dc_front_key_array</item>
+         <item>@array/pref_camera_zoom_enable_true_key_array</item>
++        <item>@array/pref_camera_flashmode_key_array</item>
+     </integer-array>
+     <integer-array name="photo_front_gif_setting">
+         <item>@array/pref_gif_mode_pic_size_key_array</item>
+@@ -915,6 +918,7 @@
+         <item>@array/pref_gif_mode_pic_number_key_array</item>
+         <item>@array/pref_camera_burst_key_one_array</item>
+         <item>@array/pref_camera_zoom_enable_true_key_array</item>
++        <item>@array/pref_camera_flashmode_key_gif_array</item>
+     </integer-array>
+     <integer-array name="photo_front_mode_ucam_scenery_setting">
+         <item>@array/pref_camera_ai_detect_without_smile_key_array</item>
+@@ -926,6 +930,7 @@
+         <item>@array/pref_front_camera_mirror_key_array</item>
+         <item>@array/pref_camera_scenery_type_key_array</item>
+         <item>@array/pref_camera_zoom_enable_true_key_array</item>
++        <item>@array/pref_camera_flashmode_key_array</item>
+     </integer-array>
+     <integer-array name="photo_front_vgesture_setting">
+         <item>@array/pref_camera_picturesize_front_key_array</item>
+@@ -938,6 +943,7 @@
+         <item>@array/pref_camera_zoom_enable_false_key_array</item>
+         <item>@array/pref_camera_vgesture_guide_key_array</item>
+         <item>@array/pref_camera_vgesture_help_key_array</item>
++        <item>@array/pref_camera_flashmode_key_array</item>
+     </integer-array>
+     <integer-array name="photo_front_public_setting">
+         <item>@array/pref_camera_picturesize_front_key_array</item>
+@@ -1052,6 +1058,7 @@
+         <item>@array/pref_camera_time_stamp_key_array</item>
+         <item>@array/pref_camera_zsl_key_array</item>
+         <item>@array/pref_camera_hdr_key_array</item>
++        <item>@array/pref_camera_flashmode_key_array</item>
+         <item>@array/pref_camera_beauty_entered_key_array</item>
+         <item>@array/pref_camera_countdown_duration_key_array</item>
+         <item>@array/pref_front_camera_mirror_key_array</item>
+@@ -1084,6 +1091,7 @@
+     </integer-array>
+     <integer-array name="photo_front_mode_intent_capture_setting">
+         <item>@array/pref_camera_countdown_duration_key_array</item>
++        <item>@array/pref_camera_flashmode_key_array</item>
+     </integer-array>
+     <integer-array name="photo_back_mode_qrcode_setting">
+         <item>@array/pref_camera_flashmode_key_gif_array</item>

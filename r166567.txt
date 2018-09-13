@@ -1,0 +1,66 @@
+Index: kernel/drivers/media/sprd_sensor/sensor_drv_k.c
+===================================================================
+--- kernel/drivers/media/sprd_sensor/sensor_drv_k.c	(revision 166566)
++++ kernel/drivers/media/sprd_sensor/sensor_drv_k.c	(revision 166567)
+@@ -810,6 +810,29 @@
+ 	return SENSOR_K_SUCCESS;
+ }
+ 
++/*++ add af_pwdn control interface ++*/
++#define GPIO_AF_PWDN  (40)
++int sensor_k_set_af_pwdn_level(uint32_t *fd_handle, uint32_t power_level)
++{
++	struct sensor_module_tab_tag    *p_mod;
++	struct sensor_file_tag          *fd = (struct sensor_file_tag *)fd_handle;
++
++	SENSOR_CHECK_ZERO(fd);
++	p_mod = fd->module_data;
++	SENSOR_CHECK_ZERO(p_mod);
++
++	//get_gpio_id(p_mod->of_node, &fd->gpio_tab.pwn, &fd->gpio_tab.reset, fd->sensor_id);
++	printk("SENSOR: set af_pwdn lvl: lvl %d, af_pdwn pin %d \n", power_level, GPIO_AF_PWDN);
++
++	if (0 == power_level) {
++		gpio_direction_output(GPIO_AF_PWDN, 0);
++	} else {
++		gpio_direction_output(GPIO_AF_PWDN, 1);
++	}
++	return SENSOR_K_SUCCESS;
++}
++/*-- add af_pwdn control interface --*/
++
+ int sensor_k_set_mipi_level(uint32_t *fd_handle, uint32_t plus_level)
+ {
+ 	struct sensor_module_tab_tag    *p_mod;
+@@ -1547,7 +1570,20 @@
+ 				ret = sensor_k_set_pd_level((uint32_t *)p_file, power_level);
+ 		}
+ 		break;
++		
++/*++ add af_pwdn control interface ++*/
++	case SENSOR_IO_AF_PWDN:
++		{
++			uint8_t power_level;
++			SENSOR_PRINT("SENSOR: ioctl SENSOR_IO_AF_PDWN \n");
++			ret = copy_from_user(&power_level, (uint8_t *) arg, sizeof(uint8_t));
+ 
++			if (0 == ret)
++				ret = sensor_k_set_af_pwdn_level((uint32_t *)p_file, power_level);
++		}
++		break;
++/*-- add af_pwdn control interface --*/
++
+ 	case SENSOR_IO_SET_CAMMOT:
+ 		{
+ 			uint32_t vdd_val;
+@@ -2183,6 +2219,10 @@
+ 	}
+ #endif
+ 
++/*++ add af_pwdn control interface ++*/
++	gpio_free(GPIO_AF_PWDN);
++/*-- add af_pwdn control interface --*/
++	
+ 	misc_deregister(&sensor_dev);
+ 	wake_lock_destroy(&p_mod->wakelock);
+ 

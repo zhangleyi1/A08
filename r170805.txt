@@ -1,0 +1,51 @@
+Index: packages/apps/Messaging/MmsFolderView/src/com/android/mmsfolderview/ui/SortMsgListFragment.java
+===================================================================
+--- packages/apps/Messaging/MmsFolderView/src/com/android/mmsfolderview/ui/SortMsgListFragment.java	(revision 170804)
++++ packages/apps/Messaging/MmsFolderView/src/com/android/mmsfolderview/ui/SortMsgListFragment.java	(revision 170805)
+@@ -23,6 +23,7 @@
+ import android.content.DialogInterface.OnCancelListener;
+ import android.content.DialogInterface.OnClickListener;
+ import android.content.DialogInterface.OnDismissListener;
++import android.content.res.Configuration;
+ import android.database.Cursor;
+ import android.graphics.Rect;
+ import android.net.Uri;
+@@ -190,14 +191,36 @@
+         if (mListState != null && cursor != null && oldCursor == null) {
+             mRecyclerView.getLayoutManager().onRestoreInstanceState(mListState);
+         }
++
+         //modified for bug 618680 begin
+         mAdapter.notifyDataSetChanged();
+-        if(oldCursor != null && cursor !=null && cursor.getCount() > 0){
+-             mRecyclerView.setAdapter(mAdapter);
++        Log.d(TAG, "onSortMsgListCursorUpdated mNeedToUpdateRecyclerView: " + mNeedToUpdateRecyclerView);
++        if (SortMsgListFragment.this.getActivity().isInMultiWindowMode() && mNeedToUpdateRecyclerView){
++            Log.d(TAG, "onSortMsgListCursorUpdated:InMultiWindowMode ");
++            mNeedToUpdateRecyclerView = false;
++           /* if(oldCursor != null && cursor !=null && cursor.getCount() > 0)*/{
++                 Log.d(TAG, "onSortMsgListCursorUpdated:setAdapter ");
++                 mRecyclerView.setAdapter(mAdapter);
++            }
+         }
+         //bug 618680 end
+     }
+ 
++   //Bug 666442 start
++    private int mLastOrientation = -1;
++    private boolean  mNeedToUpdateRecyclerView = false;
++    @Override
++    public void onConfigurationChanged(final Configuration newConfig) {
++        super.onConfigurationChanged(newConfig);
++
++        Log.d(TAG, "onConfigurationChanged orientation:"+ newConfig.orientation );
++        if (newConfig.orientation != mLastOrientation) {
++           mNeedToUpdateRecyclerView = true;
++        }
++        mLastOrientation = newConfig.orientation;
++    }
++   //Bug 666442 end
++
+     private void updateEmptyListUi(final boolean isEmpty) {
+         Log.d("tim_V6_ept", "isEmpty="+isEmpty);
+         if (isEmpty) {

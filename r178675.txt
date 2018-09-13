@@ -1,0 +1,14 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModulePhoto.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModulePhoto.java	(revision 178674)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModulePhoto.java	(revision 178675)
+@@ -657,8 +657,7 @@
+             originalAIDetectDataStorageStruct.copy(data);
+             data.mEntries = struct.mEntries;
+             data.mEntryValues = struct.mEntryValues;
+-            //data.mDefaultValue = struct.mDefaultValue;
+-			data.mDefaultValue=data.mEntryValues[1].toString();
++            data.mDefaultValue = struct.mDefaultValue;
+             return;
+         }
+ 

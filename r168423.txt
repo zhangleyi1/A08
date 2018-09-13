@@ -1,0 +1,138 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/SprdAppSortAddonStub.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/SprdAppSortAddonStub.java	(revision 168422)
++++ packages/apps/Launcher3/src/com/android/launcher3/SprdAppSortAddonStub.java	(revision 168423)
+@@ -3,7 +3,7 @@
+ import java.util.ArrayList;
+ import java.util.List;
+ import java.util.HashMap;
+-
++import com.android.launcher3.AppInfo;
+ import android.app.AddonManager;
+ import android.content.ComponentName;
+ import android.util.Log;
+@@ -30,7 +30,7 @@
+         return mHasCustomizeData;
+     }
+ 
+-    protected void onSortApps(ArrayList<ComponentName> componentNames) {
++    protected void onSortApps(ArrayList<AppInfo> appInfos) {
+         Log.d(TAG, "onSortApps");
+     }
+ 
+@@ -40,20 +40,19 @@
+             return;
+         }
+ 
+-        ArrayList<ComponentName> sortedCNs = new ArrayList<ComponentName>();
+-        HashMap<ComponentName, AppInfo> maps = new HashMap<ComponentName, AppInfo>();
++        ArrayList<AppInfo> sortedCNs = new ArrayList<AppInfo>();
+ 
+-        for (ItemInfo appInfo : apps) {
+-            sortedCNs.add(((AppInfo) appInfo).componentName);
+-            maps.put(((AppInfo) appInfo).componentName, (AppInfo) appInfo);
++        for (AppInfo app : apps) {
++            sortedCNs.add(app);
+         }
+ 
+         onSortApps(sortedCNs);
+ 
+         apps.clear();
+-        for (ComponentName cn : sortedCNs) {
+-            apps.add(maps.get(cn));
++        for (int i = 0; i < sortedCNs.size(); i ++) {
++            apps.add(sortedCNs.get(i));
+         }
++
+     }
+ 
+ }
+Index: vendor/sprd/plugins/packages/apps/Launcher3/addons/CustomizeAppSort/src/addon/sprd/launcher3/appsort/SprdAppSortAddon.java
+===================================================================
+--- vendor/sprd/plugins/packages/apps/Launcher3/addons/CustomizeAppSort/src/addon/sprd/launcher3/appsort/SprdAppSortAddon.java	(revision 168422)
++++ vendor/sprd/plugins/packages/apps/Launcher3/addons/CustomizeAppSort/src/addon/sprd/launcher3/appsort/SprdAppSortAddon.java	(revision 168423)
+@@ -9,9 +9,8 @@
+ import android.util.Log;
+ import android.util.Pair;
+ import android.util.Xml;
+-
+ import com.android.launcher3.SprdAppSortAddonStub;
+-
++import com.android.launcher3.AppInfo;
+ import java.io.IOException;
+ import java.util.ArrayList;
+ import java.util.HashMap;
+@@ -27,6 +26,7 @@
+ 
+     private static final String TAG = "SprdAppSortAddon";
+ 
++	
+     private static final String ROOT_TAG = "apps";
+     private static final String APP_TAG = "app";
+ 
+@@ -34,6 +34,7 @@
+ 
+     @Override
+     public Class onCreateAddon(Context context, Class clazz) {
++
+         if (sCustomizePositions == null) {
+             sCustomizePositions = loadCustomizeAppPositions(context);
+             mHasCustomizeData = (sCustomizePositions.size() > 0);
+@@ -42,23 +43,23 @@
+     }
+ 
+     @Override
+-    protected void onSortApps(ArrayList<ComponentName> componentNames) {
++    protected void onSortApps(ArrayList<AppInfo> appInfos) {
+         Log.d(TAG, "onSortApps customize implementation.");
+-        TreeMap<Integer, ComponentName> sortedMaps = new TreeMap<Integer, ComponentName>();
++        TreeMap<Integer, AppInfo> sortedMaps = new TreeMap<Integer, AppInfo>();
+ 
+         // find the customize component in componentNames
+         Pair<String, String> pair = null;
+         Entry<Integer, Pair<String, String>> entry = null;
+ 
+-        for (ComponentName cn : componentNames) {
++        for (AppInfo app : appInfos) {
+             Iterator<Entry<Integer, Pair<String, String>>> it = sCustomizePositions.entrySet().iterator();
+             while (it.hasNext()) {
+                 entry = it.next();
+                 pair = entry.getValue();
+-
++                ComponentName cn = app.componentName;
+                 if (pair.first.equals(cn.getPackageName())) {
+                     if (pair.second == null || pair.second.equals(cn.getClassName())) {
+-                        sortedMaps.put(entry.getKey(), cn);
++                        sortedMaps.put(entry.getKey(), app);
+                         break;
+                     }
+                 }
+@@ -66,22 +67,22 @@
+         }
+ 
+         // remove the found component
+-        Iterator<Entry<Integer, ComponentName>> it = sortedMaps.entrySet().iterator();
++        Iterator<Entry<Integer, AppInfo>> it = sortedMaps.entrySet().iterator();
+         while (it.hasNext()) {
+-            componentNames.remove(it.next().getValue());
++            appInfos.remove(it.next().getValue());
+         }
+ 
+         // insert at the customize position
+-        Entry<Integer, ComponentName> ent = null;
++        Entry<Integer, AppInfo> ent = null;
+         it = sortedMaps.entrySet().iterator();
+         while (it.hasNext()) {
+             ent = it.next();
+-            if (ent.getKey() > componentNames.size()) {
++            if (ent.getKey() > appInfos.size()) {
+                 // append to last position
+-                componentNames.add(ent.getValue());
++                appInfos.add(ent.getValue());
+             } else {
+                 // insert at specific position
+-                componentNames.add(ent.getKey(), ent.getValue());
++                appInfos.add(ent.getKey(), ent.getValue());
+             }
+         }
+     }

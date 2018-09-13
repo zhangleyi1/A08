@@ -1,0 +1,37 @@
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 173966)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 173967)
+@@ -1309,8 +1309,9 @@
+                 return false;
+             }
+             boolean enhanced4gMode = !enhanced4gModePref.isChecked();
+-			enhanced4gModePref.setChecked(enhanced4gMode);
+-			ImsManager.setEnhanced4gLteModeSetting(MobileNetworkSettings.this, enhanced4gModePref.isChecked());
++			if(enhanced4gModePref.isChecked()){
++				ImsManager.setEnhanced4gLteModeSetting(MobileNetworkSettings.this, true);
++			}
+ 			if (DBG) log("enhanced4gModePref.setChecked1 :  "+enhanced4gMode); 
+             if (!enhanced4gMode) {                
+ 				AlertDialog.Builder dialog = new AlertDialog.Builder(this);                
+@@ -1319,8 +1320,8 @@
+ 					new OnClickListener() {                        
+ 					@Override                        
+ 						public void onClick(DialogInterface dialog, int which) {                           
+-						// TODO Auto-generated method stub 
+-		
++							enhanced4gModePref.setChecked(enhanced4gMode);
++							ImsManager.setEnhanced4gLteModeSetting(MobileNetworkSettings.this, false);
+ 						}                    
+ 				});                
+ 				dialog.setNegativeButton(R.string.votle_cancel,                    
+@@ -1328,8 +1329,7 @@
+ 					@Override                        
+ 						public void onClick(DialogInterface dialog, int which) {                            
+ 						// TODO Auto-generated method stub                            
+-						enhanced4gModePref.setChecked(!enhanced4gMode);
+-						ImsManager.setEnhanced4gLteModeSetting(MobileNetworkSettings.this, enhanced4gModePref.isChecked());
++							enhanced4gModePref.setChecked(!enhanced4gMode);
+ 						}                    
+ 					});                
+ 				dialog.setCancelable(false);                

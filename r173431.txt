@@ -1,0 +1,22 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 173430)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 173431)
+@@ -359,7 +359,7 @@
+           AutoTested = 1;
+         }
+         boolean pass = true;
+-        for(int i=0 ; i < testitem.length; i++){
++        for(int i=0 ; i < testitem.length-2; i++){
+           if(autotestResult[i] != FactoryMode.TEST_OK){
+             pass = false;
+           }
+@@ -386,7 +386,7 @@
+       return text;
+     }
+     boolean pass = true;
+-    for(int i = 0; i < testitem.length ; i++){
++    for(int i = 0; i < testitem.length-2 ; i++){
+       if(autotestResult[i] != FactoryMode.TEST_OK){
+         pass = false;
+         break;

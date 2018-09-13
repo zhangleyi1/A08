@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/SprdEmail/Email/res/xml/providers_manual.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdEmail/Email/res/xml/providers_manual.xml	(revision 168038)
++++ vendor/sprd/platform/packages/apps/SprdEmail/Email/res/xml/providers_manual.xml	(revision 168039)
+@@ -9,7 +9,7 @@
+               smtp="smtp.10086.cn">
+     </provider>
+ 
+-    <provider domain="gmail.com" eas="m.google.com">
++    <provider domain="gmail.com" pop="pop.gmail.com" eas="m.google.com">
+     </provider>
+ 
+     <provider domain="hotmail.com" eas="s.outlook.com">

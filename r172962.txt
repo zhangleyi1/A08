@@ -1,0 +1,408 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DreamSettingUtil.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DreamSettingUtil.java	(revision 172961)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DreamSettingUtil.java	(revision 172962)
+@@ -330,8 +330,12 @@
+                 case 17:
+                     return DataConfig.PhotoModeType.PHOTO_MODE_FRONT_VGESTURE;
+                 case 19:
++                    return DataConfig.PhotoModeType.PHOTO_MODE_FRONT_AUTO;
++                case 20:
++                    return DataConfig.PhotoModeType.PHOTO_MODE_FRONT_AUTO;
++                case 21:
+                     return DataConfig.PhotoModeType.PHOTO_MODE_FRONT_UCAM_FILTER;
+-                case 20:
++                case 22:
+                     return DataConfig.PhotoModeType.PHOTO_MODE_FRONT_INTENT_CAPTURE;
+ 
+                 default:
+@@ -365,8 +369,12 @@
+                 case 18:
+                     return DataConfig.PhotoModeType.PHOTO_MODE_BACK_QRCODE;
+                 case 19:
++                    return DataConfig.PhotoModeType.PHOTO_MODE_BACK_AUTO;
++                case 20:
++                    return DataConfig.PhotoModeType.PHOTO_MODE_BACK_AUTO;
++                case 21:
+                     return DataConfig.PhotoModeType.PHOTO_MODE_BACK_UCAM_FILTER;
+-                case 20:
++                case 22:
+                     return DataConfig.PhotoModeType.PHOTO_MODE_BACK_INTENT_CAPTURE;
+                 default:
+                     return DataConfig.PhotoModeType.PHOTO_MODE_BACK_AUTO;
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/smileshutter/SmileShutterModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/smileshutter/SmileShutterModule.java	(revision 0)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/smileshutter/SmileShutterModule.java	(revision 172962)
+@@ -0,0 +1,71 @@
++
++package com.dream.camera.modules.smileshutter;
++
++import com.android.camera.app.AppController;
++import com.android.camera.debug.Log;
++import com.android.camera.settings.Keys;
++import com.android.camera.util.GservicesHelper;
++import com.android.camera.CameraActivity;
++import com.android.camera.PhotoUI;
++import android.os.Handler;
++import android.os.Looper;
++import com.android.ex.camera2.portability.CameraAgent;
++
++import com.dream.camera.dreambasemodules.DreamPhotoModule;
++import com.ucamera.ucam.modules.utils.UCamUtill;
++import com.dream.camera.vgesture.VGestureController;
++import android.view.View;
++import com.dream.camera.util.DreamUtil;
++import com.dream.camera.settings.DataModuleManager;
++import com.dream.camera.vgesture.VGestureOpenCameraInterface;
++import com.dream.camera.modules.autophoto.*;
++
++public class SmileShutterModule extends DreamPhotoModule {
++    private static final Log.Tag TAG = new Log.Tag("AutoPhotoModule");
++    private String face = "off";
++    public SmileShutterModule(AppController app) {
++        super(app);
++    }
++
++    @Override
++    public PhotoUI createUI(CameraActivity activity) {
++        return new AutoPhotoUI(activity, this, activity.getModuleLayoutRoot());
++    }
++
++    public boolean isSupportTouchAFAE() {
++        return true;
++    }
++
++    public boolean isSupportManualMetering() {
++        return false;
++    }
++
++
++    /* SPRD: optimize camera launch time @{ */
++    public boolean useNewApi() {
++        // judge VGesture enable state first will be better, like:
++        // if (isShouldShowVGesture()) return false;
++        // but isShouldShowVGesture will throw exception if useNewApi() is
++        // called before module initialized, and no negative effect is found
++        // until now, so just ignore this judgement temporarily.
++        return GservicesHelper.useCamera2ApiThroughPortabilityLayer(null);
++    }
++    /* @} */
++    @Override
++    public void init(CameraActivity activity, boolean isSecureCamera,
++                     boolean isCaptureIntent) {
++        super.init(activity, isSecureCamera, isCaptureIntent);
++        if(mDataModuleCurrent != null){
++            face = mDataModuleCurrent.getString(Keys.KEY_CAMERA_AI_DATECT);
++            mDataModuleCurrent.set(Keys.KEY_CAMERA_AI_DATECT, "smile");
++        }
++    }
++
++    @Override
++    public void pause() {
++        super.pause();
++        if(mDataModuleCurrent != null){
++            mDataModuleCurrent.set(Keys.KEY_CAMERA_AI_DATECT, face);
++        }
++    }
++}
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/photograph/PhotoGraphModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/photograph/PhotoGraphModule.java	(revision 0)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/photograph/PhotoGraphModule.java	(revision 172962)
+@@ -0,0 +1,71 @@
++
++package com.dream.camera.modules.photograph;
++
++import com.android.camera.app.AppController;
++import com.android.camera.debug.Log;
++import com.android.camera.settings.Keys;
++import com.android.camera.util.GservicesHelper;
++import com.android.camera.CameraActivity;
++import com.android.camera.PhotoUI;
++import android.os.Handler;
++import android.os.Looper;
++import com.android.ex.camera2.portability.CameraAgent;
++
++import com.dream.camera.dreambasemodules.DreamPhotoModule;
++import com.ucamera.ucam.modules.utils.UCamUtill;
++import com.dream.camera.vgesture.VGestureController;
++import android.view.View;
++import com.dream.camera.util.DreamUtil;
++import com.dream.camera.settings.DataModuleManager;
++import com.dream.camera.vgesture.VGestureOpenCameraInterface;
++import com.dream.camera.modules.autophoto.*;
++
++public class PhotoGraphModule extends DreamPhotoModule {
++    private static final Log.Tag TAG = new Log.Tag("AutoPhotoModule");
++    private boolean isOn = false;
++    public PhotoGraphModule(AppController app) {
++        super(app);
++    }
++
++    @Override
++    public PhotoUI createUI(CameraActivity activity) {
++        return new AutoPhotoUI(activity, this, activity.getModuleLayoutRoot());
++    }
++
++    public boolean isSupportTouchAFAE() {
++        return true;
++    }
++
++    public boolean isSupportManualMetering() {
++        return false;
++    }
++
++
++    /* SPRD: optimize camera launch time @{ */
++    public boolean useNewApi() {
++        // judge VGesture enable state first will be better, like:
++        // if (isShouldShowVGesture()) return false;
++        // but isShouldShowVGesture will throw exception if useNewApi() is
++        // called before module initialized, and no negative effect is found
++        // until now, so just ignore this judgement temporarily.
++        return GservicesHelper.useCamera2ApiThroughPortabilityLayer(null);
++    }
++    /* @} */
++    @Override
++    public void init(CameraActivity activity, boolean isSecureCamera,
++                     boolean isCaptureIntent) {
++        super.init(activity, isSecureCamera, isCaptureIntent);
++        if(mDataModuleCurrent != null){
++            isOn = mDataModuleCurrent.getBoolean(Keys.KEY_CAMERA_TOUCHING_PHOTOGRAPH);
++            mDataModuleCurrent.set(Keys.KEY_CAMERA_TOUCHING_PHOTOGRAPH, true);
++        }
++    }
++
++    @Override
++    public void pause() {
++        super.pause();
++        if(mDataModuleCurrent != null){
++            mDataModuleCurrent.set(Keys.KEY_CAMERA_TOUCHING_PHOTOGRAPH, isOn);
++        }
++    }
++}
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/module/ModulesInfo.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/module/ModulesInfo.java	(revision 172961)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/module/ModulesInfo.java	(revision 172962)
+@@ -41,6 +41,8 @@
+ import com.dream.camera.modules.intentvideo.DreamIntentVideoModule;
+ import com.dream.camera.modules.AudioPicture.AudioPictureModule;
+ import com.dream.camera.modules.qr.QrCodePhotoModule;
++import com.dream.camera.modules.smileshutter.SmileShutterModule;
++import com.dream.camera.modules.photograph.PhotoGraphModule;
+ import com.dream.camera.util.DreamUtil;
+ import com.ucamera.ucam.modules.utils.UCamUtill;
+ 
+@@ -430,6 +432,12 @@
+                     res.getInteger(R.integer.camera_mode_qrcode),
+                     SettingsScopeNamespaces.QR_CODE);
+         }
++        registerSmileShutterModule(moduleManager,
++                res.getInteger(R.integer.camera_mode_smileshutter),
++                SettingsScopeNamespaces.SMILE_SHUTTER);
++        registerPhotoGraphModule(moduleManager,
++                res.getInteger(R.integer.camera_mode_photograph),
++                SettingsScopeNamespaces.PHOTOGRAPH);
+     }
+ 
+     private static void registerAutoPhotoModule(ModuleManager moduleManager, final int moduleId,
+@@ -884,4 +892,54 @@
+             }
+         });
+     }
++    private static void registerSmileShutterModule(ModuleManager moduleManager,
++                                             final int moduleId, final String namespace) {
++        moduleManager.registerModule(new ModuleManager.ModuleAgent() {
++            @Override
++            public int getModuleId() {
++                return moduleId;
++            }
++
++            @Override
++            public boolean requestAppForCamera() {
++                return true;
++            }
++
++            @Override
++            public String getScopeNamespace() {
++                return namespace;
++            }
++
++            @Override
++            public ModuleController createModule(AppController app,
++                                                 Intent intent) {
++                return new SmileShutterModule(app);
++            }
++        });
++    }
++    private static void registerPhotoGraphModule(ModuleManager moduleManager,
++                                                   final int moduleId, final String namespace) {
++        moduleManager.registerModule(new ModuleManager.ModuleAgent() {
++            @Override
++            public int getModuleId() {
++                return moduleId;
++            }
++
++            @Override
++            public boolean requestAppForCamera() {
++                return true;
++            }
++
++            @Override
++            public String getScopeNamespace() {
++                return namespace;
++            }
++
++            @Override
++            public ModuleController createModule(AppController app,
++                                                 Intent intent) {
++                return new PhotoGraphModule(app);
++            }
++        });
++    }
+ }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/settings/SettingsScopeNamespaces.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/settings/SettingsScopeNamespaces.java	(revision 172961)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/settings/SettingsScopeNamespaces.java	(revision 172962)
+@@ -32,7 +32,8 @@
+     public static final String AUDIO_PICTURE = "AudioPictureModule";
+     public static final String VGESTURE = "VgestureModule";
+     public static final String QR_CODE = "QrCode";
+-
++    public static final String SMILE_SHUTTER = "SmileShutter";
++    public static final String PHOTOGRAPH = "PhotoGraph";
+     // Video
+     public static final String VIDEO = "VideoModule";
+     public static final String AUTO_VIDEO = "AutoVideoModule";
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rCN/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rCN/strings.xml	(revision 172961)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rCN/strings.xml	(revision 172962)
+@@ -14,6 +14,8 @@
+     <string name="camera_mode_audio_picture">有声照片</string>
+     <string name="camera_mode_vgesture">V手势自拍</string>
+     <string name="camera_mode_qrcode">二维码</string>
++    <string name="camera_mode_smileshutter">笑脸拍照</string>
++    <string name="camera_mode_photograph">触摸拍照</string>
+     <string name="mode_timelapse">快录（延时）</string>
+     <string name="camera_mode_slowmotion">慢录</string>
+     <string name="slide_panel_capture">取景</string>
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/arrays.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/arrays.xml	(revision 172961)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/arrays.xml	(revision 172962)
+@@ -22,6 +22,8 @@
+         <item>@integer/camera_mode_audio_picture</item>
+         <item>@integer/camera_mode_vgesture</item>
+         <item>@integer/camera_mode_qrcode</item>
++        <item>@integer/camera_mode_smileshutter</item>
++        <item>@integer/camera_mode_photograph</item>
+         <item>@integer/camera_mode_filter</item>
+         <item>@integer/camera_mode_capture_intent</item>
+         <item>@integer/camera_mode_video_intent</item>
+@@ -52,6 +54,8 @@
+         <item>@integer/camera_mode_audio_picture</item>
+         <item>@integer/camera_mode_vgesture</item>
+         <item>@integer/camera_mode_qrcode</item>
++        <item>@integer/camera_mode_smileshutter</item>
++        <item>@integer/camera_mode_photograph</item>
+         <item>@integer/camera_mode_filter</item>
+         <item>@integer/camera_mode_capture_intent</item>
+         <item>@integer/camera_mode_video_intent</item>
+@@ -78,10 +82,12 @@
+     <integer name="camera_mode_audio_picture">16</integer>
+     <integer name="camera_mode_vgesture">17</integer>
+     <integer name="camera_mode_qrcode">18</integer>
+-    <integer name="camera_mode_max_index">18</integer>
+-    <integer name="camera_mode_filter">19</integer>
+-    <integer name="camera_mode_capture_intent">20</integer>
+-    <integer name="camera_mode_video_intent">21</integer>
++    <integer name="camera_mode_smileshutter">19</integer>
++    <integer name="camera_mode_photograph">20</integer>
++    <integer name="camera_mode_max_index">20</integer>
++    <integer name="camera_mode_filter">21</integer>
++    <integer name="camera_mode_capture_intent">22</integer>
++    <integer name="camera_mode_video_intent">23</integer>
+ 
+     <array name="camera_mode_icon">
+         <item>@drawable/ic_auto_mode_sprd_unselected</item>
+@@ -104,6 +110,8 @@
+         <item>@drawable/ic_pic_with_sound_mode_sprd_unselected</item>
+         <item>@drawable/ic_gesture_mode_sprd_unselected</item>
+         <item>@drawable/ic_qr_code_mode_sprd_unselected</item>
++        <item>@drawable/ic_face_detect_status_sprd</item>
++        <item>@drawable/ic_face_detect_status_sprd</item>
+     </array>
+ 
+     <array name="camera_mode_selected_icon">
+@@ -127,6 +135,8 @@
+         <item>@drawable/ic_pic_with_sound_mode_sprd_selected</item>
+         <item>@drawable/ic_gesture_mode_sprd_selected</item>
+         <item>@drawable/ic_qr_code_mode_sprd_selected</item>
++        <item>@drawable/ic_face_detect_status_sprd</item>
++        <item>@drawable/ic_face_detect_status_sprd</item>
+     </array>
+ 
+     <string-array name="camera_mode_text">
+@@ -150,6 +160,8 @@
+         <item>@string/camera_mode_audio_picture</item>
+         <item>@string/camera_mode_vgesture</item>
+         <item>@string/camera_mode_qrcode</item>
++        <item>@string/camera_mode_smileshutter</item>
++        <item>@string/camera_mode_photograph</item>
+     </string-array>
+ 
+     <array name="camera_mode_cover_icon">
+@@ -199,6 +211,7 @@
+         <item>@string/camera_mode_audio_picture</item>
+         <item>@string/camera_mode_vgesture</item>
+         <item>@string/camera_mode_qrcode</item>
++        <item>@string/camera_mode_smileshutter</item>
+     </string-array>
+ 
+     <array name="dream_camera_mode_shutter_icon">
+@@ -258,6 +271,7 @@
+         <item>@integer/mode_support_photo</item>
+         <item>@integer/mode_support_photo</item>
+         <item>@integer/mode_support_photo</item>
++        <item>@integer/mode_support_photo</item>
+         <item>@integer/mode_support_none</item>
+         <item>@integer/mode_support_none</item>
+     </integer-array>
+@@ -286,6 +300,7 @@
+         <item>@integer/camera_support_all</item>
+         <item>@integer/camera_support_all</item>
+         <item>@integer/camera_support_all</item>
++        <item>@integer/camera_support_all</item>
+     </integer-array>
+ 
+     <array name="dream_camera_flashmode_icons" translatable="false">
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml	(revision 172961)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml	(revision 172962)
+@@ -14,6 +14,8 @@
+     <string name="camera_mode_audio_picture">Audio Picture</string>
+     <string name="camera_mode_vgesture">Vgesture</string>
+     <string name="camera_mode_qrcode">Qr Code</string>
++    <string name="camera_mode_smileshutter">Smile Shutter</string>
++    <string name="camera_mode_photograph">PhotoGraph</string>
+     <string name="mode_timelapse">TimeLapse</string>
+     <string name="camera_mode_slowmotion">SlowMotion</string>
+     <string name="slide_panel_capture">Photo</string>
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rTW/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rTW/strings.xml	(revision 172961)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rTW/strings.xml	(revision 172962)
+@@ -14,6 +14,8 @@
+     <string name="camera_mode_audio_picture">有聲照片</string>
+     <string name="camera_mode_vgesture">V手勢自拍</string>
+     <string name="camera_mode_qrcode">二維碼</string>
++    <string name="camera_mode_smileshutter">笑脸拍照</string>
++    <string name="camera_mode_photograph">触摸拍照</string>
+     <string name="mode_timelapse">快錄（延時）</string>
+     <string name="camera_mode_slowmotion">慢錄</string>
+     <string name="slide_panel_capture">取景</string>

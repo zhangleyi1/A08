@@ -1,0 +1,12 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java	(revision 178632)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java	(revision 178633)
+@@ -2589,6 +2589,7 @@
+         StorageUtil storageUtil = StorageUtil.getInstance();
+         storageUtil.initialize(mDataModule);
+         profile.stop("dream initialization");
++        updatePreferredStorage();
+         /* SPRD:fix bug524433 Filmstripview is not refresh when sdcard removed @{ */
+         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_MEDIA_EJECT);
+         intentFilter.addAction(Intent.ACTION_MEDIA_MOUNTED);

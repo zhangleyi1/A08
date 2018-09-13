@@ -1,0 +1,14 @@
+Index: device/sprd/scx35l/common/device.mk
+===================================================================
+--- device/sprd/scx35l/common/device.mk	(revision 171576)
++++ device/sprd/scx35l/common/device.mk	(revision 171577)
+@@ -154,7 +154,8 @@
+ 	frameworks/native/data/etc/android.hardware.touchscreen.xml:system/etc/permissions/android.hardware.touchscreen.xml \
+ 	frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml \
+ 	frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
+-	frameworks/native/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml
++	frameworks/native/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml \
++	frameworks/native/data/etc/android.software.sip.voip.xml:system/etc/permissions/android.software.sip.voip.xml
+ 
+ ifeq ($(strip $(BOARD_HAVE_CUSTOM_PARTITION)),true)
+ PRODUCT_COPY_FILES += $(ROOTCOMM)/root/init.sc8830_pad.rc:root/init.sc8830.rc

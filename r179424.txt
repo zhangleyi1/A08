@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/FocusOverlayManager.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/FocusOverlayManager.java	(revision 179423)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/FocusOverlayManager.java	(revision 179424)
+@@ -268,7 +268,7 @@
+                 return;
+             }
+ 
+-            //autoFocus();
++            autoFocus();
+             autoFocusCalled = true;
+         }
+ 

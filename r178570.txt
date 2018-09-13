@@ -1,0 +1,22 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java	(revision 178569)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java	(revision 178570)
+@@ -400,7 +400,16 @@
+         if (DEBUG) {
+             Log.d(TAG, "showAllView() is called, mRoot = " + mRoot) ;
+         }
+-
++	//add for bug 106314 start	
++		if (!Settings.canDrawOverlays(mContext)) {
++           Log.d(TAG, "! canDrawOverlays");
++           Intent mIntent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
++           mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++           mContext.startActivity(mIntent);
++      } else {
++            Log.d(TAG, "canDrawOverlays") ;
++        }
++	//add for bug 106314 end		
+         inflateView();
+ 
+         if(mRoot != null) {

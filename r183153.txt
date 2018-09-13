@@ -1,0 +1,36 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/lteinfo/LteInfo.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/lteinfo/LteInfo.java	(revision 183152)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/lteinfo/LteInfo.java	(revision 183153)
+@@ -112,12 +112,14 @@
+ 		tryRegisterImsListener();
+ 		setContentView(R.layout.lte_info);
+         SaveName = "atchannel" + mSimIndex;
++        mSubId = getSubIdbySlot(this, 0);
+ 		mNetworkOperatorName = mTelephonyManager.getNetworkOperatorName(mSubId);
+-        mNetworkOperator = mTelephonyManager.getNetworkOperatorForPhone(mSimIndex);
++        mNetworkOperator = mTelephonyManager.getSimOperator(mSubId);
++        //mNetworkOperator = mTelephonyManager.getNetworkOperatorForPhone(mSimIndex);
+ 		imsi = mTelephonyManager.getSubscriberId();
+ 		values=new String[17];
+ 	   	listView = (ListView) findViewById(R.id.info_list);
+-		imsi = mTelephonyManager.getSubscriberId();
++		imsi = mTelephonyManager.getSubscriberId(mSubId);
+ 		if (mNetworkOperator != null) {
+         	values[2] = mNetworkOperator;
+         } else {
+@@ -157,6 +159,14 @@
+         
+     }
+ 
++    public int getSubIdbySlot(Context ctx, int slot) {
++        int subid[] =  SubscriptionManager.getSubId(slot);
++        if(subid != null) {
++            return subid[0];
++        }
++        return SubscriptionManager.INVALID_SUBSCRIPTION_ID;
++    }
++
+ 	public String getIPAddress(Context context) {
+         NetworkInfo info = ((ConnectivityManager) context
+                 .getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();

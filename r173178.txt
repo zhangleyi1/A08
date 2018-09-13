@@ -1,0 +1,12 @@
+Index: packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java	(revision 173177)
++++ packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java	(revision 173178)
+@@ -297,6 +297,7 @@
+         if (len > 8 && input.startsWith("*#*#") && input.endsWith("#*#*")) {
+             final Intent intent = new Intent(SECRET_CODE_ACTION,
+                     Uri.parse("android_secret_code://" + input.substring(4, len - 4)));
++            intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+             context.sendBroadcast(intent);
+             return true;
+         }

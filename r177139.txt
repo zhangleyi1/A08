@@ -1,0 +1,25 @@
+Index: vendor/sprd/platform/packages/services/Telephony/res/values-in/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/services/Telephony/res/values-in/strings.xml	(revision 177138)
++++ vendor/sprd/platform/packages/services/Telephony/res/values-in/strings.xml	(revision 177139)
+@@ -50,4 +50,6 @@
+ </string-array>
+ <string name="network_registration_fail_title">"Jaringan pendaftaran gagal"</string>
+ <string name="network_registration_fail">"Pendaftaran jaringan gagal, apakah untuk membuka fungsi memilih otomatis?"</string>
++<string name="gsm_roaming_mode_title">Roaming GSM</string>
++<string name="gsm_roaming_mode_summary">Mode Jelajah Internasional</string>
+ </resources>
+Index: vendor/sprd/feature_configs/base/overlay/packages/services/Telephony/res/values-in/strings.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/packages/services/Telephony/res/values-in/strings.xml	(revision 177138)
++++ vendor/sprd/feature_configs/base/overlay/packages/services/Telephony/res/values-in/strings.xml	(revision 177139)
+@@ -4,7 +4,8 @@
+ <string name="data_always_online">"Data telepon selalu online"</string>
+ <string name="data_always_online_summary">"Memerlukan banyak daya baterai di beberapa koneksi telepon"</string>
+ <string name="data_always_online_dialog">"Menonaktifkan selalu data telepon online akan mengakibatkan masalah koneksi di beberapa aplikasi. Silahkan menggunakan fitur menyegarkan secara manual di aplikasi untuk memperbarui data online."</string>
+-<string name="preferred_data_roaming_title">"Roaming data"</string>
++<string name="preferred_data_roaming_title">"Roaming Data"</string>
++<string name="preferred_data_roaming_title_smartfren">Roaming Data</string>
+ <string name="preferred_data_roaming_summary">"Hanya roaming Nasional"</string>
+ <string name="preferred_data_roaming_dialogtitle">"Roaming data"</string>
+ <string name="preferred_data_roaming_disable">"Nonaktifkan"</string>

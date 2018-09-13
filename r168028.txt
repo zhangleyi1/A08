@@ -1,0 +1,66 @@
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 168027)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 168028)
+@@ -1230,22 +1230,33 @@
+                 return false;
+             }
+             boolean enhanced4gMode = !enhanced4gModePref.isChecked();
+-            enhanced4gModePref.setChecked(enhanced4gMode);
++            //enhanced4gModePref.setChecked(enhanced4gMode);
+ 
+             if (!enhanced4gMode) {
+                 AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                 dialog.setMessage(R.string.close_volte_info);
+-                dialog.setPositiveButton("ok",
++                dialog.setPositiveButton(R.string.confirm,
+                     new OnClickListener() {
+                         @Override
+                         public void onClick(DialogInterface dialog, int which) {
+                             // TODO Auto-generated method stub
++                            enhanced4gModePref.setChecked(enhanced4gMode);
++                            ImsManager.setEnhanced4gLteModeSetting(MobileNetworkSettings.this, enhanced4gModePref.isChecked());
+                         }
+                     });
+-                    dialog.create();
+-                    dialog.show();
++                dialog.setNegativeButton(R.string.votle_cancel,
++                    new OnClickListener() {
++                        @Override
++                        public void onClick(DialogInterface dialog, int which) {
++                            // TODO Auto-generated method stub
++                            enhanced4gModePref.setChecked(!enhanced4gMode);
++                        }
++                    });
++                dialog.setCancelable(false);
++                dialog.create();
++                dialog.show();
+             }
+-            ImsManager.setEnhanced4gLteModeSetting(this, enhanced4gModePref.isChecked());
++            //ImsManager.setEnhanced4gLteModeSetting(this, enhanced4gModePref.isChecked());
+         } else if (preference == mButtonDataRoam) {
+             if (DBG) log("onPreferenceTreeClick: preference == mButtonDataRoam.");
+ 
+Index: packages/services/Telephony/res/values-in-rID/string.xml
+===================================================================
+--- packages/services/Telephony/res/values-in-rID/string.xml	(revision 168027)
++++ packages/services/Telephony/res/values-in-rID/string.xml	(revision 168028)
+@@ -2,5 +2,7 @@
+     <string name="close_volte_info">Menonaktifkan VoLTE akan membuat Anda tidak dapat melakukan panggilan dan sms</string>
+     <string name="enhanced_4g_lte_mode_title">VoLTE Aktif</string>
+     <string name="enhanced_4g_lte_mode_summary">Gunakan VoLTE untuk pengalaman panggilan suara dan video yang lebih baik</string>
++    <string name="confirm">OKE</string>
++    <string name="votle_cancel">BATAL</string>
+ </resources>
+ 
+Index: packages/services/Telephony/res/values/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values/strings.xml	(revision 168027)
++++ packages/services/Telephony/res/values/strings.xml	(revision 168028)
+@@ -1334,4 +1334,6 @@
+     <string name="call_end_try_again">Please try again after the call is end.</string>
+     <!-- @} -->
+     <string name="close_volte_info">Disabling VoLTE will make call and sms unavailable. Are you sure?</string>
++    <string name="confirm">OK</string>
++    <string name="votle_cancel">CANCEL</string>
+ </resources>

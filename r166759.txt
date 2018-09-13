@@ -1,0 +1,26 @@
+Index: packages/apps/Dialer/res/layout-land/dialpad_fragment.xml
+===================================================================
+--- packages/apps/Dialer/res/layout-land/dialpad_fragment.xml	(revision 166758)
++++ packages/apps/Dialer/res/layout-land/dialpad_fragment.xml	(revision 166759)
+@@ -89,7 +89,7 @@
+         android:id="@+id/dialpad_floating_action_gsm_button"
+         android:layout_width="@dimen/floating_action_button_width_ex"
+         android:layout_height="@dimen/floating_action_button_height_ex"
+-        android:background="@drawable/fab_green_ex"
++        android:background="@drawable/fab_blue_ex"
+         android:layout_above="@id/dialpad_floating_action_button_margin_bottom"
+         android:layout_centerHorizontal="true"
+         android:src="@drawable/ic_gsm_call"
+Index: packages/apps/Dialer/res/layout/dialpad_fragment.xml
+===================================================================
+--- packages/apps/Dialer/res/layout/dialpad_fragment.xml	(revision 166758)
++++ packages/apps/Dialer/res/layout/dialpad_fragment.xml	(revision 166759)
+@@ -76,7 +76,7 @@
+         android:id="@+id/dialpad_floating_action_gsm_button"
+         android:layout_width="@dimen/floating_action_button_width_ex"
+         android:layout_height="@dimen/floating_action_button_height_ex"
+-        android:background="@drawable/fab_green_ex"
++        android:background="@drawable/fab_blue_ex"
+         android:layout_above="@id/dialpad_floating_action_button_margin_bottom"
+         android:layout_centerHorizontal="true"
+         android:src="@drawable/ic_gsm_call"

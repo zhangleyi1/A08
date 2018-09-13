@@ -1,0 +1,48 @@
+Index: kernel/drivers/input/misc/stk3x1x.c
+===================================================================
+--- kernel/drivers/input/misc/stk3x1x.c	(revision 172639)
++++ kernel/drivers/input/misc/stk3x1x.c	(revision 172640)
+@@ -227,7 +227,7 @@
+ 	if (IS_ERR(fp))
+ 	{
+ 		printk("[stk3x1x %s] no PS calibration file(%d)\n", __func__, (int)IS_ERR(fp));
+-		return -EINVAL;
++		//return -EINVAL;
+ 	}
+ 	else
+ 	{
+@@ -713,6 +713,7 @@
+     int err;
+     uint8_t w_state_reg;
+     uint8_t curr_ps_enable;
++	int32_t reading;
+ 
+     err=stk3x1x_init_all_setting(this_client,ps_data->pdata);//xiexie  weishenme zai zheli 
+      if( err < 0)
+@@ -756,6 +757,26 @@
+ 		}
+ #endif
+ 
++		msleep(60);
++		reading = stk3x1x_get_ps_reading(ps_data);
++		//PRINT_WARN("### reading :%d\n",reading);
++
++		if(reading >  ps_data->ps_thd_h)
++		{
++			//near:0
++			ps_data->ps_input_dev->absinfo[ABS_DISTANCE].value = 1;
++			input_report_abs(ps_data->ps_input_dev, ABS_DISTANCE, 0);
++			input_sync(ps_data->ps_input_dev);
++			wake_lock_timeout(&ps_data->ps_wakelock, 3*HZ);
++		}
++		else
++		{
++			//far:1
++			ps_data->ps_input_dev->absinfo[ABS_DISTANCE].value = 0;
++			input_report_abs(ps_data->ps_input_dev, ABS_DISTANCE, 1);
++			input_sync(ps_data->ps_input_dev);
++			wake_lock_timeout(&ps_data->ps_wakelock, 3*HZ);			
++		}		
+     }
+     else{
+         ps_data->ps_enabled = 0;

@@ -1,0 +1,124 @@
+Index: packages/apps/Launcher3/res/drawable-hdpi/unread_info_symbol.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/unread_info_symbol.png
+===================================================================
+--- packages/apps/Launcher3/res/drawable-hdpi/unread_info_symbol.png	(revision 0)
++++ packages/apps/Launcher3/res/drawable-hdpi/unread_info_symbol.png	(revision 166430)
+
+Property changes on: packages/apps/Launcher3/res/drawable-hdpi/unread_info_symbol.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/plugins/packages/apps/Launcher3/addons/UnreadInfo/src/plugins/sprd/unreadinfo/UnreadInfoManagerAddon.java
+===================================================================
+--- vendor/sprd/plugins/packages/apps/Launcher3/addons/UnreadInfo/src/plugins/sprd/unreadinfo/UnreadInfoManagerAddon.java	(revision 166429)
++++ vendor/sprd/plugins/packages/apps/Launcher3/addons/UnreadInfo/src/plugins/sprd/unreadinfo/UnreadInfoManagerAddon.java	(revision 166430)
+@@ -121,7 +121,8 @@
+     private float mMiddleTextSize = 12;
+     private float mSmallTextSize = 10;
+     private Drawable mBackground;
+-
++	private Drawable mUnreadSymbol;
++	
+     private boolean mUpdateUnreadInfoTheFirstTime;
+     private IconCache mIconCache;
+     private UserHandleCompat mUser;
+@@ -149,7 +150,8 @@
+                 R.dimen.unread_info_small_text_size);
+         mBackground = mContext.getResources().getDrawable(
+                 R.drawable.unread_info_background);
+-
++		mUnreadSymbol=mContext.getResources().getDrawable(
++                R.drawable.unread_info_symbol);
+         PackageManager pm = mContext.getPackageManager();
+         List<PackageInfo> list = pm
+                 .getInstalledPackages(PackageManager.GET_UNINSTALLED_PACKAGES);
+@@ -589,15 +591,29 @@
+                 paint.setTextSize(mSmallTextSize);
+                 break;
+         }
++		if(unreadNum <= MAX_UNREAD_COUNT){
++			int cbWidth = mUnreadSymbol.getIntrinsicWidth();
++        	int cbHeight = mUnreadSymbol.getIntrinsicHeight();
++			Canvas canvas = new Canvas();
++        	Bitmap compoundBmp = Bitmap.createBitmap(cbWidth, cbHeight,
++                Bitmap.Config.ARGB_8888);
++        	canvas.setBitmap(compoundBmp);
++        	mUnreadSymbol.setBounds(0, 0, cbWidth, cbHeight);
++        	mUnreadSymbol.draw(canvas);
++			Bitmap finalBitmap = origin.copy(Bitmap.Config.ARGB_8888, true);
++        	canvas.setBitmap(finalBitmap);
++        	canvas.drawBitmap(compoundBmp, /*0*/ origin.getWidth()-cbWidth, 0, null);
++        	compoundBmp.recycle();
++        	return finalBitmap;
++		}else{	
++        	int bgWidth = mBackground.getIntrinsicWidth();
++        	int bgHeight = mBackground.getIntrinsicHeight();
+ 
+-        int bgWidth = mBackground.getIntrinsicWidth();
+-        int bgHeight = mBackground.getIntrinsicHeight();
++        	Rect textBounds = new Rect();
++        	paint.getTextBounds(finalText, 0, finalText.length(), textBounds);
+ 
+-        Rect textBounds = new Rect();
+-        paint.getTextBounds(finalText, 0, finalText.length(), textBounds);
++        	int textHeight = textBounds.height();
+ 
+-        int textHeight = textBounds.height();
+-
+         // Why we not use textBounds.width() as textWidth?
+         // After test on devices, use the measured width is more precise to
+         // center
+@@ -618,16 +634,16 @@
+         // 71%.
+         // If the background resource changed, the percentage here also need to
+         // be change.
+-        int circleHeight = (int) (bgHeight * 0.71);
++        	int circleHeight = (int) (bgHeight * 0.71);
+ 
+-        Canvas canvas = new Canvas();
+-        Bitmap compoundBmp = Bitmap.createBitmap(bgWidth, bgHeight,
++        	Canvas canvas = new Canvas();
++        	Bitmap compoundBmp = Bitmap.createBitmap(bgWidth, bgHeight,
+                 Bitmap.Config.ARGB_8888);
+-        canvas.setBitmap(compoundBmp);
+-        mBackground.setBounds(0, 0, bgWidth, bgHeight);
+-        mBackground.draw(canvas); // draw background
++        	canvas.setBitmap(compoundBmp);
++        	mBackground.setBounds(0, 0, bgWidth, bgHeight);
++        	mBackground.draw(canvas); // draw background
+ 
+-        int x = (bgWidth - textWidth) / 2;
++        	int x = (bgWidth - textWidth) / 2;
+ 
+         // Why we add circleHeight by 1 pixel?
+         // As we can see from the background bitmap resource file, there has 1
+@@ -644,16 +660,16 @@
+         // in the center of the background. The guy who design the background
+         // resource
+         // bitmap is to be blame.
+-        int y = (circleHeight + 1) - (circleHeight - textHeight) / 2;
++        	int y = (circleHeight + 1) - (circleHeight - textHeight) / 2;
+ 
+-        canvas.drawText(finalText, x, y, paint);
++        	canvas.drawText(finalText, x, y, paint);
+         
+-        Bitmap finalBitmap = origin.copy(Bitmap.Config.ARGB_8888, true);
+-        canvas.setBitmap(finalBitmap);
+-        canvas.drawBitmap(compoundBmp, /*0*/ origin.getWidth()-bgWidth, 0, null);
+-
+-        compoundBmp.recycle();
+-        return finalBitmap;
++        	Bitmap finalBitmap = origin.copy(Bitmap.Config.ARGB_8888, true);
++        	canvas.setBitmap(finalBitmap);
++        	canvas.drawBitmap(compoundBmp, /*0*/ origin.getWidth()-bgWidth, 0, null);
++        	compoundBmp.recycle();
++        	return finalBitmap;
++		}
+     }
+ 
+     public void resetComponentsUnreadInfoChangedValue() {

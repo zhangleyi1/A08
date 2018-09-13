@@ -1,0 +1,18 @@
+Index: packages/apps/Settings/src/com/android/settings/sim/SimSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/sim/SimSettings.java	(revision 167118)
++++ packages/apps/Settings/src/com/android/settings/sim/SimSettings.java	(revision 167119)
+@@ -656,8 +656,11 @@
+                         && !WirelessUtils.isAirplaneModeOn(mContext) && !isRadioBusy()
+                         && !isPhoneInCall();
+                 mSwitch.setEnabled(canSetSimEnabled);
+-                mSwitch.setVisibility(View.VISIBLE);
+-            }
++			//fix for bug 93092 by zhangchi start 	
++            //  mSwitch.setVisibility(View.VISIBLE);
++				if(mSlotId==0){mSwitch.setVisibility(View.GONE); }else{mSwitch.setVisibility(View.VISIBLE);}
++			//fix for bug 93092 by zhangchi end  	
++		  }
+         }
+ 
+ 

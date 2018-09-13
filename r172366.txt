@@ -1,0 +1,35 @@
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/DefaultContactListAdapter.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/DefaultContactListAdapter.java	(revision 172365)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/DefaultContactListAdapter.java	(revision 172366)
+@@ -300,7 +300,15 @@
+                 break;
+             }
+             case ContactListFilter.FILTER_TYPE_CUSTOM: {
+-                selection.append(Contacts.IN_VISIBLE_GROUP + "=1");
++                //selection.append(Contacts.IN_VISIBLE_GROUP + "=1");
++
++                selection.append(Contacts._ID + " IN ("
++                        + "SELECT DISTINCT contact_id FROM view_data"
++                        + " WHERE (mimetype = '" + GroupMembership.CONTENT_ITEM_TYPE + "' AND data1 IN "
++                        + "(SELECT groups._id FROM groups WHERE group_visible = 1)) or  "
++                        + "(account_name IN (SELECT account_name FROM settings WHERE ungrouped_visible = 1) "
++                        + "AND contact_id NOT IN (SELECT contact_id FROM view_data WHERE "
++                        + "mimetype = '" + GroupMembership.CONTENT_ITEM_TYPE + "')))");
+                 if (isCustomFilterForPhoneNumbersOnly()) {
+                     selection.append(" AND " + Contacts.HAS_PHONE_NUMBER + "=1");
+                 }
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/CustomContactListFilterActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/CustomContactListFilterActivity.java	(revision 172365)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/CustomContactListFilterActivity.java	(revision 172366)
+@@ -150,7 +150,8 @@
+                  *
+                  * @{
+                  */
+-                if (accountType.isExtension() && !account.hasData(context) || account.type.equals("sprd.com.android.account.phone")) {
++				 if (accountType.isExtension() && !account.hasData(context)) {
++               // if (accountType.isExtension() && !account.hasData(context) || account.type.equals("sprd.com.android.account.phone")) {
+                 /**
+                  * @}
+                  */

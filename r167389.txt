@@ -1,0 +1,54 @@
+Index: u-boot64/common/dloader/dl_cmd_proc.c
+===================================================================
+--- u-boot64/common/dloader/dl_cmd_proc.c	(revision 167388)
++++ u-boot64/common/dloader/dl_cmd_proc.c	(revision 167389)
+@@ -23,6 +23,17 @@
+ static root_stat_t root_stat;
+ 
+ static int enable_write_flash = 0;
++#define TEST_DUTKEY "Haier_Qingdao_HZDJ_SC9832_TN_Huashi_Weike;Smartfren_A36C5H_23052017_GF_4000mAh;S01"     //
++/* dut_key_t is used by researchdownload tool to record machine hardware information */
++#define DUT_ATTRIBUTE __attribute__((section(".rodata")))
++volatile static const struct {
++	uint8_t  serch_start[19];
++	uint8_t  ver[4];
++	uint8_t  szDUTKey[260];          // key
++	uint8_t  Reserved[760];
++	uint8_t  serch_end[17];
++} dut_key_t DUT_ATTRIBUTE = {"###DUT_KEY_BEGIN$$$", "A08\0", TEST_DUTKEY, {0}, "###DUT_KEY_END$$$"};
++
+ static void _decode_packet_data(dl_packet_t *packet, uchar * partition_name, uint32_t * size, uint32_t * checksum)
+ {
+ 	uint32_t  i = 0;
+@@ -40,6 +51,13 @@
+ 	return;
+ }
+ 
++void dl_enable_write_flash(void)
++{
++	printf("dut_key version: %s\n", dut_key_t.ver); //print dut_key just for compile the dut_key struct to the u-boot.bin
++	enable_write_flash = 1;
++	dl_send_ack(BSL_REP_ACK);
++} 
++
+ static __inline dl_cmd_type_t convert_operate_status(int err)
+ {
+ 	switch (err)
+@@ -237,6 +255,7 @@
+ 		dl_send_ack(BSL_REP_NOT_ENABLE_WRITE_FLASH);
+ 		return 0;
+ 	}
++
+ 	_parse_repartition_header(raw_data, &rp_info, &p_part_list);
+ 
+ 	if (0 == rp_info.version) {
+@@ -347,9 +366,3 @@
+ 	return 0;
+ }
+ 
+-void dl_enable_write_flash(void)
+-{
+-	enable_write_flash = 1;
+-	dl_send_ack(BSL_REP_ACK);
+-	
+-}

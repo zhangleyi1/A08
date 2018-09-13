@@ -1,0 +1,15 @@
+Index: packages/apps/Messaging/src/com/android/messaging/util/LinkifyUtil.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/util/LinkifyUtil.java	(revision 176998)
++++ packages/apps/Messaging/src/com/android/messaging/util/LinkifyUtil.java	(revision 176999)
+@@ -130,7 +130,9 @@
+         }
+ 
+         if ((mask & PHONE_NUMBERS) != 0) {
+-            gatherTelLinks(links, text);
++            //gatherTelLinks(links, text);
++			gatherLinksSprd(links, text, Patterns.PHONE,new String[] { "tel:" },sPhoneNumberMatchFilter, sPhoneNumberTransformFilter,mask);
++
+         }
+ 
+         if ((mask & MAP_ADDRESSES) != 0) {

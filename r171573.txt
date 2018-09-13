@@ -1,0 +1,171 @@
+Index: frameworks/base/packages/SystemUI/res/layout/super_status_bar.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/layout/super_status_bar.xml	(revision 171572)
++++ frameworks/base/packages/SystemUI/res/layout/super_status_bar.xml	(revision 171573)
+@@ -60,7 +60,7 @@
+ 
+     <include layout="@layout/status_bar"
+         android:layout_width="match_parent"
+-        android:layout_height="@dimen/status_bar_height_sp" />
++        android:layout_height="@dimen/status_bar_height" />
+ 
+     <include layout="@layout/brightness_mirror" />
+ 
+Index: frameworks/base/packages/SystemUI/res/layout/status_bar.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/layout/status_bar.xml	(revision 171572)
++++ frameworks/base/packages/SystemUI/res/layout/status_bar.xml	(revision 171573)
+@@ -30,7 +30,7 @@
+ 
+     <ImageView
+         android:id="@+id/notification_lights_out"
+-        android:layout_width="@dimen/status_bar_icon_size_sp"
++        android:layout_width="@dimen/status_bar_icon_size"
+         android:layout_height="match_parent"
+         android:paddingStart="6dip"
+         android:paddingBottom="2dip"
+Index: frameworks/base/packages/SystemUI/res/layout/system_icons.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/layout/system_icons.xml	(revision 171572)
++++ frameworks/base/packages/SystemUI/res/layout/system_icons.xml	(revision 171573)
+@@ -28,7 +28,7 @@
+ 
+     <include layout="@layout/signal_cluster_view"
+         android:layout_width="wrap_content"
+-        android:layout_height="18dp"
++        android:layout_height="14.5dp"
+         android:layout_marginStart="@dimen/signal_cluster_margin_start"/>
+ 
+      <!-- SPRD: Bug 474745 Add battery level percent feature @{ -->
+@@ -35,8 +35,8 @@
+      <!-- battery must be padded below to match assets -->
+      <com.android.systemui.BatteryMeterView
+          android:id="@+id/battery"
+-         android:layout_height="18dp"
+-         android:layout_width="12dp"
++         android:layout_height="14.5dp"
++         android:layout_width="9.5dp"
+          android:layout_marginBottom="@dimen/battery_margin_bottom"
+          android:layout_marginStart="3dp" />
+      <TextView
+Index: frameworks/base/packages/SystemUI/res/layout/notification_icon_area.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/layout/notification_icon_area.xml	(revision 171572)
++++ frameworks/base/packages/SystemUI/res/layout/notification_icon_area.xml	(revision 171573)
+@@ -21,7 +21,7 @@
+     android:layout_height="match_parent" >
+     <com.android.systemui.statusbar.StatusBarIconView
+         android:id="@+id/moreIcon"
+-        android:layout_width="@dimen/status_bar_icon_size_sp"
++        android:layout_width="@dimen/status_bar_icon_size"
+         android:layout_height="match_parent"
+         android:src="@drawable/stat_notify_more"
+         android:visibility="gone" />
+Index: frameworks/base/packages/SystemUI/res/layout/signal_cluster_view.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/layout/signal_cluster_view.xml	(revision 171572)
++++ frameworks/base/packages/SystemUI/res/layout/signal_cluster_view.xml	(revision 171573)
+@@ -79,12 +79,12 @@
+             <ImageView
+                 android:id="@+id/wifi_out"
+                 android:layout_width="wrap_content"
+-                android:layout_height="22dp"
++                android:layout_height="17dp"
+                 android:src="@drawable/ic_qs_signal_out" />
+             <ImageView
+                 android:id="@+id/wifi_in"
+                 android:layout_width="wrap_content"
+-                android:layout_height="22dp"
++                android:layout_height="17dp"
+                 android:src="@drawable/ic_qs_signal_in" />
+         </FrameLayout>
+         <!-- add wifi inOut icon in status bar Feature END -->
+Index: frameworks/base/packages/SystemUI/res/values/dimens.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 171572)
++++ frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 171573)
+@@ -37,13 +37,13 @@
+     <dimen name="status_bar_icon_size_sp">30dip</dimen>
+ 	
+     <!-- Height of the battery icon in the status bar. -->
+-    <dimen name="status_bar_battery_icon_height">18dp</dimen>
++    <dimen name="status_bar_battery_icon_height">14.5dp</dimen>
+ 
+     <!-- Width of the battery icon in the status bar. -->
+-    <dimen name="status_bar_battery_icon_width">12dp</dimen>
++    <dimen name="status_bar_battery_icon_width">9.5dp</dimen>
+ 
+     <!-- The font size for the clock in the status bar. -->
+-    <dimen name="status_bar_clock_size">16sp</dimen>
++    <dimen name="status_bar_clock_size">14sp</dimen>
+ 
+     <!-- The starting padding for the clock in the status bar. -->
+     <dimen name="status_bar_clock_starting_padding">7dp</dimen>
+@@ -88,7 +88,7 @@
+     <dimen name="notification_gear_padding">20dp</dimen>
+ 
+     <!-- size at which Notification icons will be drawn in the status bar -->
+-    <dimen name="status_bar_icon_drawing_size">22dip</dimen>
++    <dimen name="status_bar_icon_drawing_size">17dip</dimen>
+ 
+     <!-- opacity at which Notification icons will be drawn in the status bar -->
+     <item type="dimen" name="status_bar_icon_drawing_alpha">90%</item>
+@@ -133,13 +133,13 @@
+     <dimen name="close_handle_underlap">32dp</dimen>
+ 
+     <!-- Height of the status bar header bar -->
+-    <dimen name="status_bar_header_height">100dp</dimen>
++    <dimen name="status_bar_header_height">80dp</dimen>
+ 
+     <!-- Height of the status bar header bar when expanded -->
+     <dimen name="status_bar_header_height_expanded">116dp</dimen>
+ 
+     <!-- Height of the status bar header bar when on Keyguard -->
+-    <dimen name="status_bar_header_height_keyguard">50dp</dimen>
++    <dimen name="status_bar_header_height_keyguard">40dp</dimen>
+ 
+     <!-- Margin start of the system icons super container -->
+     <dimen name="system_icons_super_container_margin_start">16dp</dimen>
+@@ -183,7 +183,7 @@
+     <dimen name="qs_page_indicator_width">16dp</dimen>
+     <dimen name="qs_page_indicator_height">8dp</dimen>
+     <dimen name="qs_tile_icon_size">24dp</dimen>
+-    <dimen name="qs_tile_text_size">12sp</dimen>
++    <dimen name="qs_tile_text_size">10sp</dimen>
+     <dimen name="qs_tile_divider_height">1dp</dimen>
+     <dimen name="qs_panel_padding">16dp</dimen>
+     <dimen name="qs_dual_tile_height">112dp</dimen>
+@@ -358,13 +358,13 @@
+     <dimen name="multi_user_switch_width_expanded">48dp</dimen>
+ 
+     <!-- The width of user avatar when on Keyguard -->
+-    <dimen name="multi_user_switch_width_keyguard">44dp</dimen>
++    <dimen name="multi_user_switch_width_keyguard">34dp</dimen>
+ 
+     <!-- The width of user avatar when collapsed -->
+     <dimen name="multi_user_avatar_collapsed_size">22dp</dimen>
+ 
+     <!-- The width of user avatar when on Keyguard -->
+-    <dimen name="multi_user_avatar_keyguard_size">28dp</dimen>
++    <dimen name="multi_user_avatar_keyguard_size">22dp</dimen>
+ 
+     <!-- The width of user avatar when expanded -->
+     <dimen name="multi_user_avatar_expanded_size">24dp</dimen>
+@@ -440,7 +440,7 @@
+     <dimen name="keyguard_indication_margin_bottom">65dp</dimen>
+ 
+     <!-- The text size for battery level -->
+-    <dimen name="battery_level_text_size">16sp</dimen>
++    <dimen name="battery_level_text_size">14sp</dimen>
+ 
+     <!-- TrustDrawable: Minimum inner radius of the breathing animation -->
+     <dimen name="trust_circle_inner_radius_visible_min">22dp</dimen>
+@@ -662,7 +662,7 @@
+     <item name="recents_recents_row_dim_alpha" format="float" type="dimen">0.5</item>
+ 
+     <!-- bug 621129 -->
+-    <dimen name="notification_clock_area_margintop">39dp</dimen>
++    <dimen name="notification_clock_area_margintop">30dp</dimen>
+     <dimen name="activity_horizontal_margin">16dp</dimen>
+     <dimen name="activity_vertical_margin">16dp</dimen>
+     <dimen name="charger_line_height">2dp</dimen>

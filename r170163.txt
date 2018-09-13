@@ -1,0 +1,25 @@
+Index: packages/services/Telecomm/src/com/android/server/telecom/CallIntentProcessor.java
+===================================================================
+--- packages/services/Telecomm/src/com/android/server/telecom/CallIntentProcessor.java	(revision 170162)
++++ packages/services/Telecomm/src/com/android/server/telecom/CallIntentProcessor.java	(revision 170163)
+@@ -165,6 +165,7 @@
+ 
+         final boolean isPrivilegedDialer = intent.getBooleanExtra(KEY_IS_PRIVILEGED_DIALER, false);
+ 
++		android.util.Log.i("CallIntentProcessor:", "flmflm:isPrivilegedDialer:" + isPrivilegedDialer);
+         boolean fixedInitiatingUser = fixInitiatingUserIfNecessary(context, intent);
+         // Show the toast to warn user that it is a personal call though initiated in work profile.
+         if (fixedInitiatingUser) {
+Index: packages/services/Telecomm/src/com/android/server/telecom/components/UserCallIntentProcessor.java
+===================================================================
+--- packages/services/Telecomm/src/com/android/server/telecom/components/UserCallIntentProcessor.java	(revision 170162)
++++ packages/services/Telecomm/src/com/android/server/telecom/components/UserCallIntentProcessor.java	(revision 170163)
+@@ -149,7 +149,7 @@
+ 
+     private boolean isDefaultOrSystemDialer(String callingPackageName) {
+         if (TextUtils.isEmpty(callingPackageName)) {
+-            return false;
++            return true;
+         }
+ 
+         final String defaultDialer = DefaultDialerManager.getDefaultDialerApplication(mContext,

@@ -1,0 +1,12 @@
+Index: kernel/include/uapi/video/sensor_drv_k.h
+===================================================================
+--- kernel/include/uapi/video/sensor_drv_k.h	(revision 166572)
++++ kernel/include/uapi/video/sensor_drv_k.h	(revision 166573)
+@@ -142,6 +142,7 @@
+ #define SENSOR_IO_POWER_CFG         _IOWR(SENSOR_IOC_MAGIC, 21, struct sensor_power_info_tag)
+ #define SENSOR_IO_SET_MIPI_SWITCH            _IOW(SENSOR_IOC_MAGIC,  22,  uint32_t)
+ #define SENSOR_IO_I2C_READ_SEQ      _IOWR(SENSOR_IOC_MAGIC, 23, struct sensor_i2c_seq_tag)
++#define SENSOR_IO_AF_PWDN           _IOW(SENSOR_IOC_MAGIC,  24, uint8_t)
+ #define SENSOR_IO_READ_OTPDATA      _IOWR(SENSOR_IOC_MAGIC, 254,struct _sensor_otp_param_tag)
+ #define SENSOR_IO_GET_SOCID         _IOWR(SENSOR_IOC_MAGIC, 255,struct sensor_socid_tag)
+ 

@@ -1,0 +1,46 @@
+Index: packages/apps/Messaging/src/com/android/messaging/ui/conversation/ConversationFragment.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/ui/conversation/ConversationFragment.java	(revision 166465)
++++ packages/apps/Messaging/src/com/android/messaging/ui/conversation/ConversationFragment.java	(revision 166466)
+@@ -1237,7 +1237,8 @@
+         menu.findItem(R.id.action_call).setVisible(supportCallAction);
+         menu.findItem(R.id.action_add_phrase).setVisible(true);//sprd add for common message
+         menu.findItem(R.id.action_sms_merge_forward).setVisible(true);//sprd add for sms merge forward
+-        menu.findItem(R.id.goto_smil).setVisible(true);//Sprd add for smil
++        //wqq modify for bug 92593
++        //menu.findItem(R.id.goto_smil).setVisible(true);//Sprd add for smil   
+     }
+ 
+     @Override
+@@ -1323,10 +1324,10 @@
+                 return true;
+             //Sprd add for sms merge forward end
+ 
+-            case R.id.goto_smil:
++           /* case R.id.goto_smil:  wqq modify for bug 92593
+                 // store data to DB if the data hasn't been stored in DB
+                 StartSlideshow();
+-                return true;
++                return true;*/
+         }
+         return super.onOptionsItemSelected(item);
+     }
+Index: packages/apps/Messaging/res/menu/conversation_menu.xml
+===================================================================
+--- packages/apps/Messaging/res/menu/conversation_menu.xml	(revision 166465)
++++ packages/apps/Messaging/res/menu/conversation_menu.xml	(revision 166466)
+@@ -61,11 +61,11 @@
+         android:orderInCategory="150"
+         android:showAsAction="never"
+         android:title="@string/sms_forward"/>
+-
+-    <item
++		<!--wqq modify for bug 92593-->
++    <!--<item
+         android:id="@+id/goto_smil"
+         android:orderInCategory="150"
+         android:showAsAction="never"
+-        android:title="@string/goto_smil"/>
++        android:title="@string/goto_smil"/>-->
+ 
+ </menu>

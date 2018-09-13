@@ -1,0 +1,13 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/usb/StorageNotification.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/usb/StorageNotification.java	(revision 171927)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/usb/StorageNotification.java	(revision 171928)
+@@ -298,7 +298,7 @@
+ 		Notification.Builder builder = new Notification.Builder(mContext)
+ 			.setSmallIcon(R.drawable.ic_sd_card_48dp)
+ 			.setColor(mContext.getColor(R.color.system_notification_accent_color))
+-			.setContentTitle(title)
++			//.setContentTitle(title) //remove for 97606
+ 			.setContentText(text)
+ 			.setStyle(new Notification.BigTextStyle().bigText(text))
+ 			.setVisibility(Notification.VISIBILITY_PUBLIC)

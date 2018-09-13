@@ -1,0 +1,14 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/PageIndicator.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/PageIndicator.java	(revision 174394)
++++ packages/apps/Launcher3/src/com/android/launcher3/PageIndicator.java	(revision 174395)
+@@ -22,8 +22,8 @@
+ import android.util.AttributeSet;
+ import android.view.LayoutInflater;
+ import android.widget.LinearLayout;
++import android.view.View;
+ 
+-
+ import java.util.ArrayList;
+ 
+ public class PageIndicator extends LinearLayout {

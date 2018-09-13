@@ -1,0 +1,471 @@
+Index: frameworks/base/packages/SystemUI/res/values/dimens.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 175046)
++++ frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 175047)
+@@ -37,10 +37,10 @@
+     <dimen name="status_bar_icon_size_sp">30dip</dimen>
+ 	
+     <!-- Height of the battery icon in the status bar. -->
+-    <dimen name="status_bar_battery_icon_height">13dp</dimen>
++    <dimen name="status_bar_battery_icon_height">14dp</dimen>
+ 
+     <!-- Width of the battery icon in the status bar. -->
+-    <dimen name="status_bar_battery_icon_width">9dp</dimen>
++    <dimen name="status_bar_battery_icon_width">10dp</dimen>
+ 
+     <!-- The font size for the clock in the status bar. -->
+     <dimen name="status_bar_clock_size">14sp</dimen>
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_0_fully.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_0_fully.xml	(revision 175046)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_0_fully.xml	(revision 175047)
+@@ -1,9 +1,9 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="21dp"
+-    android:height="17dp"
+-    android:viewportWidth="21"
+-    android:viewportHeight="17">
++    android:width="31dp"
++    android:height="25dp"
++    android:viewportWidth="31"
++    android:viewportHeight="25">
+ 
+     <path
+         android:fillColor="#FFFFFF"
+@@ -10,5 +10,5 @@
+         android:fillAlpha="0.3"
+         android:strokeAlpha="0.3"
+         android:strokeWidth="1"
+-        android:pathData="M 16.124 4.499 L 12.375 7.135 L 8.625 9.77 L 4.875 12.407 L 1.126 15.042 L 4.875 15.042 L 8.625 15.042 L 12.375 15.042 L 16.124 15.042 L 19.874 15.042 L 19.874 1.864 Z" />
++        android:pathData="M 1 22.646 L 30 22.646 L 30 2.261 Z" />
+ </vector>
+\ No newline at end of file
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_1_fully.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_1_fully.xml	(revision 175046)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_1_fully.xml	(revision 175047)
+@@ -1,19 +1,17 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="21dp"
+-    android:height="17dp"
+-    android:viewportWidth="21"
+-    android:viewportHeight="17">
++    android:width="31dp"
++    android:height="25dp"
++    android:viewportWidth="31"
++    android:viewportHeight="25">
+ 
+     <path
+         android:fillColor="#FFFFFF"
+         android:fillAlpha="0.3"
+-        android:fillType="evenOdd"
+         android:strokeAlpha="0.3"
+         android:strokeWidth="1"
+-        android:pathData="M 16.124 4.499 L 12.375 7.135 L 8.625 9.77 L 4.875 12.407 L 4.875 15.042 L 8.625 15.042 L 12.375 15.042 L 16.124 15.042 L 19.874 15.042 L 19.874 1.864 Z" />
++        android:pathData="M 6.799 18.569 L 6.799 22.646 L 30 22.646 L 30 2.261 Z" />
+     <path
+         android:fillColor="#FFFFFF"
+-        android:fillType="evenOdd"
+-        android:pathData="M 1.126 15.042 L 4.875 15.042 L 4.875 12.407 Z" />
++        android:pathData="M 1 22.646 L 6.799 22.646 L 6.799 18.569 Z" />
+ </vector>
+\ No newline at end of file
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_2_fully.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_2_fully.xml	(revision 175046)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_2_fully.xml	(revision 175047)
+@@ -1,19 +1,17 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="21dp"
+-    android:height="17dp"
+-    android:viewportWidth="21"
+-    android:viewportHeight="17">
++    android:width="31dp"
++    android:height="25dp"
++    android:viewportWidth="31"
++    android:viewportHeight="25">
+ 
+     <path
+         android:fillColor="#FFFFFF"
+         android:fillAlpha="0.3"
+-        android:fillType="evenOdd"
+         android:strokeAlpha="0.3"
+         android:strokeWidth="1"
+-        android:pathData="M 16.124 4.499 L 12.375 7.135 L 8.625 9.77 L 8.625 15.042 L 12.375 15.042 L 16.124 15.042 L 19.874 15.042 L 19.874 1.864 Z" />
++        android:pathData="M 12.6 14.489 L 12.6 22.646 L 30 22.646 L 30 2.261 Z" />
+     <path
+         android:fillColor="#FFFFFF"
+-        android:fillType="evenOdd"
+-        android:pathData="M 4.875 12.407 L 1.126 15.042 L 4.875 15.042 L 8.625 15.042 L 8.625 9.77 Z" />
++        android:pathData="M 1 22.646 L 12.6 22.646 L 12.6 14.489 Z" />
+ </vector>
+\ No newline at end of file
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_3_fully.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_3_fully.xml	(revision 175046)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_3_fully.xml	(revision 175047)
+@@ -1,19 +1,17 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="21dp"
+-    android:height="17dp"
+-    android:viewportWidth="21"
+-    android:viewportHeight="17">
++    android:width="31dp"
++    android:height="25dp"
++    android:viewportWidth="31"
++    android:viewportHeight="25">
+ 
+     <path
+         android:fillColor="#FFFFFF"
+         android:fillAlpha="0.3"
+-        android:fillType="evenOdd"
+         android:strokeAlpha="0.3"
+         android:strokeWidth="1"
+-        android:pathData="M 16.124 4.499 L 12.375 7.135 L 12.375 15.042 L 16.124 15.042 L 19.874 15.042 L 19.874 1.864 Z" />
++        android:pathData="M 18.4 10.415 L 18.4 22.646 L 30 22.646 L 30 2.261 Z" />
+     <path
+         android:fillColor="#FFFFFF"
+-        android:fillType="evenOdd"
+-        android:pathData="M 8.625 9.77 L 4.875 12.407 L 1.126 15.042 L 4.875 15.042 L 8.625 15.042 L 12.375 15.042 L 12.375 7.135 Z" />
++        android:pathData="M 1 22.646 L 18.4 22.646 L 18.4 10.415 Z" />
+ </vector>
+\ No newline at end of file
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_4_fully.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_4_fully.xml	(revision 175046)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_4_fully.xml	(revision 175047)
+@@ -1,19 +1,17 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="21dp"
+-    android:height="17dp"
+-    android:viewportWidth="21"
+-    android:viewportHeight="17">
++    android:width="31dp"
++    android:height="25dp"
++    android:viewportWidth="31"
++    android:viewportHeight="25">
+ 
+     <path
+         android:fillColor="#FFFFFF"
+         android:fillAlpha="0.3"
+-        android:fillType="evenOdd"
+         android:strokeAlpha="0.3"
+         android:strokeWidth="1"
+-        android:pathData="M 16.124 15.042 L 19.874 15.042 L 19.874 1.864 L 16.124 4.499 Z" />
++        android:pathData="M 24.199 22.646 L 30 22.646 L 30 2.261 L 24.199 6.337 Z" />
+     <path
+         android:fillColor="#FFFFFF"
+-        android:fillType="evenOdd"
+-        android:pathData="M 12.375 7.135 L 8.625 9.77 L 4.875 12.407 L 1.126 15.042 L 4.875 15.042 L 8.625 15.042 L 12.375 15.042 L 16.124 15.042 L 16.124 4.499 Z" />
++        android:pathData="M 1 22.646 L 24.199 22.646 L 24.199 6.337 Z" />
+ </vector>
+\ No newline at end of file
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5_fully.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5_fully.xml	(revision 175046)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5_fully.xml	(revision 175047)
+@@ -1,11 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="21dp"
+-    android:height="17dp"
+-    android:viewportWidth="21"
+-    android:viewportHeight="17">
++    android:width="31dp"
++    android:height="25dp"
++    android:viewportWidth="31"
++    android:viewportHeight="25">
+ 
+     <path
+         android:fillColor="#FFFFFF"
+-        android:pathData="M 1.126 15.042 L 19.874 15.042 L 19.874 1.864 Z" />
++        android:pathData="M 1 22.646 L 30 22.646 L 30 2.261 Z" />
+ </vector>
+\ No newline at end of file
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_0.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_0.xml	(revision 175046)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_0.xml	(revision 175047)
+@@ -1,9 +1,9 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="21dp"
+-    android:height="17dp"
+-    android:viewportWidth="21"
+-    android:viewportHeight="17">
++    android:width="31dp"
++    android:height="25dp"
++    android:viewportWidth="31"
++    android:viewportHeight="25">
+ 
+     <path
+         android:fillColor="#FFFFFF"
+@@ -10,5 +10,5 @@
+         android:fillAlpha="0.3"
+         android:strokeAlpha="0.3"
+         android:strokeWidth="1"
+-        android:pathData="M 16.124 4.499 L 12.375 7.135 L 8.625 9.77 L 4.875 12.407 L 1.126 15.042 L 4.875 15.042 L 8.625 15.042 L 12.375 15.042 L 16.124 15.042 L 19.874 15.042 L 19.874 1.864 Z" />
++        android:pathData="M 1 22.646 L 30 22.646 L 30 2.261 Z" />
+ </vector>
+\ No newline at end of file
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_1.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_1.xml	(revision 175046)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_1.xml	(revision 175047)
+@@ -1,19 +1,17 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="21dp"
+-    android:height="17dp"
+-    android:viewportWidth="21"
+-    android:viewportHeight="17">
++    android:width="31dp"
++    android:height="25dp"
++    android:viewportWidth="31"
++    android:viewportHeight="25">
+ 
+     <path
+         android:fillColor="#FFFFFF"
+         android:fillAlpha="0.3"
+-        android:fillType="evenOdd"
+         android:strokeAlpha="0.3"
+         android:strokeWidth="1"
+-        android:pathData="M 16.124 4.499 L 12.375 7.135 L 8.625 9.77 L 4.875 12.407 L 4.875 15.042 L 8.625 15.042 L 12.375 15.042 L 16.124 15.042 L 19.874 15.042 L 19.874 1.864 Z" />
++        android:pathData="M 6.799 18.569 L 6.799 22.646 L 30 22.646 L 30 2.261 Z" />
+     <path
+         android:fillColor="#FFFFFF"
+-        android:fillType="evenOdd"
+-        android:pathData="M 1.126 15.042 L 4.875 15.042 L 4.875 12.407 Z" />
++        android:pathData="M 1 22.646 L 6.799 22.646 L 6.799 18.569 Z" />
+ </vector>
+\ No newline at end of file
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_2.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_2.xml	(revision 175046)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_2.xml	(revision 175047)
+@@ -1,19 +1,17 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="21dp"
+-    android:height="17dp"
+-    android:viewportWidth="21"
+-    android:viewportHeight="17">
++    android:width="31dp"
++    android:height="25dp"
++    android:viewportWidth="31"
++    android:viewportHeight="25">
+ 
+     <path
+         android:fillColor="#FFFFFF"
+         android:fillAlpha="0.3"
+-        android:fillType="evenOdd"
+         android:strokeAlpha="0.3"
+         android:strokeWidth="1"
+-        android:pathData="M 16.124 4.499 L 12.375 7.135 L 8.625 9.77 L 8.625 15.042 L 12.375 15.042 L 16.124 15.042 L 19.874 15.042 L 19.874 1.864 Z" />
++        android:pathData="M 12.6 14.489 L 12.6 22.646 L 30 22.646 L 30 2.261 Z" />
+     <path
+         android:fillColor="#FFFFFF"
+-        android:fillType="evenOdd"
+-        android:pathData="M 4.875 12.407 L 1.126 15.042 L 4.875 15.042 L 8.625 15.042 L 8.625 9.77 Z" />
++        android:pathData="M 1 22.646 L 12.6 22.646 L 12.6 14.489 Z" />
+ </vector>
+\ No newline at end of file
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_3.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_3.xml	(revision 175046)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_3.xml	(revision 175047)
+@@ -1,19 +1,17 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="21dp"
+-    android:height="17dp"
+-    android:viewportWidth="21"
+-    android:viewportHeight="17">
++    android:width="31dp"
++    android:height="25dp"
++    android:viewportWidth="31"
++    android:viewportHeight="25">
+ 
+     <path
+         android:fillColor="#FFFFFF"
+         android:fillAlpha="0.3"
+-        android:fillType="evenOdd"
+         android:strokeAlpha="0.3"
+         android:strokeWidth="1"
+-        android:pathData="M 16.124 4.499 L 12.375 7.135 L 12.375 15.042 L 16.124 15.042 L 19.874 15.042 L 19.874 1.864 Z" />
++        android:pathData="M 18.4 10.415 L 18.4 22.646 L 30 22.646 L 30 2.261 Z" />
+     <path
+         android:fillColor="#FFFFFF"
+-        android:fillType="evenOdd"
+-        android:pathData="M 8.625 9.77 L 4.875 12.407 L 1.126 15.042 L 4.875 15.042 L 8.625 15.042 L 12.375 15.042 L 12.375 7.135 Z" />
++        android:pathData="M 1 22.646 L 18.4 22.646 L 18.4 10.415 Z" />
+ </vector>
+\ No newline at end of file
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_4.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_4.xml	(revision 175046)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_4.xml	(revision 175047)
+@@ -1,19 +1,17 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="21dp"
+-    android:height="17dp"
+-    android:viewportWidth="21"
+-    android:viewportHeight="17">
++    android:width="31dp"
++    android:height="25dp"
++    android:viewportWidth="31"
++    android:viewportHeight="25">
+ 
+     <path
+         android:fillColor="#FFFFFF"
+         android:fillAlpha="0.3"
+-        android:fillType="evenOdd"
+         android:strokeAlpha="0.3"
+         android:strokeWidth="1"
+-        android:pathData="M 16.124 15.042 L 19.874 15.042 L 19.874 1.864 L 16.124 4.499 Z" />
++        android:pathData="M 24.199 22.646 L 30 22.646 L 30 2.261 L 24.199 6.337 Z" />
+     <path
+         android:fillColor="#FFFFFF"
+-        android:fillType="evenOdd"
+-        android:pathData="M 12.375 7.135 L 8.625 9.77 L 4.875 12.407 L 1.126 15.042 L 4.875 15.042 L 8.625 15.042 L 12.375 15.042 L 16.124 15.042 L 16.124 4.499 Z" />
++        android:pathData="M 1 22.646 L 24.199 22.646 L 24.199 6.337 Z" />
+ </vector>
+\ No newline at end of file
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5.xml	(revision 175046)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_5.xml	(revision 175047)
+@@ -1,11 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="21dp"
+-    android:height="17dp"
+-    android:viewportWidth="21"
+-    android:viewportHeight="17">
++    android:width="31dp"
++    android:height="25dp"
++    android:viewportWidth="31"
++    android:viewportHeight="25">
+ 
+     <path
+         android:fillColor="#FFFFFF"
+-        android:pathData="M 1.126 15.042 L 19.874 15.042 L 19.874 1.864 Z" />
++        android:pathData="M 1 22.646 L 30 22.646 L 30 2.261 Z" />
+ </vector>
+\ No newline at end of file
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml	(revision 175046)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml	(revision 175047)
+@@ -5,7 +5,9 @@
+     android:id="@+id/mobile_combo"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+-    android:gravity="center_vertical" >
++    android:gravity="center_vertical"
++    
++    >
+ 
+     <LinearLayout
+             android:id="@+id/mobile_linear_two"
+@@ -12,15 +14,19 @@
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:orientation="vertical"			
+-            android:gravity="center_horizontal">
++            android:gravity="center_horizontal"
++            >
+  	    <ImageView
+                 android:id="@+id/mobile_data_in_out"
+-                android:layout_width="wrap_content"
+-                android:layout_height="4.5dp" />
++                android:layout_width="7dp"
++                android:layout_height="5dp" />
+         <ImageView
+                 android:id="@+id/mobile_type"
+-                android:layout_width="wrap_content"
+-                android:layout_height="10dp"
++                android:layout_width="16dp"
++                android:layout_height="12dp"
++				android:layout_marginBottom="3dp"
++				android:scaleX="1.1"
++				
+ 		 />
+     </LinearLayout>
+     <View
+@@ -27,40 +33,49 @@
+         android:id="@+id/mobile_type_spacer"
+         android:layout_width="0dp"
+         android:layout_height="0dp"
+-        android:visibility="gone"
+-        />
++        android:visibility="gone"   />
+ 
+     <RelativeLayout
+         android:id="@+id/mobile_signal_type"
+-        android:layout_width="18dp"
+-        android:layout_height="wrap_content" >
+-	<ImageView
+-           android:id="@+id/mobile_type1"
+-           android:layout_width="8dp"
+-           android:layout_height="8dp" 
+-  	   android:layout_marginLeft="1dp"
+-		/>
+-    <ImageView
+-        android:id="@+id/mobile_roam_type"
+-        android:layout_width="9dp"
+-        android:layout_height="9dp"
+-        android:layout_marginLeft="0dp"
+-        />
++        android:layout_width="27dp"
++        android:layout_height="19dp"
++        
++        >
++	    
++        <ImageView
++            android:id="@+id/mobile_roam_type"
++            android:layout_width="9dp"
++            android:layout_height="9dp"
++            android:layout_centerHorizontal="true"
++            android:layout_alignParentTop="true"
++            />
++
++		<ImageView
++            android:id="@+id/mobile_type1"
++            android:layout_width="12dp"
++            android:layout_height="13dp" 
++  	        android:layout_alignParentTop="true"
++  	        android:layout_alignParentLeft="true"/>
++        
+         <com.android.systemui.statusbar.AnimatedImageView
+             android:theme="@style/DualToneLightTheme"
+             android:id="@+id/mobile_signal"
+-            android:layout_height="18.5dp"
+-            android:layout_width="wrap_content"
++            android:layout_height="19dp"
++            android:layout_width="22dp"
+             systemui:hasOverlappingRendering="false"
++			android:layout_marginBottom="1.6dp"
++			android:layout_alignParentRight="true"
+             />
+ 
+         <com.android.systemui.statusbar.AnimatedImageView
+             android:theme="@style/DualToneDarkTheme"
+             android:id="@+id/mobile_signal_dark"
+-            android:layout_height="18.5dp"
+-            android:layout_width="wrap_content"
++            android:layout_height="19dp"
++            android:layout_width="22dp"
+             android:alpha="0.0"
+             systemui:hasOverlappingRendering="false"
++			android:layout_marginBottom="1.6dp"
++			android:layout_alignParentRight="true"
+             />
+ 
+         <ImageView

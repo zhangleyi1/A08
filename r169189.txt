@@ -1,0 +1,17 @@
+Index: packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java	(revision 169188)
++++ packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java	(revision 169189)
+@@ -1200,7 +1200,11 @@
+                 mComposeEditText.setHint(R.string.compose_message_view_hint_text);
+             } else {
+                 mComposeEditText.setHint(R.string.compose_message_view_hint_text);
+-				mSendSMSButton.setImageDrawable(getResources().getDrawable(getConversationSelfId().equals(firstSimSelfId)? R.drawable.sim1 : R.drawable.sim2));
++				if(subscriptionListEntry.simSlotId == 2){
++					mSendSMSButton.setImageDrawable(getResources().getDrawable(R.drawable.sim2));
++				}else{
++					mSendSMSButton.setImageDrawable(getResources().getDrawable(R.drawable.sim1));
++				}
+             }
+         } else {
+             int type = -1;

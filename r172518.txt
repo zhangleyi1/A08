@@ -1,0 +1,181 @@
+Index: u-boot64/common/loader/boot_mode.c
+===================================================================
+--- u-boot64/common/loader/boot_mode.c	(revision 172517)
++++ u-boot64/common/loader/boot_mode.c	(revision 172518)
+@@ -98,8 +98,9 @@
+ 	set_vibrator(1);
+ 
+ 	extern void set_backlight(uint32_t value);
+-	lcd_printf("   fastboot mode");
+-
++	//lcd_printf("   fastboot mode");
++	fastboot_lcd_printf();
++	
+ 	set_backlight(255);
+ 	mdelay(400);
+ 	set_vibrator(0);
+Index: u-boot64/common/loader/loader_common.c
+===================================================================
+--- u-boot64/common/loader/loader_common.c	(revision 172517)
++++ u-boot64/common/loader/loader_common.c	(revision 172518)
+@@ -1,4 +1,5 @@
+ #include "loader_common.h"
++#include "../dloader/root_inspect.h"
+ #include <mmc.h>
+ #include <fat.h>
+ #if defined(CONFIG_OF_LIBFDT)
+@@ -376,3 +377,154 @@
+ #endif
+ 
+ }
++static root_stat_t root_stat;
++#define BASEBANDVER_BYTE_OFFSET 0xC0000
++char * getBasebandVersion()
++{	
++	char baseband_ver[64];
++	char baseband_read[64];
++	uint32_t i;
++	memset(baseband_ver, 0x0, 64);
++	strcpy(baseband_ver, "no baseband_version");
++	if(do_raw_data_read(PRODUCTINFO_FILE_PATITION, sizeof(baseband_read), BASEBANDVER_BYTE_OFFSET,(char*)baseband_read))
++	{	
++		debugf("read miscdata error.\n");
++		return baseband_ver;	
++	}
++	//	debugf("printread: %s\n",baseband_read);
++	
++	if(strlen(baseband_read)) {
++		memcpy(baseband_ver, baseband_read, 64);	
++	}
++	//int do_raw_data_read(char *part, u32 size, u32 off, char *buf)
++	//add some code ,like get_product_sn() or get_frp_status()
++	
++	return baseband_ver;
++}
++
++char * getSerialNumber(void)
++{
++	return get_product_sn();
++}
++
++u32 get_blStatus()
++{
++	u32 status=0;
++	status = get_fblockflag();
++	
++	return status;
++}
++
++u32 get_swStatus()
++{
++	u32 status=0;
++	//add some codes:
++	
++	return status;
++}
++
++#define FRP_STATUS_BYTE_OFFSET  ((2UL*1024*1024) - 1)
++
++static char* frpStatus;
++char* get_frp_status()
++{
++	char* pFrpPartition = "persist";
++	char flag = 0;
++
++	int ret = do_raw_data_read(pFrpPartition, 1, FRP_STATUS_BYTE_OFFSET, &flag);
++
++	if(ret < 0)
++	{
++		frpStatus = "Not supported";
++	}
++	else
++	{
++		frpStatus = (flag == 0) ? "Off" : "On";
++	}
++
++	return frpStatus;
++}
++
++u32 get_warrantyStatus()
++{
++	u32 status=0;
++	//add some codes:
++
++	return status;
++}
++
++void fastboot_lcd_printf(void)
++{
++	lcd_printf("   fastboot mode \n");
++	//display fixed item
++	lcd_printf("   Product Name : Andromax \n");
++	lcd_printf("   Variant : B26D2H \n");
++
++	// 1 Hw Version+	
++	lcd_printf("   HW Version : SC9832-A08A-V1.0.0 \n");
++	
++	// 2Display Bootloader version
++	lcd_printf("   Bootloader version : V1.0 \n");
++
++	// 3 Display Baseband Version
++	lcd_printf("   Baseband Version : W17_23_3 \n");
++	//lcd_printf("   Baseband Version : %s \n",getBasebandVersion());
++
++	//4:Serial Number
++	lcd_printf("   Serial Number : %s \n",getSerialNumber());
++
++	//5:Bootloader Status
++	u32 blStatus = get_blStatus();
++
++	if (blStatus==0){
++		lcd_printf("   Bootloader Status : Locked \n");
++	}
++	else if (blStatus==1){
++		lcd_printf("   Bootloader Status : Unlocked \n");
++	}
++	else if (blStatus==2){
++		lcd_printf("   Bootloader Status : Relocked \n");
++	}
++	else{
++		lcd_printf("   Bootloader Status : Error \n");
++	}
++
++	//6:Root Status
++	u32 rootFlag = get_rootflag(&root_stat);
++	if(rootFlag==0){
++		lcd_printf("   root status: Offical \n");
++	}
++	else if(rootFlag==1){
++		lcd_printf("   root status: Custom \n");
++	}
++	else{
++		lcd_printf("   root status: Error \n");
++	}
++
++	//7:Need customers to complete
++	//u32 swStatus = get_swStatus(); //same with root
++	if (rootFlag==0){
++		lcd_printf("   SW Status : Official \n");
++	}
++	else if(rootFlag==1){
++		lcd_printf("   SW Status : Custom \n");
++	}else{
++		lcd_printf("   SW Status : Error \n");
++	}
++
++	//8:FRP Status
++	//lcd_printf("   FRP Status : %s \n",get_frp_status());
++
++	//9:Display Warranty Status:
++	//decide by blStatus & rootFlag
++	//u32 wtStatus= get_warrantyStatus();
++	if ((blStatus == 0) && (rootFlag == 0)){
++		lcd_printf("   Warranty Status : OK \n");
++	}
++	else{
++		lcd_printf("  Warranty Status : VOID \n");
++	}
++	
++return;
++}
++

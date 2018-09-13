@@ -1,0 +1,52 @@
+Index: vendor/sprd/tools/ota/recovery_ui/librecovery_ui_whale2/sprd_device.cpp
+===================================================================
+--- vendor/sprd/tools/ota/recovery_ui/librecovery_ui_whale2/sprd_device.cpp	(revision 166623)
++++ vendor/sprd/tools/ota/recovery_ui/librecovery_ui_whale2/sprd_device.cpp	(revision 166624)
+@@ -18,6 +18,7 @@
+ #include "screen_ui.h"
+ 
+ static const char* MENU_ITEMS[] = {
++/*
+     "Reboot system now",
+     "Reboot to bootloader",
+     "Apply update from ADB",
+@@ -30,6 +31,11 @@
+     "Power off",
+     "check system partition",
+     NULL
++*/
++    "Reboot system now",
++    "Wipe data/factory reset",
++    "Wipe cache partition",
++    NULL
+ };
+ 
+ class SprdDevice : public Device {
+@@ -41,7 +47,9 @@
+   }
+ 
+   BuiltinAction InvokeMenuItem(int menu_position) {
++
+     switch (menu_position) {
++/*
+       case 0: return REBOOT;
+       case 1: return REBOOT_BOOTLOADER;
+       case 2: return APPLY_ADB_SIDELOAD;
+@@ -53,6 +61,10 @@
+       case 8: return RUN_GRAPHICS_TEST;
+       case 9: return SHUTDOWN;
+       case 10: return CHECK_ROOT;
++*/
++    case 0: return REBOOT;
++    case 1: return WIPE_DATA;
++    case 2: return WIPE_CACHE;
+       default: return NO_ACTION;
+     }
+   }
+
+Property changes on: vendor/sprd/tools/ota/recovery_ui/librecovery_ui_whale2/sprd_device.cpp
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/vendor/sprd/tools/ota/recovery_ui/librecovery_ui_whale2/sprd_device.cpp:r161844
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/tools/ota/recovery_ui/librecovery_ui_whale2/sprd_device.cpp:r165475
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/vendor/sprd/tools/ota/recovery_ui/librecovery_ui_whale2/sprd_device.cpp:r163708

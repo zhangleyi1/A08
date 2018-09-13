@@ -1,0 +1,21 @@
+Index: frameworks/base/telephony/java/android/telephony/SignalStrength.java
+===================================================================
+--- frameworks/base/telephony/java/android/telephony/SignalStrength.java	(revision 167629)
++++ frameworks/base/telephony/java/android/telephony/SignalStrength.java	(revision 167630)
+@@ -623,11 +623,11 @@
+     public int getGsmLevel() {
+         int level;
+ 				int dBm = getGsmDbm();  
+-				if (dBm <= -111) level = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;
+-				else if (dBm > -81) level = SIGNAL_STRENGTH_HIGHEST;
+-				else if (dBm > -97&&dBm < -81) level = SIGNAL_STRENGTH_GREAT;
+-				else if (dBm > -105&&dBm <= -97)  level = SIGNAL_STRENGTH_GOOD;
+-				else if (dBm > -109&&dBm <= -105)  level = SIGNAL_STRENGTH_MODERATE;
++				if (dBm <= -106) level = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;
++				else if (dBm > -86) level = SIGNAL_STRENGTH_HIGHEST;
++				else if (dBm > -91&&dBm < -86) level = SIGNAL_STRENGTH_GREAT;
++				else if (dBm > -96&&dBm <= -91)  level = SIGNAL_STRENGTH_GOOD;
++				else if (dBm > -101&&dBm <= -96)  level = SIGNAL_STRENGTH_MODERATE;
+ 				else   level = SIGNAL_STRENGTH_POOR;
+         // ASU ranges from 0 to 31 - TS 27.007 Sec 8.5
+         // asu = 0 (-113dB or less) is very weak

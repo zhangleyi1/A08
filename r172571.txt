@@ -1,0 +1,100 @@
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 172570)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 172571)
+@@ -1425,17 +1425,41 @@
+                     mPhone.getContext().getContentResolver(),
+                     android.provider.Settings.Global.GSM_ROAMING_ENABLED + phoneSubId, gsmRoamingPreference.isChecked() ? 1: 0);
+             android.util.Log.e("Tony","gsmRaomingOn = " + gsmRaomingOn + ",phoneSubId = " + phoneSubId);
+-            if(gsmRaomingOn && null != Integer.valueOf(phoneSubId) && phoneSubId > 0) {
+-                //send AT command for gsm roaming
+-                new AsyncTask<Void, Void, Void>() {
+-                    @Override
+-                    protected Void doInBackground(Void... voids) {
+-                        final TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+-                        tm.setNetworkSelectionModeAutomatic(phoneSubId);
+-                        return null;
+-                    }
+-                }.execute();
+-            }
++			if(gsmRaomingOn){
++				AlertDialog.Builder dialog = new AlertDialog.Builder(this);
++        		dialog.setTitle(R.string.roaming_mode);
++				dialog.setMessage(R.string.roaming_info);                
++				dialog.setPositiveButton(R.string.roaming_ok,                    
++				new OnClickListener() {                        
++				@Override                        
++					public void onClick(DialogInterface dialog, int which) {                           
++						gsmRoamingPreference.setChecked(gsmRaomingOn);
++					}                    
++				});                
++				dialog.setNegativeButton(R.string.roaming_cancle,                    
++				new OnClickListener() {                        
++				@Override                        
++					public void onClick(DialogInterface dialog, int which) {                            
++						gsmRoamingPreference.setChecked(!gsmRaomingOn);
++						if(gsmRaomingOn && null != Integer.valueOf(phoneSubId) && phoneSubId > 0) {
++                	//send AT command for gsm roaming
++                		new AsyncTask<Void, Void, Void>() {
++                    		@Override
++                   			 protected Void doInBackground(Void... voids) {
++                        		final TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
++                        		tm.setNetworkSelectionModeAutomatic(phoneSubId);
++                        		return null;
++                    		}
++                		  }.execute();
++            			}
++					}                    
++				});
++				dialog.setCancelable(false);
++				dialog.create();                
++				dialog.show();  
++
++			}
++           
+ 		}
+ 
+         updateBody();
+Index: packages/services/Telephony/res/values-in/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values-in/strings.xml	(revision 172570)
++++ packages/services/Telephony/res/values-in/strings.xml	(revision 172571)
+@@ -557,4 +557,9 @@
+     <string name="message_decode_error" msgid="3456481534066924855">"Terjadi kesalahan saat mendekode pesan."</string>
+     <string name="callFailed_cdma_activation" msgid="2307989779233262164">"Kartu SIM telah mengaktifkan layanan dan memperbarui kemampuan roaming ponsel."</string>
+     <string name="callFailed_cdma_call_limit" msgid="1556916577171457086">"Ada terlalu banyak panggilan aktif. Akhiri atau gabungkan panggilan yang ada sebelum melakukan panggilan baru."</string>
+-</resources>
++	<string name="roaming_mode">Mode roaming</string>
++	<string name="roaming_cancle">Membatalkan</string>
++	<string name="roaming_ok">Baik</string>
++	<string name="roaming_info">Modus jaringan perangkat akan beralih ke mode LTE/GMS dan perangkat
++		Akan didorong untuk berkelana di jaringan mitra roaming Smartfren LTE/GMS. Biaya panggilan mungkin dikenakan!</string>
++	</resources>
+Index: packages/services/Telephony/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values-zh-rCN/strings.xml	(revision 172570)
++++ packages/services/Telephony/res/values-zh-rCN/strings.xml	(revision 172571)
+@@ -568,4 +568,8 @@
+ 	<string name="votle_cancel">"取消"</string>
+ 	<string name="gsm_roaming_mode_title">"GSM漫游"</string>
+     <string name="gsm_roaming_mode_summary">"国际漫游模式"</string>
++	<string name="roaming_mode">漫游模式</string>
++	<string name="roaming_cancle">取消</string>
++	<string name="roaming_ok">确认</string>
++	<string name="roaming_info">设备网络模式将切换到LTE/GMS模式,并在Smartfren LTE/GMS漫游伙伴网络上推动漫游。发送费用可能会产生！</string>
+ </resources>
+Index: packages/services/Telephony/res/values/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values/strings.xml	(revision 172570)
++++ packages/services/Telephony/res/values/strings.xml	(revision 172571)
+@@ -1345,5 +1345,9 @@
+     <string name="gsm_roaming_mode_title">Gsm Roaming</string>
+     <!-- Gsm Roaming summary [CHAR LIMIT=80] -->
+     <string name="gsm_roaming_mode_summary">International roaming mode</string>
+-	
++	<string name="roaming_mode">Roaming mode</string>
++	<string name="roaming_cancle">CANCLE</string>
++	<string name="roaming_ok">OK</string>
++	<string name="roaming_info">The device network mode will be switch to LTE/GMS mode and the device
++	    will be pushed to roam on Smartfren LTE/GMS roaming partner networks.Roaming charges may incur!</string>
+ </resources>

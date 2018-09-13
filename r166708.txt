@@ -1,0 +1,26 @@
+Index: packages/apps/Settings/res/values/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values/strings.xml	(revision 166707)
++++ packages/apps/Settings/res/values/strings.xml	(revision 166708)
+@@ -21,7 +21,7 @@
+     <string name="recovery_sdacrd_status" >No SD card</string>
+     <string name="recovery_updatefile_status" >The update.zip file was not found</string>
+     <string name="recovery_update_level" >Capacity of less than 35% can not start the upgrade operation, please recharge</string>
+-    <string name="recovery_no_package" >No update package file on SD card</string>
++    <string name="recovery_no_package" >No update package file on sd card</string>
+     <!-- Strings for Dialog yes button -->
+     <string name="yes">"Yes"</string>
+     <!-- Strings for Dialog no button -->
+@@ -7670,8 +7670,11 @@
+     <string name="current_label_phone">Phone</string>
+     <string name="memoryInfoText"><![CDATA[Free/Total Memory: [%1$s]/[%2$s]]]></string>
+     <string name="clear_btn_text">Stop</string>
++    <!-- SPRD:645023-->
++    <string name="public_volumes_permission">The guest or new user has no permission to access</string>
++
+     <string name="app_title">Task Manager</string>
+-	<!-- for custom requirements: gesture s -->
++    <!-- for custom requirements: gesture s -->
+     <string name="gesture_setting_title">Magic gesture</string>
+     <string name="gesture_setting_off_msg">When activate Magic-Touch Mode, you can launch the preset application rapidly by making the associated gesture with the screen off. You can also customize the launched application for each gesture. Pay attent when you enable secure lockscreen, you should unlock before enter the specified application for the sake of privacy. Pay attention the gesture should be finished in 1.5 seconds.</string>
+     <string name="gesture_setting_category_normal">COMMON</string>

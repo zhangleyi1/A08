@@ -1,0 +1,23 @@
+Index: packages/apps/Settings/src/com/android/settings/TestingSettingsBroadcastReceiver.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/TestingSettingsBroadcastReceiver.java	(revision 166705)
++++ packages/apps/Settings/src/com/android/settings/TestingSettingsBroadcastReceiver.java	(revision 166706)
+@@ -15,7 +15,8 @@
+ 
+ public class TestingSettingsBroadcastReceiver extends BroadcastReceiver {
+ 	//fix bug for:89797
+-	Uri factoyUri = Uri.parse("android_secret_code://38378");
++    Uri factoyUri = Uri.parse("android_secret_code://38378");
++    Uri factoyUri_73 = Uri.parse("android_secret_code://73");
+     public TestingSettingsBroadcastReceiver() {
+     }
+     
+@@ -30,7 +31,7 @@
+ 				i.setClass(context, TestingSettingsActivity.class);
+ 				i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+ 				context.startActivity(i);*/
+-				if(uri.equals(factoyUri)){
++				if(uri.equals(factoyUri) || uri.equals(factoyUri_73)){
+ 					Intent i = new Intent(Intent.ACTION_MAIN);
+ 					i.setComponent(new ComponentName("com.mediatek.factorymode","com.mediatek.factorymode.FactoryMode"));
+ 					i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

@@ -1,0 +1,16 @@
+Index: u-boot64/drivers/power/battery/fan54015.c
+===================================================================
+--- u-boot64/drivers/power/battery/fan54015.c	(revision 166876)
++++ u-boot64/drivers/power/battery/fan54015.c	(revision 166877)
+@@ -658,9 +658,9 @@
+ 	//hl7059_otg_enable(enable);
+ }
+ 
+-void sprdchg_hl7059_stop_charging(unsigned int flag)
++void sprdchg_hl7059_stop_charging(void)
+ {
+-	hl7059_set_chg_config(flag);
++	hl7059_set_chg_config(0);
+ }
+ 
+ void sprdchg_hl7059_set_cur(uint32_t cur)

@@ -1,0 +1,106 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/PhotoModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/PhotoModule.java	(revision 169208)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/PhotoModule.java	(revision 169209)
+@@ -2581,6 +2581,14 @@
+                                 sFreezeFrameControl.mFreezeVisible) {
+                             return true;
+                         }
++						// add by yujunjie for bug 93853 start
++						if (!Keys.isBurstOff(mActivity.getSettingsManager())){
++							if(!(mHandler.hasMessages(BUTST_START_CAPTURE) ||  mCameraState == SNAPSHOT_IN_PROGRESS)){
++								handleActionDown();
++                    		}
++                   			return true;
++                    	}
++						// add by yujunjie for bug 93853 end
+                         if (event.getRepeatCount() == 0) {
+                             /* SPRD:fix bug 473602 add for half-press @{ */
+                             if (keyCode == KeyEvent.KEYCODE_FOCUS) {
+@@ -2641,50 +2649,42 @@
+         switch (keyCode) {
+             case KeyEvent.KEYCODE_VOLUME_UP:
+             case KeyEvent.KEYCODE_VOLUME_DOWN:
+-                // SPRD:fix bug531893 volume is pressed in Burst mode
+-                if (mBurstMode) {
+-                    if (isFromKeyDown) {
+-                        handleActionUp();
+-                    }
+-                    return true;
+-                }
+-                /*
+-                 * SPRD:fix bug518054 ModeListView is appear when begin to capture using volume
+-                 * key@{
+-                 */
+-                mActivity.getCameraAppUI().hideModeList();
+-                /* }@ */
+-                if (/* mActivity.isInCameraApp() && */mFirstTimeInitialized &&
+-                        !mActivity.getCameraAppUI().isInIntentReview()) {
+-                    /* SPRD:Bug 535058 New feature: volume */
+-                    int volumeStatus = getVolumeControlStatus(mActivity);
+-                    if (volumeStatus == 1) {
+-                        handleActionUp();
+-                        // SPRD: Freeze display don't action the key_up event
+-                        if (sFreezeFrameControl != null &&
+-                                sFreezeFrameControl.mFreezeVisible) {
+-                            return true;
+-                        }
+-                        if (mUI.isCountingDown()) {
+-                            cancelCountDown();
+-                        } else {
+-                            mVolumeButtonClickedFlag = true;
+-                            /* SPRD:fix bug499275 Front DC can not capture through the Bluetooth@{ */
+-                            mActivity.getCameraAppUI().closeModeOptions();
+-                            /* }@ */
+-                            onShutterButtonClick();
+-                        }
+-                        /* SPRD:fix bug 496864 Can not capture twice using key of volumn @{ */
+-                        onShutterButtonFocus(false);
+-                        /* }@ */
+-                        return true;
+-                    } else if (volumeStatus == 2) {
+-                        return true;
+-                    } else if (volumeStatus == 3) {
+-                        return false;
+-                    }
+-                }
+-                return false;
++                if (mActivity != null && !Keys.isBurstOff(mActivity.getSettingsManager())){
++            		handleActionUp();
++            		return true;
++            	}
++            	else{
++            		//SPRD:fix bug531893 volume is pressed in Burst mode
++            		if (mBurstMode) {
++            			return true;
++            		}
++            		/* SPRD:fix bug518054 ModeListView is appear when begin to capture using volume
++            		 * key@{*/
++            		mActivity.getCameraAppUI().hideModeList();
++            		/* }@ */
++            		if (/* mActivity.isInCameraApp() && */mFirstTimeInitialized &&
++            				!mActivity.getCameraAppUI().isInIntentReview()) {
++            			// SPRD: Freeze display don't action the key_up event
++            			if (sFreezeFrameControl != null &&
++            					sFreezeFrameControl.mFreezeVisible) {
++            				return true;
++            			}
++            			if (mUI.isCountingDown()) {
++            				cancelCountDown();
++            			} else {
++            				mVolumeButtonClickedFlag = true;
++            				/* SPRD:fix bug499275 Front DC can not capture through the Bluetooth@{ */
++            				mActivity.getCameraAppUI().closeModeOptions();
++            				/* }@*/
++            				onShutterButtonClick();
++            			}
++            			/*SPRD:fix bug 496864 Can not capture twice using key of volumn @{*/
++            			onShutterButtonFocus(false);
++            			/* }@ */
++            			return true;
++            		}
++            	}
++            	return false;
+             case KeyEvent.KEYCODE_FOCUS:
+                 if (mFirstTimeInitialized) {
+                     // SPRD: Freeze display don't action the KEYCODE_FOCUS event

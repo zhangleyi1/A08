@@ -1,0 +1,84 @@
+Index: packages/apps/Settings/src/com/sprd/settings/SprdUsbSettingsFragment.java
+===================================================================
+--- packages/apps/Settings/src/com/sprd/settings/SprdUsbSettingsFragment.java	(revision 171589)
++++ packages/apps/Settings/src/com/sprd/settings/SprdUsbSettingsFragment.java	(revision 171590)
+@@ -60,7 +60,7 @@
+         mUsbChargeOnly = (RadioButtonPreference) findPreference(KEY_CHARGE_ONLY);
+         mMtp = (RadioButtonPreference) findPreference(KEY_MTP);
+         mPtp = (RadioButtonPreference) findPreference(KEY_PTP);
+-        mCdrom = (RadioButtonPreference) findPreference(KEY_CDROM);
++        //mCdrom = (RadioButtonPreference) findPreference(KEY_CDROM);
+         //mMidi = (RadioButtonPreference) findPreference(KEY_MIDI);
+         mUms = (RadioButtonPreference) findPreference(KEY_UMS);
+ 
+@@ -67,7 +67,7 @@
+         mUsbChargeOnly.setOnClickListener(this);
+         mMtp.setOnClickListener(this);
+         mPtp.setOnClickListener(this);
+-        mCdrom.setOnClickListener(this);
++        //mCdrom.setOnClickListener(this);
+         //mMidi.setOnClickListener(this);
+         mUms.setOnClickListener(this);
+         if (!SUPPORT_UMS) {
+@@ -134,10 +134,10 @@
+             mUsbManager.setCurrentFunction(UsbManager.USB_FUNCTION_PTP);
+         /*} else if (preference == mMidi) {
+             if (mMidi.isChecked()) return;
+-            mUsbManager.setCurrentFunction(UsbManager.USB_FUNCTION_MIDI);*/
++            mUsbManager.setCurrentFunction(UsbManager.USB_FUNCTION_MIDI);
+         } else if (preference == mCdrom) {
+             if (mCdrom.isChecked()) return;
+-            mUsbManager.setCurrentFunction(UsbManager.USB_FUNCTION_CDROM);
++            mUsbManager.setCurrentFunction(UsbManager.USB_FUNCTION_CDROM);*/
+         } else if (preference == mUms) {
+             if (mUms.isChecked()) return;
+             mUsbManager.setCurrentFunction(UsbManager.USB_FUNCTION_MASS_STORAGE);
+@@ -162,9 +162,9 @@
+             } else if (UsbManager.USB_FUNCTION_PTP.equals(mCurrentfunction)) {
+                 mPtp.setChecked(true);
+             /*} else if (UsbManager.USB_FUNCTION_MIDI.equals(mCurrentfunction)) {
+-                mMidi.setChecked(true);*/
++                mMidi.setChecked(true);
+             } else if (UsbManager.USB_FUNCTION_CDROM.equals(mCurrentfunction)) {
+-                mCdrom.setChecked(true);
++                mCdrom.setChecked(true);*/
+             } else if (UsbManager.USB_FUNCTION_MASS_STORAGE.equals(mCurrentfunction)) {
+                 mUms.setChecked(true);
+             }
+@@ -171,8 +171,8 @@
+         } else {
+             if (!mIsUnlocked) {
+                 mUsbChargeOnly.setChecked(true);
+-            } else if (UsbManager.USB_FUNCTION_CDROM.equals(mCurrentfunction)) {
+-                mCdrom.setChecked(true);
++            /*} else if (UsbManager.USB_FUNCTION_CDROM.equals(mCurrentfunction)) {
++                mCdrom.setChecked(true);*/
+             } else if (UsbManager.USB_FUNCTION_MASS_STORAGE.equals(mCurrentfunction)) {
+                 mUms.setChecked(true);
+             } else if (UsbManager.USB_FUNCTION_MTP.equals(mCurrentfunction)) {
+@@ -192,7 +192,7 @@
+         mMtp.setChecked(false);
+         mPtp.setChecked(false);
+         //mMidi.setChecked(false);
+-        mCdrom.setChecked(false);
++        //mCdrom.setChecked(false);
+         mUms.setChecked(false);
+     }
+ 
+Index: packages/apps/Settings/res/xml/sprd_usb_settings.xml
+===================================================================
+--- packages/apps/Settings/res/xml/sprd_usb_settings.xml	(revision 171589)
++++ packages/apps/Settings/res/xml/sprd_usb_settings.xml	(revision 171590)
+@@ -23,10 +23,10 @@
+         android:key="usb_midi"
+         android:title="@string/usb_midi_title"
+         android:summary="@string/usb_midi_summary" />-->
+-    <com.sprd.settings.RadioButtonPreference
++    <!--<com.sprd.settings.RadioButtonPreference
+         android:key="usb_virtual_drive"
+         android:title="@string/usb_virtual_drive"
+-        android:summary="@string/usb_virtual_drive_summary" />
++        android:summary="@string/usb_virtual_drive_summary" />-->
+     <com.sprd.settings.RadioButtonPreference
+         android:key="usb_storage"
+         android:title="@string/usb_storage"

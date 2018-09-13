@@ -1,0 +1,51 @@
+Index: packages/apps/Settings/src/com/android/settings/RadioInfo.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/RadioInfo.java	(revision 167735)
++++ packages/apps/Settings/src/com/android/settings/RadioInfo.java	(revision 167736)
+@@ -89,8 +89,8 @@
+     private static final String TAG = "RadioInfo";
+ 
+     private static final String[] mPreferredNetworkLabels = {
+-            "WCDMA preferred",
+-            "GSM only",
++            //"WCDMA preferred",
++            "GSM only"/*,
+             "WCDMA only",
+             "GSM auto (PRL)",
+             "CDMA auto (PRL)",
+@@ -111,7 +111,7 @@
+             "LTE/TD-SCDMA/UMTS",
+             "TD-SCDMA/CDMA/UMTS",
+             "Global/TD-SCDMA",
+-            "Unknown"
++            "Unknown"*/
+     };
+ 
+ 
+@@ -448,7 +448,7 @@
+ 
+         //set selection before registering to prevent update
+         preferredNetworkType.setSelection(mPreferredNetworkTypeResult, true);
+-        preferredNetworkType.setOnItemSelectedListener(mPreferredNetworkHandler);
++       // preferredNetworkType.setOnItemSelectedListener(mPreferredNetworkHandler);
+ 
+         radioPowerOnSwitch.setOnCheckedChangeListener(mRadioPowerOnChangeListener);
+         imsVoLteProvisionedSwitch.setOnCheckedChangeListener(mImsVoLteCheckedChangeListener);
+Index: packages/apps/Settings/res/layout/radio_info.xml
+===================================================================
+--- packages/apps/Settings/res/layout/radio_info.xml	(revision 167735)
++++ packages/apps/Settings/res/layout/radio_info.xml	(revision 167736)
+@@ -91,11 +91,13 @@
+                 android:layout_height="wrap_content"
+                 android:text="@string/radio_info_set_perferred_label"
+                 style="@style/info_label"
++                android:textColor="#CDC9C9"
+                 />
+ 
+         <Spinner android:id="@+id/preferredNetworkType"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
++                 android:clickable="false"
+                 />
+ 
+         <!-- Horizontal Rule -->

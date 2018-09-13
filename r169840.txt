@@ -1,0 +1,22 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PanelView.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PanelView.java	(revision 169839)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PanelView.java	(revision 169840)
+@@ -585,7 +585,7 @@
+         if (isFalseTouch(x, y)) {
+             return true;
+         }
+-        if (Math.abs(vectorVel) < mFlingAnimationUtils.getMinVelocityPxPerSecond()) {
++        if (false/*Math.abs(vectorVel) < mFlingAnimationUtils.getMinVelocityPxPerSecond()*/) {
+             return getExpandedFraction() > 0.5f;
+         } else {
+             return vel > 0;
+@@ -601,7 +601,7 @@
+         if (!mStatusBar.isFalsingThresholdNeeded()) {
+             return false;
+         }
+-        if (mFalsingManager.isClassiferEnabled()) {
++        if (false/*mFalsingManager.isClassiferEnabled()*/) {
+             return mFalsingManager.isFalseTouch();
+         }
+         if (!mTouchAboveFalsingThreshold) {

@@ -1,0 +1,415 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 173417)
++++ packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 173418)
+@@ -121,6 +121,7 @@
+ import com.android.launcher3.widget.WidgetsContainerView;
+ import com.sprd.PlatformHelper;
+ import com.sprd.ext.FeatureOption;
++import com.sprd.ext.LauncherExtCallbacks;
+ import com.sprd.ext.LogUtils;
+ import com.sprd.ext.ShakeSensorDetector;
+ import com.sprd.ext.SprdSettingsActivity;
+@@ -456,6 +457,9 @@
+ 
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
++        if(FeatureOption.SPRD_CUSTOM_CONTENT_SUPPORT) {
++            setLauncherCallbacks(new LauncherExtCallbacks(this));
++        }
+         if (DEBUG_STRICT_MODE) {
+             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                     .detectDiskReads()
+@@ -731,7 +735,7 @@
+         if (mLauncherCallbacks != null) {
+             return mLauncherCallbacks.hasCustomContentToLeft();
+         }
+-        return FeatureOption.SPRD_PIFLOW_SUPPORT;
++        return false;
+     }
+ 
+     /**
+@@ -4190,10 +4194,7 @@
+ 
+         // Create the custom content page (this call updates mDefaultScreen which calls
+         // setCurrentPage() so ensure that all pages are added before calling this).
+-        if (hasCustomContentToLeft()) {
+-            mWorkspace.createCustomContentContainer();
+-            populateCustomContentContainer();
+-        }
++        //move to Callback.finishBindingItems()
+     }
+ 
+     @Override
+@@ -4655,7 +4656,7 @@
+     }
+ 
+     /** Returns the search bar bounds in pixels. */
+-    protected Rect getSearchBarBounds() {
++    public Rect getSearchBarBounds() {
+         return mDeviceProfile.getSearchBarBounds(Utilities.isRtl(getResources()));
+     }
+ 
+Index: packages/apps/Launcher3/src/com/android/launcher3/Workspace.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Workspace.java	(revision 173417)
++++ packages/apps/Launcher3/src/com/android/launcher3/Workspace.java	(revision 173418)
+@@ -51,7 +51,6 @@
+ import android.util.SparseArray;
+ import android.view.Choreographer;
+ import android.view.Display;
+-import android.view.LayoutInflater;
+ import android.view.MotionEvent;
+ import android.view.View;
+ import android.view.ViewGroup;
+@@ -58,8 +57,6 @@
+ import android.view.accessibility.AccessibilityManager;
+ import android.view.animation.DecelerateInterpolator;
+ import android.view.animation.Interpolator;
+-import android.webkit.WebView;
+-import android.webkit.WebViewClient;
+ import android.widget.TextView;
+ 
+ import com.android.launcher3.FolderIcon.FolderRingAnimator;
+@@ -78,11 +75,10 @@
+ import com.android.launcher3.util.WallpaperUtils;
+ import com.android.launcher3.widget.PendingAddShortcutInfo;
+ import com.android.launcher3.widget.PendingAddWidgetInfo;
++import com.sprd.ext.dynamicIcon.DynamicIconUtils;
+ import com.sprd.ext.FeatureOption;
+ import com.sprd.ext.LogUtils;
+-import com.sprd.ext.UtilitiesExt;
+ import com.sprd.ext.circleslide.CircleSlideUtils;
+-import com.sprd.ext.dynamicIcon.DynamicIconUtils;
+ import com.sprd.ext.unreadnotifier.UnreadLoaderUtils;
+ 
+ import java.util.ArrayList;
+@@ -186,7 +182,6 @@
+     private SpringLoadedDragController mSpringLoadedDragController;
+     private float mSpringLoadedShrinkFactor;
+     private float mOverviewModeShrinkFactor;
+-    private ViewGroup piflow;
+ 
+     // State variable that indicates whether the pages are small (ie when you're
+     // in all apps or customize mode)
+@@ -625,9 +620,6 @@
+             setCurrentPage(getCurrentPage() + 1);
+         }
+ 
+-        if (FeatureOption.SPRD_PIFLOW_SUPPORT) {
+-            initPiflow(customScreen);
+-        }
+     }
+ 
+     public void removeCustomContentPage() {
+@@ -634,10 +626,7 @@
+         CellLayout customScreen = getScreenWithId(CUSTOM_CONTENT_SCREEN_ID);
+         if (customScreen == null) {
+             throw new RuntimeException("Expected custom content screen to exist");
+-        }
+ 
+-        if (FeatureOption.SPRD_PIFLOW_SUPPORT) {
+-            removePiflow();
+         }
+ 
+         mWorkspaceScreens.remove(CUSTOM_CONTENT_SCREEN_ID);
+@@ -1473,9 +1462,6 @@
+         mDelayedSnapToPageRunnable = r;
+         snapToPage(whichPage, duration);
+ 
+-        if (FeatureOption.SPRD_PIFLOW_SUPPORT) {
+-            changeCurrentPageBottomBar(whichPage);
+-        }
+     }
+ 
+     public void snapToScreenId(long screenId) {
+@@ -1807,9 +1793,6 @@
+             mLauncher.getHotseat().setTranslationX(translationX);
+         }
+ 
+-        if (mLauncher.getSearchDropTargetBar() != null) {
+-            mLauncher.getSearchDropTargetBar().setTranslationX(translationX);
+-        }
+ 
+         if (getPageIndicator() != null) {
+             getPageIndicator().setTranslationX(translationX);
+@@ -4790,75 +4773,10 @@
+     }
+     // SPRD add for SPRD_SETTINGS_ACTIVITY_SUPPORT end }
+ 
+-    private void initPiflow(CellLayout cellLayout){
+-        LogUtils.d(TAG, "initPiflow.");
+-        try{
+-            piflow = (ViewGroup)getPiflow();
+-            if(piflow!=null){
+-                cellLayout.addPiflowView(piflow);
+-                cellLayout.setPiflow(true);
+-            }
+-        }catch(Exception e){
+-            e.printStackTrace();
+-        }
+-    }
+ 
+-    private void removePiflow(){
+-        try{
+-            if(piflow!=null){
+-                piflow.removeAllViews();
+-            }
+-        }catch(Exception e){
+-            e.printStackTrace();
+-        }
+-    }
+ 
+-    private void changeCurrentPageBottomBar(int whichPage){
+-        CellLayout cell = (CellLayout)getChildAt(whichPage);
+-        if(cell.isPiflow()){
+-            showBotoomBar(false);
+-            if (!FeatureOption.SPRD_PIFLOW_STATUSBAR_SUPPORT) {
+-                UtilitiesExt.enableFullScreenMode(mLauncher, true);
+-            }
+-        }else{
+-            showBotoomBar(true);
+-            if (!FeatureOption.SPRD_PIFLOW_STATUSBAR_SUPPORT) {
+-                UtilitiesExt.enableFullScreenMode(mLauncher, false);
+-            }
+-        }
+-    }
+ 
+-    private void showBotoomBar(boolean flag){
+-        if(flag){
+-            mLauncher.showWorkspaceSearchAndHotseat();
+-            mLauncher.getHotseat().setVisibility(View.VISIBLE);
+-        }else{
+-            mLauncher.hideWorkspaceSearchAndHotseat();
+-            mLauncher.getHotseat().setVisibility(View.GONE);
+-        }
+-    }
+ 
+-    public View getPiflow(){
+ 
+-        if (!FeatureOption.SPRD_PIFLOW_SUPPORT) {
+-            return null;
+-        }
+ 
+-        WebView piflowView = null;
+-        try{
+-            LayoutInflater inflater = LayoutInflater.from(mLauncher);
+-            piflowView = (WebView)inflater.inflate(R.layout.web_view, null);
+-            piflowView.loadUrl("https://www.google.com");
+-            piflowView.setWebViewClient(new WebViewClient(){
+-                @Override
+-                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+-                    view.loadUrl(url);
+-                    return true;
+-                }
+-            });
+-        } catch(Exception e) {
+-            e.printStackTrace();
+-        }
+-        return piflowView;
+-    }
+ }
+Index: packages/apps/Launcher3/src/com/android/launcher3/PageIndicator.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/PageIndicator.java	(revision 173417)
++++ packages/apps/Launcher3/src/com/android/launcher3/PageIndicator.java	(revision 173418)
+@@ -21,10 +21,8 @@
+ import android.content.res.TypedArray;
+ import android.util.AttributeSet;
+ import android.view.LayoutInflater;
+-import android.view.View;
+ import android.widget.LinearLayout;
+ 
+-import com.sprd.ext.FeatureOption;
+ 
+ import java.util.ArrayList;
+ 
+@@ -41,7 +39,7 @@
+     private ArrayList<PageIndicatorMarker> mMarkers =
+             new ArrayList<PageIndicatorMarker>();
+     private int mActiveMarkerIndex;
+-    private boolean mIsNeedHideMarker = true;
++
+ 	private static boolean mFlag = true;
+ 	
+     public static class PageMarkerResources {
+@@ -171,15 +169,6 @@
+             (PageIndicatorMarker) mLayoutInflater.inflate(R.layout.page_indicator_marker,
+                     this, false);
+         m.setMarkerDrawables(marker.activeId, marker.inactiveId);
+-		if (FeatureOption.SPRD_PIFLOW_SUPPORT && (0 == index) && mFlag) {
+-            m.setVisibility(View.GONE);
+-            mFlag = false;
+-        }
+-		
+-        if (FeatureOption.SPRD_PIFLOW_SUPPORT && (0 == index) && mIsNeedHideMarker) {
+-            m.setVisibility( View.GONE);
+-            mIsNeedHideMarker = false;
+-        }
+ 
+         mMarkers.add(index, m);
+         offsetWindowCenterTo(mActiveMarkerIndex, allowAnimations);
+Index: packages/apps/Launcher3/src/com/android/launcher3/CellLayout.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/CellLayout.java	(revision 173417)
++++ packages/apps/Launcher3/src/com/android/launcher3/CellLayout.java	(revision 173418)
+@@ -54,8 +54,6 @@
+ import com.android.launcher3.accessibility.WorkspaceAccessibilityHelper;
+ import com.android.launcher3.util.ParcelableSparseArray;
+ import com.android.launcher3.util.Thunk;
+-import com.android.launcher3.Workspace.State;
+-import com.sprd.ext.FeatureOption;
+ 
+ import java.util.ArrayList;
+ import java.util.Arrays;
+@@ -173,8 +171,6 @@
+     private DragAndDropAccessibilityDelegate mTouchHelper;
+     private boolean mUseTouchHelper = false;
+ 
+-    private boolean mIsPiflow;
+-    private View mPiflowView;
+ 
+     public CellLayout(Context context) {
+         this(context, null);
+@@ -593,7 +589,7 @@
+     public void restoreInstanceState(SparseArray<Parcelable> states) {
+         try {
+             dispatchRestoreInstanceState(states);
+-        } catch (Exception ex) {
++        } catch (IllegalArgumentException ex) {
+             if (LauncherAppState.isDogfoodBuild()) {
+                 throw ex;
+             }
+@@ -881,11 +877,6 @@
+             mHeightGap = mOriginalHeightGap;
+         }
+ 
+-        if (mPiflowView != null) {
+-            mPiflowView.measure(
+-                    MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY),
+-                    MeasureSpec.makeMeasureSpec(newHeight, MeasureSpec.EXACTLY));
+-        }
+ 
+         // Make the feedback view large enough to hold the blur bitmap.
+         mTouchFeedbackView.measure(
+@@ -923,9 +914,6 @@
+         mShortcutsAndWidgets.layout(left, top,
+                 left + r - l,
+                 top + b - t);
+-        if (FeatureOption.SPRD_PIFLOW_SUPPORT && mPiflowView != null) {
+-            mPiflowView.layout(left, top, left + r - l, top + b - t);
+-        }
+     }
+ 
+     /**
+@@ -3027,22 +3015,7 @@
+         return true;
+     }
+ 
+-    public boolean isPiflow(){
+-        return mIsPiflow;
+-    }
+ 
+-    public void setPiflow(boolean isPiflow){
+-        this.mIsPiflow = isPiflow;
+-    }
+ 
+-    public void addPiflowView(View piflowView){
+-        if (FeatureOption.SPRD_PIFLOW_SUPPORT) {
+-            this.mPiflowView = piflowView;
+-            addView(mPiflowView);
+-        }
+-    }
+ 
+-    public State getState(){
+-        return mLauncher.getWorkspace().getState();
+-    }
+ }
+Index: packages/apps/Launcher3/ext/src/com/sprd/ext/FeatureOption.java
+===================================================================
+--- packages/apps/Launcher3/ext/src/com/sprd/ext/FeatureOption.java	(revision 173417)
++++ packages/apps/Launcher3/ext/src/com/sprd/ext/FeatureOption.java	(revision 173418)
+@@ -31,8 +31,7 @@
+     public static final boolean SPRD_DEFAULT_FOLDER_NAME_SUPPORT = getProp("ro.launcher.defaultfoldername", false);
+ 
+     //SPRD add for SPRD_PIFLOW_SUPPORT
+-    public static final boolean SPRD_PIFLOW_SUPPORT = getProp("ro.launcher.piflow", true);
+-    public static final boolean SPRD_PIFLOW_STATUSBAR_SUPPORT = SPRD_PIFLOW_SUPPORT && getProp("ro.launcher.piflowstb", true);
++    public static final boolean SPRD_CUSTOM_CONTENT_SUPPORT = getProp("ro.launcher.customcontent", true);
+ 
+     public static final boolean SPRD_PREDICTEDAPP_SUPPORT = getProp("ro.launcher.predictedapp", true);
+ 
+Index: packages/apps/Launcher3/ext/src/com/sprd/ext/UtilitiesExt.java
+===================================================================
+--- packages/apps/Launcher3/ext/src/com/sprd/ext/UtilitiesExt.java	(revision 173417)
++++ packages/apps/Launcher3/ext/src/com/sprd/ext/UtilitiesExt.java	(revision 173418)
+@@ -1,6 +1,5 @@
+ package com.sprd.ext;
+ 
+-import android.app.Activity;
+ import android.content.ComponentName;
+ import android.content.Context;
+ import android.content.pm.ApplicationInfo;
+@@ -13,8 +12,6 @@
+ import android.os.Bundle;
+ import android.os.SystemProperties;
+ import android.text.TextUtils;
+-import android.view.Window;
+-import android.view.WindowManager;
+ 
+ import com.android.launcher3.LauncherModel;
+ import com.android.launcher3.LauncherSettings;
+@@ -118,12 +115,4 @@
+         }
+     }
+ 
+-    public static void enableFullScreenMode(Activity activity, boolean enable) {
+-        Window win = activity.getWindow();
+-        if (enable) {
+-            win.addFlags( WindowManager.LayoutParams.FLAG_FULLSCREEN);
+-        } else {
+-            win.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+-        }
+-    }
+ }
+Index: packages/apps/Launcher3/ext/res/layout/web_view.xml
+===================================================================
+--- packages/apps/Launcher3/ext/res/layout/web_view.xml	(revision 173417)
++++ packages/apps/Launcher3/ext/res/layout/web_view.xml	(revision 173418)
+@@ -1,8 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<WebView
+-    xmlns:android="http://schemas.android.com/apk/res/android"
+-    xmlns:tools="http://schemas.android.com/tools"
+-    android:layout_width="wrap_content"
+-    android:layout_height="wrap_content"
+-    android:id="@+id/webView"
+-    />
+Index: packages/apps/Launcher3/ext/res/layout/custom_content.xml
+===================================================================
+--- packages/apps/Launcher3/ext/res/layout/custom_content.xml	(revision 0)
++++ packages/apps/Launcher3/ext/res/layout/custom_content.xml	(revision 173418)
+@@ -0,0 +1,23 @@
++<?xml version="1.0" encoding="utf-8"?>
++<FrameLayout
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    >
++    <WebView
++        xmlns:android="http://schemas.android.com/apk/res/android"
++        xmlns:tools="http://schemas.android.com/tools"
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        android:id="@+id/web_view"
++        />
++    <ImageView
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        android:focusable="false"
++        android:clickable="false"
++        android:background="@drawable/workspace_bg"
++        />
++</FrameLayout>
++

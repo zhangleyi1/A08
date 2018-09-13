@@ -1,0 +1,251 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/PredictedAppController.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/PredictedAppController.java	(revision 0)
++++ packages/apps/Launcher3/src/com/android/launcher3/PredictedAppController.java	(revision 166455)
+@@ -0,0 +1,102 @@
++package com.android.launcher3;
++
++import android.app.usage.UsageStats;
++import android.app.usage.UsageStatsManager;
++import android.content.ComponentName;
++import android.content.Context;
++import android.util.Log;
++
++import com.android.launcher3.compat.UserHandleCompat;
++import com.android.launcher3.util.ComponentKey;
++
++
++import java.util.ArrayList;
++import java.util.Calendar;
++import java.util.Collections;
++import java.util.Comparator;
++import java.util.HashMap;
++import java.util.List;
++import java.util.Map;
++
++class PredictedAppController {
++    private static final String TAG = "PredictedAppController";
++
++    private ArrayList<ComponentKey> currentSortAppList = new ArrayList<>();
++    private Map<String, UsageStats>  mPackageStat = new HashMap<>();
++    Launcher mLauncher;
++    private LauncherModel mModel;
++    private UsageStatsManager mUsageStatsManager;
++
++    PredictedAppController(Launcher launcher) {
++        // TODO Auto-generated constructor stub
++        mLauncher = launcher;
++        mModel = mLauncher.getModel();
++        mUsageStatsManager = (UsageStatsManager) mLauncher.getSystemService(Context.USAGE_STATS_SERVICE);
++    }
++
++    List<ComponentKey> getCurrentSortAppComponentList() {
++        currentSortAppList.clear();
++
++        ArrayList<AppInfo> appInfos = mModel.getAllAppsList();
++        int size = appInfos.size();
++        Log.d(TAG, "getCurrentSortAppComponentList, appInfos.size(): " + size);
++
++        for (int i = 0; i < size; i++) {
++            ComponentName cn = appInfos.get(i).componentName;
++			UserHandleCompat user = appInfos.get(i).user;
++            currentSortAppList.add(new ComponentKey(cn, user));
++        }
++        sortApps(currentSortAppList);
++
++        return currentSortAppList;
++    }
++
++
++    private void sortApps(ArrayList<ComponentKey> apps) {
++        try {
++           Calendar cal = Calendar.getInstance();
++           cal.add(Calendar.DAY_OF_YEAR, -2);
++
++            mPackageStat = mUsageStatsManager.queryAndAggregateUsageStats(cal.getTimeInMillis(), System.currentTimeMillis());
++
++            Log.d(TAG, "mPackageStat.size() = " + mPackageStat.size());
++
++
++            Collections.sort(apps, APP_LAUNCH_TIME_COMPARATOR);
++        } catch (Exception e) {
++            e.printStackTrace();
++        }
++    }
++
++    private final Comparator<ComponentKey> APP_LAUNCH_TIME_COMPARATOR = new Comparator<ComponentKey>() {
++        @Override
++        public int compare(ComponentKey a, ComponentKey b) {
++            String aName = a.componentName.getPackageName();
++            String bName = b.componentName.getPackageName();
++            int result = 0;
++            try {
++                UsageStats aStats = mPackageStat.get(aName);
++                UsageStats bStats = mPackageStat.get(bName);
++                if (aStats != null && bStats != null) {
++                    if ((aStats.mLaunchCount > bStats.mLaunchCount)
++                            || ((aStats.mLaunchCount == bStats.mLaunchCount) && (aStats.mLastTimeUsed > bStats.mLastTimeUsed))) {
++                        result = -1;
++                    }else if ((aStats.mLaunchCount < bStats.mLaunchCount)
++                            || ((aStats.mLaunchCount == bStats.mLaunchCount) && (aStats.mLastTimeUsed < bStats.mLastTimeUsed))) {
++                        result = 1;
++                    }else {
++                        result = 0;
++                    }
++                } else {
++                    result = -1;
++
++                }
++            } catch (Exception e) {
++                e.printStackTrace();
++                return result;
++            }
++            return result;
++        }
++    };
++
++}
+Index: packages/apps/Launcher3/src/com/android/launcher3/DeviceProfile.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/DeviceProfile.java	(revision 166454)
++++ packages/apps/Launcher3/src/com/android/launcher3/DeviceProfile.java	(revision 166455)
+@@ -284,7 +284,17 @@
+         if(numAppsCols <= 0){
+             numAppsCols = DEFAULT_ALLAPPS_COLUMNS;
+         }
+-        int numPredictiveAppCols = Math.max(inv.minAllAppsPredictionColumns, numAppsCols);
++        /*
++		*
++		*int numPredictiveAppCols = Math.max(inv.minAllAppsPredictionColumns, numAppsCols);
++		*add wqq
++		*/
++		int numPredictiveAppCols;
++        if(isLandscape){
++            numPredictiveAppCols = Math.max(inv.minAllAppsPredictionColumns, numAppsCols);
++        }else {
++            numPredictiveAppCols =Math.min(inv.minAllAppsPredictionColumns, numAppsCols);
++        }
+         allAppsNumCols = numAppsCols;
+         allAppsNumPredictiveCols = numPredictiveAppCols;
+     }
+Index: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 166454)
++++ packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 166455)
+@@ -424,6 +424,7 @@
+         }
+     };
+ 
++    private PredictedAppController mPredictedAppController;
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+         if (DEBUG_STRICT_MODE) {
+@@ -546,6 +547,7 @@
+          /*  SPRD: add for bug515804 add the selection .@{*/
+         initDefaultWallpaperResourceId();
+         /* @} */
++        mPredictedAppController = new PredictedAppController(this);
+     }
+ 
+     @Override
+@@ -3815,11 +3817,18 @@
+      * resumed.
+      */
+     private void tryAndUpdatePredictedApps() {
+-        if (mLauncherCallbacks != null) {
+-            List<ComponentKey> apps = mLauncherCallbacks.getPredictedApps();
+-            if (apps != null) {
++        if(mPredictedAppController != null ){
++            List<ComponentKey> apps = mPredictedAppController.getCurrentSortAppComponentList();
++            if(apps != null && apps.size() != 0) {
+                 mAppsView.setPredictedApps(apps);
+             }
++        }else{
++            if (mLauncherCallbacks != null) {
++                List<ComponentKey> apps = mLauncherCallbacks.getPredictedApps();
++                if (apps != null) {
++                    mAppsView.setPredictedApps(apps);
++                }
++            }
+         }
+     }
+ 
+
+Property changes on: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/src/com/android/launcher3/Launcher.java:r165466,165469,165472,165500,165503-165504,165507-165509,165512,165525,165528,165536,165541,165543-165545
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Launcher3/src/com/android/launcher3/Launcher.java:r164302
+Index: packages/apps/Launcher3/src/com/android/launcher3/LauncherModel.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/LauncherModel.java	(revision 166454)
++++ packages/apps/Launcher3/src/com/android/launcher3/LauncherModel.java	(revision 166455)
+@@ -3672,4 +3672,7 @@
+     public static Looper getWorkerLooper() {
+         return sWorkerThread.getLooper();
+     }
++    public ArrayList<AppInfo> getAllAppsList(){
++        return mBgAllAppsList.data;
++    }
+ }
+Index: packages/apps/Launcher3/AndroidManifest.xml
+===================================================================
+--- packages/apps/Launcher3/AndroidManifest.xml	(revision 166454)
++++ packages/apps/Launcher3/AndroidManifest.xml	(revision 166455)
+@@ -65,6 +65,7 @@
+     <uses-permission android:name="android.permission.READ_CALL_LOG" />
+     <uses-permission android:name="android.permission.READ_SMS" />
+     <uses-permission android:name="com.android.email.permission.ACCESS_PROVIDER"/>
++    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
+ 
+     <application
+         android:allowBackup="@bool/enable_backup"
+
+Property changes on: packages/apps/Launcher3/AndroidManifest.xml
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/AndroidManifest.xml:r165466,165469,165472,165500,165503-165504,165507-165509,165512,165525,165528,165536,165541,165543-165545
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Launcher3/AndroidManifest.xml:r164302
+Index: vendor/sprd/plugins/packages/apps/Launcher3/addons/CustomizeAppSort/res/xml/app_positions.xml
+===================================================================
+--- vendor/sprd/plugins/packages/apps/Launcher3/addons/CustomizeAppSort/res/xml/app_positions.xml	(revision 166454)
++++ vendor/sprd/plugins/packages/apps/Launcher3/addons/CustomizeAppSort/res/xml/app_positions.xml	(revision 166455)
+@@ -1,15 +1,25 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <!-- SPRD: bug375748 2014-12-01 Feature customize app icon sort. -->
+ <apps xmlns:appsort="http://schemas.android.com/apk/res-auto/addon.sprd.launcher3.appsort" >
+-
++	
++	<app
++        appsort:pkgName="wanzhen.android.flashlight"
++        appsort:position="0" />
++	<app
++        appsort:pkgName="com.smartfren"
++        appsort:position="1" />
++	<app
++        appsort:pkgName="cn.wps.moffice_eng"
++        appsort:position="2" />
+     <app
+         appsort:pkgName="cn.com.wo"
+-        appsort:position="0" />
++        appsort:position="3" />
+     <app
+         appsort:pkgName="com.infinit.wostore.ui"
+-        appsort:position="1" />
++        appsort:position="4" />
+     <app
+         appsort:pkgName="com.sinovatech.unicom.ui"
+-        appsort:position="2" />
++        appsort:position="5" />
++	
+ 
+ </apps>
+Index: vendor/sprd/feature_configs/base/config.mk
+===================================================================
+--- vendor/sprd/feature_configs/base/config.mk	(revision 166454)
++++ vendor/sprd/feature_configs/base/config.mk	(revision 166455)
+@@ -54,3 +54,4 @@
+     CellBroadcastReceiver \
+     Omacp \
+     UnreadInfo \
++	SprdCuccAppSortAddon 

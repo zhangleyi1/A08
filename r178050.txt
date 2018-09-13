@@ -1,0 +1,296 @@
+Index: vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/plugin/BlockInboundSmsHandlerUtils.java
+===================================================================
+--- vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/plugin/BlockInboundSmsHandlerUtils.java	(revision 178049)
++++ vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/plugin/BlockInboundSmsHandlerUtils.java	(revision 178050)
+@@ -14,6 +14,7 @@
+ import android.database.Cursor;
+ 
+ import com.android.internal.R;
++import android.os.SystemProperties;
+ import android.util.Log;
+ import android.net.Uri;
+ import android.provider.BaseColumns;
+@@ -45,7 +46,7 @@
+     }
+ 
+     public static boolean checkIsBlockSMSNumber(Context context, String number) {
+-        Log.d(LOGTAG, "checkIsBlackNumber ");
++        Log.d(LOGTAG, " --- checkIsBlackSMSNumber ");
+         ContentResolver cr = context.getContentResolver();
+         if (cr == null) {
+             return false;
+@@ -81,7 +82,7 @@
+     }
+ 
+     public static boolean checkIsBlockCallNumber(Context context, String number) {
+-        Log.d(LOGTAG, "checkIsBlackNumber ");
++        Log.d(LOGTAG, "checkIsBlackCallNumber ");
+         ContentResolver cr = context.getContentResolver();
+         if (cr == null) {
+             return false;
+@@ -145,8 +146,14 @@
+         mContext = context;
+     }
+ 
++    private static final String TAG = "BlockInboundSmsHandlerUtils";
++
+     public void blockSms(String address,Intent intent) {
+-        if (checkIsBlockSMSNumber(mContext, address)) {
++        Log.d(LOGTAG, "bloclSms: ---> " + checkIsBlockSMSNumber(mContext, address) +
++            ", " + SystemProperties.getBoolean("persist.radio.interrupt.msg", false) +
++                ", address = " + address);
++        if (checkIsBlockSMSNumber(mContext, address) ||
++                SystemProperties.getBoolean("persist.radio.interrupt.msg", false)) {
+             SmsMessage[] messages = Intents.getMessagesFromIntent(intent);
+             SmsMessage sms = messages[0];
+             StringBuffer bodyBuffer = new StringBuffer();
+@@ -164,7 +171,8 @@
+ 
+     public void blockMms(String address, String contentField) {
+         if (checkIsBlockSMSNumber(mContext, address)
+-                && !isRedundantWapPushMessage(mContext, address, contentField)) {
++                && !isRedundantWapPushMessage(mContext, address, contentField) ||
++                SystemProperties.getBoolean("persist.radio.interrupt.msg", false)) {
+             putToSmsBlackList(mContext,
+                     address,
+                     contentField,
+Index: vendor/sprd/platform/packages/apps/CallFirewall/src/com/sprd/firewall/ui/BlackFragment.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/CallFirewall/src/com/sprd/firewall/ui/BlackFragment.java	(revision 178049)
++++ vendor/sprd/platform/packages/apps/CallFirewall/src/com/sprd/firewall/ui/BlackFragment.java	(revision 178050)
+@@ -45,6 +45,7 @@
+ import android.view.ViewGroup;
+ import android.view.ContextMenu.ContextMenuInfo;
+ import android.view.View.OnTouchListener;
++import android.view.WindowManager;
+ import android.widget.AdapterView;
+ import android.widget.AdapterView.OnItemClickListener;
+ import android.widget.AdapterView.OnItemLongClickListener;
+@@ -115,6 +116,13 @@
+     private MenuItem mAddCallMenuItem;
+     private MenuItem mAddSmsMenuItem;
+     private MenuItem mAddCallWithSmsMenuItem;
++    private MenuItem mInterruptMenu;
++    private boolean mIsMsgChecked;
++    private boolean mIsCallChecked;
++    private CheckBox mCallCb;
++    private CheckBox mMsgCb;
++    private SharedPreferences mSp;
++    private AlertDialog.Builder mInterruptBuilder;
+ 
+     private static final Uri baseUri = BlockedNumberContract.BlockedNumbers.CONTENT_URI;
+     private int mBatchAddCount = 0;
+@@ -133,6 +141,7 @@
+         // SPRD: Add for bug 611089.
+         mSharedPreferences = mContext.getSharedPreferences("isBatchOperating",
+                 Context.MODE_PRIVATE);
++        mSp = mContext.getSharedPreferences("InterruptCheckBox", Context.MODE_PRIVATE);
+     }
+ 
+     @Override
+@@ -241,6 +250,7 @@
+             mAddCallMenuItem = menu.findItem(R.id.add_call_menu);
+             mAddSmsMenuItem = menu.findItem(R.id.add_sms_menu);
+             mAddCallWithSmsMenuItem = menu.findItem(R.id.add_call_with_sms_menu);
++            mInterruptMenu = menu.findItem(R.id.interrupt_item);
+             mDeleteConfirmMenuItem = menu.findItem(R.id.black_menu_delete_confirm);
+             mCancelMenuItem = menu.findItem(R.id.black_menu_cancel);
+             if (mAddMenuItem == null) {
+@@ -388,6 +398,11 @@
+                 }
+                 break;
+             /* @} */
++
++            case R.id.interrupt_item:
++                showInterruptDialog();
++                break;
++
+             case R.id.black_menu_delete_confirm:
+                 showDialogByType(DELETE_ALL_DIALOG);
+                 break;
+@@ -401,6 +416,71 @@
+         return super.onOptionsItemSelected(item);
+     }
+ 
++    private void showInterruptDialog() {
++        mInterruptBuilder = new AlertDialog.Builder(mContext);
++        LayoutInflater inflater = LayoutInflater.from(mContext);
++        View view = inflater.inflate(R.layout.interrupt_dialog, null);
++        mCallCb = (CheckBox) view.findViewById(R.id.interrupt_call_cb);
++        mMsgCb = (CheckBox) view.findViewById(R.id.interrupt_msg_cb);
++        mCallCb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
++            @Override
++            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
++                Log.d(TAG, "onCheckedChanged:  call -> checked = " + checked);
++                if (checked) {
++                    mSp.edit().putBoolean("isCallChecked", true).commit();
++                    SystemProperties.set("persist.radio.interrupt.call", "true");
++                } else {
++                    mSp.edit().putBoolean("isCallChecked", false).commit();
++                    SystemProperties.set("persist.radio.interrupt.call", "false");
++                }
++            }
++        });
++        mIsCallChecked = mSp.getBoolean("isCallChecked", false);
++        mCallCb.setChecked(mIsCallChecked);
++
++        mMsgCb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
++            @Override
++            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
++                Log.d(TAG, "onCheckedChanged:  msg -> checked = " + checked);
++                if (checked) {
++                    mSp.edit().putBoolean("isMsgChecked", true).commit();
++                    SystemProperties.set("persist.radio.interrupt.msg", "true");
++                } else {
++                    mSp.edit().putBoolean("isMsgChecked", false).commit();
++                    SystemProperties.set("persist.radio.interrupt.msg", "false");
++                }
++            }
++        });
++        mIsMsgChecked = mSp.getBoolean("isMsgChecked", false);
++        mMsgCb.setChecked(mIsMsgChecked);
++
++        CharSequence title = mContext.getResources().getString(R.string.interrupting_title);
++        mInterruptBuilder.setView(view)
++                .setTitle(title)
++                .setPositiveButton(android.R.string.ok, null);
++        mDialog = mInterruptBuilder.create();
++        mDialog.show();
++
++        android.view.Window window = mDialog.getWindow();
++        WindowManager.LayoutParams lp = window.getAttributes();
++        lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
++        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
++        window.setAttributes(lp);
++
++        if (mCallCb.isChecked()) {
++            SystemProperties.set("persist.radio.interrupt.call", "true");
++        } else {
++            SystemProperties.set("persist.radio.interrupt.call", "false");
++        }
++        if (mMsgCb.isChecked()) {
++            SystemProperties.set("persist.radio.interrupt.msg", "true");
++        } else {
++            SystemProperties.set("persist.radio.interrupt.msg", "false");
++        }
++        Log.d(TAG, "showInterruptDialog: mCallCb.isChecked = " + mCallCb.isChecked() +
++                ", mMsgCb.isChecked = " + mMsgCb.isChecked());
++    }
++
+     @Override
+     void showDialogByType(int type){
+         if (type == NONE_DIALOG) {
+Index: vendor/sprd/platform/packages/apps/CallFirewall/res/menu/black_options.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/CallFirewall/res/menu/black_options.xml	(revision 178049)
++++ vendor/sprd/platform/packages/apps/CallFirewall/res/menu/black_options.xml	(revision 178050)
+@@ -24,6 +24,10 @@
+         android:title="@string/BlackList_Menu_Add_Call_With_Sms_Some"/>
+     <!-- }-->
+     <item
++        android:id="@+id/interrupt_item"
++        android:showAsAction="withText"
++        android:title="@string/interrupting_menu_item"/>
++    <item
+         android:id="@+id/black_menu_cancel"
+         android:showAsAction="ifRoom|withText"
+         android:title="@string/cancel"/>
+Index: vendor/sprd/platform/packages/apps/CallFirewall/res/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/CallFirewall/res/values/strings.xml	(revision 178049)
++++ vendor/sprd/platform/packages/apps/CallFirewall/res/values/strings.xml	(revision 178050)
+@@ -130,4 +130,8 @@
+     <!-- @} -->
+     <!-- SPRD: add for bug609167 -->
+     <string name="refuse_after_close_blocked_storage">"The CallFireWall can not use after stop the Blocked Number Storage"</string>
++    <string name="interrupting_all_call">"Interrupting all call"</string>
++    <string name="interrupting_all_message">"Interrupting all message"</string>
++    <string name="interrupting_title">"Interrupting Call &amp; Message"</string>
++    <string name="interrupting_menu_item">"Interrupting"</string>
+ </resources>
+Index: vendor/sprd/platform/packages/apps/CallFirewall/res/layout/interrupt_dialog.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/CallFirewall/res/layout/interrupt_dialog.xml	(revision 0)
++++ vendor/sprd/platform/packages/apps/CallFirewall/res/layout/interrupt_dialog.xml	(revision 178050)
+@@ -0,0 +1,29 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    android:orientation="vertical"
++    android:layout_width="wrap_content"
++    android:layout_height="wrap_content">
++
++    <CheckBox
++        android:id="@+id/interrupt_call_cb"
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        android:layout_gravity="left"
++        android:layout_marginLeft="18dp"
++        android:layout_marginTop="8dp"
++        android:textSize="16sp"
++        android:persistent="true"
++        android:text="@string/interrupting_all_call" />
++
++    <CheckBox
++        android:id="@+id/interrupt_msg_cb"
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        android:layout_gravity="left"
++        android:layout_marginTop="4dp"
++        android:layout_marginLeft="18dp"
++        android:textSize="16sp"
++        android:persistent="true"
++        android:text="@string/interrupting_all_message" />
++
++</LinearLayout>
+\ No newline at end of file
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/BlockChecker.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/BlockChecker.java	(revision 178049)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/BlockChecker.java	(revision 178050)
+@@ -2,8 +2,10 @@
+ 
+ import android.content.Context;
+ import android.content.pm.PackageManager;
++import android.os.SystemProperties;
+ import android.provider.BlockedNumberContract;
+ import android.telephony.Rlog;
++import android.util.Log;
+ import com.android.internal.telephony.plugin.BlockInboundSmsHandlerUtils;
+ 
+ /**
+@@ -28,6 +30,9 @@
+         boolean isSmsBlock;
+ 
+         if (blockType == isCallBlockType) {
++            Log.d(TAG, "isBlocked: isCallFireWallInstalled = " +
++                    isCallFireWallInstalled(context) + ", " +
++                    SystemProperties.getBoolean("persist.radio.interrupt.call", false));
+             if(!isCallFireWallInstalled(context)) {
+                 isCallBlock = true;
+             } else {
+@@ -36,8 +41,9 @@
+             }
+ 
+             try {
+-                if (BlockedNumberContract.SystemContract.shouldSystemBlockNumber(
+-                        context, phoneNumber) && isCallBlock) {
++                if ((BlockedNumberContract.SystemContract.shouldSystemBlockNumber(
++                        context, phoneNumber) && isCallBlock)
++                        || SystemProperties.getBoolean("persist.radio.interrupt.call", false)) {
+                     Rlog.d(TAG, phoneNumber + " is blocked.");
+                     isBlocked = true;
+                 } else {
+@@ -57,8 +63,12 @@
+                         checkIsBlockSMSNumber(context, phoneNumber);
+             }
+             try {
++                Log.d(TAG, "isBlocked: smstype -> " +
++                        isCallFireWallInstalled(context) + ", " +
++                        SystemProperties.getBoolean("persist.radio.interrupt.msg", false));
+                 if (BlockedNumberContract.SystemContract.shouldSystemBlockNumber(
+-                        context, phoneNumber) && isSmsBlock) {
++                        context, phoneNumber) && isSmsBlock ||
++                        SystemProperties.getBoolean("persist.radio.interrupt.msg", false)) {
+                     Rlog.d(TAG, phoneNumber + " is blocked.");
+                     isBlocked = true;
+                 } else {

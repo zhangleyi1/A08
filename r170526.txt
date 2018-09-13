@@ -1,0 +1,13 @@
+Index: device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinTosVmmAndroid5.1.xml
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinTosVmmAndroid5.1.xml	(revision 170525)
++++ device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinTosVmmAndroid5.1.xml	(revision 170526)
+@@ -281,7 +281,7 @@
+ 				<IDAlias>FDL1</IDAlias>
+ 				<Type>FDL</Type>
+ 				<Block>
+-					<Base>0x50000000</Base>
++					<Base>0x50003000</Base>
+ 					<Size>0x0</Size>
+ 				</Block>
+ 				<Flag>1</Flag>

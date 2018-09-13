@@ -1,0 +1,49 @@
+Index: vendor/sprd/modules/sensors/acc/st/Acc_Lis3dh.cpp
+===================================================================
+--- vendor/sprd/modules/sensors/acc/st/Acc_Lis3dh.cpp	(revision 169922)
++++ vendor/sprd/modules/sensors/acc/st/Acc_Lis3dh.cpp	(revision 169923)
+@@ -217,9 +217,41 @@
+         mPendingEvent.acceleration.z = acc_latest_z;
+         mSensorCoordinate.coordinate_data_convert(mPendingEvent.acceleration.v,
+                                                   INSTALL_DIR);
+-        *data++ = mPendingEvent;
+-        count--;
+-        numEventReceived++;
++      	if((previous_timestamp2>0) && (mPendingEvent.timestamp>previous_timestamp2) && (mDelay>0))
++				{
++					int loop_cnt, i;
++					int64_t temp_time;
++					loop_cnt = (2*(mPendingEvent.timestamp-previous_timestamp2) + mDelay)/(2*mDelay);
++					previous_timestamp2 = mPendingEvent.timestamp;
++					if(loop_cnt > 0)
++					{
++						temp_time = mPendingEvent.timestamp;
++						for(i=loop_cnt; i>0; i--)
++						{
++							mPendingEvent.timestamp = temp_time - (i-1)*mDelay;
++				*data++ = mPendingEvent;
++				count--;
++				numEventReceived++;
++							if(count <= 0)
++							{
++								break;
++							}
++						}
++					}
++					else
++					{
++						*data++ = mPendingEvent;
++						count--;
++						numEventReceived++;
++					}
++				}
++				else
++				{
++					*data++ = mPendingEvent;
++					count--;
++					numEventReceived++;
++					previous_timestamp2 = mPendingEvent.timestamp;
++				}
+       }
+     } else {
+       ALOGE("AccSensor: unknown event (type=%d, code=%d)", type, event->code);

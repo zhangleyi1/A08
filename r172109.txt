@@ -1,0 +1,4 @@
+Index: vendor/sprd/modules/libcamera/libs/isp2.0/lib/liblsc.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream

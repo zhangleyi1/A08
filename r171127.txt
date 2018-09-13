@@ -1,0 +1,23 @@
+Index: vendor/sprd/platform/frameworks/base/core/java/android/app/AddonManager.java
+===================================================================
+--- vendor/sprd/platform/frameworks/base/core/java/android/app/AddonManager.java	(revision 171126)
++++ vendor/sprd/platform/frameworks/base/core/java/android/app/AddonManager.java	(revision 171127)
+@@ -137,7 +137,7 @@
+                             }
+                         }
+                     }
+-                    if (foundTargetPackages) {
++                    if (!foundTargetPackages) {
+                         // If targetPackages is not set, that means it may
+                         // take effects in framework or system server.
+                         // It MUST install to internal only to make it safety
+@@ -334,7 +334,8 @@
+             try {
+                 clazz = loader.loadClass(featureClassName);
+             } catch (ClassNotFoundException e) {
+-                Log.e(LOGTAG, "Load class " + featureClassName + " failed!", e);
++                Log.w(LOGTAG, "Load class " + featureClassName + " failed, have you installed"
++                     + " the plugin apk ? " + e.getMessage());
+             }
+             if (DEBUG) Log.d(LOGTAG, "->getAddon, createAddon app: " + applicationInfo
+                     + ", clazz: " + clazz+ ", classloader:" + loader);

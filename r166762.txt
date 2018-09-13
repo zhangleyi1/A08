@@ -1,0 +1,18 @@
+Index: device/sprd/scx35l/sp9832a_2h11/rootdir/system/etc/audio_policy_config/audio_policy_configuration.xml
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/rootdir/system/etc/audio_policy_config/audio_policy_configuration.xml	(revision 166761)
++++ device/sprd/scx35l/sp9832a_2h11/rootdir/system/etc/audio_policy_config/audio_policy_configuration.xml	(revision 166762)
+@@ -49,7 +49,7 @@
+                 <item>Speaker</item>
+                 <item>Earpiece</item>
+                 <item>Built-In Mic</item>
+-                <item>Built-In Back Mic</item>
++         <!--       <item>Built-In Back Mic</item>   -->
+             </attachedDevices>
+             <defaultOutputDevice>Speaker</defaultOutputDevice>
+             <mixPorts>
+
+Property changes on: device/sprd/scx35l/sp9832a_2h11/rootdir/system/etc/audio_policy_config/audio_policy_configuration.xml
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/device/sprd/scx35l/sp9832a_2h11/rootdir/system/etc/audio_policy_config/audio_policy_configuration.xml:r165648

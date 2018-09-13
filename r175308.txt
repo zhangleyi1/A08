@@ -1,0 +1,70 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java	(revision 175307)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java	(revision 175308)
+@@ -21,17 +21,23 @@
+ 		String testsuccess = new String();
+ 		String testfail = new String();
+ 		String testdefault= new String();
+-		
+-		for(int i = 0;i<FactoryMode.testitem.length;i++ ) {
+-			String string = getStringbyitemid(FactoryMode.testitem[i]);
+-			if((FactoryMode.isAutoTest ? FactoryMode.autotestResult[i]:FactoryMode.testResult[i])== FactoryMode.TEST_OK) {
+-				testsuccess = testsuccess + "|"+string;
+-			}else if((FactoryMode.isAutoTest ? FactoryMode.autotestResult[i]:FactoryMode.testResult[i])== FactoryMode.TEST_FAIL) {
+-				testfail = testfail + "|" +string;
+-			}else {
+-				testdefault = testdefault + "|"+string;
+-			}
+-		}
++
++        for(int i = 0;i < FactoryMode.testitem.length;i++ ) {
++            String string = getStringbyitemid(FactoryMode.testitem[i]);
++            if (FactoryMode.isAutoTest && ((FactoryMode.TESTITEM_LTEINFO == FactoryMode.testitem[i])
++                || FactoryMode.TESTITEM_MASTERCLEAR == FactoryMode.testitem[i])) {
++                continue;
++            }
++
++            if ((FactoryMode.isAutoTest ? FactoryMode.autotestResult[i]:FactoryMode.testResult[i])== FactoryMode.TEST_OK) {
++                testsuccess = testsuccess + "|"+string;
++            } else if((FactoryMode.isAutoTest ? FactoryMode.autotestResult[i]:FactoryMode.testResult[i])== FactoryMode.TEST_FAIL) {
++                testfail = testfail + "|" +string;
++            } else {
++                testdefault = testdefault + "|"+string;
++            }
++        }
++
+ 		report_success.setText(getString(R.string.report_ok)+testsuccess);
+ 		report_fail.setText(getString(R.string.report_failed)+testfail);
+ 		report_default.setText(getString(R.string.report_notest)+testdefault);
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 175307)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 175308)
+@@ -743,10 +743,12 @@
+           intent.setClass(this, FlashLightSub.class);
+           startActivityForResult(intent, TESTITEM_FLASHLIGHT_SUB);
+           break;
++/*
+ 	  case TESTITEM_LTEINFO:
+ 		intent.setClass(this, LteInfo.class);
+          startActivityForResult(intent, TESTITEM_LTEINFO);
+ 		break;
++*/
+ 	  case  TESTITEM_SLEEPORWAKE:
+ 		 intent.setClass(this, SleepOrWake.class);
+          startActivityForResult(intent, TESTITEM_SLEEPORWAKE);
+@@ -755,11 +757,12 @@
+ 	  	intent.setClass(this, TPTest.class);
+          startActivityForResult(intent, TESTITEM_TPTEST);
+ 		break;
+-	  
++/*
+ 	 case  TESTITEM_MASTERCLEAR:
+ 		 intent.setClass(this, MasterClear.class);
+          startActivityForResult(intent, TESTITEM_MASTERCLEAR);
+ 		  break;
++*/
+       default:
+         break;
+     }

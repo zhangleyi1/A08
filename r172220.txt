@@ -1,0 +1,162 @@
+Index: vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/activities/FileExploreActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/activities/FileExploreActivity.java	(revision 172219)
++++ vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/activities/FileExploreActivity.java	(revision 172220)
+@@ -52,7 +52,8 @@
+ 
+     private static final String TAG = "FileExploreActivity";
+ 
+-    private static final String USB_STORAGE_PATH = "/storage/usbdisk";
++    public static final String USB_STORAGE_PATH = "/storage/usbdisk";
++    public static final String INTERNAL_STORAGE_PATH = "/storage/emulated/";
+     private static final int STORAGE_PERMISSION_REQUEST_CODE = 1;
+     private SparseArray<StorageStatus> mStorageStatus = new SparseArray<StorageStatus>();
+     private static final int STORAGE_SYZE = 3;
+@@ -61,6 +62,7 @@
+     private ArrayAdapter<String> mNavigationAdapter;
+     // SPRD: Add for bug617889.
+     private AlertDialog mAlertDialog;
++    private static int usbNavigationMenuCount = 0;
+ 
+     /**
+      * The {@link android.support.v4.view.PagerAdapter} that will provide
+@@ -355,6 +357,7 @@
+         }
+         if (path.equals(USB_STORAGE_PATH)) {
+             ss.available = StorageUtil.getUSBStorageState();
++            ss.tabIndex = 3;
+         } else {
+             ss.available = available;
+         }
+@@ -366,8 +369,7 @@
+         /* @} */
+ 
+         // SPRD: Add for bug 489831, cann't back to upper folder.
+-        int location = getFragmentCount(index + 1);
+-        Log.d(TAG, "onStorageChanged(): ss.title = " + ss.title + "; ss.path = " + ss.path + "; location = " + location);
++        Log.d(TAG, "onStorageChanged(): ss.title = " + ss.title + "; ss.path = " + ss.path);
+         FileListAdapter needRefreshFla = null;
+ 
+         /* SPRD: Modify for bug516178, if current frament is External Storage, close the opened context menu. @{ */
+@@ -382,13 +384,22 @@
+         }
+ 
+         if(available) {
+-            if ((StorageUtil.getUSBCount() == 0 || StorageUtil.getUSBCount() == 1)
++            if ((StorageUtil.getUSBCount() > 0 &&  usbNavigationMenuCount == 0)
+                     && path.equals(USB_STORAGE_PATH) || !path.equals(USB_STORAGE_PATH)) {
++
++                //SPRD: bug666999, location error,causes crash.
++                int addLocation = getAddFragmentLocation(path, sdcard, ss.title);
++                if(addLocation < 0 || addLocation > STORAGE_SYZE){
++                    return;
++                }
+                 DetailedListFragment fragment = DetailedListFragment.init(this, mStorageStatus.keyAt(index));
+                 /* SPRD: Modify for bug 489831, cann't back to upper folder. @{ */
+-                mPagerAdapter.addFragment(new Pair<BaseFragment, Integer>(fragment, ss.tagIndex), location);
+-                mNavigationAdapter.insert(ss.title, location);
++                mPagerAdapter.addFragment(new Pair<BaseFragment, Integer>(fragment, ss.tagIndex), addLocation);
++                mNavigationAdapter.insert(ss.title, addLocation);
+                 needRefreshFla = fragment.getAdapter();
++                if(path.equals(USB_STORAGE_PATH)){
++                    usbNavigationMenuCount++;
++                }
+             }
+ //            if (index == 1 && !mPagerAdapter.isContain(0)
+ //                    || index == 2 && !mPagerAdapter.isContain(0)
+@@ -413,8 +424,12 @@
+             // SPRD: Modify for bug612571.
+             if ((!StorageUtil.getUSBStorageState() && path.equals(USB_STORAGE_PATH))
+                     || !path.equals(USB_STORAGE_PATH)) {
++                int removeLocation = getRemoveFragmentLocation(ss.title);
++                if(removeLocation < 0 || removeLocation > STORAGE_SYZE){
++                    return;
++                }
+                 /* SPRD: Modify for bug 489831, cann't back to upper folder. @{ */
+-                mPagerAdapter.removeFragment(location - 1);
++                mPagerAdapter.removeFragment(removeLocation);
+ //            if (index == 1 && !mPagerAdapter.isContain(0)
+ //                    || index == 2 && !mPagerAdapter.isContain(0)
+ //                    || index == 2 && !mPagerAdapter.isContain(1)) {
+@@ -430,6 +445,9 @@
+             /* @} */
+                 mNavigationAdapter.remove(ss.title);
+                 ss.tabIndex = -1;
++                if(path.equals(USB_STORAGE_PATH)){
++                     usbNavigationMenuCount = 0;
++                }
+             }
+         }
+         /* SPRD : BugFix bug364231 after copy is finished , it goto a wrong folder @{ */
+@@ -454,6 +472,48 @@
+         invalidateOptionsMenu();
+     }
+ 
++    //SPRD: bug666999, location error,causes crash.
++    private int getAddFragmentLocation(String path, boolean sdcard, String title){
++        int location = -1;
++        int mPagerAdapterItemCount = mPagerAdapter.getCount();
++        int mNavigationAdapterItemCount = mNavigationAdapter.getCount();
++        if(path.startsWith(INTERNAL_STORAGE_PATH)){//OverView item.INTERNAL item is after OverView item.
++            location = STORAGE_SYZE - 2;
++        }else if(sdcard && mPagerAdapterItemCount >= 2){//OverView item,INTERNAL item.SD item is after INTERNAL item.
++            location = STORAGE_SYZE - 1;
++        }else if(path.equals(USB_STORAGE_PATH)){//USB
++            boolean usbItemExist = false;
++            for(int i=0; i < mNavigationAdapter.getCount(); i++) {// ensure that only one USB item.
++                String item = mNavigationAdapter.getItem(i);
++                if(title.equals(item)){
++                    usbItemExist = true;
++                    break;
++                }
++            }
++            if(!usbItemExist && (mPagerAdapterItemCount == mNavigationAdapterItemCount)){
++                location = mPagerAdapterItemCount;
++            }
++        }else{
++            if(mPagerAdapterItemCount == mNavigationAdapterItemCount){
++                location = mPagerAdapterItemCount;
++            }
++        }
++        return location;
++    }
++
++    //SPRD: bug666999, location error,causes crash.
++    private int getRemoveFragmentLocation(String title){
++        int location = -1;
++        for(int i=0; i < mNavigationAdapter.getCount(); i++) {
++            String item = mNavigationAdapter.getItem(i);
++            if(title.equals(item)){
++                location = i;
++                break;
++            }
++        }
++        return location;
++    }
++
+     /* SPRD: Bug 432426 Menu shows wrong after language changed @{ */
+     @Override
+     public boolean onCreateOptionsMenu(Menu menu) {
+Index: vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/StorageReceiver.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/StorageReceiver.java	(revision 172219)
++++ vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/StorageReceiver.java	(revision 172220)
+@@ -11,6 +11,7 @@
+ import android.util.Log;
+ 
+ import com.sprd.fileexplorer.util.StorageUtil;
++import com.sprd.fileexplorer.activities.FileExploreActivity;
+ 
+ public class StorageReceiver extends BroadcastReceiver {
+     
+@@ -40,6 +41,10 @@
+         }
+         File storageFile = whichStorage(intentUri, action);
+         if(storageFile == null || intentStoragePath == null) {
++            //plugin out usb devices must be notify the FileExplorer
++            if(Intent.ACTION_MEDIA_EJECT.equals(action)&&!mSdcard) {
++                StorageUtil.notifyStorageChanged(FileExploreActivity.USB_STORAGE_PATH, false, false);
++            }
+             return;
+         }
+         /* @} */

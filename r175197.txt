@@ -1,0 +1,97 @@
+Index: vendor/sprd/platform/packages/services/Telephony/src/com/android/phone/FastShutdownHelper.java
+===================================================================
+--- vendor/sprd/platform/packages/services/Telephony/src/com/android/phone/FastShutdownHelper.java	(revision 175196)
++++ vendor/sprd/platform/packages/services/Telephony/src/com/android/phone/FastShutdownHelper.java	(revision 175197)
+@@ -11,6 +11,13 @@
+ import android.util.Log;
+ import com.android.sprd.telephony.RadioInteractor;
+ 
++import java.util.ArrayList;
++import java.util.concurrent.Callable;
++import java.util.concurrent.ExecutionException;
++import java.util.concurrent.ExecutorService;
++import java.util.concurrent.Executors;
++import java.util.concurrent.Future;
++
+ /** Helper to support fast shutdown */
+ public class FastShutdownHelper extends BroadcastReceiver {
+     private static final String TAG = "FastShutdownHelper";
+@@ -19,6 +26,9 @@
+             "com.android.sprd.telephony.server.RADIOINTERACTOR_SERVICE";
+     private static final String RI_SERVICE_PACKAGE =
+             "com.android.sprd.telephony.server";
++    //* SPRD: Bug 631236 optimize time of RIL shutdown for multi sim cards
++    private static final int THREAD_POOL_COUNT = 2;
++
+     private static FastShutdownHelper sInstance;
+     private Context mContext;
+     private RadioInteractor mRi;
+@@ -54,6 +64,22 @@
+         }
+     }
+ 
++    /* SPRD: Bug 631236 optimize time of RIL shutdown for multi sim cards @{ */
++    private  class TaskCallable implements Callable<String> {
++
++       private int id;
++
++       public TaskCallable(int id) {
++           this.id = id;
++       }
++
++       @Override
++       public String call() throws Exception {
++           return String.valueOf(mRi.requestShutdown(id));
++       }
++    };
++   /* @} */
++
+     @Override
+     public void onReceive(Context context, Intent intent) {
+         Log.d(TAG, "onReceive() action=" + intent.getAction());
+@@ -74,21 +100,38 @@
+         }.start();
+     }
+ 
++    /* SPRD: Bug 631236 optimize time of RIL shutdown for multi sim cards @ { */
+     private boolean shutdownRadios() {
++        boolean resultSuccess = true;
++        ExecutorService exec = Executors.newFixedThreadPool(THREAD_POOL_COUNT);
++        ArrayList<Future<String>> results = new ArrayList<Future<String>>();
+         int numPhones = TelephonyManager.getDefault().getPhoneCount();
+-        boolean result = true;
+-
+         if (mRi != null) {
+-            for (int i = 0; i < numPhones; i++) {
+-                result = result && mRi.requestShutdown(i);
++            for(int i = 0; i < numPhones; i++) {
++                try{
++                    results.add(exec.submit(new TaskCallable(i)));
++                } catch(Exception e){
++                    Log.e(TAG, "exec submit throw exception " + e);
++                }
+             }
++
++            for(Future<String> result:results) {
++                try {
++                    resultSuccess = resultSuccess && Boolean.valueOf((String)result.get());
++                } catch (InterruptedException e) {
++                    Log.e(TAG, "result InterruptedException " + e);
++                } catch (ExecutionException e) {
++                    Log.e(TAG, "result ExecutionException " + e);
++                }
++            }
++            exec.shutdown();
+         } else {
+             Log.d(TAG, "shutdownRadios() befor radio interactor is started");
+             // RadioInteractor is not started yet, immediatley finish the broadcast
+             return true;
+         }
+-
+-        Log.d(TAG, "shutdownRadios() result=" + result);
+-        return result;
++        Log.d(TAG, "shutdownRadios() result=" + resultSuccess);
++        return resultSuccess;
+     }
++    /* @} */
+ }

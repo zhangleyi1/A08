@@ -1,0 +1,321 @@
+Index: packages/apps/FactoryMode/AndroidManifest.xml
+===================================================================
+--- packages/apps/FactoryMode/AndroidManifest.xml	(revision 170686)
++++ packages/apps/FactoryMode/AndroidManifest.xml	(revision 170687)
+@@ -251,6 +251,10 @@
+             android:name=".sleeporwake.SleepOrWake"
+             android:label="@string/sleeporwake"
+             android:screenOrientation="portrait" />
++		<activity
++            android:name=".tptest.TPTest"
++            android:label="@string/tp_text"
++            android:screenOrientation="portrait" />
+     </application>
+ 
+ </manifest>
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/tptest/TPTest.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/tptest/TPTest.java	(revision 0)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/tptest/TPTest.java	(revision 170687)
+@@ -0,0 +1,165 @@
++package com.mediatek.factorymode.tptest;
++
++import com.mediatek.factorymode.R; 
++import android.app.Activity;
++import android.content.Intent;
++import android.os.Bundle;
++import android.os.Handler;
++import android.os.Message;
++import android.util.Log;
++import android.view.View;
++import android.view.View.OnClickListener;
++import android.widget.Button;
++import android.widget.TextView;
++
++import android.os.Environment;
++import java.io.ByteArrayInputStream;
++import java.io.DataInputStream;
++import java.io.FileNotFoundException;
++import java.io.FileOutputStream;
++import java.io.IOException;
++import java.io.PrintWriter;
++import java.nio.ByteBuffer;
++import java.nio.ByteOrder;
++import java.nio.charset.Charset;
++import java.text.SimpleDateFormat;
++import java.util.Set;
++import java.util.SortedMap;
++import java.io.File;
++import java.io.FileNotFoundException;
++import java.io.FileOutputStream;
++import java.io.IOException;
++import java.io.PrintWriter;
++import java.text.SimpleDateFormat;
++
++import java.io.BufferedReader;
++import java.io.ByteArrayInputStream;
++import java.io.ByteArrayOutputStream;
++import java.io.DataInputStream;
++import java.io.DataOutputStream;
++import java.io.File;
++import java.io.FileNotFoundException;
++import java.io.FileReader;
++import java.io.IOException;
++
++import android.app.Activity;
++import com.mediatek.factorymode.FactoryModeReceiver;
++import android.content.BroadcastReceiver;
++import android.content.Context;
++import android.content.Intent;
++import android.content.IntentFilter;
++import android.os.AsyncResult;
++import android.os.Bundle;
++import android.os.Environment;
++import android.os.Message;
++import android.os.RemoteException;
++import android.os.ServiceManager;
++import android.os.SystemClock;
++import android.os.SystemProperties;
++import android.os.storage.StorageManager;
++
++
++import com.android.internal.telephony.Phone;
++import com.android.internal.telephony.PhoneFactory;
++import com.mediatek.factorymode.FactoryMode;
++import com.mediatek.factorymode.R;
++import android.widget.Button;
++import android.widget.TextView;
++import android.os.IBinder;
++import android.widget.Toast;
++import android.text.TextUtils;
++import android.view.KeyEvent;
++import android.os.Handler;
++
++public class TPTest extends Activity {
++
++    private static String TAG = "TPTest";
++    private Button mSuccesBtn;
++    private Button mFailBtn;
++    private TextView mInfoView;
++    private String tpFwVersion;
++	private static final String TP_FIRMWARE_VER = "/proc/tp_ver";
++    
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        
++        setContentView(R.layout.tptest);
++        
++        mInfoView = (TextView)findViewById(R.id.tp_info);
++        
++        mSuccesBtn = (Button)findViewById(R.id.tp_ok);
++        
++        mFailBtn = (Button)findViewById(R.id.tp_fail);
++        mSuccesBtn.setEnabled(false);
++        mSuccesBtn.setOnClickListener(new OnClickListener() {
++            
++            @Override
++            public void onClick(View arg0) {
++                Intent intent = new Intent(TPTest.this, FactoryMode.class);
++                setResult(FactoryMode.TEST_OK,intent);
++                finish();
++            }
++        });
++        
++        mFailBtn.setOnClickListener(new OnClickListener() {
++            
++            @Override
++            public void onClick(View arg0) {
++                Intent intent = new Intent(TPTest.this, FactoryMode.class);
++                setResult(FactoryMode.TEST_CANCEL,intent);
++                finish();
++            }
++        });
++        getTpinfo();
++		 new Handler().postDelayed(new Runnable(){   
++
++			public void run() {     
++				mInfoView.setText("TP success!");
++				mSuccesBtn.setEnabled(true);
++			}   
++
++		}, 5000); 
++        
++    }
++    
++	private void getTpinfo(){
++		tpFwVersion = "unknow";
++		try {
++			BufferedReader reader = new BufferedReader(new FileReader(TP_FIRMWARE_VER), 256);
++			if (reader != null) {
++				try {
++					//tpFwVersion = reader.readLine();
++					int version = reader.read();
++					tpFwVersion = "0x" + Integer.toHexString(version);
++					Log.v(TAG, "tpFwVersion = " + tpFwVersion);
++				} catch (IOException e) {
++					// TODO Auto-generated catch block
++					Log.e(TAG, "tpFwVersion readLine failed!");
++				}
++			}
++		} catch (FileNotFoundException e) {
++			// TODO Auto-generated catch block
++			Log.e(TAG, e.getMessage());
++			Log.e(TAG, "tpFwVersion new BufferedReader failed!");
++		}
++		//mTPFWVersion.setText("TP Firmware Version: " + tpFwVersion);
++		//Log.v(TAG, "[getVersionInfo] tp=" + readSDFile("/tp.txt"));
++	}
++   
++	
++    @Override
++	public boolean onKeyUp(int keyCode, KeyEvent event) {
++		switch (keyCode) {
++		case KeyEvent.KEYCODE_MENU:
++			return true;
++
++		case KeyEvent.KEYCODE_BACK:
++			Intent intent = new Intent(TPTest.this, FactoryMode.class);
++			setResult(FactoryMode.TEST_CANCEL,intent);
++			finish();
++			return true;
++		}
++		return super.onKeyUp(keyCode, event);
++    } 
++}
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java	(revision 170686)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java	(revision 170687)
+@@ -141,6 +141,9 @@
+ 		case FactoryMode.TESTITEM_SLEEPORWAKE:
+                 str = getString(R.string.sleeporwake);
+                 break;
++		case FactoryMode.TESTITEM_TPTEST:
++                str = getString(R.string.tp_text);
++                break;
+ 		default:
+ 			break;
+ 		}
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 170686)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 170687)
+@@ -53,6 +53,7 @@
+ import com.mediatek.factorymode.flashlight.FlashLightSub;
+ import com.mediatek.factorymode.masterclear.MasterClear;
+ import com.mediatek.factorymode.sleeporwake.SleepOrWake;
++import com.mediatek.factorymode.tptest.TPTest;
+ 
+ import java.io.File;
+ import java.io.FileNotFoundException;
+@@ -101,8 +102,9 @@
+ 	public static final int TESTITEM_LSENSORCALI = 25;
+ 	public static final int TESTITEM_MASTERCLEAR = 26;
+ 	public static final int TESTITEM_SLEEPORWAKE = 27;
+-	public static final int TESTITEM_TATOL = 28;
+-	//public static final int TESTITEM_TPRAWDATA=19;
++	public static final int TESTITEM_TATOL = 29;
++	//public static final int TESTITEM_TPRAWDATA=28;
++	public static final int TESTITEM_TPTEST=28;
+ 	//private static int currentTestMode = 0;
+ 	public static int currenttestitem = TESTITEM_START;
+   public static boolean isAutoTest = false;
+@@ -176,8 +178,9 @@
+     TESTITEM_FLASHLIGHT ,
+ 	TESTITEM_FLASHLIGHT_SUB ,
+ 	TESTITEM_MASTERCLEAR,
+-	TESTITEM_SLEEPORWAKE
+-  //TESTITEM_TPRAWDATA
++	TESTITEM_SLEEPORWAKE,
++	TESTITEM_TPTEST
++    //TESTITEM_TPRAWDATA
+   };
+ 
+ 
+@@ -744,6 +747,10 @@
+ 		 intent.setClass(this, SleepOrWake.class);
+          startActivityForResult(intent, TESTITEM_SLEEPORWAKE);
+ 		break;
++	  case TESTITEM_TPTEST:
++	  	intent.setClass(this, TPTest.class);
++         startActivityForResult(intent, TESTITEM_TPTEST);
++		break;
+       default:
+         break;
+     }
+@@ -854,6 +861,9 @@
+ 		case TESTITEM_SLEEPORWAKE:
+ 			str = getString(R.string.sleeporwake);
+ 			break;
++		case TESTITEM_TPTEST:
++			str = getString(R.string.tp_text);
++			break;
+ 		default:
+ 			break;
+ 		}
+Index: packages/apps/FactoryMode/res/values/strings.xml
+===================================================================
+--- packages/apps/FactoryMode/res/values/strings.xml	(revision 170686)
++++ packages/apps/FactoryMode/res/values/strings.xml	(revision 170687)
+@@ -230,4 +230,6 @@
+ 	<string name="masterclear">MasterClear</string>
+ 	<string name="sleeporwake">Sleep/Wake</string>
+ 	<string name="sleeporwake_hint">Please press Power to sleep phone and then press again to wake up!</string>
++	<string name="tp_text">TP test</string>
++	<string name="tp_test_hint">TP test......</string>
+ </resources>
+Index: packages/apps/FactoryMode/res/layout/tptest.xml
+===================================================================
+--- packages/apps/FactoryMode/res/layout/tptest.xml	(revision 0)
++++ packages/apps/FactoryMode/res/layout/tptest.xml	(revision 170687)
+@@ -0,0 +1,37 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:orientation="vertical" >
++    <TextView 
++        android:id="@+id/tp_info"
++        android:layout_width="fill_parent"
++        android:layout_height="100dp"
++		android:gravity="center"
++		android:textSize="25sp"
++        android:textColor="#000"
++		android:layout_weight="0.8"
++        android:text="@string/tp_test_hint"
++        />
++	<LinearLayout 
++	    android:layout_width="fill_parent"
++	    android:layout_height="wrap_content"
++	    android:orientation="vertical"
++		android:layout_weight="0.2"
++	    >
++	    <Button 
++	        android:id="@+id/tp_ok"
++	        android:layout_width="fill_parent"
++	        android:layout_height="150dp"
++			android:textSize="25.0dip"  
++	        android:text="@string/Success"
++	        />
++	    <Button 
++	        android:id="@+id/tp_fail"
++	        android:layout_width="fill_parent"
++	        android:layout_height="100dp"
++			android:textSize="25.0dip" 
++	        android:text="@string/Failed"
++	        />
++	</LinearLayout>
++</LinearLayout>
+\ No newline at end of file
+Index: packages/apps/FactoryMode/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/apps/FactoryMode/res/values-zh-rCN/strings.xml	(revision 170686)
++++ packages/apps/FactoryMode/res/values-zh-rCN/strings.xml	(revision 170687)
+@@ -222,4 +222,6 @@
+ 	<string name="masterclear">"恢复出厂设置"</string>
+ 	<string name="sleeporwake">"休眠/唤醒"</string>
+ 	<string name="sleeporwake_hint">"请按下电源键让手机睡眠，下次按下电源键唤醒"</string>
++	<string name="tp_text">"TP断线测试"</string>
++	<string name="tp_test_hint">TP 测试......</string>
+ </resources>

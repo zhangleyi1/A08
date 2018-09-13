@@ -1,0 +1,13 @@
+Index: vendor/sprd/plugins/frameworks/base/packages/SystemUI/addons/SystemUITelephonyAddon/src/plugin/sprd/systemuifeatures/qstile/DataConnectionTile.java
+===================================================================
+--- vendor/sprd/plugins/frameworks/base/packages/SystemUI/addons/SystemUITelephonyAddon/src/plugin/sprd/systemuifeatures/qstile/DataConnectionTile.java	(revision 175921)
++++ vendor/sprd/plugins/frameworks/base/packages/SystemUI/addons/SystemUITelephonyAddon/src/plugin/sprd/systemuifeatures/qstile/DataConnectionTile.java	(revision 175922)
+@@ -57,7 +57,7 @@
+         mTelephonyManager = TelephonyManager.from(mContext);
+         mSubscriptionManager = SubscriptionManager.from(mContext);
+ 
+-        mDataSetting = new GlobalSetting(mContext, mHandler, Global.MOBILE_DATA) {
++        mDataSetting = new GlobalSetting(mContext, mHandler, Global.MOBILE_DATA + SubscriptionManager.MAX_SUBSCRIPTION_ID_VALUE) {
+             @Override
+             protected void handleValueChanged(int value) {
+                 Log.d(TAG, "mDataSetting handleValueChanged");

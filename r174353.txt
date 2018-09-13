@@ -1,0 +1,149 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/SlidePanelManager.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/SlidePanelManager.java	(revision 174352)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/SlidePanelManager.java	(revision 174353)
+@@ -8,9 +8,16 @@
+ import com.android.camera.CameraActivity;
+ import com.android.camera.debug.Log;
+ import com.android.camera2.R;
++import com.android.camera.CameraActivity.onModuleChangeListen;
++import com.android.camera.CameraModule;
++import com.android.camera.VideoModule;
++import com.android.camera.PhotoModule;
++import android.widget.TextView;
+ 
+-public class SlidePanelManager {
+ 
++
++public class SlidePanelManager implements CameraActivity.onModuleChangeListen{
++
+     private static SlidePanelManager mSlidePanelManager;
+     private static CameraActivity mActivity;
+ 
+@@ -22,7 +29,7 @@
+     private View slidePanel;
+ 
+     private View modeText;
+-    private View captureText;
++    private TextView captureText;
+     private View filterText;
+ 
+     private SlidePanelManager(CameraActivity activity) {
+@@ -46,7 +53,7 @@
+         slidePanel = mActivity.findViewById(R.id.slide_panel);
+ 
+         modeText = mActivity.findViewById(R.id.sp_mode_tv);
+-        captureText = mActivity.findViewById(R.id.sp_capture_tv);
++        captureText = (TextView)mActivity.findViewById(R.id.sp_capture_tv);
+         filterText = mActivity.findViewById(R.id.sp_filter_tv);
+     }
+ 
+@@ -118,4 +125,13 @@
+         mSlidePanelManager = null;
+         mActivity = null;
+     }
++	@Override
++	public void onModuleChanged(CameraModule module){
++		
++		if(module instanceof VideoModule){
++			captureText.setText(mActivity.getResources().getString(R.string.slide_panel_capture_video));
++		}else if(module instanceof PhotoModule){
++			captureText.setText(mActivity.getResources().getString(R.string.slide_panel_capture));
++		}
++	}
+ }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java	(revision 174352)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java	(revision 174353)
+@@ -460,6 +460,13 @@
+     //private FirstRunDialog mFirstRunDialog;
+ 
+     private Dialog detailDialog = null;
++	private onModuleChangeListen mModuleChangeListen;
++	private void setModuleChangeListen(onModuleChangeListen listen ){
++		mModuleChangeListen=listen;
++	}
++	public interface onModuleChangeListen{
++		void onModuleChanged(CameraModule module);
++	}
+ 
+     @Override
+     public CameraAppUI getCameraAppUI() {
+@@ -2287,7 +2294,7 @@
+             } catch (Exception e) {
+             }
+         }
+-
++		setModuleChangeListen(SlidePanelManager.getInstance(this));
+         postInit();
+         profile.stop();
+     }
+@@ -4013,6 +4020,7 @@
+         }
+         mCurrentModeIndex = agent.getModuleId();
+         mCurrentModule = (CameraModule) agent.createModule(this, getIntent());
++		mModuleChangeListen.onModuleChanged(mCurrentModule);
+         if (!isCaptureIntent()) { // Bug #533869 new feature: check UI 27,28: dream camera of intent capture
+             DataModuleManager.getInstance(this).getDataModuleCamera()
+                     .set(Keys.KEY_STARTUP_MODULE_INDEX, mCurrentModeIndex);
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-in/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-in/strings.xml	(revision 174352)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-in/strings.xml	(revision 174353)
+@@ -16,6 +16,7 @@
+ <string name="mode_timelapse">"Selang Waktu"</string>
+ <string name="camera_mode_slowmotion">"Gerak lambat"</string>
+ <string name="slide_panel_capture">"Menangkap"</string>
++<string name="slide_panel_capture_video">"Menangkap"</string>
+ <string name="slide_panel_mode">"Mode"</string>
+ <string name="slide_panel_filter">"Filter"</string>
+ <string name="extend_panel_exposure">"Pencahayaan"</string>
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rCN/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rCN/strings.xml	(revision 174352)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rCN/strings.xml	(revision 174353)
+@@ -19,6 +19,7 @@
+     <string name="mode_timelapse">快录（延时）</string>
+     <string name="camera_mode_slowmotion">慢录</string>
+     <string name="slide_panel_capture">取景</string>
++	<string name="slide_panel_capture_video">取景</string>
+     <string name="slide_panel_mode">模式</string>
+     <string name="slide_panel_filter">滤镜</string>
+     <string name="extend_panel_exposure">曝光</string>
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml	(revision 174352)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml	(revision 174353)
+@@ -19,6 +19,7 @@
+     <string name="mode_timelapse">TimeLapse</string>
+     <string name="camera_mode_slowmotion">SlowMotion</string>
+     <string name="slide_panel_capture">Photo</string>
++    <string name="slide_panel_capture_video">Video</string>
+     <string name="slide_panel_mode">Mode</string>
+     <string name="slide_panel_filter">Beautify</string>
+     <string name="extend_panel_exposure">Exposure</string>
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rHK/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rHK/strings.xml	(revision 174352)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rHK/strings.xml	(revision 174353)
+@@ -16,6 +16,7 @@
+ <string name="mode_timelapse">"快錄（延時）"</string>
+ <string name="camera_mode_slowmotion">"慢錄"</string>
+ <string name="slide_panel_capture">"拍攝"</string>
++<string name="slide_panel_capture_video">"拍攝"</string>
+ <string name="slide_panel_mode">"模式"</string>
+ <string name="slide_panel_filter">"篩選"</string>
+ <string name="extend_panel_exposure">"曝光"</string>
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rTW/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rTW/strings.xml	(revision 174352)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rTW/strings.xml	(revision 174353)
+@@ -19,6 +19,7 @@
+     <string name="mode_timelapse">快錄（延時）</string>
+     <string name="camera_mode_slowmotion">慢錄</string>
+     <string name="slide_panel_capture">取景</string>
++	<string name="slide_panel_capture_video">取景</string>
+     <string name="slide_panel_mode">模式</string>
+     <string name="slide_panel_filter">濾鏡</string>
+     <string name="extend_panel_exposure">曝光</string>

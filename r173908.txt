@@ -1,0 +1,27 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/usb/StorageNotification.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/usb/StorageNotification.java	(revision 173907)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/usb/StorageNotification.java	(revision 173908)
+@@ -299,8 +299,8 @@
+ 			.setSmallIcon(R.drawable.ic_sd_card_48dp)
+ 			.setColor(mContext.getColor(R.color.system_notification_accent_color))
+ 			//.setContentTitle(title) //remove for 97606
+-			.setContentText(text)
+-			.setStyle(new Notification.BigTextStyle().bigText(text))
++			//.setContentText(text)
++			//.setStyle(new Notification.BigTextStyle().bigText(text))
+ 			.setVisibility(Notification.VISIBILITY_PUBLIC)
+ 			.setLocalOnly(true);
+ 		SystemUI.overrideNotificationAppName(mContext, builder);
+@@ -346,9 +346,9 @@
+                         .setSmallIcon(R.drawable.ic_sd_card_48dp)
+                         .setColor(mContext.getColor(R.color.system_notification_accent_color))
+                         .setContentTitle(title)
+-                        .setContentText(text)
++                        //.setContentText(text) //remove for 97606
+                         .setContentIntent(buildForgetPendingIntent(rec))
+-                        .setStyle(new Notification.BigTextStyle().bigText(text))
++                        //.setStyle(new Notification.BigTextStyle().bigText(text))
+                         .setVisibility(Notification.VISIBILITY_PUBLIC)
+                         .setLocalOnly(true)
+                         .setCategory(Notification.CATEGORY_SYSTEM)

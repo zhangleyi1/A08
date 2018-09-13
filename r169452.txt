@@ -1,0 +1,73 @@
+Index: vendor/sprd/platform/packages/apps/EngineerMode/AndroidManifest.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/EngineerMode/AndroidManifest.xml	(revision 169451)
++++ vendor/sprd/platform/packages/apps/EngineerMode/AndroidManifest.xml	(revision 169452)
+@@ -1336,6 +1336,11 @@
+         </receiver>
+         <receiver android:name="com.sprd.engineermode.debuglog.slogui.StorageReceiver" >
+         </receiver>
++		<receiver android:name="com.sprd.engineermode.MTPReceiver" >
++            <intent-filter>
++                <action android:name="android.hardware.usb.action.USB_STATE" />
++            </intent-filter>
++        </receiver>
+         <receiver android:name="com.sprd.engineermode.debuglog.PowerOnInfoActivity$BootCompletedReceiver" >
+             <intent-filter>
+                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+Index: vendor/sprd/platform/packages/apps/EngineerMode/src/com/sprd/engineermode/MTPReceiver.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/EngineerMode/src/com/sprd/engineermode/MTPReceiver.java	(revision 0)
++++ vendor/sprd/platform/packages/apps/EngineerMode/src/com/sprd/engineermode/MTPReceiver.java	(revision 169452)
+@@ -0,0 +1,52 @@
++
++package com.sprd.engineermode;
++
++import java.io.File;
++import java.util.ArrayList;
++
++import android.content.BroadcastReceiver;
++import android.content.Context;
++import android.content.Intent;
++import android.content.IntentFilter;
++import android.hardware.usb.UsbManager;
++import android.net.Uri;
++import android.os.Bundle;
++import android.os.storage.StorageManager;
++import android.os.storage.StorageVolume;
++import android.os.Environment;
++import android.util.Log;
++
++import com.sprd.engineermode.debuglog.slogui.StorageUtil;
++
++public class MTPReceiver extends BroadcastReceiver {
++
++    private static final String TAG = "MTPReceiver";
++    public static final String ACTION_MEDIA_SCANNER_SCAN_DIR = "android.intent.action.MEDIA_SCANNER_SCAN_DIR";
++
++    @Override
++    public void onReceive(Context context, Intent intent) {
++        final String action = intent.getAction();
++        if (UsbManager.ACTION_USB_STATE.equals(action)) {
++            Bundle extras = intent.getExtras();
++            boolean mtpEnabled = extras.getBoolean(UsbManager.USB_FUNCTION_MTP);
++            if(mtpEnabled && StorageUtil.getExternalStorageState()) {
++                String path = StorageUtil.getExternalStorage().getAbsolutePath() + File.separator + "ylog";
++                if (new File(path).exists()) {
++                    scanDirAsync(context, path);
++                }
++            }
++            if(mtpEnabled) {
++                String path = "/storage/emulated/0/ylog";
++                if (new File(path).exists()) {
++                    scanDirAsync(context, path);
++                }
++            }
++        }
++    }
++
++    public void scanDirAsync(Context context, String dir) {
++        Intent scanIntent = new Intent(ACTION_MEDIA_SCANNER_SCAN_DIR);
++        scanIntent.putExtra("scan_dir_path", dir);
++        context.sendBroadcast(scanIntent);
++    }
++}

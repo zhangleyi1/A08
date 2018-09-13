@@ -1,0 +1,29 @@
+Index: vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/CallLogProvider.java
+===================================================================
+--- vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/CallLogProvider.java	(revision 183131)
++++ vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/CallLogProvider.java	(revision 183132)
+@@ -501,7 +501,7 @@
+                             sb.append(Data._ID + " IN (SELECT DISTINCT "
+                                     + PhoneLookupColumns.DATA_ID + " FROM " + ContactsDatabaseHelper.Tables.PHONE_LOOKUP
+                                     + " WHERE (" + PhoneLookupColumns.NORMALIZED_NUMBER + " LIKE '");
+-                            sb.append("%");
++//                            sb.append("%");
+                             sb.append(normalizeNumber);
+                             sb.append("%')");
+                         }
+@@ -554,6 +554,15 @@
+                     groupBy = "(CASE WHEN " + isPhoneAndHasNormalized + " THEN "
+                             + Phone.NORMALIZED_NUMBER + " ELSE " + Phone.NUMBER + " END), "
+                             + RawContacts.CONTACT_ID;
++                    if (filterParam != null) {
++                        String str = filterParam.substring(0);
++                        boolean isNum = PhoneNumberUtils.isGlobalPhoneNumber(str);
++                        if (!isNum) {
++                            groupBy = "(CASE WHEN " + Contacts.DISPLAY_NAME
++                                    + " LIKE '" + uri.getLastPathSegment() + "%'" + " THEN 0"
++                                    + " ELSE 1 END)," + RawContacts.CONTACT_ID;
++                        }
++                    }
+                 } else {
+                     groupBy = "(CASE WHEN " + Phone.NORMALIZED_NUMBER + " IS NOT NULL THEN "
+                             + Phone.NORMALIZED_NUMBER + " ELSE " + Phone.NUMBER + " END), "

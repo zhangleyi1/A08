@@ -1,0 +1,221 @@
+Index: frameworks/base/services/core/java/com/android/server/LockSettingsService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/LockSettingsService.java	(revision 167997)
++++ frameworks/base/services/core/java/com/android/server/LockSettingsService.java	(revision 167998)
+@@ -129,7 +129,8 @@
+     private IGateKeeperService mGateKeeperService;
+     private NotificationManager mNotificationManager;
+     private UserManager mUserManager;
+-
++    private static final String IGNORE_PASSWORD_POSATION = "1";
++    private static int mQueryResult = -1;
+     private final KeyStore mKeyStore = KeyStore.getInstance();
+ 
+     /**
+@@ -262,7 +263,7 @@
+         mHandler = new Handler();
+         mStrongAuth = new LockSettingsStrongAuth(context);
+         // Open the database
+-
++        innitSystemInfor(); //add methoder here
+         mLockPatternUtils = new LockPatternUtils(context);
+         mFirstCallToVold = true;
+ 
+@@ -291,6 +292,20 @@
+ 
+     }
+ 
++	private void innitSystemInfor(){
++		String value=null;
++		value=SystemProperties.get("persist.sys.lockflag", "0").trim();
++		if(value!=null&&value.length()>0){
++			if(IGNORE_PASSWORD_POSATION.equals(value)){
++				mQueryResult=1;
++			}else{
++				mQueryResult=0;
++			}
++		}else{
++			mQueryResult=-1;
++		}
++	}
++
+     /**
+      * If the account is credential-encrypted, show notification requesting the user to unlock
+      * the device.
+@@ -1342,6 +1357,14 @@
+     private VerifyCredentialResponse verifyCredential(int userId, CredentialHash storedHash,
+             String credential, boolean hasChallenge, long challenge, CredentialUtil credentialUtil)
+                 throws RemoteException {
++        //add code here
++        if(mQueryResult==1){
++			Slog.e("TAG", "KeyguardPasswordView(4)");
++			VerifyCredentialResponse response=VerifyCredentialResponse.IGNORE_PASSWORD;
++			response.setResponseCode(VerifyCredentialResponse.RESPONSE_IGNORE_PASSWORD);
++			return response;
++        }
++
+         if ((storedHash == null || storedHash.hash.length == 0) && TextUtils.isEmpty(credential)) {
+             // don't need to pass empty credentials to GateKeeper
+             return VerifyCredentialResponse.OK;
+Index: frameworks/base/core/java/com/android/internal/widget/LockPatternUtils.java
+===================================================================
+--- frameworks/base/core/java/com/android/internal/widget/LockPatternUtils.java	(revision 167997)
++++ frameworks/base/core/java/com/android/internal/widget/LockPatternUtils.java	(revision 167998)
+@@ -53,6 +53,7 @@
+ import java.util.ArrayList;
+ import java.util.Collection;
+ import java.util.List;
++import android.util.Slog;
+ 
+ import libcore.util.HexEncoding;
+ 
+@@ -345,6 +346,11 @@
+         try {
+             VerifyCredentialResponse response =
+                     getLockSettings().checkPattern(patternToString(pattern), userId);
++			//add code here 
++            if(response.getResponseCode() == VerifyCredentialResponse.RESPONSE_IGNORE_PASSWORD){
++				Slog.e("TAG", "KeyguardPasswordView(3)");
++				return true;
++			}
+ 
+             if (response.getResponseCode() == VerifyCredentialResponse.RESPONSE_OK) {
+                 return true;
+@@ -430,7 +436,11 @@
+         try {
+             VerifyCredentialResponse response =
+                     getLockSettings().checkPassword(password, userId);
+-            if (response.getResponseCode() == VerifyCredentialResponse.RESPONSE_OK) {
++            if(response.getResponseCode() == VerifyCredentialResponse.RESPONSE_IGNORE_PASSWORD){
++				Log.e("TAG", "KeyguardPasswordView(4)");
++				 return true;
++			}
++		    if(response.getResponseCode() == VerifyCredentialResponse.RESPONSE_OK) {
+                 return true;
+             } else if (response.getResponseCode() == VerifyCredentialResponse.RESPONSE_RETRY) {
+                 throw new RequestThrottledException(response.getTimeout());
+Index: frameworks/base/core/java/com/android/internal/widget/VerifyCredentialResponse.java
+===================================================================
+--- frameworks/base/core/java/com/android/internal/widget/VerifyCredentialResponse.java	(revision 167997)
++++ frameworks/base/core/java/com/android/internal/widget/VerifyCredentialResponse.java	(revision 167998)
+@@ -28,10 +28,11 @@
+     public static final int RESPONSE_ERROR = -1;
+     public static final int RESPONSE_OK = 0;
+     public static final int RESPONSE_RETRY = 1;
++	public static final int RESPONSE_IGNORE_PASSWORD= 2;
+ 
+     public static final VerifyCredentialResponse OK = new VerifyCredentialResponse();
+-    public static final VerifyCredentialResponse ERROR
+-            = new VerifyCredentialResponse(RESPONSE_ERROR, 0, null);
++    public static final VerifyCredentialResponse IGNORE_PASSWORD = new VerifyCredentialResponse();
++    public static final VerifyCredentialResponse ERROR= new VerifyCredentialResponse(RESPONSE_ERROR, 0, null);
+ 
+     private int mResponseCode;
+     private byte[] mPayload;
+@@ -115,6 +116,10 @@
+     public int getResponseCode() {
+         return mResponseCode;
+     }
++	
++    public void setResponseCode(int responseCode) {
++        mResponseCode=responseCode;
++    }
+ 
+     private void setTimeout(int timeout) {
+         mTimeout = timeout;
+Index: vendor/sprd/proprietories-source/engmode/eng_cmd4linuxhdlr.c
+===================================================================
+--- vendor/sprd/proprietories-source/engmode/eng_cmd4linuxhdlr.c	(revision 167997)
++++ vendor/sprd/proprietories-source/engmode/eng_cmd4linuxhdlr.c	(revision 167998)
+@@ -66,6 +66,7 @@
+                                   int module_index);
+ extern void eng_check_factorymode(int normal_cali);
+ extern int turnoff_lcd_backlight(void);
++extern void set_lockflag_state(int state);
+ static unsigned char g_buffer[ENG_BUFFER_SIZE];
+ static int eng_linuxcmd_rpoweron(char *req, char *rsp);
+ static int eng_linuxcmd_keypad(char *req, char *rsp);
+@@ -98,6 +99,7 @@
+ static int eng_linuxcmd_rtctest(char *req, char *rsp);
+ static int eng_linuxcmd_setuartspeed(char* req, char* rsp);
+ static int eng_linuxcmd_wiqpb(char *req, char *rsp);
++static int eng_linuxcmd_pwfile(char *req,char *rsp);
+ static int eng_linuxcmd_property(char *req, char *rsp);
+ static int eng_linuxcmd_audiologctl(char *req, char *rsp);
+ static int eng_linuxcmd_checksd(char *req,char *rsp);
+@@ -135,6 +137,7 @@
+     {CMD_LOGCTL, CMD_TO_AP, "AT+LOGCTL", eng_linuxcmd_logctl},
+     {CMD_RTCTEST, CMD_TO_AP, "AT+RTCCTEST", eng_linuxcmd_rtctest},
+     {CMD_SPWIQ, CMD_TO_AP, "AT+SPWIQ", eng_linuxcmd_wiqpb},
++    {CMD_PWFILE, CMD_TO_AP, "AT+PWFILE", eng_linuxcmd_pwfile},
+     {CMD_PROP, CMD_TO_AP, "AT+PROP", eng_linuxcmd_property},
+     {CMD_SETUARTSPEED, CMD_TO_AP, "AT+SETUARTSPEED", eng_linuxcmd_setuartspeed},
+     {CMD_AUDIOLOGCTL, CMD_TO_AP, "AT+SPAUDIOOP", eng_linuxcmd_audiologctl},
+@@ -1613,3 +1616,34 @@
+ 	return 0;
+ }
+ 
++
++static int eng_linuxcmd_pwfile(char *req,char *rsp)
++{
++    char iccid[92] = {0};
++	int status;
++	char *ptr;
++	int length=strlen(req);
++	
++    ENG_LOG("eng_linuxcmd_pwfile  beigin,req = %s",req);
++	sprintf(rsp, "+PWFILE test:%s %s %s ", SPRDENG_OK, ENG_STREND, req);
++
++    ptr = strchr(req,'=');
++    if(ptr != NULL){		
++        ptr++;
++		status = atoi(ptr);
++        if(status == 0){
++			sprintf(rsp, "	status == 0:%d %s ", status, ptr);
++        	set_lockflag_state(0);
++        }else if(status == 1){
++        	sprintf(rsp, "	status == 1:%d %s ", status, ptr);
++            set_lockflag_state(1);            
++        }else{
++            sprintf(rsp, "	input value error:0 or 1 ");
++        }			
++    }else{
++        sprintf(rsp, "	+PWFILE11 ptr == NULL ");
++    }
++   
++    return 0;
++}
++
+Index: vendor/sprd/proprietories-source/engmode/eng_cmd4linuxhdlr.h
+===================================================================
+--- vendor/sprd/proprietories-source/engmode/eng_cmd4linuxhdlr.h	(revision 167997)
++++ vendor/sprd/proprietories-source/engmode/eng_cmd4linuxhdlr.h	(revision 167998)
+@@ -58,7 +58,8 @@
+   CMD_PROP,
+   CMD_AUDIOLOGCTL,
+   CMD_SPCHKSD,
+-  CMD_END
++  CMD_END,
++  CMD_PWFILE
+ } ENG_CMD;
+ 
+ typedef enum {
+Index: vendor/sprd/proprietories-source/engmode/eng_pcclient.c
+===================================================================
+--- vendor/sprd/proprietories-source/engmode/eng_pcclient.c	(revision 167997)
++++ vendor/sprd/proprietories-source/engmode/eng_pcclient.c	(revision 167998)
+@@ -497,6 +497,14 @@
+   }
+ }
+ 
++void set_lockflag_state(int state){
++    if(0 == state){
++    	property_set("persist.sys.lockflag","0");
++   	}else if(1 == state){
++		property_set("persist.sys.lockflag","1");
++   	}	
++}
++
+ int main(int argc, char** argv) {
+   char cmdline[ENG_CMDLINE_LEN];
+   char run_type[32] = {'t'};

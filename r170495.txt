@@ -1,0 +1,13 @@
+Index: packages/apps/Dialer/res/layout/call_log_list_item_actions.xml
+===================================================================
+--- packages/apps/Dialer/res/layout/call_log_list_item_actions.xml	(revision 170494)
++++ packages/apps/Dialer/res/layout/call_log_list_item_actions.xml	(revision 170495)
+@@ -74,7 +74,7 @@
+     </LinearLayout>
+ 
+ 	 <LinearLayout
+-        android:id="@+id/call_using_GSM"
++        android:id="@+id/call_using_gsm"
+         style="@style/CallLogActionStyle">
+ 
+         <ImageView

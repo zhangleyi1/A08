@@ -1,0 +1,4 @@
+Index: vendor/sprd/platform/packages/apps/FotaUpdate/app/withIcon/FotaUpdate.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream

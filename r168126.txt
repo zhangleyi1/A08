@@ -1,0 +1,13 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/KeyguardBottomAreaView.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/KeyguardBottomAreaView.java	(revision 168125)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/KeyguardBottomAreaView.java	(revision 168126)
+@@ -319,7 +319,7 @@
+     }
+ 
+     private void updateLeftAffordanceIcon() {
+-        mLeftIsVoiceAssist = canLaunchVoiceAssist();
++        mLeftIsVoiceAssist = false;//canLaunchVoiceAssist(); //Modified by zhangleyi for 93779 20170509 
+         int drawableId;
+         int contentDescription;
+         boolean visible = mUserSetupComplete;

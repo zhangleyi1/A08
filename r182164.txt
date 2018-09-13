@@ -1,0 +1,1562 @@
+Index: system/sepolicy/system_server.te
+===================================================================
+--- system/sepolicy/system_server.te	(revision 182163)
++++ system/sepolicy/system_server.te	(revision 182164)
+@@ -54,7 +54,7 @@
+     net_raw
+     sys_boot
+     sys_nice
+-    sys_resource
++    sys_ptrace
+     sys_time
+     sys_tty_config
+ };
+@@ -61,9 +61,6 @@
+ 
+ wakelock_use(system_server)
+ 
+-# Triggered by /proc/pid accesses, not allowed.
+-dontaudit system_server self:capability sys_ptrace;
+-
+ # Trigger module auto-load.
+ allow system_server kernel:system module_request;
+ 
+Index: system/core/liblog/libylog.c
+===================================================================
+--- system/core/liblog/libylog.c	(revision 182163)
++++ system/core/liblog/libylog.c	(revision 182164)
+@@ -126,7 +126,10 @@
+ static int write_to_ylogd(struct iovec *vec, size_t nr, ylogd_header_t *yh)
+ {
+ 	int ret, i, cnt;
+-
++    /*record the reason of lost log,when ylogd not run ,the socket file need to be deleted*/
++    char *error_info = NULL;
++    char msg[128];
++    memset(msg,0,sizeof(msg));
+ 	if (ylogd_fd < 0)
+ 	{
+ 		/**
+@@ -186,10 +189,6 @@
+ 	{
+ 		ret = TEMP_FAILURE_RETRY(writev(ylogd_fd, newVec, cnt));
+ 	}
+-	/*record the reason of lost log,when ylogd not run ,the socket file need to be deleted*/
+-	char *error_info = NULL;
+-	char msg[128];
+-	memset(msg,0,sizeof(msg));
+ 	if (ret < 0)
+ 	{
+ 		ret = -errno;
+@@ -196,7 +195,7 @@
+ 		error_info =strerror(errno);
+ 		sprintf(msg, "lost log  reason: %s,",error_info);
+ 		record_fail_msg(msg,LOG_TAG_LIBYLOG,yh->realtime);
+-		if (1/* ret == -ENOTCONN || ret == -EPIPE */)
++		if ( ret == -ENOTCONN || ret == -EPIPE )
+ 		{
+ 			__android_log_lock();
+ 			if (ylogd_fd >= 0)
+Index: system/core/init/builtins.cpp
+===================================================================
+--- system/core/init/builtins.cpp	(revision 182163)
++++ system/core/init/builtins.cpp	(revision 182164)
+@@ -552,9 +552,15 @@
+         property_set("ro.crypto.type", "block");
+         ActionManager::GetInstance().QueueEventTrigger("defaultcrypto");
+     } else if (ret == FS_MGR_MNTALL_DEV_NOT_ENCRYPTED) {
++        // start storageproxyd if data is not encrypted
++        property_set("vold.realdata.mount", "ok");
++
+         property_set("ro.crypto.state", "unencrypted");
+         ActionManager::GetInstance().QueueEventTrigger("nonencrypted");
+     } else if (ret == FS_MGR_MNTALL_DEV_NOT_ENCRYPTABLE) {
++        // start storageproxyd if not support FDE
++        property_set("vold.realdata.mount", "ok");
++
+         property_set("ro.crypto.state", "unsupported");
+         ActionManager::GetInstance().QueueEventTrigger("nonencrypted");
+     } else if (ret == FS_MGR_MNTALL_DEV_NEEDS_RECOVERY) {
+@@ -566,6 +572,10 @@
+         if (e4crypt_install_keyring()) {
+             return -1;
+         }
++
++        // start storageproxyd if fbe
++        property_set("vold.realdata.mount", "ok");
++
+         property_set("ro.crypto.state", "encrypted");
+         property_set("ro.crypto.type", "file");
+ 
+Index: system/core/healthd/healthd.cpp
+===================================================================
+--- system/core/healthd/healthd.cpp	(revision 182163)
++++ system/core/healthd/healthd.cpp	(revision 182164)
+@@ -152,7 +152,7 @@
+     return 0;
+ }
+ 
+-// NOTE: low power Feature BEG-->
++// NOTE: Bug #627645 low power Feature BEG-->
+ // to align the next start alarm time to (DEFAULT_PERIODIC_CHORES_INTERVAL_SLOW/60)mins(defalult 10min),
+ // and return the seconds to next start alarm time
+ // return -1 for fail
+@@ -192,9 +192,8 @@
+ 
+     return (next - now);
+ }
+-// <-- NOTE: low power Feature END
++// <-- NOTE: Bug #627645 low power Feature END
+ 
+-
+ static void wakealarm_set_interval(int interval) {
+     struct itimerspec itval;
+ 
+@@ -206,15 +205,14 @@
+     if (interval == -1)
+         interval = 0;
+ 
+- 
+-// NOTE: low power Feature BEG-->
++// NOTE: Bug #627645 low power Feature BEG-->
+     int next = interval;
+     if (DEFAULT_PERIODIC_CHORES_INTERVAL_SLOW == wakealarm_wake_interval) {
+         next = next_align_start_time();
+         if (next < 0) next = interval;
+     }
+-// <-- NOTE: low power Feature END
+-	
++// <-- NOTE: Bug #627645 low power Feature END
++
+     itval.it_interval.tv_sec = interval;
+     itval.it_interval.tv_nsec = 0;
+     itval.it_value.tv_sec = next; //interval;
+Index: system/core/libziparchive/zip_archive.cc
+===================================================================
+--- system/core/libziparchive/zip_archive.cc	(revision 182163)
++++ system/core/libziparchive/zip_archive.cc	(revision 182164)
+@@ -393,11 +393,11 @@
+ #endif
+       return -1;
+     }
++
+     const CentralDirectoryRecord* cdr =
+         reinterpret_cast<const CentralDirectoryRecord*>(ptr);
+     if (cdr->record_signature != CentralDirectoryRecord::kSignature) {
+       ALOGW("Zip: missed a central dir sig (at %" PRIu16 ")", i);
+-
+       return -1;
+     }
+ 
+Index: system/vold/MoveTask.cpp
+===================================================================
+--- system/vold/MoveTask.cpp	(revision 182163)
++++ system/vold/MoveTask.cpp	(revision 182164)
+@@ -122,6 +122,14 @@
+     uint64_t expectedBytes = GetTreeBytes(fromPath);
+     uint64_t startFreeBytes = GetFreeBytes(toPath);
+ 
++    /* SPRD: add for bug 671414, cause fromPath used size is larger than toPath @{ */
++    if (expectedBytes > startFreeBytes) {
++        LOG(ERROR) << "Data size " << expectedBytes << " is too large to fit in free space "
++            << startFreeBytes;
++        return -1;
++    }
++    /* @ } */
++
+     std::vector<std::string> cmd;
+     cmd.push_back(kCpPath);
+     cmd.push_back("-p"); /* preserve timestamps, ownership, and permissions */
+@@ -195,7 +203,10 @@
+ 
+     // Step 3: perform actual copy
+     if (execCp(fromPath, toPath, 20, 60) != OK) {
+-        goto fail;
++    /* SPRD: add for bug 671414, cause fromPath used size is larger than toPath
++        @orig goto fail  @{ */
++        goto copy_fail;
++    /* @} */
+     }
+ 
+     // NOTE: MountService watches for this magic value to know
+@@ -212,6 +223,11 @@
+     notifyProgress(kMoveSucceeded);
+     release_wake_lock(kWakeLock);
+     return;
++
++/* SPRD: add for bug 671414, cause fromPath used size is larger than toPath @ {*/
++copy_fail:
++    execRm(toPath, 80, 1);
++/* @} */
+ fail:
+     bringOnline(mFrom);
+     bringOnline(mTo);
+Index: system/vold/Utils.cpp
+===================================================================
+--- system/vold/Utils.cpp	(revision 182163)
++++ system/vold/Utils.cpp	(revision 182164)
+@@ -433,7 +433,10 @@
+ uint64_t GetFreeBytes(const std::string& path) {
+     struct statvfs sb;
+     if (statvfs(path.c_str(), &sb) == 0) {
+-        return (uint64_t)sb.f_bfree * sb.f_bsize;
++        /* SPRD: add for bug 671414, cause fromPath used size is larger than toPath
++        @orig return (uint64_t)sb.f_bfree * sb.f_bsize;  @{ */
++        return (uint64_t)sb.f_bavail * sb.f_frsize;
++        /* @ } */
+     } else {
+         return -1;
+     }
+Index: system/vold/cryptfs.c
+===================================================================
+--- system/vold/cryptfs.c	(revision 182163)
++++ system/vold/cryptfs.c	(revision 182164)
+@@ -61,9 +61,10 @@
+ #include "f2fs_sparseblock.h"
+ #include "CheckBattery.h"
+ #include "Process.h"
++/* SPRD: power interrupt {@ */
+ #include <sys/stat.h>
+ #include <dirent.h>
+-
++/* @} */
+ #include <bootloader_message_writer.h>
+ #include <hardware/keymaster0.h>
+ #include <hardware/keymaster1.h>
+@@ -103,6 +104,12 @@
+ #define RETRY_MOUNT_ATTEMPTS 10
+ #define RETRY_MOUNT_DELAY_SECONDS 1
+ 
++/* SPRD: power interrupt {@ */
++#ifndef BLKFLSBUF
++#define BLKFLSBUF  _IO(0x12,97)	/* flush buffer cache */
++#endif
++/* @} */
++
+ char *me = "cryptfs";
+ 
+ static unsigned char saved_master_key[KEY_LEN_BYTES];
+@@ -1508,105 +1515,6 @@
+     return encrypt_master_key(passwd, salt, key_buf, master_key, crypt_ftr);
+ }
+ 
+-/* SPRD: Add for boot performance in cryptfs mode {@ */
+-static int get_pid_by_name(const char *in_name){
+-    DIR* dir;
+-    struct dirent* de;
+-    int pid = -1;
+-    int rt_pid = -1;
+-    char name[PATH_MAX];
+-
+-    if (!(dir = opendir("/proc"))){
+-        SLOGE("opendir failed (%s)", strerror(errno));
+-        return -1;
+-    }
+-    while ((de = readdir(dir))) {
+-        pid = vold_getPid(de->d_name);
+-        if (pid == -1) {
+-            continue;
+-        }
+-        vold_getProcessName(pid, name, sizeof(name));
+-        if (!strcmp(name, in_name)) {
+-            rt_pid = pid;
+-            break;
+-        }
+-    }
+-    closedir(dir);
+-    SLOGD("%s(): leave  pid = %d", __FUNCTION__, rt_pid);
+-    return rt_pid;
+-}
+-
+-static int get_open_process(const char *path){
+-    DIR* dir;
+-    struct dirent* de;
+-    int rc = 0;
+-    int need_kill_pid = -1;
+-
+-    need_kill_pid = get_pid_by_name("/system/bin/sprd_res_monitor");
+-
+-    if (!(dir = opendir("/proc"))){
+-        SLOGE("opendir failed (%s)", strerror(errno));
+-        return -1;
+-    }
+-
+-    while ((de = readdir(dir))) {
+-        int pid = vold_getPid(de->d_name);
+-        char name[PATH_MAX];
+-
+-        if (pid == -1)
+-            continue;
+-        vold_getProcessName(pid, name, sizeof(name));
+-        char openfile[PATH_MAX];
+-
+-        if (vold_checkFileDescriptorSymLinks(pid, path, openfile, sizeof(openfile))) {
+-//        if (vold_checkAll(pid, name, path, openfile)) {
+-
+-            SLOGE("cryptfs Process %s (%d) has open file %s", name, pid, openfile);
+-            if (!strcmp(name, "logcat")) {
+-                SLOGD("will kill %s (%d)", name, pid);
+-                kill(pid, SIGKILL);
+-                rc = 1;
+-                break;
+-            }
+-            if (!strcmp(name, "/system/bin/modemDriver_vpad_main")) {
+-                SLOGD("will kill %s (%d)", name, pid);
+-                kill(pid, SIGKILL);
+-                rc = 1;
+-                break;
+-            }
+-            if (!strcmp(name, "/system/bin/ylog") || !strcmp(name, "ylog_benchmark_socket_server") || !strcmp(name, "sgm.cpu_memory")) {
+-                SLOGD("need_kill_pid = %d", need_kill_pid);
+-                if (need_kill_pid != -1) {
+-                    kill(need_kill_pid, SIGKILL);
+-                    need_kill_pid = -1;
+-                }
+-                SLOGD("will kill %s (%d)", name, pid);
+-                kill(pid, SIGKILL);
+-                rc = 1;
+-                break;
+-            }
+-            if(!strcmp(name, "/system/bin/vold")){
+-                if(!strcmp(openfile, "/data")){
+-                    SLOGI("cryptfs vold fstrim /data, so sleep to wait!");
+-                    sleep(15);
+-                }
+-            }
+-        } else if (vold_checkSymLink(pid, path, "cwd")) {
+-            SLOGE("Process %s (%d) has cwd within path %s", name, pid, path);
+-            if (!strcmp(name, "/system/bin/gatekeeperd")) {
+-                SLOGD("will kill process %s (%d)", name, pid);
+-                kill(pid, SIGKILL);
+-                rc = 1;
+-                break;
+-            }
+-        }
+-    }
+-    closedir(dir);
+-
+-    return rc;
+-}
+-/* @} */
+-
+ int wait_and_unmount(const char *mountpoint, bool kill)
+ {
+     int i, err, rc;
+@@ -1629,17 +1537,15 @@
+ 
+         /* If allowed, be increasingly aggressive before the last two retries */
+         if (kill) {
+-            /* SPRD: Add for boot performance in cryptfs mode {@ */
+-            if (get_open_process(mountpoint))
+-                continue;
+-            /* @} */
+-            if (i == (WAIT_UNMOUNT_COUNT - 3)) {
+-                SLOGW("sending SIGHUP to processes with open files\n");
++            /* SPRD: modify for umount fail {@ */
++            if (i >= (WAIT_UNMOUNT_COUNT - 11) && i < (WAIT_UNMOUNT_COUNT - 6)) {
++                SLOGW("sending SIGHUP to processes with open files, %d\n", i);
+                 vold_killProcessesWithOpenFiles(mountpoint, SIGTERM);
+-            } else if (i == (WAIT_UNMOUNT_COUNT - 2)) {
+-                SLOGW("sending SIGKILL to processes with open files\n");
++            } else if (i >= (WAIT_UNMOUNT_COUNT - 6)) {
++                SLOGW("sending SIGKILL to processes with open files, %d\n", i);
+                 vold_killProcessesWithOpenFiles(mountpoint, SIGKILL);
+             }
++            /* @} */
+         }
+ 
+         sleep(1);
+@@ -1651,6 +1557,20 @@
+     } else {
+       vold_killProcessesWithOpenFiles(mountpoint, 0);
+       SLOGE("unmounting %s failed: %s\n", mountpoint, strerror(err));
++
++      /* SPRD: modify for umount fail {@ */
++      SLOGI("Maybe kernel need more time to release resource, try to wait for a moment again.");
++      for (i = 0; i < 5; i++) {
++          if (umount(mountpoint) == 0) {
++             SLOGI("%s sucessfully unmounted (%d)", mountpoint, i);
++             rc = 0;
++             return rc;
++         }
++         sleep(1);
++      }
++
++      SLOGE("Giving up on unmount %s (%s)", mountpoint, strerror(errno));
++      /* @} */
+       rc = -1;
+     }
+ 
+@@ -1844,6 +1764,10 @@
+             return -1;
+         }
+ 
++        /* start storageproxyd after real data partition mounted */
++        SLOGD("set vold.realdata.mount ok to start storageproxyd\n");
++        property_set("vold.realdata.mount", "ok");
++
+         /* startup service classes main and late_start */
+         property_set("vold.decrypt", "trigger_restart_framework");
+         SLOGD("Just triggered restart_framework\n");
+@@ -2454,15 +2378,37 @@
+         return -1;
+     }
+ 
+-    if (pwrite64(data->cryptofd, data->buffer,
+-                 info.block_size * data->count, data->offset)
+-        <= 0) {
+-        SLOGE("Error writing crypto_blkdev %s for inplace encrypt",
+-              data->crypto_blkdev);
+-        return -1;
+-    } else {
+-      log_progress(data, false);
++    /* SPRD: power interrupt {@ */
++    if (0 == data->offset) {
++        if (pwrite64(data->cryptofd, data->buffer, info.block_size * 1, data->offset)
++            <= 0) {
++            SLOGE("Error writing crypto_blkdev %s for inplace encrypt",
++                  data->crypto_blkdev);
++            return -1;
++        }
++        fsync(data->cryptofd);
++        ioctl(data->cryptofd, BLKFLSBUF, 0);
++        SLOGI("Encrypting superblock sector %" PRId64, data->offset);
++        if (data->count > 1) {
++            if (pwrite64(data->cryptofd, data->buffer + info.block_size, info.block_size * (data->count - 1), data->offset + (u64)info.block_size)
++                <= 0) {
++                    SLOGE("Error writing crypto_blkdev %s for inplace encrypt",data->crypto_blkdev);
++                    return -1;
++            }
++        }
+     }
++    else {
++        if (pwrite64(data->cryptofd, data->buffer,
++                     info.block_size * data->count, data->offset)
++            <= 0) {
++            SLOGE("Error writing crypto_blkdev %s for inplace encrypt",
++                  data->crypto_blkdev);
++            return -1;
++        } else {
++          log_progress(data, false);
++        }
++    }
++    /* @} */
+ 
+     data->count = 0;
+     data->last_written_sector = (data->offset + data->count)
+@@ -2513,6 +2459,7 @@
+         for (block = 0; block < block_count; block++) {
+             int used = (aux_info.bg_desc[i].bg_flags & EXT4_BG_BLOCK_UNINIT) ?
+                     0 : bitmap_get_bit(block_bitmap, block);
++            /* SPRD: modify for Out of memory {@ */
+ #ifdef FDE_REDUCE_MEMORYCOST
+             if (block && (block % 128 == 0)) {
+                 fsync(data->cryptofd);
+@@ -2522,6 +2469,7 @@
+                 fsync(data->cryptofd);
+             }
+ #endif
++            /* @} */
+             update_progress(data, used);
+             if (used) {
+                 if (data->count == 0) {
+@@ -3186,10 +3134,11 @@
+         /* Tells the framework that inplace encryption is starting */
+         property_set("vold.encrypt_progress", "0");
+ 
+-        /* power interrupt for android7.0 */
++        /* SPRD: power interrupt for android7.0 or later {@ */
+         SLOGD("set CRYPT_INCONSISTENT_STATE and put_crypt_ftr_and_key\n");
+         crypt_ftr.flags |= CRYPT_INCONSISTENT_STATE;
+         put_crypt_ftr_and_key(&crypt_ftr);
++        /* @} */
+ 
+         /* restart the framework. */
+         /* Create necessary paths on /data */
+@@ -3864,6 +3813,7 @@
+     }
+ 
+     if (crypt_ftr.flags & CRYPT_INCONSISTENT_STATE) {
++        SLOGE("[cryptfs_get_password_type]Error as CRYPT_INCONSISTENT_STATE\n");
+         return -1;
+     }
+ 
+Index: system/bt/hci/include/bt_vendor_lib.h
+===================================================================
+--- system/bt/hci/include/bt_vendor_lib.h	(revision 182163)
++++ system/bt/hci/include/bt_vendor_lib.h	(revision 182164)
+@@ -196,6 +196,8 @@
+  */
+     BT_VND_OP_A2DP_OFFLOAD_STOP,
+ 
++    BT_VND_OP_DEBUG_ENABLE,
++
+ } bt_vendor_opcode_t;
+ 
+ /** Power on/off control states */
+Index: system/bt/hci/src/hci_hal_h4.c
+===================================================================
+--- system/bt/hci/src/hci_hal_h4.c	(revision 182163)
++++ system/bt/hci/src/hci_hal_h4.c	(revision 182164)
+@@ -57,6 +57,9 @@
+ 
+ // Interface functions
+ #if (defined(SPRD_FEATURE_SLOG) && SPRD_FEATURE_SLOG == TRUE)
++
++int trace_h4_level = 1;
++
+ static void log_userial_tx_timing(int len){
+     struct timeval tv;
+     gettimeofday(&tv, NULL);
+@@ -167,7 +170,8 @@
+     ssize_t ret;
+     OSI_NO_INTR(ret = write(uart_fd, data + transmitted_length, length));
+ #if (defined(SPRD_FEATURE_SLOG) && SPRD_FEATURE_SLOG == TRUE)
+-    log_userial_tx_timing(ret);
++    if (trace_h4_level)
++        log_userial_tx_timing(ret);
+ #endif
+     switch (ret) {
+       case -1:
+Index: system/bt/hci/src/vendor.c
+===================================================================
+--- system/bt/hci/src/vendor.c	(revision 182163)
++++ system/bt/hci/src/vendor.c	(revision 182164)
+@@ -92,6 +92,11 @@
+ }
+ 
+ static int send_command(vendor_opcode_t opcode, void *param) {
++#if (defined(SPRD_FEATURE_SLOG) && SPRD_FEATURE_SLOG == TRUE)
++  if(lib_interface == NULL) {
++    return 0;
++  }
++#endif
+   assert(lib_interface != NULL);
+   return lib_interface->op((bt_vendor_opcode_t)opcode, param);
+ }
+Index: system/bt/audio_a2dp_hw/audio_a2dp_hw.c
+===================================================================
+--- system/bt/audio_a2dp_hw/audio_a2dp_hw.c	(revision 182163)
++++ system/bt/audio_a2dp_hw/audio_a2dp_hw.c	(revision 182164)
+@@ -675,14 +675,22 @@
+ 
+ static size_t out_get_buffer_size(const struct audio_stream *stream)
+ {
+-    struct a2dp_stream_out *out = (struct a2dp_stream_out *)stream;
++    struct a2dp_stream_out *out = ( struct a2dp_stream_out * ) stream;
+     // period_size is the AudioFlinger mixer buffer size.
++#if (defined(SPRD_FEATURE_AOBFIX) && SPRD_FEATURE_AOBFIX == TRUE) //Bug #707084
++    const size_t period_size = out->common.buffer_sz / 2;
++#else
+     const size_t period_size = out->common.buffer_sz / AUDIO_STREAM_OUTPUT_BUFFER_PERIODS;
++#endif
++
+     const size_t mixer_unit_size = 16 /* frames */ * 4 /* framesize */;
+ 
+-    DEBUG("socket buffer size: %zu  period size: %zu", out->common.buffer_sz, period_size);
+-    if (period_size % mixer_unit_size != 0) {
+-        ERROR("period size %zu not a multiple of %zu", period_size, mixer_unit_size);
++
++    DEBUG ( "socket buffer size: %zu  period size: %zu", out->common.buffer_sz, period_size );
++
++    if ( period_size % mixer_unit_size != 0 )
++    {
++        ERROR ( "period size %zu not a multiple of %zu", period_size, mixer_unit_size );
+     }
+ 
+     return period_size;
+@@ -800,16 +808,20 @@
+ {
+     int latency_us;
+ 
+-    struct a2dp_stream_out *out = (struct a2dp_stream_out *)stream;
++    struct a2dp_stream_out *out = ( struct a2dp_stream_out * ) stream;
+ 
+     FNLOG();
+ 
+-    latency_us = ((out->common.buffer_sz * 1000 ) /
+-                    audio_stream_out_frame_size(&out->stream) /
+-                    out->common.cfg.rate) * 1000;
++    latency_us = ( ( out->common.buffer_sz * 1000 ) /
++    audio_stream_out_frame_size ( &out->stream ) /
++    out->common.cfg.rate ) * 1000;
+ 
++#if (defined(SPRD_FEATURE_AOBFIX) && SPRD_FEATURE_AOBFIX == TRUE) //Bug #707084
++    return ( latency_us / 1000 ) + 50;
++#else
++    return ( latency_us / 1000 ) + 200;
++#endif
+ 
+-    return (latency_us / 1000) + 200;
+ }
+ 
+ static int out_set_volume(struct audio_stream_out *stream, float left,
+Index: system/bt/stack/mcap/mca_cact.c
+===================================================================
+--- system/bt/stack/mcap/mca_cact.c	(revision 182163)
++++ system/bt/stack/mcap/mca_cact.c	(revision 182164)
+@@ -122,7 +122,7 @@
+         p_ccb->p_tx_req = p_msg;
+         if (!p_ccb->cong)
+         {
+-            BT_HDR *p_pkt = (BT_HDR *)osi_malloc(MCA_CTRL_MTU);
++            BT_HDR *p_pkt = (BT_HDR *)osi_malloc(MCA_CTRL_MTU + sizeof(BT_HDR));
+ 
+             p_pkt->offset = L2CAP_MIN_OFFSET;
+             p = p_start = (UINT8*)(p_pkt + 1) + L2CAP_MIN_OFFSET;
+@@ -164,7 +164,7 @@
+     tMCA_CCB_MSG *p_msg = (tMCA_CCB_MSG *)p_data;
+     UINT8   *p, *p_start;
+     BOOLEAN chk_mdl = FALSE;
+-    BT_HDR *p_pkt = (BT_HDR *)osi_malloc(MCA_CTRL_MTU);
++    BT_HDR *p_pkt = (BT_HDR *)osi_malloc(MCA_CTRL_MTU + sizeof(BT_HDR));
+ 
+     MCA_TRACE_DEBUG("%s cong=%d req=%d", __func__, p_ccb->cong, p_msg->op_code);
+     /* assume that API functions verified the parameters */
+Index: system/bt/stack/btm/btm_dev.c
+===================================================================
+--- system/bt/stack/btm/btm_dev.c	(revision 182163)
++++ system/bt/stack/btm/btm_dev.c	(revision 182164)
+@@ -304,8 +304,9 @@
+     /* clear the ble block */
+     memset(&p_dev_rec->ble, 0, sizeof(tBTM_SEC_BLE));
+ #endif
+-
+-
++#if (defined(SPRD_FEATURE_AOBFIX) && SPRD_FEATURE_AOBFIX == TRUE)
++    list_remove(btm_cb.sec_dev_rec, p_dev_rec);
++#endif
+ }
+ 
+ /*******************************************************************************
+Index: system/bt/stack/btm/btm_ble_gap.c
+===================================================================
+--- system/bt/stack/btm/btm_ble_gap.c	(revision 182163)
++++ system/bt/stack/btm/btm_ble_gap.c	(revision 182164)
+@@ -29,6 +29,7 @@
+ #include <stddef.h>
+ 
+ #include <log/log.h>
++
+ #include "bt_types.h"
+ #include "bt_utils.h"
+ #include "btm_ble_api.h"
+@@ -2306,6 +2307,7 @@
+         STREAM_TO_UINT8(length, p);
+         while ( length && ((p_le_inq_cb->adv_len + length + 1) <= BTM_BLE_CACHE_ADV_DATA_MAX))
+         {
++            /* adv record size must be smaller than the total adv data size */
+             if ((length + 1) > data_len) {
+                 BTM_TRACE_ERROR("BTM - got incorrect LE advertising data");
+                 android_errorWriteLog(0x534e4554, "33899337");
+@@ -2313,6 +2315,7 @@
+             }
+             /* copy from the length byte & data into cache */
+             memcpy(p_cache, p-1, length+1);
++            /* reduce the total data size by size of data copied */
+             data_len -= length + 1;
+             /* advance the cache pointer past data */
+             p_cache += length+1;
+Index: system/bt/stack/btm/btm_acl.c
+===================================================================
+--- system/bt/stack/btm/btm_acl.c	(revision 182163)
++++ system/bt/stack/btm/btm_acl.c	(revision 182164)
+@@ -505,9 +505,15 @@
+     {
+         case BTM_BLI_ACL_UP_EVT:
+             BTM_TRACE_DEBUG ("BTM_BLI_ACL_UP_EVT");
++#if (defined(SPRD_FEATURE_AOBFIX) && SPRD_FEATURE_AOBFIX == TRUE)
++            evt.busy_level_flags= BTM_BL_ACL_UP;
++#endif
+             break;
+         case BTM_BLI_ACL_DOWN_EVT:
+             BTM_TRACE_DEBUG ("BTM_BLI_ACL_DOWN_EVT");
++#if (defined(SPRD_FEATURE_AOBFIX) && SPRD_FEATURE_AOBFIX == TRUE)
++            evt.busy_level_flags= BTM_BL_ACL_DOWN;
++#endif
+             break;
+         case BTM_BLI_PAGE_EVT:
+             BTM_TRACE_DEBUG ("BTM_BLI_PAGE_EVT");
+Index: system/bt/stack/include/btm_api.h
+===================================================================
+--- system/bt/stack/include/btm_api.h	(revision 182163)
++++ system/bt/stack/include/btm_api.h	(revision 182164)
+@@ -831,6 +831,13 @@
+ #define BTM_BL_INQUIRY_COMPLETE  (BTM_BL_INQUIRY_PAGING_MASK | 0x3)
+ #define BTM_BL_PAGING_STARTED    (BTM_BL_INQUIRY_PAGING_MASK | 0x4)
+ #define BTM_BL_PAGING_COMPLETE   (BTM_BL_INQUIRY_PAGING_MASK | 0x5)
++
++#if (defined(SPRD_FEATURE_AOBFIX) && SPRD_FEATURE_AOBFIX == TRUE)
++/* Definition of BTM_BL_ACL_MASK is to avoid wrong init value of busy level flag */
++#define BTM_BL_ACL_MASK 0x20
++#define BTM_BL_ACL_UP            (BTM_BL_ACL_MASK | 0x1)
++#define BTM_BL_ACL_DOWN          (BTM_BL_ACL_MASK | 0x2)
++#endif
+ /* the data type associated with BTM_BL_UPDATE_EVT */
+ typedef struct
+ {
+Index: system/bt/stack/bnep/bnep_utils.c
+===================================================================
+--- system/bt/stack/bnep/bnep_utils.c	(revision 182163)
++++ system/bt/stack/bnep/bnep_utils.c	(revision 182164)
+@@ -154,6 +154,7 @@
+ 
+     /* Drop any response pointer we may be holding */
+     p_bcb->con_state        = BNEP_STATE_IDLE;
++    osi_free(p_bcb->p_pending_data);
+     p_bcb->p_pending_data   = NULL;
+ 
+     /* Free transmit queue */
+@@ -762,24 +763,42 @@
+ UINT8 *bnep_process_control_packet (tBNEP_CONN *p_bcb, UINT8 *p, UINT16 *rem_len, BOOLEAN is_ext)
+ {
+     UINT8       control_type;
+-    BOOLEAN     bad_pkt = FALSE;
+     UINT16      len, ext_len = 0;
+ 
++    if (p == NULL || rem_len == NULL) {
++        if (rem_len != NULL) *rem_len = 0;
++        BNEP_TRACE_DEBUG("%s: invalid packet: p = %p rem_len = %p", __func__, p,
++                         rem_len);
++        return NULL;
++    }
++    UINT16 rem_len_orig = *rem_len;
++
+     if (is_ext)
+     {
++        if (*rem_len < 1) goto bad_packet_length;
+         ext_len = *p++;
+         *rem_len = *rem_len - 1;
+     }
+ 
++    if (*rem_len < 1) goto bad_packet_length;
+     control_type = *p++;
+     *rem_len = *rem_len - 1;
+ 
+-    BNEP_TRACE_EVENT ("BNEP processing control packet rem_len %d, is_ext %d, ctrl_type %d", *rem_len, is_ext, control_type);
++    BNEP_TRACE_EVENT("%s: BNEP processing control packet rem_len %d, is_ext %d, ctrl_type %d",
++                     __func__, *rem_len, is_ext, control_type);
+ 
+     switch (control_type)
+     {
+     case BNEP_CONTROL_COMMAND_NOT_UNDERSTOOD:
+-        BNEP_TRACE_ERROR ("BNEP Received Cmd not understood for ctl pkt type: %d", *p);
++        if (*rem_len < 1) {
++            BNEP_TRACE_ERROR(
++              "%s: Received BNEP_CONTROL_COMMAND_NOT_UNDERSTOOD with bad length",
++              __func__);
++            goto bad_packet_length;
++        }
++        BNEP_TRACE_ERROR(
++          "%s: Received BNEP_CONTROL_COMMAND_NOT_UNDERSTOOD for pkt type: %d",
++          __func__, *p);
+         p++;
+         *rem_len = *rem_len - 1;
+         break;
+@@ -786,11 +805,11 @@
+ 
+     case BNEP_SETUP_CONNECTION_REQUEST_MSG:
+         len = *p++;
+-        if (*rem_len < ((2 * len) + 1))
+-        {
+-            bad_pkt = TRUE;
+-            BNEP_TRACE_ERROR ("BNEP Received Setup message with bad length");
+-            break;
++        if (*rem_len < ((2 * len) + 1)) {
++            BNEP_TRACE_ERROR(
++              "%s: Received BNEP_SETUP_CONNECTION_REQUEST_MSG with bad length",
++              __func__);
++            goto bad_packet_length;
+         }
+         if (!is_ext)
+             bnep_process_setup_conn_req (p_bcb, p, (UINT8)len);
+@@ -799,6 +818,12 @@
+         break;
+ 
+     case BNEP_SETUP_CONNECTION_RESPONSE_MSG:
++        if (*rem_len < 2) {
++            BNEP_TRACE_ERROR(
++              "%s: Received BNEP_SETUP_CONNECTION_RESPONSE_MSG with bad length",
++              __func__);
++            goto bad_packet_length;
++        }
+         if (!is_ext)
+             bnep_process_setup_conn_responce (p_bcb, p);
+         p += 2;
+@@ -809,9 +834,10 @@
+         BE_STREAM_TO_UINT16 (len, p);
+         if (*rem_len < (len + 2))
+         {
+-            bad_pkt = TRUE;
+-            BNEP_TRACE_ERROR ("BNEP Received Filter set message with bad length");
+-            break;
++            BNEP_TRACE_ERROR(
++              "%s: Received BNEP_FILTER_NET_TYPE_SET_MSG with bad length",
++              __func__);
++            goto bad_packet_length;
+         }
+         bnepu_process_peer_filter_set (p_bcb, p, len);
+         p += len;
+@@ -819,6 +845,12 @@
+         break;
+ 
+     case BNEP_FILTER_NET_TYPE_RESPONSE_MSG:
++        if (*rem_len < 2) {
++            BNEP_TRACE_ERROR(
++              "%s: Received BNEP_FILTER_NET_TYPE_RESPONSE_MSG with bad length",
++              __func__);
++            goto bad_packet_length;
++        }
+         bnepu_process_peer_filter_rsp (p_bcb, p);
+         p += 2;
+         *rem_len = *rem_len - 2;
+@@ -828,9 +860,10 @@
+         BE_STREAM_TO_UINT16 (len, p);
+         if (*rem_len < (len + 2))
+         {
+-            bad_pkt = TRUE;
+-            BNEP_TRACE_ERROR ("BNEP Received Multicast Filter Set message with bad length");
+-            break;
++            BNEP_TRACE_ERROR(
++              "%s: Received BNEP_FILTER_MULTI_ADDR_SET_MSG with bad length",
++              __func__);
++            goto bad_packet_length;
+         }
+         bnepu_process_peer_multicast_filter_set (p_bcb, p, len);
+         p += len;
+@@ -838,6 +871,12 @@
+         break;
+ 
+     case BNEP_FILTER_MULTI_ADDR_RESPONSE_MSG:
++        if (*rem_len < 2) {
++            BNEP_TRACE_ERROR(
++              "%s: Received BNEP_FILTER_MULTI_ADDR_RESPONSE_MSG with bad length",
++              __func__);
++            goto bad_packet_length;
++        }
+         bnepu_process_multicast_filter_rsp (p_bcb, p);
+         p += 2;
+         *rem_len = *rem_len - 2;
+@@ -844,24 +883,26 @@
+         break;
+ 
+     default :
+-        BNEP_TRACE_ERROR ("BNEP - bad ctl pkt type: %d", control_type);
++        BNEP_TRACE_ERROR("%s: BNEP - bad ctl pkt type: %d", __func__,
++                         control_type);
+         bnep_send_command_not_understood (p_bcb, control_type);
+-        if (is_ext)
++        if (is_ext && (ext_len > 0))
+         {
++            if (*rem_len < (ext_len - 1)) {
++                goto bad_packet_length;
++            }
+             p += (ext_len - 1);
+             *rem_len -= (ext_len - 1);
+         }
+         break;
+     }
++    return p;
+ 
+-    if (bad_pkt)
+-    {
+-        BNEP_TRACE_ERROR ("BNEP - bad ctl pkt length: %d", *rem_len);
+-        *rem_len = 0;
+-        return NULL;
+-    }
+-
+-    return p;
++bad_packet_length:
++    BNEP_TRACE_ERROR("%s: bad control packet length: original=%d remaining=%d",
++                     __func__, rem_len_orig, *rem_len);
++    *rem_len = 0;
++    return NULL;
+ }
+ 
+ 
+Index: system/bt/stack/bnep/bnep_main.c
+===================================================================
+--- system/bt/stack/bnep/bnep_main.c	(revision 182163)
++++ system/bt/stack/bnep/bnep_main.c	(revision 182164)
+@@ -575,7 +575,8 @@
+             p_bcb->con_state != BNEP_STATE_CONNECTED &&
+             extension_present && p && rem_len)
+         {
+-            p_bcb->p_pending_data = (BT_HDR *)osi_malloc(rem_len);
++            osi_free(p_bcb->p_pending_data);
++            p_bcb->p_pending_data = (BT_HDR *)osi_malloc(rem_len + sizeof(BT_HDR));
+             memcpy((UINT8 *)(p_bcb->p_pending_data + 1), p, rem_len);
+             p_bcb->p_pending_data->len    = rem_len;
+             p_bcb->p_pending_data->offset = 0;
+Index: system/bt/stack/sdp/sdp_server.c
+===================================================================
+--- system/bt/stack/sdp/sdp_server.c	(revision 182163)
++++ system/bt/stack/sdp/sdp_server.c	(revision 182164)
+@@ -230,7 +230,7 @@
+         }
+         BE_STREAM_TO_UINT16 (cont_offset, p_req);
+ 
+-        if (cont_offset != p_ccb->cont_offset)
++        if (cont_offset != p_ccb->cont_offset || num_rsp_handles < cont_offset)
+         {
+             sdpu_build_n_send_error (p_ccb, trans_num, SDP_INVALID_CONT_STATE,
+                                      SDP_TEXT_BAD_CONT_INX);
+Index: system/bt/stack/avdt/avdt_api.c
+===================================================================
+--- system/bt/stack/avdt/avdt_api.c	(revision 182163)
++++ system/bt/stack/avdt/avdt_api.c	(revision 182164)
+@@ -1208,7 +1208,7 @@
+         /* build SR - assume fit in one packet */
+         p_tbl = avdt_ad_tc_tbl_by_type(AVDT_CHAN_REPORT, p_scb->p_ccb, p_scb);
+         if (p_tbl->state == AVDT_AD_ST_OPEN) {
+-            BT_HDR *p_pkt = (BT_HDR *)osi_malloc(p_tbl->peer_mtu);
++            BT_HDR *p_pkt = (BT_HDR *)osi_malloc(p_tbl->peer_mtu + sizeof(BT_HDR));
+ 
+             p_pkt->offset = L2CAP_MIN_OFFSET;
+             p = (UINT8 *)(p_pkt + 1) + p_pkt->offset;
+Index: system/bt/stack/l2cap/l2c_main.c
+===================================================================
+--- system/bt/stack/l2cap/l2c_main.c	(revision 182163)
++++ system/bt/stack/l2cap/l2c_main.c	(revision 182164)
+@@ -28,6 +28,8 @@
+ #include <stdlib.h>
+ #include <string.h>
+ 
++#include <log/log.h>
++
+ #include "bt_target.h"
+ #include "btm_int.h"
+ #include "btu.h"
+@@ -132,6 +134,14 @@
+     STREAM_TO_UINT16 (hci_len, p);
+     p_msg->offset += 4;
+ 
++    if (hci_len < L2CAP_PKT_OVERHEAD) {
++        /* Must receive at least the L2CAP length and CID */
++        L2CAP_TRACE_WARNING ("L2CAP - got incorrect hci header");
++        android_errorWriteLog(0x534e4554, "34946955");
++        osi_free(p_msg);
++        return;
++    }
++
+     /* Extract the length and CID */
+     STREAM_TO_UINT16 (l2cap_len, p);
+     STREAM_TO_UINT16 (rcv_cid, p);
+@@ -154,17 +164,8 @@
+         }
+     }
+ 
+-    if (hci_len >= L2CAP_PKT_OVERHEAD)  /* Must receive at least the L2CAP length and CID.*/
+-    {
+-        p_msg->len    = hci_len - L2CAP_PKT_OVERHEAD;
+-        p_msg->offset += L2CAP_PKT_OVERHEAD;
+-    }
+-    else
+-    {
+-        L2CAP_TRACE_WARNING ("L2CAP - got incorrect hci header" );
+-        osi_free(p_msg);
+-        return;
+-    }
++    p_msg->len    = hci_len - L2CAP_PKT_OVERHEAD;
++    p_msg->offset += L2CAP_PKT_OVERHEAD;
+ 
+     if (l2cap_len != p_msg->len)
+     {
+Index: system/bt/stack/l2cap/l2cap_client.c
+===================================================================
+--- system/bt/stack/l2cap/l2cap_client.c	(revision 182163)
++++ system/bt/stack/l2cap/l2cap_client.c	(revision 182164)
+@@ -370,7 +370,8 @@
+   assert(packet != NULL);
+ 
+   // TODO(sharvil): eliminate copy into BT_HDR.
+-  BT_HDR *bt_packet = osi_malloc(buffer_length(packet) + L2CAP_MIN_OFFSET);
++  BT_HDR *bt_packet = osi_malloc(buffer_length(packet) + L2CAP_MIN_OFFSET +
++                                 sizeof(BT_HDR));
+   bt_packet->offset = L2CAP_MIN_OFFSET;
+   bt_packet->len = buffer_length(packet);
+   memcpy(bt_packet->data + bt_packet->offset, buffer_ptr(packet), buffer_length(packet));
+@@ -384,7 +385,8 @@
+       break;
+     }
+ 
+-    BT_HDR *fragment = osi_malloc(client->remote_mtu + L2CAP_MIN_OFFSET);
++    BT_HDR *fragment = osi_malloc(client->remote_mtu + L2CAP_MIN_OFFSET +
++                                  sizeof(BT_HDR));
+     fragment->offset = L2CAP_MIN_OFFSET;
+     fragment->len = client->remote_mtu;
+     memcpy(fragment->data + fragment->offset, bt_packet->data + bt_packet->offset, client->remote_mtu);
+Index: system/bt/stack/pan/pan_main.c
+===================================================================
+--- system/bt/stack/pan/pan_main.c	(revision 182163)
++++ system/bt/stack/pan/pan_main.c	(revision 182164)
+@@ -222,6 +222,39 @@
+         return;
+     }
+ 
++    /* Check for valid interactions between the three PAN profile roles */
++    /*
++     * For reference, see Table 1 in PAN Profile v1.0 spec.
++     * Note: the remote is the initiator.
++     */
++    BOOLEAN is_valid_interaction = FALSE;
++    switch (remote_uuid->uu.uuid16) {
++    case UUID_SERVCLASS_NAP:
++    case UUID_SERVCLASS_GN:
++        if (local_uuid->uu.uuid16 == UUID_SERVCLASS_PANU)
++            is_valid_interaction = TRUE;
++        break;
++    case UUID_SERVCLASS_PANU:
++        is_valid_interaction = TRUE;
++        break;
++    }
++    /*
++     * Explicitly disable connections to the local PANU if the remote is
++     * not PANU.
++     */
++    if ((local_uuid->uu.uuid16 == UUID_SERVCLASS_PANU) &&
++        (remote_uuid->uu.uuid16 != UUID_SERVCLASS_PANU)) {
++        is_valid_interaction = FALSE;
++    }
++    if (!is_valid_interaction) {
++        PAN_TRACE_ERROR(
++          "PAN Connection failed because of invalid PAN profile roles "
++          "interaction: Remote UUID 0x%x Local UUID 0x%x",
++          remote_uuid->uu.uuid16, local_uuid->uu.uuid16);
++        BNEP_ConnectResp(handle, BNEP_CONN_FAILED_SRC_UUID);
++        return;
++    }
++
+     /* Requested destination role is */
+     if (local_uuid->uu.uuid16 == UUID_SERVCLASS_PANU)
+         req_role = PAN_ROLE_CLIENT;
+Index: system/bt/bta/hh/bta_hh_act.c
+===================================================================
+--- system/bt/bta/hh/bta_hh_act.c	(revision 182163)
++++ system/bt/bta/hh/bta_hh_act.c	(revision 182164)
+@@ -1046,9 +1046,6 @@
+         {
+             bta_hh_le_remove_dev_bg_conn(p_cb);
+             bta_hh_sm_execute(p_cb, BTA_HH_API_CLOSE_EVT, NULL);
+-#if (defined(SPRD_FEATURE_AOBFIX) && SPRD_FEATURE_AOBFIX == TRUE)
+-            bta_hh_le_clean_up_notifications(p_cb);
+-#endif
+             bta_hh_clean_up_kdev(p_cb);
+         }
+         else
+Index: system/bt/bta/hh/bta_hh_int.h
+===================================================================
+--- system/bt/bta/hh/bta_hh_int.h	(revision 182163)
++++ system/bt/bta/hh/bta_hh_int.h	(revision 182164)
+@@ -399,9 +399,7 @@
+ extern void bta_hh_le_update_scpp(tBTA_HH_DEV_CB *p_cb, tBTA_HH_DATA *p_buf);
+ extern void bta_hh_le_notify_enc_cmpl(tBTA_HH_DEV_CB *p_cb, tBTA_HH_DATA *p_data);
+ extern void bta_hh_ci_load_rpt (tBTA_HH_DEV_CB *p_cb, tBTA_HH_DATA *p_buf);
+-#if (defined(SPRD_FEATURE_AOBFIX) && SPRD_FEATURE_AOBFIX == TRUE)
+-extern void bta_hh_le_clean_up_notifications(tBTA_HH_DEV_CB *p_dev_cb);
+-#endif
++
+ #if BTA_HH_DEBUG
+ extern void bta_hh_trace_dev_db(void);
+ #endif
+Index: system/bt/bta/hh/bta_hh_le.c
+===================================================================
+--- system/bt/bta/hh/bta_hh_le.c	(revision 182163)
++++ system/bt/bta/hh/bta_hh_le.c	(revision 182164)
+@@ -164,34 +164,27 @@
+     }
+ 
+     if (op->type == GATT_READ_CHAR) {
+-        const tBTA_GATTC_CHARACTERISTIC *p_char = BTA_GATTC_GetCharacteristic(op->conn_id, op->handle);
+-
+         mark_as_executing(conn_id);
+-        BTA_GATTC_ReadCharacteristic(op->conn_id, p_char->handle, BTA_GATT_AUTH_REQ_NONE);
++        BTA_GATTC_ReadCharacteristic(op->conn_id, op->handle, BTA_GATT_AUTH_REQ_NONE);
+         list_remove(gatt_op_queue, op);
+ 
+     } else if (op->type == GATT_READ_DESC) {
+-        const tBTA_GATTC_DESCRIPTOR *p_desc = BTA_GATTC_GetDescriptor(op->conn_id, op->handle);
+-
+         mark_as_executing(conn_id);
+-        BTA_GATTC_ReadCharDescr(op->conn_id, p_desc->handle, BTA_GATT_AUTH_REQ_NONE);
++        BTA_GATTC_ReadCharDescr(op->conn_id, op->handle, BTA_GATT_AUTH_REQ_NONE);
+         list_remove(gatt_op_queue, op);
+     } else if (op->type == GATT_WRITE_CHAR) {
+-        const tBTA_GATTC_CHARACTERISTIC *p_char = BTA_GATTC_GetCharacteristic(op->conn_id, op->handle);
+         mark_as_executing(conn_id);
+-        BTA_GATTC_WriteCharValue(op->conn_id, p_char->handle, op->write_type, op->len,
++        BTA_GATTC_WriteCharValue(op->conn_id, op->handle, op->write_type, op->len,
+                                  op->p_value, BTA_GATT_AUTH_REQ_NONE);
+ 
+         list_remove(gatt_op_queue, op);
+     } else if (op->type == GATT_WRITE_DESC) {
+-        const tBTA_GATTC_DESCRIPTOR *p_desc = BTA_GATTC_GetDescriptor(op->conn_id, op->handle);
+-
+         tBTA_GATT_UNFMT value;
+         value.len = op->len;
+         value.p_value = op->p_value;
+ 
+         mark_as_executing(conn_id);
+-        BTA_GATTC_WriteCharDescr(op->conn_id, p_desc->handle, BTA_GATTC_TYPE_WRITE,
++        BTA_GATTC_WriteCharDescr(op->conn_id, op->handle, BTA_GATTC_TYPE_WRITE,
+                                  &value, BTA_GATT_AUTH_REQ_NONE);
+         list_remove(gatt_op_queue, op);
+     }
+@@ -802,7 +795,7 @@
+                 if (p_rpt->uuid == GATT_UUID_HID_REPORT &&
+                     p_rpt->client_cfg_value == BTA_GATT_CLT_CONFIG_NOTIFICATION)
+                 {
+-                    APPL_TRACE_DEBUG("---> Deregister Report ID: %d", p_rpt->rpt_id);
++                    APPL_TRACE_DEBUG("%s ---> Deregister Report ID: %d", __func__, p_rpt->rpt_id);
+                     BTA_GATTC_DeregisterForNotifications(bta_hh_cb.gatt_if, p_dev_cb->addr,
+                                                          p_rpt->char_inst_id);
+                 }
+@@ -810,7 +803,7 @@
+                 else if (p_rpt->uuid == GATT_UUID_HID_BT_KB_INPUT ||
+                          p_rpt->uuid == GATT_UUID_HID_BT_MOUSE_INPUT)
+                 {
+-                    APPL_TRACE_DEBUG("<--- Register Boot Report ID: %d", p_rpt->rpt_id);
++                    APPL_TRACE_DEBUG("%s <--- Register Boot Report ID: %d", __func__, p_rpt->rpt_id);
+                     BTA_GATTC_RegisterForNotifications(bta_hh_cb.gatt_if, p_dev_cb->addr,
+                                                        p_rpt->char_inst_id);
+                 }
+@@ -822,7 +815,7 @@
+                     p_rpt->client_cfg_value == BTA_GATT_CLT_CONFIG_NOTIFICATION)
+                 {
+ 
+-                    APPL_TRACE_DEBUG("---> Deregister Boot Report ID: %d", p_rpt->rpt_id);
++                    APPL_TRACE_DEBUG("%s ---> Deregister Boot Report ID: %d", __func__, p_rpt->rpt_id);
+                     BTA_GATTC_DeregisterForNotifications(bta_hh_cb.gatt_if, p_dev_cb->addr,
+                                                          p_rpt->char_inst_id);
+                 }
+@@ -829,7 +822,7 @@
+                 else if (p_rpt->uuid == GATT_UUID_HID_REPORT &&
+                          p_rpt->client_cfg_value == BTA_GATT_CLT_CONFIG_NOTIFICATION)
+                 {
+-                    APPL_TRACE_DEBUG("<--- Register Report ID: %d", p_rpt->rpt_id);
++                    APPL_TRACE_DEBUG("%s <--- Register Report ID: %d", __func__, p_rpt->rpt_id);
+                     BTA_GATTC_RegisterForNotifications(bta_hh_cb.gatt_if, p_dev_cb->addr,
+                                                        p_rpt->char_inst_id);
+                 }
+@@ -840,8 +833,44 @@
+     }
+ }
+ 
++#if (defined(SPRD_FEATURE_AOBFIX) && SPRD_FEATURE_AOBFIX == TRUE)
+ /*******************************************************************************
+ **
++** Function         bta_hh_le_deregister_input_notif
++**
++** Description      Deregister all notifications
++**
++*******************************************************************************/
++void bta_hh_le_deregister_input_notif(tBTA_HH_DEV_CB *p_dev_cb)
++{
++    tBTA_HH_LE_RPT  *p_rpt = &p_dev_cb->hid_srvc.report[0];
++
++    for (UINT8 i = 0; i < BTA_HH_LE_RPT_MAX; i++, p_rpt++)
++    {
++        if (p_rpt->rpt_type == BTA_HH_RPTT_INPUT)
++        {
++            if (p_rpt->uuid == GATT_UUID_HID_REPORT &&
++                p_rpt->client_cfg_value == BTA_GATT_CLT_CONFIG_NOTIFICATION)
++            {
++                APPL_TRACE_DEBUG("%s ---> Deregister Report ID: %d", __func__, p_rpt->rpt_id);
++                BTA_GATTC_DeregisterForNotifications(bta_hh_cb.gatt_if, p_dev_cb->addr,
++                                                    p_rpt->char_inst_id);
++            }
++            else if ((p_rpt->uuid == GATT_UUID_HID_BT_KB_INPUT ||
++                p_rpt->uuid == GATT_UUID_HID_BT_MOUSE_INPUT) &&
++                p_rpt->client_cfg_value == BTA_GATT_CLT_CONFIG_NOTIFICATION)
++            {
++                APPL_TRACE_DEBUG("%s ---> Deregister Boot Report ID: %d", __func__, p_rpt->rpt_id);
++                BTA_GATTC_DeregisterForNotifications(bta_hh_cb.gatt_if, p_dev_cb->addr,
++                                                    p_rpt->char_inst_id);
++            }
++        }
++    }
++}
++#endif
++
++/*******************************************************************************
++**
+ ** Function         bta_hh_le_open_cmpl
+ **
+ ** Description      HID over GATT connection sucessfully opened
+@@ -1739,6 +1768,13 @@
+ 
+     const tBTA_GATTC_CHARACTERISTIC *p_char = BTA_GATTC_GetCharacteristic(p_dev_cb->conn_id,
+                                                                           p_data->handle);
++#if (defined(SPRD_FEATURE_AOBFIX) && SPRD_FEATURE_AOBFIX == TRUE)
++    if (p_char == NULL) {
++        APPL_TRACE_ERROR("%s: p_char is NULL %d", __func__, p_data->handle);
++        return;
++    }
++#endif
++
+     UINT16 char_uuid = p_char->uuid.uu.uuid16;
+ 
+     if (char_uuid == GATT_UUID_BATTERY_LEVEL)
+@@ -1748,35 +1784,33 @@
+     else if (char_uuid == GATT_UUID_GAP_PREF_CONN_PARAM)
+     {
+ #if (defined(SPRD_FEATURE_AOBFIX) && SPRD_FEATURE_AOBFIX == TRUE)
+-        if (p_data->p_value != NULL)
+-        {
+-            APPL_TRACE_DEBUG("%s(), p_value is NOT NULL", __func__);
++        //TODO(jpawlowski): this should be done by GAP profile, remove when GAP is fixed.
++        if (p_data->status != BTA_GATT_OK || p_data->p_value == NULL) {
++            APPL_TRACE_ERROR("%s: read pref conn params error: %d",
++                             __func__, p_data->status);
++            return;
++        }
+ #endif
+-            //TODO(jpawlowski): this should be done by GAP profile, remove when GAP is fixed.
+-            UINT8 *pp = p_data->p_value->p_value;
+-            UINT16 min, max, latency, tout;
+-            STREAM_TO_UINT16 (min, pp);
+-            STREAM_TO_UINT16 (max, pp);
+-            STREAM_TO_UINT16 (latency, pp);
+-            STREAM_TO_UINT16 (tout, pp);
+ 
+-            // Make sure both min, and max are bigger than 11.25ms, lower values can introduce
+-            // audio issues if A2DP is also active.
+-            if (min < BTM_BLE_CONN_INT_MIN_LIMIT)
+-                min = BTM_BLE_CONN_INT_MIN_LIMIT;
+-            if (max < BTM_BLE_CONN_INT_MIN_LIMIT)
+-                max = BTM_BLE_CONN_INT_MIN_LIMIT;
++        UINT8 *pp = p_data->p_value->p_value;
++        UINT16 min, max, latency, tout;
++        STREAM_TO_UINT16 (min, pp);
++        STREAM_TO_UINT16 (max, pp);
++        STREAM_TO_UINT16 (latency, pp);
++        STREAM_TO_UINT16 (tout, pp);
+ 
+-            if (tout < BTM_BLE_CONN_TIMEOUT_MIN_DEF)
+-                tout = BTM_BLE_CONN_TIMEOUT_MIN_DEF;
++        // Make sure both min, and max are bigger than 11.25ms, lower values can introduce
++        // audio issues if A2DP is also active.
++        if (min < BTM_BLE_CONN_INT_MIN_LIMIT)
++            min = BTM_BLE_CONN_INT_MIN_LIMIT;
++        if (max < BTM_BLE_CONN_INT_MIN_LIMIT)
++            max = BTM_BLE_CONN_INT_MIN_LIMIT;
+ 
+-            BTM_BleSetPrefConnParams (p_dev_cb->addr, min, max, latency, tout);
+-            L2CA_UpdateBleConnParams(p_dev_cb->addr, min, max, latency, tout);
+-#if (defined(SPRD_FEATURE_AOBFIX) && SPRD_FEATURE_AOBFIX == TRUE)
+-        }
+-        else
+-            APPL_TRACE_DEBUG("%s(), p_value is NULL", __func__);
+-#endif
++        if (tout < BTM_BLE_CONN_TIMEOUT_MIN_DEF)
++            tout = BTM_BLE_CONN_TIMEOUT_MIN_DEF;
++
++        BTM_BleSetPrefConnParams (p_dev_cb->addr, min, max, latency, tout);
++        L2CA_UpdateBleConnParams(p_dev_cb->addr, min, max, latency, tout);
+     }
+     else
+     {
+@@ -1833,6 +1867,13 @@
+ 
+     const tBTA_GATTC_CHARACTERISTIC *p_char = BTA_GATTC_GetCharacteristic(p_dev_cb->conn_id,
+                                                                           p_data->handle);
++#if (defined(SPRD_FEATURE_AOBFIX) && SPRD_FEATURE_AOBFIX == TRUE)
++    if (p_char == NULL) {
++        APPL_TRACE_ERROR("%s: p_char is NULL %d", __func__, p_data->handle);
++        return;
++    }
++#endif
++
+     UINT16 char_uuid = p_char->uuid.uu.uuid16;
+ 
+     switch (char_uuid)
+@@ -1873,6 +1914,12 @@
+     UINT8   *pp;
+ 
+     const tBTA_GATTC_DESCRIPTOR *p_desc = BTA_GATTC_GetDescriptor(p_data->conn_id, p_data->handle);
++#if (defined(SPRD_FEATURE_AOBFIX) && SPRD_FEATURE_AOBFIX == TRUE)
++    if (p_desc == NULL) {
++        APPL_TRACE_ERROR("%s: p_descr is NULL %d", __func__, p_data->handle);
++        return;
++    }
++#endif
+ 
+     /* if a report client configuration */
+     if (p_desc->uuid.uu.uuid16 == GATT_UUID_CHAR_CLIENT_CONFIG)
+@@ -1909,7 +1956,6 @@
+         return;
+ 
+     const tBTA_GATTC_DESCRIPTOR *p_desc = BTA_GATTC_GetDescriptor(p_data->conn_id, p_data->handle);
+-
+     if (p_desc == NULL) {
+         APPL_TRACE_ERROR("%s: p_descr is NULL %d", __func__, p_data->handle);
+         return;
+@@ -2218,6 +2264,10 @@
+ {
+     tBTA_HH_CBDATA          disc_dat = {BTA_HH_OK, 0};
+ 
++#if (defined(SPRD_FEATURE_AOBFIX) && SPRD_FEATURE_AOBFIX == TRUE)
++    /* deregister all notification */
++    bta_hh_le_deregister_input_notif(p_cb);
++#endif
+     /* finaliza device driver */
+     bta_hh_co_close(p_cb->hid_handle, p_cb->app_id);
+     /* update total conn number */
+@@ -2797,32 +2847,8 @@
+ //     }
+ // }
+ 
+-#if (defined(SPRD_FEATURE_AOBFIX) && SPRD_FEATURE_AOBFIX == TRUE)
+-void bta_hh_le_clean_up_notifications(tBTA_HH_DEV_CB *p_dev_cb)
+-{
+-    tBTA_HH_LE_RPT  *p_rpt = &p_dev_cb->hid_srvc.report[0];
+-    UINT8   i;
+-
+-#if BTA_HH_DEBUG == TRUE
+-    APPL_TRACE_DEBUG("bta_hh_le_clean_up_notifications mode: %d", p_dev_cb->mode);
+ #endif
+ 
+-    for (i = 0; i < BTA_HH_LE_RPT_MAX; i++, p_rpt++)
+-    {
+-        if (p_rpt->rpt_type == BTA_HH_RPTT_INPUT)
+-        {
+-#if BTA_HH_DEBUG == TRUE
+-            APPL_TRACE_DEBUG("bta_hh_le_clean_up_notifications release notifications");
+-#endif
+-            BTA_GATTC_DeregisterForNotifications(bta_hh_cb.gatt_if, p_dev_cb->addr,
+-                                                 p_rpt->char_inst_id);
+-        }
+-    }
+-}
+-#endif
+ 
+-#endif
+ 
+ 
+-
+-
+Index: system/bt/bta/pan/bta_pan_act.c
+===================================================================
+--- system/bt/bta/pan/bta_pan_act.c	(revision 182163)
++++ system/bt/bta/pan/bta_pan_act.c	(revision 182164)
+@@ -26,6 +26,8 @@
+ 
+ #if defined(PAN_INCLUDED) && (PAN_INCLUDED == TRUE)
+ 
++#include <cutils/log.h>
++
+ #include "bta_api.h"
+ #include "bta_sys.h"
+ #include "bt_common.h"
+@@ -176,6 +178,14 @@
+ 
+     if (sizeof(tBTA_PAN_DATA_PARAMS) > p_buf->offset) {
+         /* offset smaller than data structure in front of actual data */
++        if (sizeof(BT_HDR) + sizeof(tBTA_PAN_DATA_PARAMS) + p_buf->len >
++            PAN_BUF_SIZE) {
++            android_errorWriteLog(0x534e4554, "63146237");
++            APPL_TRACE_ERROR("%s: received buffer length too large: %d", __func__,
++                             p_buf->len);
++            osi_free(p_buf);
++            return;
++        }
+         p_new_buf = (BT_HDR *)osi_malloc(PAN_BUF_SIZE);
+         memcpy((UINT8 *)(p_new_buf + 1) + sizeof(tBTA_PAN_DATA_PARAMS),
+                (UINT8 *)(p_buf + 1) + p_buf->offset, p_buf->len);
+Index: system/bt/embdrv/sbc/encoder/include/sbc_types.h
+===================================================================
+--- system/bt/embdrv/sbc/encoder/include/sbc_types.h	(revision 182163)
++++ system/bt/embdrv/sbc/encoder/include/sbc_types.h	(revision 182164)
+@@ -34,7 +34,11 @@
+ #include "bt_types.h"
+ 
+ typedef short SINT16;
++#if (defined(SPRD_FEATURE_AOBFIX) && SPRD_FEATURE_AOBFIX == TRUE)
++typedef int32_t SINT32;
++#else
+ typedef long SINT32;
++#endif
+ 
+ #if (SBC_IPAQ_OPT == TRUE)
+ 
+Index: system/bt/btif/src/btif_hf.c
+===================================================================
+--- system/bt/btif/src/btif_hf.c	(revision 182163)
++++ system/bt/btif/src/btif_hf.c	(revision 182164)
+@@ -122,7 +122,6 @@
+ ************************************************************************************/
+ static bthf_callbacks_t *bt_hf_callbacks = NULL;
+ static int hf_idx = BTIF_HF_INVALID_IDX;
+-
+ #define CHECK_BTHF_INIT() if (bt_hf_callbacks == NULL)\
+     {\
+         BTIF_TRACE_WARNING("BTHF: %s: BTHF not initialized", __FUNCTION__);\
+@@ -656,7 +655,6 @@
+ 
+     /* switch context to btif task context (copy full union size for convenience) */
+     status = btif_transfer_context(btif_hf_upstreams_evt, (uint16_t)event, (void*)p_data, param_len, NULL);
+-
+     /* catch any failed context transfers */
+     ASSERTC(status == BT_STATUS_SUCCESS, "context transfer failed", status);
+ }
+@@ -726,7 +724,6 @@
+ 
+     for (int i = 0; i < btif_max_hf_clients; i++)
+         clear_phone_state_multihf(i);
+-
+     return BT_STATUS_SUCCESS;
+ }
+ 
+@@ -800,7 +797,6 @@
+         BTA_AgClose(btif_hf_cb[idx].handle);
+         return BT_STATUS_SUCCESS;
+     }
+-
+     return BT_STATUS_FAIL;
+ }
+ 
+@@ -1520,7 +1516,6 @@
+ static void  cleanup( void )
+ {
+     BTIF_TRACE_EVENT("%s", __FUNCTION__);
+-
+     if (bt_hf_callbacks)
+     {
+         btif_disable_service(BTA_HFP_SERVICE_ID);
+Index: system/bt/btif/src/btif_dm.c
+===================================================================
+--- system/bt/btif/src/btif_dm.c	(revision 182163)
++++ system/bt/btif/src/btif_dm.c	(revision 182164)
+@@ -202,8 +202,7 @@
+ /************************************************************************************
+ **  Static variables
+ ************************************************************************************/
+-//static char btif_default_local_name[DEFAULT_LOCAL_NAME_MAX+1] = {'\0'};
+-static char btif_default_local_name[DEFAULT_LOCAL_NAME_MAX+1] = {"Andromax A36C5H"};
++static char btif_default_local_name[DEFAULT_LOCAL_NAME_MAX+1] = {'\0'};
+ static uid_set_t* uid_set = NULL;
+ 
+ /* A circular array to keep track of the most recent bond events */
+@@ -3456,7 +3455,14 @@
+         else
+         {
+             char prop_model[PROPERTY_VALUE_MAX];
++#ifdef SPRD_FEATURE_ZHONGXING_BTNAME
++            osi_property_get("persist.sys.phone.name", prop_model, "");
++            if(strcmp(prop_model,"") == 0) {
++                osi_property_get(PROPERTY_PRODUCT_MODEL, prop_model, "");
++            }
++#else
+             osi_property_get(PROPERTY_PRODUCT_MODEL, prop_model, "");
++#endif
+             strncpy(btif_default_local_name, prop_model, max_len);
+         }
+         btif_default_local_name[max_len] = '\0';
+Index: system/bt/Android.mk
+===================================================================
+--- system/bt/Android.mk	(revision 182163)
++++ system/bt/Android.mk	(revision 182164)
+@@ -19,6 +19,14 @@
+ 
+ bluetooth_CFLAGS += -DEXPORT_SYMBOL="__attribute__((visibility(\"default\")))"
+ 
++ifeq ($(ENABLE_BLADE_FEATURES),true)
++bluetooth_CFLAGS += -DSPRD_FEATURE_ZHONGXING_BTNAME
++endif
++
++#bluetooth_CFLAGS += -DSPRD_FEATURE_ANDO
++#bluetooth_CFLAGS += -DSPRD_FEATURE_AE
++#bluetooth_CFLAGS += -DSPRD_FEATURE_PHY
++
+ #
+ # Common C/C++ compiler flags.
+ #
+Index: system/bt/osi/Android.mk
+===================================================================
+--- system/bt/osi/Android.mk	(revision 182163)
++++ system/bt/osi/Android.mk	(revision 182164)
+@@ -118,7 +118,9 @@
+ # libosi static library for target
+ # ========================================================
+ include $(CLEAR_VARS)
+-LOCAL_C_INCLUDES := $(btosiCommonIncludes)
++LOCAL_C_INCLUDES := \
++    $(LOCAL_PATH)/../include \
++    $(btosiCommonIncludes)
+ LOCAL_SRC_FILES := $(btosiCommonSrc)
+ LOCAL_MODULE := libosi
+ LOCAL_MODULE_TAGS := optional
+@@ -136,7 +138,9 @@
+ # ========================================================
+ ifeq ($(HOST_OS),linux)
+ include $(CLEAR_VARS)
+-LOCAL_C_INCLUDES := $(btosiCommonIncludes)
++LOCAL_C_INCLUDES := \
++    $(LOCAL_PATH)/../include \
++    $(btosiCommonIncludes)
+ LOCAL_SRC_FILES := $(btosiCommonSrc)
+ LOCAL_MODULE := libosi-host
+ LOCAL_MODULE_TAGS := optional
+Index: system/bt/osi/src/config.c
+===================================================================
+--- system/bt/osi/src/config.c	(revision 182163)
++++ system/bt/osi/src/config.c	(revision 182164)
+@@ -35,6 +35,8 @@
+ #include "osi/include/list.h"
+ #include "osi/include/log.h"
+ 
++#include "bt_target.h"
++
+ typedef struct {
+   char *key;
+   char *value;
+@@ -342,6 +344,11 @@
+     }
+   }
+ 
++#if (defined(SPRD_FEATURE_AOBFIX) && SPRD_FEATURE_AOBFIX == TRUE)
++  LOG_DEBUG(LOG_TAG, "%s() run fflush()", __func__);
++  fflush(fp);
++#endif
++
+   // Sync written temp file out to disk. fsync() is blocking until data makes it to disk.
+   if (fsync(fileno(fp)) < 0) {
+     LOG_WARN(LOG_TAG, "%s unable to fsync file '%s': %s", __func__, temp_filename, strerror(errno));
+Index: system/bt/device/include/interop_database.h
+===================================================================
+--- system/bt/device/include/interop_database.h	(revision 182163)
++++ system/bt/device/include/interop_database.h	(revision 182164)
+@@ -51,7 +51,6 @@
+ 
+   // Jabra EXTREME 2 - unacceptably loud volume
+   {{{0x1c, 0x48, 0xf9,      0,0,0}}, 3, INTEROP_DISABLE_ABSOLUTE_VOLUME},
+-
+   // JayBird BlueBuds X - low granularity on volume control
+   {{{0x44, 0x5e, 0xf3,      0,0,0}}, 3, INTEROP_DISABLE_ABSOLUTE_VOLUME},
+   {{{0xd4, 0x9c, 0x28,      0,0,0}}, 3, INTEROP_DISABLE_ABSOLUTE_VOLUME},
+@@ -81,7 +80,6 @@
+   // Subaru car kits (ALPS) - auto-pairing fails and rejects next pairing
+   {{{0x00, 0x07, 0x04,      0,0,0}}, 3, INTEROP_DISABLE_AUTO_PAIRING},
+   {{{0xe0, 0x75, 0x0a,      0,0,0}}, 3, INTEROP_DISABLE_AUTO_PAIRING},
+-
+   // Swage Rokitboost HS - unacceptably loud volume
+   {{{0x00, 0x14, 0xf1,      0,0,0}}, 3, INTEROP_DISABLE_ABSOLUTE_VOLUME},
+ 
+@@ -91,6 +89,17 @@
+ 
+   // Unknown keyboard (carried over from auto_pair_devlist.conf)
+   {{{0x00, 0x0F, 0xF6,      0,0,0}}, 3, INTEROP_KEYBOARD_REQUIRES_FIXED_PIN},
++
++#if (defined(SPRD_FEATURE_AOBFIX) && SPRD_FEATURE_AOBFIX == TRUE)
++  // Aigo A10
++  {{{0x20, 0x9a, 0x10,      0,0,0}}, 3, INTEROP_DISABLE_ABSOLUTE_VOLUME},
++  //JVC Car Kits -  unacceptably loud volume
++  {{{0x00, 0x1d, 0x86,      0,0,0}}, 3, INTEROP_DISABLE_ABSOLUTE_VOLUME},
++
++  //Prius
++  {{{0x00, 0x02, 0xc7,      0,0,0}}, 3, INTEROP_DISABLE_AUTO_PAIRING},
++  {{{0x00, 0x09, 0x93,      0,0,0}}, 3, INTEROP_DISABLE_AUTO_PAIRING},
++#endif
+ };
+ 
+ typedef struct {

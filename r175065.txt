@@ -1,0 +1,13 @@
+Index: u-boot64/common/loader/loader_common.c
+===================================================================
+--- u-boot64/common/loader/loader_common.c	(revision 175064)
++++ u-boot64/common/loader/loader_common.c	(revision 175065)
+@@ -522,7 +522,7 @@
+ 		lcd_printf("   Warranty Status : OK \n");
+ 	}
+ 	else{
+-		lcd_printf("  Warranty Status : VOID \n");
++		lcd_printf("   Warranty Status : VOID \n");
+ 	}
+ 	
+ return;

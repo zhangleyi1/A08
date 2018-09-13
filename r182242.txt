@@ -1,0 +1,62 @@
+Index: proprietories-sp9832a_3h10_cmcc-userdebug.zip
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: proprietories-sp9832a_2h11_4mvowifi_ee-user.zip
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: proprietories-sp9832a_2h11_4mvolt_vowifi-userdebug.zip
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: proprietories-sp9832a_2h11_4mvoltesea_tee-user.zip
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: proprietories-sp9832a_2h11_4mvoltesea_tee-user.zip
+===================================================================
+--- proprietories-sp9832a_2h11_4mvoltesea_tee-user.zip	(revision 0)
++++ proprietories-sp9832a_2h11_4mvoltesea_tee-user.zip	(revision 182242)
+
+Property changes on: proprietories-sp9832a_2h11_4mvoltesea_tee-user.zip
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: proprietories-sp9832a_2h11_4mvowifi_ee-userdebug.zip
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: proprietories-sp9832a_2h11_4mvolt_vowifi-user.zip
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: proprietories-sp9832a_2h11_vwf_Smartfren-user.zip
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: proprietories-sp9832a_2h11_4mvoltesea_tee-userdebug.zip
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: proprietories-sp9832a_2h11_4mvoltesea_tee-userdebug.zip
+===================================================================
+--- proprietories-sp9832a_2h11_4mvoltesea_tee-userdebug.zip	(revision 0)
++++ proprietories-sp9832a_2h11_4mvoltesea_tee-userdebug.zip	(revision 182242)
+
+Property changes on: proprietories-sp9832a_2h11_4mvoltesea_tee-userdebug.zip
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: proprietories-sp9832a_2h11_vwf_Smartfren-userdebug.zip
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: proprietories-sp9832a_3h10_cmcc-user.zip
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream

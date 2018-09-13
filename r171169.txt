@@ -1,0 +1,44 @@
+Index: device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinAndroid5.1.xml
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinAndroid5.1.xml	(revision 171168)
++++ device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinAndroid5.1.xml	(revision 171169)
+@@ -260,6 +260,7 @@
+ 				<Partition id="fbootlogo" size="1"/>
+ 				<Partition id="wcnfdl" size="1"/>
+ 				<Partition id="wcnmodem" size="10"/>
++				<Partition id="warninglogo" size="1"/>
+ 				<Partition id="boot" size="20"/>
+ 				<Partition id="persist" size="2"/>
+ 				<Partition id="system" size="2560"/>
+@@ -267,8 +268,7 @@
+ 				<Partition id="cache" size="150"/>
+ 				<Partition id="recovery" size="20"/>
+ 				<Partition id="misc" size="1"/>
+-				<Partition id="warninglogo" size="1"/>	
+-				<Partition id="userdata" size="0xFFFFFFFF"/>				
++				<Partition id="userdata" size="0xFFFFFFFF"/>
+ 			</Partitions>
+ 			<ProductComment/>
+ 		</Product>
+Index: device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinTosVmmAndroid5.1.xml
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinTosVmmAndroid5.1.xml	(revision 171168)
++++ device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinTosVmmAndroid5.1.xml	(revision 171169)
+@@ -260,6 +260,7 @@
+ 				<Partition id="fbootlogo" size="1"/>
+ 				<Partition id="wcnfdl" size="1"/>
+ 				<Partition id="wcnmodem" size="10"/>
++				<Partition id="warninglogo" size="1"/>
+ 				<Partition id="boot" size="20"/>
+ 				<Partition id="persist" size="2"/>
+ 				<Partition id="trustos" size="1"/>
+@@ -269,8 +270,7 @@
+ 				<Partition id="cache" size="150"/>
+ 				<Partition id="recovery" size="20"/>
+ 				<Partition id="misc" size="1"/>
+-				<Partition id="warninglogo" size="1"/>	
+-				<Partition id="userdata" size="0xFFFFFFFF"/>				
++				<Partition id="userdata" size="0xFFFFFFFF"/>
+ 			</Partitions>
+ 			<ProductComment/>
+ 		</Product>

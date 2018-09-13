@@ -1,0 +1,81 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 166641)
++++ packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 166642)
+@@ -3866,6 +3866,7 @@
+     }
+ 
+     public View getOrCreateQsbBar() {
++        if (true) return null;
+         if (launcherCallbacksProvidesSearch()) {
+             return mLauncherCallbacks.getQsbBar();
+         }
+Index: packages/apps/Launcher3/res/xml/dw_phone_hotseat.xml
+===================================================================
+--- packages/apps/Launcher3/res/xml/dw_phone_hotseat.xml	(revision 166641)
++++ packages/apps/Launcher3/res/xml/dw_phone_hotseat.xml	(revision 166642)
+@@ -45,8 +45,8 @@
+         launcher:x="3"
+         launcher:y="0" >
+         <favorite
+-            launcher:packageName="com.android.browser"
+-            launcher:className="com.android.browser.BrowserActivity" />
++            launcher:packageName="com.android.chrome"
++            launcher:className="com.google.android.apps.chrome.Main" />
+     </resolve>
+ 
+     <resolve
+Index: packages/apps/Launcher3/res/xml/default_workspace_4x4.xml
+===================================================================
+--- packages/apps/Launcher3/res/xml/default_workspace_4x4.xml	(revision 166641)
++++ packages/apps/Launcher3/res/xml/default_workspace_4x4.xml	(revision 166642)
+@@ -18,8 +18,17 @@
+ 
+     <!-- Hotseat -->
+     <include launcher:workspace="@xml/dw_phone_hotseat" />
+-	
+-	<appwidget
++
++    <appwidget
++        launcher:packageName="com.google.android.googlequicksearchbox"
++        launcher:className="com.google.android.googlequicksearchbox.SearchWidgetProvider"
++        launcher:screen="0"
++        launcher:x="0"
++        launcher:y="0"
++        launcher:spanX="4"
++        launcher:spanY="1" />
++
++    <appwidget
+         launcher:packageName="com.android.deskclock"
+         launcher:className="com.android.alarmclock.AnalogAppWidgetProvider"
+         launcher:screen="0"
+@@ -27,7 +36,7 @@
+         launcher:y="0"
+         launcher:spanX="2"
+         launcher:spanY="2" />
+-	
++<!--
+     <favorite
+         launcher:className="com.android.settings.wifi.WifiSettings"
+         launcher:packageName="com.android.settings"
+@@ -34,8 +43,9 @@
+         launcher:screen="0"
+         launcher:x="0"
+         launcher:y="2" />
+-
++-->
+     <!-- Bottom row -->
++<!--
+     <resolve
+         launcher:screen="0"
+         launcher:x="0"
+@@ -54,7 +64,9 @@
+             launcher:packageName="com.android.gallery3d"
+             launcher:className="com.android.gallery3d.app.GalleryActivity" />
+     </resolve>
++-->
+ 
++
+     <resolve
+         launcher:screen="0"
+         launcher:x="3"

@@ -1,0 +1,15 @@
+Index: vendor/sprd/modules/sensors/acc/st/Acc_Lis3dh.cpp
+===================================================================
+--- vendor/sprd/modules/sensors/acc/st/Acc_Lis3dh.cpp	(revision 169894)
++++ vendor/sprd/modules/sensors/acc/st/Acc_Lis3dh.cpp	(revision 169895)
+@@ -141,6 +141,10 @@
+     mEnabled--;
+     if (mEnabled < 0) mEnabled = 0;
+   }
++  	if(mEnabled == 0)
++	{
++		previous_timestamp2 = 0;
++	}
+   ALOGD("AccSensor: mEnabled = %d", mEnabled);
+ 
+   return err;

@@ -1,0 +1,29 @@
+Index: device/sprd/scx35l/sp9832a_2h11/modem/nvitem.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/frameworks/base/packages/Keyguard/src/com/android/keyguard/CarrierTextLayout.java
+===================================================================
+--- vendor/sprd/platform/frameworks/base/packages/Keyguard/src/com/android/keyguard/CarrierTextLayout.java	(revision 168463)
++++ vendor/sprd/platform/frameworks/base/packages/Keyguard/src/com/android/keyguard/CarrierTextLayout.java	(revision 168464)
+@@ -122,7 +122,8 @@
+                 R.bool.config_show_airplane_mode);
+         // SPRD: modify for bug643004
+         List<SubscriptionInfo> subs = mKeyguardUpdateMonitor.getSubscriptionInfo(true);
+-        final int N = 1;//subs.size();
++        final int N = subs.size() > 0 ? 1:0;
++
+         if (DEBUG) Log.d(TAG, "updateCarrierText(): " + N);
+         /* SPRD: modify by BUG 613319 @{ */
+         try{
+@@ -188,8 +189,8 @@
+                     // to worry about MSIM clashing.
+                     //SPRD: modify by BUG 601753
+                     CharSequence text = showEmergencyOnly ? emergencyCall : "";
+-                    displayText[0] =  makeCarrierStringOnEmergencyCapable(
+-                            getContext().getText(R.string.keyguard_missing_sim_message_short), text);
++                    displayText[0] =  "Please insert Smartfren Card.";//makeCarrierStringOnEmergencyCapable(
++                            //getContext().getText(R.string.keyguard_missing_sim_message_short), text);
+                 }
+             }
+ 

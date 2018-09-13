@@ -1,0 +1,20 @@
+Index: packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java	(revision 177091)
++++ packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java	(revision 177092)
+@@ -246,8 +246,14 @@
+     static boolean handleCustomCode(Context context, String input) {
+         // Secret codes are in the form #<code>#
+         int len = input.length();
+-        if (input.equals(MMI_CUSTOM_FACTORY) || input.equals(MMI_CUSTOM_PORT)) {
++        if (input.equals(MMI_CUSTOM_FACTORY)) {
+             final Intent intent = new Intent(SECRET_CODE_ACTION,
++                    Uri.parse("android_secret_code://" + input.substring(1, len - 1)));
++            intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
++            context.sendBroadcast(intent);
++            return true;
++        } else if (input.equals(MMI_CUSTOM_PORT)) {
++            final Intent intent = new Intent(SECRET_CODE_ACTION,
+                     Uri.parse("android_secret_code_port://" + input.substring(1, len - 1)));
+             intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+             context.sendBroadcast(intent);

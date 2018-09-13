@@ -1,0 +1,17 @@
+Index: build/target/product/core.mk
+===================================================================
+--- build/target/product/core.mk	(revision 166631)
++++ build/target/product/core.mk	(revision 166632)
+@@ -56,6 +56,11 @@
+     Telecom \
+     TeleService \
+     VpnDialogs \
+-    MmsService
++    MmsService \
++    FactoryMode \
++    MySmartfren \
++    Flashlight \
++    Provision \
++    wps
+ 
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/core_base.mk)

@@ -1,0 +1,12 @@
+Index: kernel/drivers/video/backlight/sprd_pwm_bl.c
+===================================================================
+--- kernel/drivers/video/backlight/sprd_pwm_bl.c	(revision 172187)
++++ kernel/drivers/video/backlight/sprd_pwm_bl.c	(revision 172188)
+@@ -197,7 +197,6 @@
+ 
+ static void sprd_backlight_lateresume(struct early_suspend *h)
+ {
+-	msleep(300);//100
+         if(-1 != sprd_pwm_bl.gpio_ctrl_pin)
+                 set_gpio_ctrll_pin_state(1);
+ 

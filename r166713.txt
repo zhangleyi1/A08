@@ -1,0 +1,522 @@
+Index: frameworks/base/core/java/android/provider/Settings.java
+===================================================================
+--- frameworks/base/core/java/android/provider/Settings.java	(revision 166712)
++++ frameworks/base/core/java/android/provider/Settings.java	(revision 166713)
+@@ -3313,7 +3313,13 @@
+ 
+         /** @hide */
+         public static final Validator HAPTIC_FEEDBACK_ENABLED_VALIDATOR = sBooleanValidator;
+-
++		
++		public static final String MOTION_SOUND_EFFECT_ENABLED = "motion_sound_effect_enabled";
++		
++		/** @hide */
++        public static final Validator MOTION_SOUND_EFFECT_ENABLED_VALIDATOR = sBooleanValidator;
++		
++		
+         /**
+          * @deprecated Each application that shows web suggestions should have its own
+          * setting for this.
+@@ -3680,6 +3686,7 @@
+             PUBLIC_SETTINGS.add(DTMF_TONE_WHEN_DIALING);
+             PUBLIC_SETTINGS.add(SOUND_EFFECTS_ENABLED);
+             PUBLIC_SETTINGS.add(HAPTIC_FEEDBACK_ENABLED);
++			PUBLIC_SETTINGS.add(MOTION_SOUND_EFFECT_ENABLED);
+             PUBLIC_SETTINGS.add(SHOW_WEB_SUGGESTIONS);
+             PUBLIC_SETTINGS.add(VIBRATE_WHEN_RINGING);
+         }
+@@ -3768,6 +3775,7 @@
+             VALIDATORS.put(DTMF_TONE_WHEN_DIALING, DTMF_TONE_WHEN_DIALING_VALIDATOR);
+             VALIDATORS.put(SOUND_EFFECTS_ENABLED, SOUND_EFFECTS_ENABLED_VALIDATOR);
+             VALIDATORS.put(HAPTIC_FEEDBACK_ENABLED, HAPTIC_FEEDBACK_ENABLED_VALIDATOR);
++			VALIDATORS.put(MOTION_SOUND_EFFECT_ENABLED, MOTION_SOUND_EFFECT_ENABLED_VALIDATOR);
+             VALIDATORS.put(SHOW_WEB_SUGGESTIONS, SHOW_WEB_SUGGESTIONS_VALIDATOR);
+             VALIDATORS.put(WIFI_USE_STATIC_IP, WIFI_USE_STATIC_IP_VALIDATOR);
+             VALIDATORS.put(END_BUTTON_BEHAVIOR, END_BUTTON_BEHAVIOR_VALIDATOR);
+@@ -3814,6 +3822,7 @@
+         static {
+             CLONE_TO_MANAGED_PROFILE.add(DATE_FORMAT);
+             CLONE_TO_MANAGED_PROFILE.add(HAPTIC_FEEDBACK_ENABLED);
++			CLONE_TO_MANAGED_PROFILE.add(MOTION_SOUND_EFFECT_ENABLED);
+             CLONE_TO_MANAGED_PROFILE.add(SOUND_EFFECTS_ENABLED);
+             CLONE_TO_MANAGED_PROFILE.add(TEXT_SHOW_PASSWORD);
+             CLONE_TO_MANAGED_PROFILE.add(TIME_12_24);
+
+Property changes on: frameworks/base/core/java/android/provider/Settings.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/frameworks/base/core/java/android/provider/Settings.java:r165606
+Index: frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/SettingsHelper.java
+===================================================================
+--- frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/SettingsHelper.java	(revision 166712)
++++ frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/SettingsHelper.java	(revision 166713)
+@@ -136,6 +136,8 @@
+             } else if (Settings.System.SOUND_EFFECTS_ENABLED.equals(name)) {
+                 setSoundEffects(Integer.parseInt(value) == 1);
+                 // fall through to the ordinary write to settings
++            } else if (Settings.System.MOTION_SOUND_EFFECT_ENABLED.equals(name)) {
++                setSoundEffects(Integer.parseInt(value) == 1);
+             } else if (Settings.Secure.LOCATION_PROVIDERS_ALLOWED.equals(name)) {
+                 setGpsLocation(value);
+                 return;
+
+Property changes on: frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/SettingsHelper.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/SettingsHelper.java:r165606
+Index: frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java
+===================================================================
+--- frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java	(revision 166712)
++++ frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java	(revision 166713)
+@@ -2436,6 +2436,9 @@
+                 R.bool.def_sound_effects_enabled);
+         loadBooleanSetting(stmt, Settings.System.HAPTIC_FEEDBACK_ENABLED,
+                 R.bool.def_haptic_feedback);
++				
++		loadBooleanSetting(stmt, Settings.System.MOTION_SOUND_EFFECT_ENABLED,
++                R.bool.def_motion_sound_effects_enabled);
+ 
+         loadIntegerSetting(stmt, Settings.System.LOCKSCREEN_SOUNDS_ENABLED,
+             R.integer.def_lockscreen_sounds_enabled);
+
+Property changes on: frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java:r165606
+Index: frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+===================================================================
+--- frameworks/base/packages/SettingsProvider/res/values/defaults.xml	(revision 166712)
++++ frameworks/base/packages/SettingsProvider/res/values/defaults.xml	(revision 166713)
+@@ -176,7 +176,7 @@
+     <bool name="def_dtmf_tones_enabled">true</bool>
+     <!-- Default for UI touch sounds enabled -->
+     <bool name="def_sound_effects_enabled">true</bool>
+-
++	<bool name="def_motion_sound_effects_enabled">true</bool>
+     <!-- Development settings -->
+     <bool name="def_stay_on_while_plugged_in">false</bool>
+ 
+
+Property changes on: frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/frameworks/base/packages/SettingsProvider/res/values/defaults.xml:r165606
+Index: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 166712)
++++ packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 166713)
+@@ -134,12 +134,19 @@
+ import android.app.WallpaperManager;
+ import com.sprd.launcher3.utils.SPRDShakeDetector;
+ import android.provider.Settings;
++
++import android.hardware.Sensor;
++import android.hardware.SensorEvent;
++import android.hardware.SensorEventListener;
++import android.hardware.SensorManager;
++import android.media.MediaPlayer;
++
+ /**
+  * Default launcher application.
+  */
+ public class Launcher extends Activity
+         implements View.OnClickListener, OnLongClickListener, LauncherModel.Callbacks,
+-                   View.OnTouchListener, PageSwitchListener, LauncherProviderChangeListener {
++                   View.OnTouchListener, PageSwitchListener, LauncherProviderChangeListener, SensorEventListener {
+     static final String TAG = "Launcher";
+     static final boolean LOGD = false;
+ 
+@@ -172,6 +179,18 @@
+     private static final int PERMISSION_ALL_DENYED = 17;
+     public static boolean permissionFlag = false;
+ 
++	
++	private static final int SPEED_SHRESHOLD = 2;
++    private static final int UPTATE_INTERVAL_TIME = 70;
++    private SensorManager mSensorManager;
++    private Sensor aSensor;
++	private float lastX;
++    private float lastY;
++    private float lastZ;
++	MediaPlayer motionSound;
++	private long lastUpdateTime;
++	private Context yyContext;
++	private boolean noFrist;
+ 
+     /**
+      * IntentStarter uses request codes starting with this. This must be greater than all activity
+@@ -442,7 +461,7 @@
+                     .penaltyDeath()
+                     .build());
+         }
+-
++        yyContext = Launcher.this;
+         if (mLauncherCallbacks != null) {
+             mLauncherCallbacks.preOnCreate();
+         }
+@@ -548,7 +567,16 @@
+          /*  SPRD: add for bug515804 add the selection .@{*/
+         initDefaultWallpaperResourceId();
+         /* @} */
+-        mPredictedAppController = new PredictedAppController(this);
++		
++		mPredictedAppController = new PredictedAppController(this);
++		motionSound = MediaPlayer.create(yyContext, R.raw.collision);
++		mSensorManager = (SensorManager) yyContext.getSystemService(Context.SENSOR_SERVICE);
++        if(mSensorManager!=null){
++            aSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
++            if(aSensor != null){
++                mSensorManager.registerListener(this, aSensor, SensorManager.SENSOR_DELAY_NORMAL);
++            }
++        }
+     }
+ 
+     @Override
+@@ -1271,6 +1299,10 @@
+            // LauncherAppState.getInstance().getUnreadInfoManager().prepareUnreadInfo();
+             SprdUnreadInfoManager.getInstance().prepareUnreadInfo();
+         }
++		int motion_sound = Settings.System.getInt(getContentResolver(), Settings.System.MOTION_SOUND_EFFECT_ENABLED, 1);
++		if(motion_sound == 1){
++			registerListener();
++		}
+     }
+ 
+     public static boolean getPermissionFlag(){
+@@ -1316,6 +1348,8 @@
+         if (mLauncherCallbacks != null) {
+             mLauncherCallbacks.onPause();
+         }
++		
++		unRegisterListener();
+     }
+ 
+     public interface CustomContentCallbacks {
+@@ -2282,6 +2316,8 @@
+         if (mLauncherCallbacks != null) {
+             mLauncherCallbacks.onDestroy();
+         }
++		
++		unRegisterListener();
+     }
+ 
+     public DragController getDragController() {
+@@ -5190,6 +5226,70 @@
+                 .resetComponentsUnreadInfoChangedValue();*/
+         SprdUnreadInfoManager.getInstance().resetComponentsUnreadInfoChangedValue();
+     }
++	
++	
++	
++	@Override
++    public void onSensorChanged(SensorEvent event) {
++        int sensorType = event.sensor.getType();
++        if (sensorType == Sensor.TYPE_ACCELEROMETER) {
++            long currentUpdateTime = System.currentTimeMillis();
++            long timeInterval = currentUpdateTime - lastUpdateTime;
++            if(timeInterval < UPTATE_INTERVAL_TIME){
++                return;
++            }
++            lastUpdateTime = currentUpdateTime;
++            float x = event.values[0];
++            float y = event.values[1];
++            float z = event.values[2];
++            float deltaX = Math.abs(x - lastX);
++            float deltaY = Math.abs(y - lastY);
++            float deltaZ = Math.abs(z - lastZ);
++
++            lastX = x;
++            lastY = y;
++            lastZ = z;
++			
++            double speed = deltaX + deltaY + deltaZ;
++			if(noFrist && mHotseat != null && mHotseat.getVisibility() == View.VISIBLE && mHotseat.getAlpha()== 1f && speed > SPEED_SHRESHOLD){
++				onSound();
++				
++			}
++			
++			if(!noFrist){
++				noFrist = true;
++			}
++        }
++    }
++
++    @Override
++    public void onAccuracyChanged(Sensor sensor, int accuracy) {
++
++    }
++	
++	
++	private void onSound() {
++        if (motionSound == null){
++            motionSound = MediaPlayer.create(yyContext, R.raw.collision);
++        }
++		motionSound.start();
++
++    }
++	 public void registerListener(){
++
++        mSensorManager = (SensorManager) yyContext.getSystemService(Context.SENSOR_SERVICE);
++        if(mSensorManager!=null){
++            aSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
++            if(aSensor != null){
++                mSensorManager.registerListener(this, aSensor, SensorManager.SENSOR_DELAY_NORMAL);
++            }
++        }
++    }
++
++    public void unRegisterListener() {
++        if (mSensorManager != null)
++            mSensorManager.unregisterListener(this);
++    }
+ }
+ 
+ interface DebugIntents {
+
+Property changes on: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/src/com/android/launcher3/Launcher.java:r165606
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Launcher3/src/com/android/launcher3/Launcher.java:r164497
+Index: packages/apps/Launcher3/res/raw/collision.ogg
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/raw/collision.ogg
+===================================================================
+--- packages/apps/Launcher3/res/raw/collision.ogg	(revision 0)
++++ packages/apps/Launcher3/res/raw/collision.ogg	(revision 166713)
+
+Property changes on: packages/apps/Launcher3/res/raw/collision.ogg
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Launcher3/res/raw
+===================================================================
+--- packages/apps/Launcher3/res/raw	(revision 0)
++++ packages/apps/Launcher3/res/raw	(revision 166713)
+
+Property changes on: packages/apps/Launcher3/res/raw
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/res/raw:r165606
+Index: vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfile.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfile.java	(revision 166712)
++++ vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfile.java	(revision 166713)
+@@ -53,6 +53,8 @@
+     public static final int NOT_LOCK_SOUNDS = 0;
+     public static final int IS_HAPTIC_FEEDBACK = 1;
+     public static final int NOT_HAPTIC_FEEDBACK = 0;
++	public static final int IS_MOTION_SOUNDS_EFFECTS = 1;
++	public static final int NOT_MOTION_SOUNDS_EFFECTS = 0;
+     public static final int IS_CHARGING_SOUNDS = 1;
+     public static final int NOT_CHARGING_SOUNDS = 0;
+ 
+@@ -81,6 +83,7 @@
+     public int mChargingSounds;
+     public int mLockSounds;
+     public int mHapticFeedback;
++	public int mMotionSoundEffects;
+ 
+     public int mNotificationsUseRingVolume;
+     public String [] mRingtoneUri;
+@@ -176,6 +179,9 @@
+                 .getColumnIndex(AudioProfileColumns.LOCK_SOUNDS));
+         p.mHapticFeedback = cursor.getInt(cursor
+                 .getColumnIndex(AudioProfileColumns.HAPTIC_FEEDBACK));
++		p.mMotionSoundEffects = cursor.getInt(cursor
++                .getColumnIndex(AudioProfileColumns.MOTION_SOUND_EFFECTS));
++				
+         p.mNotificationsUseRingVolume = cursor.getInt(cursor
+                 .getColumnIndex(AudioProfileColumns.NOTIFICATIONS_USE_RING_VOLUME));
+         for (int i = 0; i < mPhoneCount; i++) {
+@@ -399,5 +405,6 @@
+     public static final String SOUND_EFFECTS = "soundEffects";
+     public static final String LOCK_SOUNDS = "lockSounds";
+     public static final String HAPTIC_FEEDBACK = "hapticFeedback";
++	public static final String MOTION_SOUND_EFFECTS = "motionSoundEffects";
+     public static final String NOTIFICATIONS_USE_RING_VOLUME = "notificationsUseRingVolume";
+ }
+
+Property changes on: vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfile.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfile.java:r165606
+Index: vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfileSoundSettings.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfileSoundSettings.java	(revision 166712)
++++ vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfileSoundSettings.java	(revision 166713)
+@@ -72,6 +72,7 @@
+ 
+     private static final String KEY_SOUND_EFFECTS = "sound_effects";
+     private static final String KEY_HAPTIC_FEEDBACK = "haptic_feedback";
++	private static final String KEY_MOTION_SOUND_EFFECTS = "motion_sound_effect";
+     private static final String KEY_LOCK_SOUNDS = "lock_sounds";
+ 
+     public static final String KEY_SIM_RINGTONE = "ringtone";
+@@ -109,6 +110,7 @@
+     //private CheckBoxPreference mChargingSounds;
+     private CheckBoxPreference mSoundEffects;
+     private CheckBoxPreference mHapticFeedback;
++	private CheckBoxPreference mMotionSoundEffects;
+     private CheckBoxPreference mLockSounds;
+     private AudioProfileRingerVolumePreference mVolume;
+ 
+@@ -123,6 +125,7 @@
+ 
+     private Context mContext;
+     private ContentResolver mResolver;
++
+     // SPRD: Add for bug 453949
+     private boolean mSimInside[];
+     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+@@ -248,7 +251,11 @@
+ 
+         mHapticFeedback
+                 .setChecked(mAudioProfile.mHapticFeedback == AudioProfile.IS_HAPTIC_FEEDBACK);
+-
++		
++		mMotionSoundEffects = (CheckBoxPreference) findPreference(KEY_MOTION_SOUND_EFFECTS);
++        mMotionSoundEffects.setPersistent(false);
++		mMotionSoundEffects.setChecked(mAudioProfile.mMotionSoundEffects == AudioProfile.IS_MOTION_SOUNDS_EFFECTS);
++		
+         mLockSounds = (CheckBoxPreference) findPreference(KEY_LOCK_SOUNDS);
+         mLockSounds.setPersistent(false);
+         mLockSounds.setChecked(mAudioProfile.mLockSounds == AudioProfile.IS_LOCK_SOUNDS);
+@@ -761,6 +768,18 @@
+                     .isChecked() ? AudioProfile.IS_HAPTIC_FEEDBACK
+                     : AudioProfile.NOT_HAPTIC_FEEDBACK);
+             mAudioProfile.update(this, values);
++        } else if (preference == mMotionSoundEffects) {
++            if (mIsSelected) {
++                Settings.System.putInt(getContentResolver(),
++                        Settings.System.MOTION_SOUND_EFFECT_ENABLED, mMotionSoundEffects.isChecked() ? 1
++                                : 0);
++            }
++            // update db
++            ContentValues values = new ContentValues();
++            values.put(AudioProfileColumns.MOTION_SOUND_EFFECTS, mMotionSoundEffects
++                    .isChecked() ? AudioProfile.IS_MOTION_SOUNDS_EFFECTS
++                    : AudioProfile.NOT_MOTION_SOUNDS_EFFECTS);
++            mAudioProfile.update(this, values);
+         } else if (preference == mLockSounds) {
+             Log.i(TAG, "mLockSounds " + "is checked " + mLockSounds.isChecked());
+             if (mIsSelected) {
+
+Property changes on: vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfileSoundSettings.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfileSoundSettings.java:r165606
+Index: vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfileProvider.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfileProvider.java	(revision 166712)
++++ vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfileProvider.java	(revision 166713)
+@@ -163,6 +163,8 @@
+         int defChargingSounds = Settings.Global.getInt(resolver, Settings.Global.CHARGING_SOUNDS_ENABLED, 1);
+         int defLockSounds = Settings.System.getInt(resolver,Settings.System.LOCKSCREEN_SOUNDS_ENABLED, 1);
+         int defHapticFeedback = AudioProfile.IS_HAPTIC_FEEDBACK;
++		int defMotionSoundEffects = AudioProfile.IS_MOTION_SOUNDS_EFFECTS;
++		
+         Uri defUri = RingtoneManager.getActualDefaultRingtoneUri(mContext, RingtoneManager.TYPE_RINGTONE);
+         String defRingUri = "";
+         if (defUri != null) {
+@@ -200,6 +202,7 @@
+                 + AudioProfileColumns.CHARGING_SOUNDS + " INTEGER DEFAULT " + defChargingSounds + ", "
+                 + AudioProfileColumns.LOCK_SOUNDS + " INTEGER DEFAULT " + defLockSounds + ", "
+                 + AudioProfileColumns.HAPTIC_FEEDBACK + " INTEGER DEFAULT " + defHapticFeedback + ", "
++				+ AudioProfileColumns.MOTION_SOUND_EFFECTS + " INTEGER DEFAULT " + defMotionSoundEffects + ", "
+                 + AudioProfileColumns.NOTIFICATIONS_USE_RING_VOLUME + " INTEGER DEFAULT " + AudioProfile.NOTIFICATIONS_NOT_USE_RING_VOLUME + ", " ;
+         String providerColumns;
+         StringBuffer ringtoneColumns = new StringBuffer();
+@@ -300,6 +303,7 @@
+                 + AudioProfileColumns.SOUND_EFFECTS + "', '"
+                 + AudioProfileColumns.LOCK_SOUNDS + "', '"
+                 + AudioProfileColumns.HAPTIC_FEEDBACK + "', '"
++				+ AudioProfileColumns.MOTION_SOUND_EFFECTS + "', '"
+                 + AudioProfileColumns.NOTIFICATION_URI + "', '";
+         String outdoorValues = AudioProfile.OUTDOOR_NAME + "', '"
+                 + AudioProfile.OUTDOOR_NAME + "', '"
+@@ -312,6 +316,7 @@
+                 + AudioProfile.IS_SOUND_EFFECTS + "', '"
+                 + AudioProfile.IS_LOCK_SOUNDS + "', '"
+                 + AudioProfile.IS_HAPTIC_FEEDBACK + "', '"
++				+ AudioProfile.IS_MOTION_SOUNDS_EFFECTS + "', '"
+                 + defNotificationUri + "', '";
+         for (int i = 0; i < mPhoneCount; i++) {
+             if (mPhoneCount - 1 == i) {
+@@ -408,7 +413,8 @@
+                     + AudioProfileColumns.DTMF_TONE + "', '"
+                     + AudioProfileColumns.SOUND_EFFECTS + "', '"
+                     + AudioProfileColumns.LOCK_SOUNDS + "', '"
+-                    + AudioProfileColumns.HAPTIC_FEEDBACK
++					+ AudioProfileColumns.HAPTIC_FEEDBACK + "', '"
++                    + AudioProfileColumns.MOTION_SOUND_EFFECTS
+                     + "') VALUES ('"
+                     + AudioProfile.OUTDOOR_NAME + "', '"
+                     + AudioProfile.OUTDOOR_NAME + "', '"
+@@ -421,7 +427,8 @@
+                     + AudioProfile.IS_DTMF_TONE + "', '"
+                     + AudioProfile.IS_SOUND_EFFECTS + "', '"
+                     + AudioProfile.IS_LOCK_SOUNDS + "', '"
+-                    + AudioProfile.IS_HAPTIC_FEEDBACK
++					+ AudioProfile.IS_HAPTIC_FEEDBACK + "', '"
++                    + AudioProfile.IS_MOTION_SOUNDS_EFFECTS
+                     + "' )");
+         }
+         /* @} */
+
+Property changes on: vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfileProvider.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfileProvider.java:r165606
+Index: vendor/sprd/platform/packages/apps/AudioProfile/res/values-zh-rCN/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/AudioProfile/res/values-zh-rCN/strings.xml	(revision 166712)
++++ vendor/sprd/platform/packages/apps/AudioProfile/res/values-zh-rCN/strings.xml	(revision 166713)
+@@ -42,6 +42,7 @@
+   <string name="sound_effects_enable_title">"触摸提示音"</string>
+   <!-- <string name="charging_sounds_title">"充电提示音"</string> -->
+   <string name="haptic_feedback_enable_title">"触摸时振动"</string>
++  <string name="motion_sound_effect_title">"运动声音效果"</string>
+   <string name="revert_ring_vol">该模式下手机铃声音量不能是零，将被变更成默认音量。</string>
+   <string name="input_limit">已达输入上限</string>
+   <string name="ringtone_default_message">"对不起，该铃声文件无法播放，已将默认铃声文件设为铃声"</string>
+Index: vendor/sprd/platform/packages/apps/AudioProfile/res/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/AudioProfile/res/values/strings.xml	(revision 166712)
++++ vendor/sprd/platform/packages/apps/AudioProfile/res/values/strings.xml	(revision 166713)
+@@ -54,7 +54,7 @@
+ 	<string name="sound_effects_enable_title">Touch sounds</string>
+     <string name="haptic_feedback_enable_title">Vibrate on touch</string>
+ 
+-
++	<string name="motion_sound_effect_title">"Motion sound effect"</string>
+     <string name="revert_ring_vol">The volume of ring should not be zero in this profile,it will be reverted.</string>
+     <string name="input_limit">Reached input limit</string>
+     <string name="ringtone_default_message">"Sorry, the ringtone file does not play, have set the default sound file as a ringtone"</string>
+
+Property changes on: vendor/sprd/platform/packages/apps/AudioProfile/res/values/strings.xml
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/platform/packages/apps/AudioProfile/res/values/strings.xml:r165606
+Index: vendor/sprd/platform/packages/apps/AudioProfile/res/xml/audio_profile_sound_settings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/AudioProfile/res/xml/audio_profile_sound_settings.xml	(revision 166712)
++++ vendor/sprd/platform/packages/apps/AudioProfile/res/xml/audio_profile_sound_settings.xml	(revision 166713)
+@@ -77,4 +77,8 @@
+             android:key="haptic_feedback"
+             android:title="@string/haptic_feedback_enable_title"
+             android:defaultValue="true" />
++	<com.sprd.audioprofile.AudioProfileCheckBoxPrefrence
++            android:key="motion_sound_effect"
++            android:title="@string/motion_sound_effect_title"
++            android:defaultValue="true" />
+ </PreferenceScreen>
+
+Property changes on: vendor/sprd/platform/packages/apps/AudioProfile/res/xml/audio_profile_sound_settings.xml
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/platform/packages/apps/AudioProfile/res/xml/audio_profile_sound_settings.xml:r165606

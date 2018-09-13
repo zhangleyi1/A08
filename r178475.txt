@@ -1,0 +1,13 @@
+Index: packages/apps/Settings/res/values/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values/strings.xml	(revision 178474)
++++ packages/apps/Settings/res/values/strings.xml	(revision 178475)
+@@ -7593,7 +7593,7 @@
+     <!-- Suffix added to a number to signify size in kilobytes. -->
+     <string name="kilobyteShort">KB</string>
+     <!-- Suffix added to a number to signify size in megabytes. -->
+-    <string name="megabyteShort">Mb</string>
++    <string name="megabyteShort">MB</string>
+     <!-- Suffix added to a number to signify size in gigabytes. -->
+     <string name="gigabyteShort">Gb</string>
+     <!-- Suffix added to a number to signify size in terabytes. -->

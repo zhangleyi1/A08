@@ -1,0 +1,13 @@
+Index: packages/apps/Settings/src/com/sprd/settings/wifi/WifiSoftApSleepPolicy.java
+===================================================================
+--- packages/apps/Settings/src/com/sprd/settings/wifi/WifiSoftApSleepPolicy.java	(revision 176504)
++++ packages/apps/Settings/src/com/sprd/settings/wifi/WifiSoftApSleepPolicy.java	(revision 176505)
+@@ -131,7 +131,7 @@
+ 
+     private static boolean checkAndSendMsg(){
+         int value = Settings.System.getInt(mContext.getContentResolver(),WIFI_SOFT_AP_SLEEP_POLICY,
+-                          WifiSoftApSleepPolicy.WIFI_SOFT_AP_SLEEP_POLICY_NEVER);
++                          WifiSoftApSleepPolicy.WIFI_SOFT_AP_SLEEP_POLICY_15_MINS);
+         if (value == WIFI_SOFT_AP_SLEEP_POLICY_NEVER) {
+             Log.e(TAG,"always! and return");
+             return false;

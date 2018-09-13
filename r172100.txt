@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml	(revision 172099)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml	(revision 172100)
+@@ -16,7 +16,7 @@
+     <string name="camera_mode_qrcode">Qr Code</string>
+     <string name="mode_timelapse">TimeLapse</string>
+     <string name="camera_mode_slowmotion">SlowMotion</string>
+-    <string name="slide_panel_capture">Capture</string>
++    <string name="slide_panel_capture">Photo</string>
+     <string name="slide_panel_mode">Mode</string>
+     <string name="slide_panel_filter">Filter</string>
+     <string name="extend_panel_exposure">Exposure</string>

@@ -1,0 +1,83 @@
+Index: frameworks/base/packages/SettingsLib/src/com/android/settingslib/DeviceInfoUtils.java
+===================================================================
+--- frameworks/base/packages/SettingsLib/src/com/android/settingslib/DeviceInfoUtils.java	(revision 166654)
++++ frameworks/base/packages/SettingsLib/src/com/android/settingslib/DeviceInfoUtils.java	(revision 166655)
+@@ -92,9 +92,9 @@
+                     + " groups");
+             return "Unavailable";
+         }
+-        return m.group(1) + "\n" +                 // 3.0.31-g6fb96c9
++        return m.group(1).split("-")[0];/* + "\n" +                 // 3.0.31-g6fb96c9
+                 m.group(2) + " " + m.group(3) + "\n" + // x@y.com #1
+-                m.group(4);                            // Thu Jun 28 11:02:39 PDT 2012
++                m.group(4);*/                            // Thu Jun 28 11:02:39 PDT 2012
+     }
+ 
+     /**
+
+Property changes on: frameworks/base/packages/SettingsLib/src/com/android/settingslib/DeviceInfoUtils.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/frameworks/base/packages/SettingsLib/src/com/android/settingslib/DeviceInfoUtils.java:r165574
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/frameworks/base/packages/SettingsLib/src/com/android/settingslib/DeviceInfoUtils.java:r163734
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/frameworks/base/packages/SettingsLib/src/com/android/settingslib/DeviceInfoUtils.java:r163171
+Index: packages/apps/Launcher3/res/layout/web_view.xml
+===================================================================
+--- packages/apps/Launcher3/res/layout/web_view.xml	(revision 0)
++++ packages/apps/Launcher3/res/layout/web_view.xml	(revision 166655)
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="utf-8"?>
++<WebView
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:layout_width="wrap_content"
++    android:layout_height="wrap_content"
++    android:id="@+id/webView"
++    />
+
+Property changes on: packages/apps/Launcher3/res/layout/web_view.xml
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Launcher3/res/layout/web_view.xml:r163171
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/res/layout/web_view.xml:r165574
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Launcher3/res/layout/web_view.xml:r163734
+Index: packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java	(revision 166654)
++++ packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java	(revision 166655)
+@@ -420,7 +420,7 @@
+         try {
+             findPreference(preference).setSummary(
+                     SystemProperties.get(property,
+-                            getResources().getString(R.string.device_info_default)));
++                            getResources().getString(R.string.device_info_default)).split("\\|")[0]);
+         } catch (RuntimeException e) {
+             // No recovery
+         }
+
+Property changes on: packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java:r163171
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java:r165574
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java:r163734
+Index: build/core/definitions.mk
+===================================================================
+--- build/core/definitions.mk	(revision 166654)
++++ build/core/definitions.mk	(revision 166655)
+@@ -1834,7 +1834,7 @@
+ endif
+ 
+ ifdef TARGET_BUILD_WITH_APPS_VERSION_NAME
+-APPS_DEFAULT_VERSION_NAME := $(PLATFORM_VERSION)-$(BUILD_NUMBER_FROM_FILE)
++APPS_DEFAULT_VERSION_NAME := $(PLATFORM_VERSION)
+ else
+ APPS_DEFAULT_VERSION_NAME := $(PLATFORM_VERSION)
+ endif
+
+Property changes on: build/core/definitions.mk
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/build/core/definitions.mk:r163171
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/build/core/definitions.mk:r165574
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/build/core/definitions.mk:r163734

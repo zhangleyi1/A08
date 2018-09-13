@@ -1,0 +1,171 @@
+Index: device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 173674)
++++ device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 173675)
+@@ -28,7 +28,7 @@
+ BOARD_KERNEL_PAGESIZE := 2048
+ BOARD_KERNEL_SEPARATED_DT := true
+ 
+-TARGET_DM_VERITY := true
++TARGET_DM_VERITY := False
+ 
+ STORAGE_INTERNAL := emulated
+ STORAGE_PRIMARY := internal
+Index: device/sprd/scx35l/common/emmc/recovery_emulated_ieb.fstab
+===================================================================
+--- device/sprd/scx35l/common/emmc/recovery_emulated_ieb.fstab	(revision 173674)
++++ device/sprd/scx35l/common/emmc/recovery_emulated_ieb.fstab	(revision 173675)
+@@ -68,6 +68,7 @@
+ /dev/block/platform/sdio_emmc/by-name/vmm           /vmm        emmc    defaults    defaults
+ 
+ /dev/block/platform/sdio_emmc/by-name/prodnv		/productinfo	ext4	noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc     wait,check
++/dev/block/platform/sdio_emmc/by-name/devicelog   /devicelog ext4	noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc     wait,check
+ /dev/block/platform/sdio_emmc/by-name/sysinfo                   /systeminfo     ext4    defaults    defaults
+ /dev/block/platform/sdio_emmc/by-name/logo			/logo			emmc	defaults	defaults
+ /dev/block/platform/sdio_emmc/by-name/fbootlogo		/fbootlogo		emmc	defaults	defaults
+Index: device/sprd/scx35l/common/emmc/fstab_dt_ieb.sc8830
+===================================================================
+--- device/sprd/scx35l/common/emmc/fstab_dt_ieb.sc8830	(revision 173674)
++++ device/sprd/scx35l/common/emmc/fstab_dt_ieb.sc8830	(revision 173675)
+@@ -7,6 +7,7 @@
+ /dev/block/platform/sdio_emmc/by-name/userdata /data        ext4 noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,discard wait,encryptable=footer,check
+ /dev/block/platform/sdio_emmc/by-name/cache	  /cache       ext4 noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,discard wait,check,formattable
+ /dev/block/platform/sdio_emmc/by-name/prodnv   /productinfo ext4 noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,discard wait,check
++/dev/block/platform/sdio_emmc/by-name/devicelog   /devicelog ext4 noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,discard wait,check
+ /dev/block/platform/sdio_emmc/by-name/misc     /misc        emmc    defaults    defaults
+ 
+ /devices/sdio_sd/mmc_host/mmc1/mmc1:*/block/mmcblk1      auto         vfat defaults voldmanaged=sdcard0:auto,noemulatedsd
+Index: device/sprd/scx35l/common/emmc/fstab_dt_ieb.sc8830.verify
+===================================================================
+--- device/sprd/scx35l/common/emmc/fstab_dt_ieb.sc8830.verify	(revision 173674)
++++ device/sprd/scx35l/common/emmc/fstab_dt_ieb.sc8830.verify	(revision 173675)
+@@ -7,7 +7,7 @@
+ /dev/block/platform/sdio_emmc/by-name/userdata /data        ext4 noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,discard wait,encryptable=footer,check
+ /dev/block/platform/sdio_emmc/by-name/cache	  /cache       ext4 noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,discard wait,check,formattable
+ /dev/block/platform/sdio_emmc/by-name/prodnv   /productinfo ext4 noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,discard wait,check
++/dev/block/platform/sdio_emmc/by-name/devicelog   /devicelog ext4 noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,discard wait,check
+ /dev/block/platform/sdio_emmc/by-name/misc     /misc        emmc    defaults    defaults
+-/dev/block/platform/sdio_emmc/by-name/devicelog   /devicelog ext4 noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,discard wait,check
+ /devices/sdio_sd/mmc_host/mmc1/mmc1:*/block/mmcblk1      auto         vfat defaults voldmanaged=sdcard0:auto,noemulatedsd
+ /devices/f5116000.usb/usb1/1-1/1-1:1.0   auto         vfat defaults voldmanaged=usbdisk:auto
+Index: device/sprd/scx35l/common/emmc/recovery_emulated.secure_boot_ieb.fstab
+===================================================================
+--- device/sprd/scx35l/common/emmc/recovery_emulated.secure_boot_ieb.fstab	(revision 173674)
++++ device/sprd/scx35l/common/emmc/recovery_emulated.secure_boot_ieb.fstab	(revision 173675)
+@@ -67,6 +67,7 @@
+ /dev/block/platform/sdio_emmc/by-name/vmm           /vmm        emmc    defaults    secureboot=vlr:/uboot
+ 
+ /dev/block/platform/sdio_emmc/by-name/prodnv		/productinfo	ext4	noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc     wait,check
++/dev/block/platform/sdio_emmc/by-name/devicelog   /devicelog ext4	noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc     wait,check
+ /dev/block/platform/sdio_emmc/by-name/sysinfo                   /systeminfo     ext4    defaults    defaults
+ /dev/block/platform/sdio_emmc/by-name/logo			/logo			emmc	defaults	defaults
+ /dev/block/platform/sdio_emmc/by-name/fbootlogo		/fbootlogo		emmc	defaults	defaults
+Index: device/sprd/scx35l/common/emmc/recovery.secure_boot.fstab
+===================================================================
+--- device/sprd/scx35l/common/emmc/recovery.secure_boot.fstab	(revision 173674)
++++ device/sprd/scx35l/common/emmc/recovery.secure_boot.fstab	(revision 173675)
+@@ -68,6 +68,7 @@
+ /dev/block/platform/sdio_emmc/by-name/vmm           /vmm        emmc    defaults    secureboot=vlr:/uboot
+ 
+ /dev/block/platform/sdio_emmc/by-name/prodnv		/productinfo	ext4	noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc     wait,check
++/dev/block/platform/sdio_emmc/by-name/devicelog   /devicelog ext4	noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc     wait,check
+ /dev/block/platform/sdio_emmc/by-name/logo			/logo			emmc	defaults	defaults
+ /dev/block/platform/sdio_emmc/by-name/fbootlogo		/fbootlogo		emmc	defaults	defaults
+ /dev/block/platform/sdio_emmc/by-name/oem			/oem		ext4	defaults	defaults
+Index: device/sprd/scx35l/common/emmc/fstab_ieb.sc8830
+===================================================================
+--- device/sprd/scx35l/common/emmc/fstab_ieb.sc8830	(revision 173674)
++++ device/sprd/scx35l/common/emmc/fstab_ieb.sc8830	(revision 173675)
+@@ -7,6 +7,7 @@
+ /dev/block/platform/sdio_emmc/by-name/userdata /data        ext4 noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,discard wait,encryptable=footer,check
+ /dev/block/platform/sdio_emmc/by-name/cache	  /cache       ext4 noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,discard wait,check,formattable
+ /dev/block/platform/sdio_emmc/by-name/prodnv   /productinfo ext4 noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,discard wait,check
++/dev/block/platform/sdio_emmc/by-name/devicelog   /devicelog ext4 noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,discard wait,check
+ /dev/block/platform/sdio_emmc/by-name/misc     /misc        emmc    defaults    defaults
+ 
+ /devices/sdio_sd/mmc_host/mmc1/mmc1:*/block/mmcblk1      auto         vfat defaults voldmanaged=sdcard0:auto,noemulatedsd,encryptable=footer
+Index: device/sprd/scx35l/common/emmc/recovery_ieb.fstab
+===================================================================
+--- device/sprd/scx35l/common/emmc/recovery_ieb.fstab	(revision 173674)
++++ device/sprd/scx35l/common/emmc/recovery_ieb.fstab	(revision 173675)
+@@ -69,6 +69,7 @@
+ /dev/block/platform/sdio_emmc/by-name/vmm           /vmm        emmc    defaults    defaults
+ 
+ /dev/block/platform/sdio_emmc/by-name/prodnv		/productinfo	ext4	noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc     wait,check
++/dev/block/platform/sdio_emmc/by-name/devicelog   /devicelog ext4	noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc     wait,check
+ /dev/block/platform/sdio_emmc/by-name/sysinfo                   /systeminfo     ext4    defaults    defaults
+ /dev/block/platform/sdio_emmc/by-name/logo			/logo			emmc	defaults	defaults
+ /dev/block/platform/sdio_emmc/by-name/fbootlogo		/fbootlogo		emmc	defaults	defaults
+Index: device/sprd/scx35l/common/emmc/recovery_emulated.fstab
+===================================================================
+--- device/sprd/scx35l/common/emmc/recovery_emulated.fstab	(revision 173674)
++++ device/sprd/scx35l/common/emmc/recovery_emulated.fstab	(revision 173675)
+@@ -68,6 +68,7 @@
+ /dev/block/platform/sdio_emmc/by-name/vmm			/vmm		emmc	defaults	defaults
+ 
+ /dev/block/platform/sdio_emmc/by-name/prodnv		/productinfo	ext4	noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc     wait,check
++/dev/block/platform/sdio_emmc/by-name/devicelog   /devicelog ext4	noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc     wait,check
+ /dev/block/platform/sdio_emmc/by-name/logo			/logo			emmc	defaults	defaults
+ /dev/block/platform/sdio_emmc/by-name/fbootlogo		/fbootlogo		emmc	defaults	defaults
+ /dev/block/platform/sdio_emmc/by-name/oem			/oem		ext4	defaults	defaults
+Index: device/sprd/scx35l/common/emmc/fstab_dt.sc8830
+===================================================================
+--- device/sprd/scx35l/common/emmc/fstab_dt.sc8830	(revision 173674)
++++ device/sprd/scx35l/common/emmc/fstab_dt.sc8830	(revision 173675)
+@@ -7,6 +7,7 @@
+ /dev/block/platform/sdio_emmc/by-name/userdata /data        ext4 noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,discard wait,encryptable=footer,check
+ /dev/block/platform/sdio_emmc/by-name/cache	  /cache       ext4 noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,discard wait,check,formattable
+ /dev/block/platform/sdio_emmc/by-name/prodnv   /productinfo ext4 noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,discard wait,check
++/dev/block/platform/sdio_emmc/by-name/devicelog   /devicelog ext4 noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,discard wait,check
+ /dev/block/platform/sdio_emmc/by-name/oem      /oem         ext4 ro,barrier=1                          wait
+ /dev/block/platform/sdio_emmc/by-name/misc     /misc        emmc    defaults    defaults
+ 
+Index: device/sprd/scx35l/common/emmc/fstab_dt.sc8830.verify
+===================================================================
+--- device/sprd/scx35l/common/emmc/fstab_dt.sc8830.verify	(revision 173674)
++++ device/sprd/scx35l/common/emmc/fstab_dt.sc8830.verify	(revision 173675)
+@@ -7,6 +7,7 @@
+ /dev/block/platform/sdio_emmc/by-name/userdata /data        ext4 noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,discard wait,encryptable=footer,check
+ /dev/block/platform/sdio_emmc/by-name/cache	  /cache       ext4 noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,discard wait,check,formattable
+ /dev/block/platform/sdio_emmc/by-name/prodnv   /productinfo ext4 noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,discard wait,check
++/dev/block/platform/sdio_emmc/by-name/devicelog   /devicelog ext4 noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,discard wait,check
+ /dev/block/platform/sdio_emmc/by-name/oem      /oem         ext4 ro,barrier=1                          wait
+ /dev/block/platform/sdio_emmc/by-name/misc     /misc        emmc    defaults    defaults
+ 
+Index: device/sprd/scx35l/common/emmc/recovery.secure_boot_ieb.fstab
+===================================================================
+--- device/sprd/scx35l/common/emmc/recovery.secure_boot_ieb.fstab	(revision 173674)
++++ device/sprd/scx35l/common/emmc/recovery.secure_boot_ieb.fstab	(revision 173675)
+@@ -68,6 +68,7 @@
+ /dev/block/platform/sdio_emmc/by-name/vmm           /vmm        emmc    defaults    secureboot=vlr:/uboot
+ 
+ /dev/block/platform/sdio_emmc/by-name/prodnv		/productinfo	ext4	noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc     wait,check
++/dev/block/platform/sdio_emmc/by-name/devicelog   /devicelog ext4	noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc     wait,check
+ /dev/block/platform/sdio_emmc/by-name/sysinfo                   /systeminfo     ext4    defaults    defaults
+ /dev/block/platform/sdio_emmc/by-name/logo			/logo			emmc	defaults	defaults
+ /dev/block/platform/sdio_emmc/by-name/fbootlogo		/fbootlogo		emmc	defaults	defaults
+Index: device/sprd/scx35l/common/emmc/recovery_emulated.secure_boot.fstab
+===================================================================
+--- device/sprd/scx35l/common/emmc/recovery_emulated.secure_boot.fstab	(revision 173674)
++++ device/sprd/scx35l/common/emmc/recovery_emulated.secure_boot.fstab	(revision 173675)
+@@ -67,6 +67,7 @@
+ /dev/block/platform/sdio_emmc/by-name/vmm           /vmm        emmc    defaults    secureboot=vlr:/uboot
+ 
+ /dev/block/platform/sdio_emmc/by-name/prodnv		/productinfo	ext4	noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc     wait,check
++/dev/block/platform/sdio_emmc/by-name/devicelog   /devicelog ext4	noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc     wait,check
+ /dev/block/platform/sdio_emmc/by-name/logo			/logo			emmc	defaults	defaults
+ /dev/block/platform/sdio_emmc/by-name/fbootlogo		/fbootlogo		emmc	defaults	defaults
+ /dev/block/platform/sdio_emmc/by-name/oem			/oem		ext4	defaults	defaults
+Index: build/tools/releasetools/ota_from_target_files.py
+===================================================================
+--- build/tools/releasetools/ota_from_target_files.py	(revision 173674)
++++ build/tools/releasetools/ota_from_target_files.py	(revision 173675)
+@@ -149,7 +149,7 @@
+ OPTIONS.two_step = False
+ OPTIONS.no_signing = False
+ #adups fota
+-OPTIONS.block_based = True
++OPTIONS.block_based = False
+ OPTIONS.updater_binary = None
+ OPTIONS.oem_source = None
+ OPTIONS.oem_no_mount = False

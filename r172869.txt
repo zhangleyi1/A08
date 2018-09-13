@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/SprdEmail/UnifiedEmail/res/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdEmail/UnifiedEmail/res/values/strings.xml	(revision 172868)
++++ vendor/sprd/platform/packages/apps/SprdEmail/UnifiedEmail/res/values/strings.xml	(revision 172869)
+@@ -1199,7 +1199,7 @@
+     <string name="permission_change_redo">Since the permissions change, please redo.</string>
+     <!-- SPRD: support default signature feature @{ -->
+     <string name="preference_default_signature_title">Signature</string>
+-    <string name="signature_default">Sent from Andromax A36C5H</string>
++    <string name="signature_default">Powered by Smartfren</string>
+     <string name="signature_flag" translatable="false">!$#@abc</string>
+     <!-- SPRD: Mail priority @{ -->
+     <string name="set_priority_high">Set priority high</string>

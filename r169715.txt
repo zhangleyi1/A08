@@ -1,0 +1,15 @@
+Index: packages/services/Telecomm/src/com/android/server/telecom/CallLogManager.java
+===================================================================
+--- packages/services/Telecomm/src/com/android/server/telecom/CallLogManager.java	(revision 169714)
++++ packages/services/Telecomm/src/com/android/server/telecom/CallLogManager.java	(revision 169715)
+@@ -298,8 +298,8 @@
+                 .okToLogEmergencyNumber(mContext);
+ 
+         // Don't log emergency numbers if the device doesn't allow it.
+-        final boolean isOkToLogThisCall = !isEmergency || okToLogEmergencyNumber;
+-
++        //final boolean isOkToLogThisCall = !isEmergency || okToLogEmergencyNumber;
++	    final boolean isOkToLogThisCall = true;
+         sendAddCallBroadcast(callType, duration);
+ 
+         if (isOkToLogThisCall) {

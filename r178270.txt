@@ -1,0 +1,35 @@
+Index: packages/apps/Settings/src/com/android/settings/showLogActiviity.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/showLogActiviity.java	(revision 178269)
++++ packages/apps/Settings/src/com/android/settings/showLogActiviity.java	(revision 178270)
+@@ -10,6 +10,7 @@
+ import java.io.IOException;
+ import com.android.settings.R;
+ import java.io.File;
++import android.text.method.ScrollingMovementMethod;
+ 
+ /**
+  * Created by Administrator on 2017/5/16.
+@@ -22,6 +23,8 @@
+         super.onCreate(savedInstanceState);
+         setContentView(R.layout.show_trace_log);
+         traceLogTv = (TextView)findViewById(R.id.log_tv);
++        traceLogTv.setMovementMethod(ScrollingMovementMethod.getInstance());
++
+         readLogFile();
+     }
+ 
+Index: packages/apps/Settings/res/layout/show_trace_log.xml
+===================================================================
+--- packages/apps/Settings/res/layout/show_trace_log.xml	(revision 178269)
++++ packages/apps/Settings/res/layout/show_trace_log.xml	(revision 178270)
+@@ -6,6 +6,8 @@
+     <TextView
+         android:layout_height="match_parent"
+         android:layout_width="match_parent"
++        android:scrollbars="vertical"
++        android:fadeScrollbars="false"
+         android:textSize="17sp"
+         android:id="@+id/log_tv"/>
+ </LinearLayout>
+\ No newline at end of file

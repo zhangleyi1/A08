@@ -1,0 +1,23 @@
+Index: vendor/sprd/modules/libcamera/oem2v0/src/cmr_oem.c
+===================================================================
+--- vendor/sprd/modules/libcamera/oem2v0/src/cmr_oem.c	(revision 171925)
++++ vendor/sprd/modules/libcamera/oem2v0/src/cmr_oem.c	(revision 171926)
+@@ -6673,7 +6673,7 @@
+ 		goto exit;
+ 	}
+ 
+-	if (0 == cxt->camera_id) {
++	//if (0 == cxt->camera_id) {
+ 		setting_param.camera_id = cxt->camera_id;
+ 		ret = cmr_setting_ioctl(cxt->setting_cxt.setting_handle, SETTING_GET_HW_FLASH_STATUS, &setting_param);
+ 		if (ret) {
+@@ -6686,7 +6686,8 @@
+ 		if (flash_status != FLASH_TORCH) {
+ 			cmr_sensor_set_exif(cxt->sn_cxt.sensor_handle, cxt->camera_id, SENSOR_EXIF_CTRL_FLASH, 0);
+ 		}
+-	}
++	//}
++	 CMR_LOGI("@xin E   20170607 3333");
+ 
+ 	ret = cmr_snapshot_post_proc(cxt->snp_cxt.snapshot_handle, &snp_param);
+ 	if (ret) {

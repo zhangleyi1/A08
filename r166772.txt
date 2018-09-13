@@ -1,0 +1,52 @@
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml	(revision 166771)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml	(revision 166772)
+@@ -28,13 +28,13 @@
+ 
+     <RelativeLayout
+         android:id="@+id/mobile_signal_type"
+-        android:layout_width="wrap_content"
++        android:layout_width="24dp"
+         android:layout_height="wrap_content" >
+ 	<ImageView
+            android:id="@+id/mobile_type"
+            android:layout_width="7dp"
+            android:layout_height="7dp" 
+-  	       android:layout_marginLeft="12dp"
++  	   android:layout_marginLeft="2dp"
+ 		/>
+ 
+         <com.android.systemui.statusbar.AnimatedImageView
+@@ -43,6 +43,8 @@
+             android:layout_height="18.5dp"
+             android:layout_width="32dp"
+             systemui:hasOverlappingRendering="false"
++            android:scaleX="1.5"
++            android:scaleY="1.3"
+             />
+ 
+         <com.android.systemui.statusbar.AnimatedImageView
+@@ -52,6 +54,8 @@
+             android:layout_width="32dp"
+             android:alpha="0.0"
+             systemui:hasOverlappingRendering="false"
++            android:scaleX="1.5"
++            android:scaleY="1.3"
+             />
+ 
+         <ImageView
+@@ -63,7 +67,7 @@
+     <FrameLayout
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+-        android:layout_marginLeft="2dip" >
++        android:layout_marginLeft="0dip" >
+ 
+         <ImageView
+             android:id="@+id/mobile_data_in_out"
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml:r166490

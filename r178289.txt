@@ -1,0 +1,15 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/VideoCallPresenter.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/VideoCallPresenter.java	(revision 178288)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/VideoCallPresenter.java	(revision 178289)
+@@ -671,8 +671,8 @@
+     }
+ 
+     private void checkForOrientationAllowedChange(Call call) {
+-        InCallPresenter.getInstance().setInCallAllowsOrientationChange(
+-                VideoUtils.isVideoCall(call));
++		//modified not allow video rotation
++        InCallPresenter.getInstance().setInCallAllowsOrientationChange(false);
+     }
+ 
+     /**

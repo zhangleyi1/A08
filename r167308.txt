@@ -1,0 +1,147 @@
+Index: u-boot64/drivers/power/battery/fan54015.c
+===================================================================
+--- u-boot64/drivers/power/battery/fan54015.c	(revision 167307)
++++ u-boot64/drivers/power/battery/fan54015.c	(revision 167308)
+@@ -6,6 +6,22 @@
+ #define SLAVE_ADDR 0x6b
+ #define BUS_NUM 1
+ #define I2C_SPEED 400
++#define EN_HIZ 0x0
++#define SYS_MIN 0x4 //Minimum system voltage 3.4V	
++
++#define WTD_TIME_40S 0x1 
++#define WTD_TIME_80S 0x2
++
++#define EN_TIME 0x1 //Disable charge timer
++#define INT_MASK_1 0x0 //Disable fault interrupt
++
++#define IINLIMSET_2P5_A 0x7
++#define IINLIMSET_2_A 0x6
++#define IINLIMSET_1P5_A 0x5
++#define IINLIMSET_1P2_A 0x4
++#define IINLIMSET_900_MA 0x3
++#define IINLIMSET_500_MA 0x2
++
+ uint16_t sprd_hl7059_i2c_init(void)
+ {
+ 	i2c_set_bus_num(BUS_NUM);
+@@ -391,53 +407,53 @@
+ 	if (cur < 512)
+ 	reg_val = 0;
+ 	if ((cur >= 512) && (cur < 576))
++	reg_val = 0;
++	if ((cur >= 576) && (cur < 640))
+ 	reg_val = 1;
+-	if ((cur >= 576) && (cur < 640))
++	if ((cur >= 640) && (cur < 704))
+ 	reg_val = 2;
+-	if ((cur >= 640) && (cur < 704))
++	if ((cur >= 704) && (cur < 768))
+ 	reg_val = 3;
+-	if ((cur >= 704) && (cur < 768))
++	if ((cur >= 768) && (cur < 832))
+ 	reg_val = 4;
+-	if ((cur >= 768) && (cur < 832))
++	if ((cur >= 832) && (cur < 896))
+ 	reg_val = 5;
+-	if ((cur >= 832) && (cur < 896))
++	if ((cur >= 896) && (cur < 960))
+ 	reg_val = 6;
+-	if ((cur >= 896) && (cur < 960))
++	if ((cur >= 960) && (cur < 1024))
+ 	reg_val = 7;
+-	if ((cur >= 960) && (cur < 1024))
++	if ((cur >= 1024) && (cur < 1088))
+ 	reg_val = 8;
+-	if ((cur >= 1024) && (cur < 1088))
++	if ((cur >= 1088) && (cur < 1152))
+ 	reg_val = 9;
+-	if ((cur >= 1088) && (cur < 1152))
++	if ((cur >= 1152) && (cur < 1216))
+ 	reg_val = 10;
+-	if ((cur >= 1152) && (cur < 1216))
++	if ((cur >= 1216) && (cur < 1280))
+ 	reg_val = 11;
+-	if ((cur >= 1216) && (cur < 1280))
++	if ((cur >= 1280) && (cur < 1344))
+ 	reg_val = 12;
+-	if ((cur >= 1280) && (cur < 1344))
++	if ((cur >= 1344) && (cur < 1408))
+ 	reg_val = 13;
+-	if ((cur >= 1344) && (cur < 1408))
++	if ((cur >= 1408) && (cur < 1472))
+ 	reg_val = 14;
+-	if ((cur >= 1408) && (cur < 1472))
++	if ((cur >= 1472) && (cur < 1536))
+ 	reg_val = 15;
+-	if ((cur >= 1472) && (cur < 1536))
++	if ((cur >= 1536) && (cur < 1600))
+ 	reg_val = 16;
+-	if ((cur >= 1536) && (cur < 1600))
++	if ((cur >= 1600) && (cur < 1664))
+ 	reg_val = 17;
+-	if ((cur >= 1600) && (cur < 1664))
++	if ((cur >= 1664) && (cur < 1728))
+ 	reg_val = 18;
+-	if ((cur >= 1664) && (cur < 1728))
++	if ((cur >= 1728) && (cur < 1792))
+ 	reg_val = 19;
+-	if ((cur >= 1728) && (cur < 1792))
++	if ((cur >= 1792) && (cur < 1856))
+ 	reg_val = 20;
+-	if ((cur >= 1792) && (cur < 1856))
++	if ((cur >= 1856) && (cur < 1920))
+ 	reg_val = 21;
+-	if ((cur >= 1856) && (cur < 1920))
++	if ((cur >= 1920) && (cur < 1984))
+ 	reg_val = 22;
+-	if ((cur >= 1920) && (cur < 1984))
++	if (cur >= 1984)
+ 	reg_val = 23;
+-	if (cur >= 1984)
+-	reg_val = 24;
+ 	
+ 	return reg_val;
+ }
+@@ -680,7 +696,7 @@
+ {
+ 	if(type == ADP_TYPE_CDP || type == ADP_TYPE_DCP){
+ 		//printf("charge start with AC\n");
+-		sprdchg_hl7059_set_cur(2000);
++		sprdchg_hl7059_set_cur(1500);
+ 	}else{
+ 		//printf("charge start with USB\n");
+ 		sprdchg_hl7059_set_cur(500);
+@@ -746,30 +762,17 @@
+ 		return (cur - new_cur);
+ }
+ 
+-#define EN_HIZ 0x0
+-#define SYS_MIN 0x4 //Minimum system voltage 3.4V	
+ 
+-#define WTD_TIME_40S 0x1 
+-#define WTD_TIME_80S 0x2
+ 
+-#define EN_TIME 0x0 //Disable charge timer
+-#define INT_MASK_1 0x0 //Disable fault interrupt
+-
+-#define IINLIMSET_2P5_A 0x7
+-#define IINLIMSET_2_A 0x6
+-#define IINLIMSET_1P5_A 0x5
+-#define IINLIMSET_1P2_A 0x4
+-#define IINLIMSET_900_MA 0x3
+-#define IINLIMSET_500_MA 0x2
+-
+ void hl7059_ic_init(void)
+ {
+ 	hl7059_set_reg_rst(0x1);
++	sprdchg_hl7059_set_cur(500);
+         hl7059_set_en_hiz(EN_HIZ);
+         //hl7059_set_reg_rst(1);
+ 
+         hl7059_reset_timer();
+-        hl7059_set_iinlim(IINLIMSET_2P5_A);
++        hl7059_set_iinlim(IINLIMSET_2_A);
+ 
+         //hl7059_set_sys_min( SYS_MIN);
+         

@@ -1,0 +1,22 @@
+Index: vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/aggregation/ContactAggregator2.java
+===================================================================
+--- vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/aggregation/ContactAggregator2.java	(revision 178890)
++++ vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/aggregation/ContactAggregator2.java	(revision 178891)
+@@ -906,7 +906,7 @@
+         //update primary score
+         updateMatchScoresBasedOnExceptions(db, rawContactId, matcher);
+         //SPRD: add for bug647833, test cts fail : CtsProviderTestCases--android.provider.cts.ContactsProvider2_AccountRemovalTest
+-        if (ContactsProvider2.mCallingPackageCts) {
++    //    if (ContactsProvider2.mCallingPackageCts) {
+             Log.d(TAG, "ContactAggregator2 : merge together");
+             updateMatchScoresBasedOnNameMatches(db, rawContactId, matcher);
+             // update scores only if the raw contact doesn't have structured name
+@@ -920,7 +920,7 @@
+                     updateScoreForCandidatesWithoutName(db, secondaryRawContactIds, matcher);
+                 }
+             }
+-        }
++    //    }
+     }
+ 
+     private void updateMatchScoresForSuggestionsBasedOnDataMatches(SQLiteDatabase db,

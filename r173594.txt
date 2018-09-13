@@ -1,0 +1,21 @@
+Index: build/core/partition_size_self_adaption.sh
+===================================================================
+--- build/core/partition_size_self_adaption.sh	(revision 173593)
++++ build/core/partition_size_self_adaption.sh	(revision 173594)
+@@ -31,13 +31,14 @@
+ 
+ cat ${SYSTEM_IMAGE_SIZE_FILE}
+ 
+-DU_SYSTEM_FOLDER=$(du -sm ${SYSTEM_FOLDER_PATH})
++#DU_SYSTEM_FOLDER=$(du -sm ${SYSTEM_FOLDER_PATH})
++DU_SYSTEM_FOLDER=3050
+ echo "DU_SYSTEM_FOLDER"=${DU_SYSTEM_FOLDER}
+ 
+ GET_SYSTEM_FOLDER_SIZE=$(echo ${DU_SYSTEM_FOLDER} | cut -d " " -f 1)
+ echo "SYSTEM_FOLDER_SIZE"=${GET_SYSTEM_FOLDER_SIZE}
+ 
+-GET_SYSTEM_IMAGE_SIZE=$(echo $(( ${GET_SYSTEM_FOLDER_SIZE} * 1024 * 1024 * 104 / 100 + (800 * 1024 * 1024))) )
++GET_SYSTEM_IMAGE_SIZE=$(echo $(( ${GET_SYSTEM_FOLDER_SIZE} * 1024 * 1024 * 104 / 100 + (700 * 1024 * 1024))) )
+ echo "SYSTEM_IMAGE_SIZE_Byte"=${GET_SYSTEM_IMAGE_SIZE}
+ echo "SYSTEM_IMAGE_SIZE_MB"=$(echo $(( ${GET_SYSTEM_IMAGE_SIZE}/1024/1024)) )
+ 

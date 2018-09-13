@@ -1,0 +1,58 @@
+Index: frameworks/base/packages/SystemUI/res/drawable/ic_qs_signal_in.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/ic_qs_signal_in.xml	(revision 177587)
++++ frameworks/base/packages/SystemUI/res/drawable/ic_qs_signal_in.xml	(revision 177588)
+@@ -19,6 +19,6 @@
+         android:viewportWidth="6.0"
+         android:viewportHeight="24.0">
+     <path
+-        android:fillColor="#FFFFFFFF"
++        android:fillColor="#FF696969"
+         android:pathData="M6.000000,15.700000l-3.000000,5.599999 -3.000000,-5.599999z"/>
+ </vector>
+Index: frameworks/base/packages/SystemUI/res/drawable/ic_qs_signal_out.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/ic_qs_signal_out.xml	(revision 177587)
++++ frameworks/base/packages/SystemUI/res/drawable/ic_qs_signal_out.xml	(revision 177588)
+@@ -19,6 +19,6 @@
+         android:viewportWidth="6.0"
+         android:viewportHeight="24.0">
+     <path
+-        android:fillColor="#FFFFFFFF"
++        android:fillColor="#FF696969"
+         android:pathData="M0.000000,13.700000l3.000000,-5.700000 3.000000,5.700000z"/>
+ </vector>
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/signal_cluster_view.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/signal_cluster_view.xml	(revision 177587)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/signal_cluster_view.xml	(revision 177588)
+@@ -80,18 +80,26 @@
+         <FrameLayout
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+-            android:layout_gravity="bottom|end"
++            android:layout_marginLeft="6dp"
+             android:orientation="vertical" >
+             <ImageView
+                 android:id="@+id/wifi_out"
+                 android:layout_width="wrap_content"
+                 android:layout_height="17dp"
+-                android:src="@drawable/ic_qs_signal_out" />
++                android:src="@drawable/ic_qs_signal_out"
++                android:paddingBottom="5dp"
++                android:scaleX="1.4"
++				android:scaleY="1.4"
++                />
+             <ImageView
+                 android:id="@+id/wifi_in"
+                 android:layout_width="wrap_content"
+                 android:layout_height="17dp"
+-                android:src="@drawable/ic_qs_signal_in" />
++                android:src="@drawable/ic_qs_signal_in" 
++                android:paddingBottom="5dp"
++                android:scaleX="1.4"
++				android:scaleY="1.4"
++                />
+         </FrameLayout>
+         <!-- add wifi inOut icon in status bar Feature END -->
+     </FrameLayout>

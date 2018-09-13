@@ -1,0 +1,29 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/sprd/incallui/InCallUICuccHelper.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/sprd/incallui/InCallUICuccHelper.java	(revision 181471)
++++ packages/apps/Dialer/InCallUI/src/com/android/sprd/incallui/InCallUICuccHelper.java	(revision 181472)
+@@ -45,7 +45,7 @@
+         }
+         view.setBackground(getCallStateIcon(context));
+         //add hd icon on volte calling 106545 and rm hd icon on video callling 106340
+-		boolean shouldShowHdAudioIndicator = (call != null && call.hasProperty(Details.PROPERTY_HIGH_DEF_AUDIO) && !call.isVideoCall(context));
++        boolean shouldShowHdAudioIndicator = ((call != null && call.hasProperty(Details.PROPERTY_HIGH_DEF_AUDIO) && !call.isVideoCall(context)) || (call.isConferenceCall()));
+         view.setVisibility(shouldShowHdAudioIndicator ? View.VISIBLE : View.GONE);
+     }
+ 
+Index: packages/apps/Dialer/res/layout/call_log_list_item.xml
+===================================================================
+--- packages/apps/Dialer/res/layout/call_log_list_item.xml	(revision 181471)
++++ packages/apps/Dialer/res/layout/call_log_list_item.xml	(revision 181472)
+@@ -127,9 +127,10 @@
+                             android:layout_height="wrap_content"
+                             android:layout_marginEnd="@dimen/call_log_icon_margin"
+                             android:layout_gravity="center_vertical"
+-                            android:src="@drawable/ic_viltecall"
++
+                             android:visibility="gone" >
+                         </ImageView>
++                        <!--android:src="@drawable/ic_viltecall" -->
+ 
+                         <ImageView
+                             android:id="@+id/vowifi_call_icons"

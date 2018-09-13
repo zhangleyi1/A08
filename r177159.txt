@@ -1,0 +1,24 @@
+Index: vendor/sprd/platform/packages/apps/Messaging/res/values-in/strings_ex.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Messaging/res/values-in/strings_ex.xml	(revision 177158)
++++ vendor/sprd/platform/packages/apps/Messaging/res/values-in/strings_ex.xml	(revision 177159)
+@@ -175,7 +175,7 @@
+ <string name="sms_merge_dialog_content1">"Anda hanya dapat menggabungkan antara %d pesan SMS"</string>
+ <string name="sms_merge_dialog_content2">"dan %d pesan SMS. Silahkan periksa itu."</string>
+ <string name="messagelist_sender_self">"saya"</string>
+-<string name="sms_merge_forward">"Sms menggabungkan meneruskan"</string>
++<string name="sms_merge_forward">"SMS menggabungkan meneruskan"</string>
+ <string name="muti_select_all">pilih semua</string>
+ <string name="menu_select_none">Batalkan Semua</string>
+ <string name="sms_merge_dialog_content_exceed">"Anda menggabungkan isi kelanjutan pesan kelebihan batas %d, silahkan periksa kembali!"</string>
+@@ -203,8 +203,8 @@
+ <string name="goto_smil">"Rangkai Slide"</string>
+ <string name="smil_subject">"Subjek:"</string>
+ <string name="action_sim_sms">Pesan di SIM</string>
+-<string name="sms_save_to_sim_pref_title">Simpan Sms Di SIM</string>
+-<string name="sms_save_to_sim_pref_summary">"Ketika itu menjadi sms yang baru, simpan atau tidak itu di sim"</string>
++<string name="sms_save_to_sim_pref_title">Simpan SMS Di SIM</string>
++<string name="sms_save_to_sim_pref_summary">"Ketika itu menjadi SMS yang baru, simpan atau tidak itu di sim"</string>
+ <string name="sms_sim_full_title">Sim penuh</string>
+ <string name="sms_sim_full_notification_ticker">"Penyimpanan SMS tinggal sedikit. Anda perlu menghapus pesan."</string>
+ <string name="sms_sim_full_text">"sim telah penuh, sms akan disimpan ke pesan database. Dan silahkan menghapus sms dari sim jika ingin untuk menyimpan ke sim lagi."</string>

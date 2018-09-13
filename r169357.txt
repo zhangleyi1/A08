@@ -1,0 +1,15 @@
+Index: device/sprd/scx35l/sp9832a_2h11/modem/warninglogo.bmp
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: device/sprd/scx35l/sp9832a_2h11/modem/warninglogo.bmp
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/modem/warninglogo.bmp	(revision 0)
++++ device/sprd/scx35l/sp9832a_2h11/modem/warninglogo.bmp	(revision 169357)
+
+Property changes on: device/sprd/scx35l/sp9832a_2h11/modem/warninglogo.bmp
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property

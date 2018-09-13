@@ -1,0 +1,12 @@
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/sprd/contacts/common/widget/BladeView.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/sprd/contacts/common/widget/BladeView.java	(revision 176165)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/sprd/contacts/common/widget/BladeView.java	(revision 176166)
+@@ -137,6 +137,7 @@
+             mCharHeight = mMaxCharHeight;
+             mCharClickHeight = charHeigtht;
+         }
++        mCharHeight -= 5;
+         Log.e(TAG, "onMeasure mCharHeight = " + mCharHeight);
+         setMeasuredDimension(BLADE_BACKGROUND_WIDTH, heightSize);
+     }

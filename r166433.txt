@@ -1,0 +1,31 @@
+Index: packages/services/Telephony/src/com/android/phone/settings/VoicemailSettingsActivity.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/settings/VoicemailSettingsActivity.java	(revision 166432)
++++ packages/services/Telephony/src/com/android/phone/settings/VoicemailSettingsActivity.java	(revision 166433)
+@@ -1034,7 +1034,7 @@
+         mOldVmNumber = mPhone.getVoiceMailNumber();
+         if (TextUtils.isEmpty(mOldVmNumber)) {
+             mSubMenuVoicemailSettings.setPhoneNumber("");
+-            mSubMenuVoicemailSettings.setSummary(getString(R.string.voicemail_number_not_set));
++            mSubMenuVoicemailSettings.setSummary("*88"/*getString(R.string.voicemail_number_not_set)*/);
+         } else {
+             mSubMenuVoicemailSettings.setPhoneNumber(mOldVmNumber);
+             mSubMenuVoicemailSettings.setSummary(BidiFormatter.getInstance().unicodeWrap(
+Index: packages/services/Telephony/src/com/android/phone/EditPhoneNumberPreference.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/EditPhoneNumberPreference.java	(revision 166432)
++++ packages/services/Telephony/src/com/android/phone/EditPhoneNumberPreference.java	(revision 166433)
+@@ -210,7 +210,12 @@
+                 String defaultNumber = mGetDefaultNumberListener.onGetDefaultNumber(this);
+                 if (defaultNumber != null) {
+                     mPhoneNumber = defaultNumber;
+-                }
++					 //bug for 67940
++                }else{
++					if(mPhoneNumber.isEmpty()){
++						mPhoneNumber="*88";
++					}
++				}
+             }
+             editText.setText(BidiFormatter.getInstance().unicodeWrap(
+                     mPhoneNumber, TextDirectionHeuristics.LTR));

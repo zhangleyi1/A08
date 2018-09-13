@@ -1,0 +1,253 @@
+Index: packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java	(revision 168454)
++++ packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java	(revision 168455)
+@@ -404,7 +404,7 @@
+             public void onClick(final View clickView) {
+ 				boolean toFirstSim = !getConversationSelfId().equals(firstSimSelfId);
+                 setSimCard(toFirstSim);
+-				mSendSMSButton.setImageDrawable(toFirstSim? getResources().getDrawable(R.drawable.sim1) : getResources().getDrawable(R.drawable.sim2));
++				mSendSMSButton.setImageDrawable(getResources().getDrawable(toFirstSim? R.drawable.sim1 : R.drawable.sim2));
+ 				
+             }
+         });
+@@ -1199,10 +1199,8 @@
+             if (subscriptionListEntry == null) {
+                 mComposeEditText.setHint(R.string.compose_message_view_hint_text);
+             } else {
+-                mComposeEditText.setHint(Html.fromHtml(getResources().getString(
+-                        R.string.compose_message_view_hint_text_multi_sim,
+-                        subscriptionListEntry.displayName)));
+-				mSendSMSButton.setImageDrawable(getConversationSelfId().equals(firstSimSelfId)? getResources().getDrawable(R.drawable.sim1) : getResources().getDrawable(R.drawable.sim2));		
++                mComposeEditText.setHint(R.string.compose_message_view_hint_text);
++				mSendSMSButton.setImageDrawable(getResources().getDrawable(getConversationSelfId().equals(firstSimSelfId)? R.drawable.sim1 : R.drawable.sim2));
+             }
+         } else {
+             int type = -1;
+Index: packages/apps/Messaging/src/com/android/messaging/ui/conversation/ConversationMessageView.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/ui/conversation/ConversationMessageView.java	(revision 168454)
++++ packages/apps/Messaging/src/com/android/messaging/ui/conversation/ConversationMessageView.java	(revision 168455)
+@@ -51,6 +51,7 @@
+ import android.widget.ImageView.ScaleType;
+ import android.widget.LinearLayout;
+ import android.widget.TextView;
++import android.widget.ImageView;
+ import android.widget.Toast;
+ 
+ import com.android.messaging.BugleApplication;
+@@ -129,6 +130,7 @@
+     private boolean mMessageTextHasLinks;
+     private boolean mMessageHasYouTubeLink;
+     private TextView mStatusTextView;
++	private ImageView mSimSelectView;
+     private TextView mTitleTextView;
+     private TextView mMmsInfoTextView;
+     private LinearLayout mMessageTitleLayout;
+@@ -192,7 +194,8 @@
+         mMessageTextView.setOnClickListener(this);
+         IgnoreLinkLongClickHelper.ignoreLinkLongClick(mMessageTextView, this);
+ 
+-        mStatusTextView = (TextView) findViewById(R.id.message_status);
++        mSimSelectView = (ImageView) findViewById(R.id.sim_iv_select);
++		mStatusTextView = (TextView) findViewById(R.id.message_status);
+         mTitleTextView = (TextView) findViewById(R.id.message_title);
+         mMmsInfoTextView = (TextView) findViewById(R.id.mms_info);
+         mMessageTitleLayout = (LinearLayout) findViewById(R.id.message_title_layout);
+@@ -202,7 +205,7 @@
+         mSubjectLabel = (TextView) mSubjectView.findViewById(R.id.subject_label);
+         mSubjectText = (TextView) mSubjectView.findViewById(R.id.subject_text);
+         mDeliveredBadge = findViewById(R.id.smsDeliveredBadge);
+-        mMessageMetadataView = (ViewGroup) findViewById(R.id.message_metadata);
++        mMessageMetadataView = (LinearLayout) findViewById(R.id.message_metadata);
+         mMessageTextAndInfoView = (ViewGroup) findViewById(R.id.message_text_and_info);
+         mSimNameView = (TextView) findViewById(R.id.sim_name);
+         messageContentOrCardContainer = (FrameLayout) findViewById(R.id.messageContentOrCardContainer);
+@@ -607,7 +610,7 @@
+         }
+ 
+         // We set the text even if the view will be GONE for accessibility
+-        mStatusTextView.setText(statusText);
++		mStatusTextView.setText(getResources().getString(mData.getIsIncoming() ? R.string.is_received : R.string.is_sent) + statusText);
+         final boolean statusVisible = !TextUtils.isEmpty(statusText);
+         if (statusVisible) {
+             mStatusTextView.setVisibility(View.VISIBLE);
+@@ -631,17 +634,19 @@
+                 !mData.getCanClusterWithNextMessage();
+         if (simNameVisible) {
+             final int slotId = subscriptionEntry.simSlotId;
+-            final String simNameText = mData.getIsIncoming() ? getResources().getString(
+-                    R.string.incoming_sim_name_text, subscriptionEntry.displayName +  Integer.toString(slotId)) :
+-                        subscriptionEntry.displayName +  Integer.toString(slotId);
++            final String simNameText = getResources().getString( slotId == 1 ? R.string.is_smartfren : R.string.is_gsm);
+             mSimNameView.setText(simNameText);
++			mSimSelectView.setImageDrawable(getResources().getDrawable(slotId == 1 ? R.drawable.ic_sim_card_multi_24px_clr1 : R.drawable.ic_sim_card_multi_24px_clr2));
++			
+             //modify for bug 543852 begin
+             mSimNameView.setTextColor(subscriptionEntry.displayColor);
+             //modify for bug 543852 end
+             mSimNameView.setVisibility(VISIBLE);
++			mSimSelectView.setVisibility(VISIBLE);
+         } else {
+             mSimNameView.setText(null);
+             mSimNameView.setVisibility(GONE);
++			mSimSelectView.setVisibility(GONE);
+         }
+ 
+         final boolean metadataVisible = senderNameVisible || statusVisible
+Index: packages/apps/Messaging/res/values/styles.xml
+===================================================================
+--- packages/apps/Messaging/res/values/styles.xml	(revision 168454)
++++ packages/apps/Messaging/res/values/styles.xml	(revision 168455)
+@@ -445,7 +445,7 @@
+     </style>
+ 
+     <style name="MessageSimIndicator">
+-        <item name="android:textSize">@dimen/conversation_status_text_size</item>
++        <item name="android:textSize">@dimen/conversation_sim_name_text_size</item>
+         <item name="android:layout_marginLeft">4dp</item>
+     </style>
+ 
+Index: packages/apps/Messaging/res/values/strings.xml
+===================================================================
+--- packages/apps/Messaging/res/values/strings.xml	(revision 168454)
++++ packages/apps/Messaging/res/values/strings.xml	(revision 168455)
+@@ -23,7 +23,14 @@
+     <!-- The title when selecting a conversation to share to -->
+     <string name="share_intent_activity_label">Select conversation</string>
+ 
+-    <string name="action_settings">Settings</string>
++    <string name="is_smartfren">Smartfren</string>
++    <string name="is_gsm">GSM</string>
++    <string name="is_sent">Sent: </string>
++    <string name="is_received">Received: </string>
++	
++	
++	
++	<string name="action_settings">Settings</string>
+     <string name="sendButtonContentDescription">Send Message</string>
+     <string name="attachMediaButtonContentDescription">Add an attachment</string>
+     <string name="help_and_feedback_activity_label">Help</string>
+Index: packages/apps/Messaging/res/values/dimens.xml
+===================================================================
+--- packages/apps/Messaging/res/values/dimens.xml	(revision 168454)
++++ packages/apps/Messaging/res/values/dimens.xml	(revision 168455)
+@@ -21,6 +21,7 @@
+     <dimen name="action_bar_text_size">20sp</dimen>
+     <dimen name="conversation_message_text_size">16sp</dimen>
+     <dimen name="conversation_status_text_size">12sp</dimen>
++	<dimen name="conversation_sim_name_text_size">16sp</dimen>
+     <dimen name="conversation_title_text_size">12sp</dimen>
+     <dimen name="conversation_info_text_size">12sp</dimen>
+     <dimen name="conversation_compose_send_text_size">16sp</dimen>
+Index: packages/apps/Messaging/res/drawable-ldrtl-xhdpi/ic_sim_card_multi_24px_clr1.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Messaging/res/drawable-ldrtl-xhdpi/ic_sim_card_multi_24px_clr1.png
+===================================================================
+--- packages/apps/Messaging/res/drawable-ldrtl-xhdpi/ic_sim_card_multi_24px_clr1.png	(revision 0)
++++ packages/apps/Messaging/res/drawable-ldrtl-xhdpi/ic_sim_card_multi_24px_clr1.png	(revision 168455)
+
+Property changes on: packages/apps/Messaging/res/drawable-ldrtl-xhdpi/ic_sim_card_multi_24px_clr1.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Messaging/res/drawable-ldrtl-xhdpi/ic_sim_card_multi_24px_clr2.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Messaging/res/drawable-ldrtl-xhdpi/ic_sim_card_multi_24px_clr2.png
+===================================================================
+--- packages/apps/Messaging/res/drawable-ldrtl-xhdpi/ic_sim_card_multi_24px_clr2.png	(revision 0)
++++ packages/apps/Messaging/res/drawable-ldrtl-xhdpi/ic_sim_card_multi_24px_clr2.png	(revision 168455)
+
+Property changes on: packages/apps/Messaging/res/drawable-ldrtl-xhdpi/ic_sim_card_multi_24px_clr2.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Messaging/res/layout/conversation_message_view.xml
+===================================================================
+--- packages/apps/Messaging/res/layout/conversation_message_view.xml	(revision 168454)
++++ packages/apps/Messaging/res/layout/conversation_message_view.xml	(revision 168455)
+@@ -130,17 +130,9 @@
+ 
+             </LinearLayout>
+ 
+-            <TextView
+-                android:id="@+id/message_text"
+-                style="@style/ConversationMessage"
+-                android:layout_width="wrap_content"
+-                android:layout_height="wrap_content"
+-                android:visibility="gone"
+-                android:importantForAccessibility="no" />
+-
+-            <com.android.messaging.ui.LineWrapLayout
++			 <LinearLayout
+                 android:id="@+id/message_metadata"
+-                android:orientation="horizontal"
++                android:orientation="vertical"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:gravity="center_vertical"
+@@ -153,13 +145,33 @@
+                     android:layout_marginRight="4dp"
+                     style="@style/ConversationMessageStatus"
+                     android:visibility="gone" />
++					
++				<LinearLayout
++					android:id="@+id/message_metadata"
++					android:orientation="horizontal"
++					android:layout_width="wrap_content"
++					android:layout_height="wrap_content"
++					android:gravity="center_vertical"
++					android:importantForAccessibility="noHideDescendants" >
++					
++					<ImageView
++						android:id="@+id/sim_iv_select"
++						android:layout_width="wrap_content"
++						android:layout_height="wrap_content"
++						android:layout_gravity="center"
++						android:src="@drawable/ic_sms_delivery_ok"
++						android:visibility="gone" />
++				
++					<TextView
++						android:id="@+id/message_status"
++						android:layout_width="wrap_content"
++						android:layout_height="wrap_content"
++						style="@style/ConversationMessageStatus"
++						android:visibility="gone" />
++						
++				</LinearLayout>
++					
+                 <TextView
+-                    android:id="@+id/message_status"
+-                    android:layout_width="wrap_content"
+-                    android:layout_height="wrap_content"
+-                    style="@style/ConversationMessageStatus"
+-                    android:visibility="gone" />
+-                <TextView
+                     android:id="@+id/sim_name"
+                     style="@style/MessageSimIndicator"
+                     android:layout_width="wrap_content"
+@@ -174,7 +186,15 @@
+                     style="@style/SmsDeliverdBadge"
+                     android:src="@drawable/ic_sms_delivery_ok"
+                     android:visibility="gone" />
+-            </com.android.messaging.ui.LineWrapLayout>
++            </LinearLayout>
++			
++            <TextView
++                android:id="@+id/message_text"
++                style="@style/ConversationMessage"
++                android:layout_width="wrap_content"
++                android:layout_height="wrap_content"
++                android:visibility="gone"
++                android:importantForAccessibility="no" />
+ 
+         </com.android.messaging.ui.conversation.MessageBubbleBackground>
+ </FrameLayout>

@@ -1,0 +1,13 @@
+Index: vendor/sprd/telephony-res/spn/spn-conf.xml
+===================================================================
+--- vendor/sprd/telephony-res/spn/spn-conf.xml	(revision 177828)
++++ vendor/sprd/telephony-res/spn/spn-conf.xml	(revision 177829)
+@@ -545,7 +545,7 @@
+ <spnOverride numeric="52501" spn="SingTel"/>
+ <spnOverride numeric="52502" spn="SingTel"/>
+ <spnOverride numeric="52503" spn="M1"/>
+-<spnOverride numeric="52505" spn="STARHUB"/>
++<spnOverride numeric="52505" spn="Smartfren"/>
+ <spnOverride numeric="52507" spn="SingTel"/>
+ <spnOverride numeric="52802" spn="B-mobile"/>
+ <spnOverride numeric="52811" spn="DSTCom"/>

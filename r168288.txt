@@ -1,0 +1,13 @@
+Index: vendor/sprd/modules/libcamera/sensor/s5k5e2ya/sensor_s5k5e2ya_mipi_raw.c
+===================================================================
+--- vendor/sprd/modules/libcamera/sensor/s5k5e2ya/sensor_s5k5e2ya_mipi_raw.c	(revision 168287)
++++ vendor/sprd/modules/libcamera/sensor/s5k5e2ya/sensor_s5k5e2ya_mipi_raw.c	(revision 168288)
+@@ -499,7 +499,7 @@
+ 	/* voltage of dvdd */
+ 	SENSOR_AVDD_1200MV,
+ 	/* skip frame num before preview */
+-	2,
++	1,
+ 	/* skip frame num before capture */
+ 	1,
+ 	/* deci frame num during preview */

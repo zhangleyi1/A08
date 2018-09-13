@@ -1,0 +1,59 @@
+Index: vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmMainActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmMainActivity.java	(revision 178917)
++++ vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmMainActivity.java	(revision 178918)
+@@ -1270,8 +1270,8 @@
+         mMenuItemStationlList = menu.findItem(R.id.fm_station_list);
+         mMenuItemHeadset = menu.findItem(R.id.fm_headset);
+         /* SPRD : bug568587, new feature FM new UI */
+-        // mMenuItemStartRecord = menu.findItem(R.id.fm_start_record);
+-        mMenuItemRecord = menu.findItem(R.id.item_fm_record);
++        //mMenuItemStartRecord = menu.findItem(R.id.fm_start_record);
++        //mMenuItemRecord = menu.findItem(R.id.item_fm_record);
+         mMenuItemRecordList = menu.findItem(R.id.fm_record_list);
+         mMenuItemRegularlyPoweroff = menu.findItem(R.id.fm_regularly_poweroff);
+         timerTextUpdate();
+@@ -1627,7 +1627,7 @@
+              * startActivityForResult(recordIntent, REQUEST_CODE_RECORDING); } break;
+              */
+ 
+-            case R.id.item_fm_record:
++            //case R.id.item_fm_record:
+               // SPRD: There is no need to judge here,just judge when click recording button.
+               /*  if (mService.isAudioRecording()) {
+                     new AlertDialog.Builder(this)
+@@ -1637,11 +1637,11 @@
+                             .setCancelable(false)
+                             .show();
+                 } else { */
+-                    Intent recordIntent = new Intent(this, FmRecordActivity.class);
+-                    recordIntent.putExtra(FmStation.CURRENT_STATION, mCurrentStation);
+-                    startActivityForResult(recordIntent, REQUEST_CODE_RECORDING);
++                    //Intent recordIntent = new Intent(this, FmRecordActivity.class);
++                    //recordIntent.putExtra(FmStation.CURRENT_STATION, mCurrentStation);
++                    //startActivityForResult(recordIntent, REQUEST_CODE_RECORDING);
+                // }
+-                break;
++               // break;
+             /* @} */
+ 
+             case R.id.fm_record_list:
+Index: vendor/sprd/platform/packages/apps/DreamFMRadio/res/menu/fm_action_bar.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamFMRadio/res/menu/fm_action_bar.xml	(revision 178917)
++++ vendor/sprd/platform/packages/apps/DreamFMRadio/res/menu/fm_action_bar.xml	(revision 178918)
+@@ -17,12 +17,12 @@
+ 
+ <menu xmlns:android="http://schemas.android.com/apk/res/android" >
+ 
+-    <item
++    <!--<item
+         android:id="@+id/item_fm_record"
+         android:enabled="true"
+         android:icon="@drawable/item_record_icon"
+         android:showAsAction="always"
+-        android:title="@string/record_title"/>
++        android:title="@string/record_title"/>-->
+     <item
+         android:id="@+id/fm_station_list"
+         android:enabled="true"

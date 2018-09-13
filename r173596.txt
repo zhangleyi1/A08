@@ -1,0 +1,13 @@
+Index: packages/apps/Settings/src/com/android/settings/GestureReceiver.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/GestureReceiver.java	(revision 173595)
++++ packages/apps/Settings/src/com/android/settings/GestureReceiver.java	(revision 173596)
+@@ -44,7 +44,7 @@
+ 
+             String phoneNumber1 = tm.getLine1Number();
+             String number = "";
+-            if (phoneNumber1 == null) {
++            if (phoneNumber1 == null || phoneNumber1.startsWith ("000")) {
+                 number = "NULL";
+             } else {
+                 number = (phoneNumber1.length() < 1)?"NULL":phoneNumber1;

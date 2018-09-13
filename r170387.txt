@@ -1,0 +1,38 @@
+Index: packages/apps/Messaging/src/com/sprd/messaging/sms/commonphrase/provider/PhaserProvider.java
+===================================================================
+--- packages/apps/Messaging/src/com/sprd/messaging/sms/commonphrase/provider/PhaserProvider.java	(revision 170386)
++++ packages/apps/Messaging/src/com/sprd/messaging/sms/commonphrase/provider/PhaserProvider.java	(revision 170387)
+@@ -11,9 +11,18 @@
+ import android.text.TextUtils;
+ import android.util.Log;
+ import java.util.Locale;
++import android.os.Handler;
+ 
+ public class PhaserProvider extends ContentProvider {
+-
++    
++  private Handler handler = new Handler();  
++  
++  private Runnable updateRunnable= new Runnable() {    
++        public void run() {  
++            Log.w(TAG,"updateData-------");
++             updateData();
++        }  
++    };
+     @Override
+     public boolean onCreate() {
+         sLocale = Locale.getDefault();
+@@ -20,6 +29,13 @@
+         mDBhelper = new DatabaseHelper(getContext());
+         mPharserDB = getDatabaseHelper().getWritableDatabase();
+         Log.d("PhaserProvider", mPharserDB.getPath());
++
++
++        if(mPharserDB!=null)
++            {
++        handler.postDelayed(updateRunnable,5000);
++         Log.w(TAG,"postDelayed---");
++            }
+         return (mPharserDB == null) ? false : true;
+     }
+ 

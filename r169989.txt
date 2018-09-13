@@ -1,0 +1,13 @@
+Index: packages/services/Telephony/src/com/android/phone/GsmUmtsCallOptions.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/GsmUmtsCallOptions.java	(revision 169988)
++++ packages/services/Telephony/src/com/android/phone/GsmUmtsCallOptions.java	(revision 169989)
+@@ -101,7 +101,7 @@
+             prefScreen.removePreference(ipDialPref);
+         }
+         /* @} */
+-
++		prefScreen.removePreference(ipDialPref);
+         Preference additionalGsmSettingsPref =
+                 prefScreen.findPreference(ADDITIONAL_GSM_SETTINGS_KEY);
+         additionalGsmSettingsPref.setIntent(

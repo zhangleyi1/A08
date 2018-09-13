@@ -1,0 +1,21 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/NotificationPanelView.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/NotificationPanelView.java	(revision 172512)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/NotificationPanelView.java	(revision 172513)
+@@ -393,10 +393,12 @@
+                     mEmptyDragAmount);
+             mClockPositionAlgorithm.run(mClockPositionResult);
+             if (animate || mClockAnimator != null) {
+-                startClockAnimation(mClockPositionResult.clockY + getResources().getDimensionPixelSize(R.dimen.notification_clock_area_margintop));//SPRD: Bug 614382 over 3 message on lockScreen then the Carriers overlay with clock 
+-            } else {
+-                mKeyguardStatusView.setY(mClockPositionResult.clockY + getResources().getDimensionPixelSize(R.dimen.notification_clock_area_margintop));//SPRD: Bug 614382 over 3 message on lockScreen then the Carriers overlay with clock 
+-            }
++                //startClockAnimation(mClockPositionResult.clockY + getResources().getDimensionPixelSize(R.dimen.notification_clock_area_margintop));//SPRD: Bug 614382 over 3 message on lockScreen then the Carriers overlay with clock 
++                startClockAnimation(mClockPositionResult.clockY);
++			} else {
++                //mKeyguardStatusView.setY(mClockPositionResult.clockY + getResources().getDimensionPixelSize(R.dimen.notification_clock_area_margintop));//SPRD: Bug 614382 over 3 message on lockScreen then the Carriers overlay with clock 
++                mKeyguardStatusView.setY(mClockPositionResult.clockY);
++			}
+             updateClock(mClockPositionResult.clockAlpha, mClockPositionResult.clockScale);
+             stackScrollerPadding = mClockPositionResult.stackScrollerPadding;
+             mTopPaddingAdjustment = mClockPositionResult.stackScrollerPaddingAdjustment;

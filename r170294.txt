@@ -1,0 +1,118 @@
+Index: vendor/sprd/plugins/frameworks/base/packages/SystemUI/addons/SystemUITelephonyAddon/src/plugin/sprd/systemuifeatures/qstile/VoWifiTile.java
+===================================================================
+--- vendor/sprd/plugins/frameworks/base/packages/SystemUI/addons/SystemUITelephonyAddon/src/plugin/sprd/systemuifeatures/qstile/VoWifiTile.java	(revision 170293)
++++ vendor/sprd/plugins/frameworks/base/packages/SystemUI/addons/SystemUITelephonyAddon/src/plugin/sprd/systemuifeatures/qstile/VoWifiTile.java	(revision 170294)
+@@ -53,6 +53,11 @@
+ import android.provider.Settings;
+ 
+ import android.net.NetworkInfo;
++import android.os.RemoteException;
++import com.android.ims.ImsConfig;
++import com.android.ims.internal.IImsRegisterListener;
++import com.android.ims.internal.IImsServiceEx;
++import com.android.ims.internal.ImsManagerEx;
+ 
+ /** Quick settings tile: Vowifi **/
+ public class VoWifiTile extends QSTile<QSTile.BooleanState> {
+@@ -64,7 +69,13 @@
+     private boolean mListening;
+     private boolean mVoWifiEnabled;
+     private boolean mVoWifiAvailable;
++    /* CQ-386619: modify for VoWifi state listen. @{ */
+ 	private boolean mWifiConnected = false;
++    private boolean mVoWifiConnected = false;
++    protected IImsServiceEx mIImsServiceEx;
++    private boolean mIsVoLteBoard;
++    private boolean mIsImsListenerRegistered = false;
++    /* @} */
+     private QSTileView mQSTileView;
+     public static final int QS_VOWIFI_SERVICE = 414;
+     private WifiManager mWifiManager;
+@@ -73,6 +84,9 @@
+     public VoWifiTile(Host host) {
+         super(host);
+         mTelephonyManager = TelephonyManager.from(mContext);
++        // CQ-386619: modify for VoWifi state listen.
++        mIsVoLteBoard = mContext.getResources().getBoolean(
++                com.android.internal.R.bool.config_device_volte_available);
+ 
+         mRadioSetting = new GlobalSetting(mContext, mHandler, Global.WFC_IMS_ENABLED) {
+             @Override
+@@ -152,9 +166,9 @@
+         if (DBG) Log.d(TAG, "handleUpdateState: mVoWifiEnabled = "
+                 + mVoWifiEnabled + " mVoWifiAvailable = " + mVoWifiAvailable);
+ 
+-        if (mWifiConnected) {
++        if (mVoWifiEnabled && mVoWifiAvailable) {
+             state.icon = ResourceIcon.get(R.drawable.ic_qs_vowifi_on_sprd);
+-            if (mWifiManager != null && mWifiManager.isWifiEnabled()) {
++            if (mWifiConnected && mVoWifiConnected) {
+                 state.label = mContext.getString(R.string.qs_vowifi_on);
+             } else {
+                 state.label = mContext.getString(R.string.qs_vowifi_disconnected);
+@@ -185,6 +199,8 @@
+         if (listening) {
+             IntentFilter intentFilter = new IntentFilter();
+             intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
++            intentFilter.addAction(ImsManager.ACTION_IMS_SERVICE_UP);
++            intentFilter.addAction(ImsManager.ACTION_IMS_SERVICE_DOWN);
+             mContext.registerReceiver(mBroadcastReceiver, intentFilter);
+         } else {
+             mContext.unregisterReceiver(mBroadcastReceiver);
+@@ -222,7 +238,56 @@
+                 mWifiConnected = networkInfo != null && networkInfo.isConnected();
+                 if (DBG) Log.d(TAG, "onReceive: NETWORK_STATE_CHANGED_ACTION = " + mWifiConnected);
+                 refreshState();
++            } else if (action.equals(ImsManager.ACTION_IMS_SERVICE_UP)
++                    || action.equals(ImsManager.ACTION_IMS_SERVICE_DOWN)) {
++                tryRegisterImsListener();
+             }
+         }
+     };
++
++    /* CQ-386619: modify for VoWifi state listen. @{ */
++    private synchronized void tryRegisterImsListener() {
++        if (mIsVoLteBoard) {
++            mIImsServiceEx = ImsManagerEx.getIImsServiceEx();
++            if (mIImsServiceEx != null) {
++                try {
++                    if (!mIsImsListenerRegistered) {
++                        mIsImsListenerRegistered = true;
++                        mIImsServiceEx.registerforImsRegisterStateChanged(mImsUtListenerExBinder);
++                        Log.e(TAG, " tryRegisterImsListener ");
++                    }
++                } catch (RemoteException e) {
++                    Log.e(TAG, " regiseterforImsException: " + e);
++                }
++            }
++        }
++    }
++
++    private final IImsRegisterListener.Stub mImsUtListenerExBinder =
++            new IImsRegisterListener.Stub() {
++        public void imsRegisterStateChange(boolean isRegistered)
++                throws RemoteException {
++            // TODO Auto-generated method stub
++            int mImsType = -2;
++            try {
++                mIImsServiceEx = ImsManagerEx.getIImsServiceEx();
++                if (mIImsServiceEx != null) {
++                    mImsType = mIImsServiceEx.getCurrentImsFeature();
++                } else {
++                    return;
++                }
++            } catch (RemoteException e) {
++                e.printStackTrace();
++            }
++            Log.d(TAG, "--imsRegistered type: " + mImsType);
++            if (mImsType == ImsConfig.FeatureConstants.FEATURE_TYPE_VOICE_OVER_WIFI) {
++                mVoWifiConnected = true;
++            } else {
++                mVoWifiConnected = false;
++            }
++            Log.d(TAG, "--IMS - mVoWifiConnected : " + mVoWifiConnected);
++            refreshState();
++        }
++    };
++    /* @} */
+ }

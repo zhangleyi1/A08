@@ -1,0 +1,77 @@
+Index: packages/apps/Dialer/src/com/android/dialer/calllog/CallLogListItemViewHolder.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/calllog/CallLogListItemViewHolder.java	(revision 170414)
++++ packages/apps/Dialer/src/com/android/dialer/calllog/CallLogListItemViewHolder.java	(revision 170415)
+@@ -33,6 +33,7 @@
+ import android.telecom.PhoneAccount;
+ import android.telecom.PhoneAccountHandle;
+ import android.telecom.TelecomManager;
++import android.telephony.SubscriptionManager;
+ import android.telephony.TelephonyManager;
+ import android.text.BidiFormatter;
+ import android.text.TextDirectionHeuristics;
+@@ -119,8 +120,13 @@
+     public View sendMessageView;
+     public View detailsButtonView;
+     public View callWithNoteButtonView;
++    public View callUsingGSM;
+     public ImageView workIconView;
+ 
++	private static final int SIM_ZERO = 0;
++    private static final int SIM_ONE = 1;
++    private SubscriptionManager mSubscriptionMgr;
++
+     /**
+      * The row Id for the first call associated with the call log entry.  Used as a key for the
+      * map used to track which call log entries have the action button section expanded.
+@@ -279,6 +285,9 @@
+         this.workIconView = (ImageView) rootView.findViewById(R.id.work_profile_icon);
+         this.isArchiveTab = isArchiveTab;
+         Resources resources = mContext.getResources();
++
++        mSubscriptionMgr = SubscriptionManager.from(mContext);
++
+         mPhotoSize = mContext.getResources().getDimensionPixelSize(R.dimen.contact_photo_size);
+ 
+         // Set text height to false on the TextViews so they don't have extra padding.
+@@ -454,6 +463,9 @@
+             detailsButtonView = actionsView.findViewById(R.id.details_action);
+             detailsButtonView.setOnClickListener(this);
+ 
++            callUsingGSM = actionsView.findViewById(R.id.call_using_gsm);
++            callUsingGSM.setOnClickListener(this);
++
+             callWithNoteButtonView = actionsView.findViewById(R.id.call_with_note_action);
+             callWithNoteButtonView.setOnClickListener(this);
+ 
+@@ -611,6 +623,11 @@
+         callWithNoteButtonView.setVisibility(
+                 supportsCallSubject && !isVoicemailNumber ? View.VISIBLE : View.GONE);
+ 
++        List<PhoneAccountHandle> subscriptionAccounts =
++                PhoneAccountUtils.getSubscriptionPhoneAccounts(mContext);
++        int size = subscriptionAccounts.size();
++        callUsingGSM.setVisibility(size > 1 ? View.VISIBLE : View.GONE);
++
+         if(mExtendedBlockingButtonRenderer != null){
+             List<View> completeLogListItems = Lists.newArrayList(
+                     createNewContactButtonView,
+@@ -748,6 +765,18 @@
+                                                                            view in dialog. */
+                     numberType, /* phone number type (e.g. mobile) in second line of contact view */
+                     accountHandle);
++        } else if (view.getId() == R.id.call_using_gsm) {
++            List<PhoneAccountHandle> subscriptionPhoneAccounts =
++                    PhoneAccountUtils.getSubscriptionPhoneAccounts(mContext);
++            int size = 0;
++            if (subscriptionPhoneAccounts != null) {
++                size = subscriptionPhoneAccounts.size();
++            }
++            int phoneId = mSubscriptionMgr.getDefaultDataPhoneId();
++            phoneId = (phoneId == SIM_ZERO) ? SIM_ONE : SIM_ZERO;
++
++            PhoneAccountHandle phoneAccountHandle = subscriptionPhoneAccounts.get(phoneId);
++            handleDialIntent(phoneAccountHandle);
+         } else {
+             final IntentProvider intentProvider = (IntentProvider) view.getTag();
+             if (intentProvider != null) {

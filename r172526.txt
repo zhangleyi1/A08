@@ -1,0 +1,132 @@
+Index: packages/apps/FactoryMode/Android.mk
+===================================================================
+--- packages/apps/FactoryMode/Android.mk	(revision 172525)
++++ packages/apps/FactoryMode/Android.mk	(revision 172526)
+@@ -36,7 +36,8 @@
+ LOCAL_PATH:= $(call my-dir)
+ include $(CLEAR_VARS)
+ 
+-LOCAL_JAVA_LIBRARIES := telephony-common
++LOCAL_JAVA_LIBRARIES := telephony-common \
++						ims-common
+ 
+ LOCAL_MODULE_TAGS := optional
+ 
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/lteinfo/LteInfo.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/lteinfo/LteInfo.java	(revision 172525)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/lteinfo/LteInfo.java	(revision 172526)
+@@ -35,6 +35,13 @@
+ import com.android.internal.telephony.Phone;
+ import com.android.internal.telephony.PhoneConstants;
+ import com.android.internal.telephony.PhoneFactory;
++import com.android.ims.internal.ImsManagerEx;
++import com.android.ims.internal.IImsServiceEx;
++import com.android.ims.internal.IImsRegisterListener;
++import static android.Manifest.permission.READ_PHONE_STATE;
++import android.content.pm.PackageManager;
++import android.os.RemoteException;
++import com.android.ims.ImsManager;
+ 
+ 
+ import android.telephony.ServiceState;
+@@ -81,6 +88,7 @@
+ 	private Timer mTimer;
+ 	private Context mContext;
+ 	private Phone mPhone;
++	private IImsServiceEx mIImsServiceEx;
+ 	//private ImsManager mIms;
+ 	private ArrayAdapter<String> LteAdapter;
+ 	private String SaveName = "atchannel";
+@@ -87,6 +95,7 @@
+ 	private String[] values;
+ 	String imsi;
+ 	private boolean mIsNetworkAvailable=false;
++	private boolean mIsImsListenerRegistered;
+ 	
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+@@ -100,16 +109,8 @@
+         mSubscriptionManager = (SubscriptionManager) SubscriptionManager.from(LteInfo.this);
+ 		mPhoneCount = mTelephonyManager.getPhoneCount();
+         mDataNetType = getNetworkState(this);
++		tryRegisterImsListener();
+ 		setContentView(R.layout.lte_info);
+-        /*final SubscriptionInfo sir = mSubscriptionManager.getActiveSubscriptionInfoForSimSlotIndex(slotIdToSubId(mSimIndex));
+-        if (sir != null) {
+-            mPhone = PhoneFactory.getPhone(SubscriptionManager.getPhoneId(sir.getSubscriptionId()));
+-        }
+-        if (mPhone == null) {
+-            // Do the best we can
+-            mPhone = PhoneFactory.getDefaultPhone();
+-        }
+-		mIms=ImsManager.getInstance(this, mPhone);*/
+         SaveName = "atchannel" + mSimIndex;
+ 		 mNetworkOperatorName = mTelephonyManager.getNetworkOperatorName(mSubId);
+          mNetworkOperator = mTelephonyManager.getNetworkOperatorForPhone(mSimIndex);
+@@ -134,11 +135,11 @@
+ 			values[1] = values[1] + "\n" + "NA";
+ 			values[14] = values[14] + "\n" + "NA";
+ 		}
+-		/*if(mIms.isServiceAvailable()){
++		if(mIsImsListenerRegistered){
+ 			values[15]=values[15]+"\n"+"Registered";
+ 		}else{
+ 			values[15]=values[15]+"\n"+"NA";
+-		}*/
++		}
+ 
+          Message serving = mLteHandler.obtainMessage(GET_LTE);
+          mLteHandler.sendMessage(serving);
+@@ -303,6 +304,43 @@
+             }
+         }
+     }
++
++	private synchronized void tryRegisterImsListener(){
++        if(this.checkSelfPermission(READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED && ImsManager.isVolteEnabledByPlatform(this)){
++            mIImsServiceEx = ImsManagerEx.getIImsServiceEx();
++            if(mIImsServiceEx != null){
++                try{
++                    if(!mIsImsListenerRegistered){
++                        mIsImsListenerRegistered = true;
++                        mIImsServiceEx.registerforImsRegisterStateChanged(mImsUtListenerExBinder);
++                    }
++                }catch(RemoteException e){
++                    Log.d(TAG, "regiseterforImsException: "+ e);
++                }
++            }
++        }
++    }
++
++	private final IImsRegisterListener.Stub mImsUtListenerExBinder = new IImsRegisterListener.Stub(){
++        @Override
++        public void imsRegisterStateChange(boolean isRegistered){
++            Log.d(TAG,"imsRegisterStateChange. isRegistered: " + isRegistered);
++           
++        }
++    };
++
++    private synchronized void unTryRegisterImsListener(){
++        if(this.checkSelfPermission(READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED && ImsManager.isVolteEnabledByPlatform(this)){
++            try{
++                if(mIsImsListenerRegistered){
++                    mIsImsListenerRegistered = false;
++                    mIImsServiceEx.unregisterforImsRegisterStateChanged(mImsUtListenerExBinder);
++                }
++            }catch(RemoteException e){
++                Log.d(TAG, "finalize: " + e);
++            }
++        }
++    }
+ 	
+ 	@Override
+     protected void onDestroy() {
+@@ -312,6 +350,7 @@
+         if (mLteHandler != null) {
+             mLteHandler.getLooper().quit();
+         }
++		unTryRegisterImsListener();
+         super.onDestroy();
+     }
+ 

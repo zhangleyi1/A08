@@ -1,0 +1,28 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java	(revision 179766)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java	(revision 179767)
+@@ -4461,13 +4461,16 @@
+ 
+     @Override
+     protected int getMaxKeyguardNotifications(boolean recompute) {
+-        if (recompute) {
+-            mMaxKeyguardNotifications = Math.max(1,
+-                    mNotificationPanel.computeMaxKeyguardNotifications(
+-                            mMaxAllowedKeyguardNotifications));
+-            return mMaxKeyguardNotifications;
+-        }
+-        return mMaxKeyguardNotifications;
++	//fix for bug 106530 start 
++     //   if (recompute) {
++     //       mMaxKeyguardNotifications = Math.max(1,
++     //               mNotificationPanel.computeMaxKeyguardNotifications(
++     //                       mMaxAllowedKeyguardNotifications));
++     //       return mMaxKeyguardNotifications;
++     //   }
++     //   return mMaxKeyguardNotifications;
++			return 2;
++	//fix for bug 106530 end  
+     }
+ 
+     public int getMaxKeyguardNotifications() {

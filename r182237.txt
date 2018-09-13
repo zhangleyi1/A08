@@ -1,0 +1,31 @@
+Index: vendor/sprd/platform/packages/apps/SprdStk/src/com/android/stk/StkAppService.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdStk/src/com/android/stk/StkAppService.java	(revision 182236)
++++ vendor/sprd/platform/packages/apps/SprdStk/src/com/android/stk/StkAppService.java	(revision 182237)
+@@ -1730,24 +1730,10 @@
+     }
+ 
+     private void newRequest(int slotId) {
+-		String numeric = TelephonyManager.from(mContext).getSimOperatorNumericForPhone(slotId);
+-        final int sId = SubscriptionController.getInstance().getSubIdUsingPhoneId(slotId);
+         final int id = slotId;
+-       /* mStkContext[slotId].mNetworkRequest = new NetworkRequest.Builder()
++        mStkContext[slotId].mNetworkRequest = new NetworkRequest.Builder()
+                 .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+-                .addCapability(NetworkCapabilities.NET_CAPABILITY_SUPL)
+-                .setNetworkSpecifier(Integer.toString(sId)).build();*/
+-        if("51009".equals(numeric)){
+-             mStkContext[slotId].mNetworkRequest = new NetworkRequest.Builder()
+-             .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+-             .addCapability(NetworkCapabilities.NET_CAPABILITY_SUPL)
+-             .build();
+-         } else {
+-             mStkContext[slotId].mNetworkRequest = new NetworkRequest.Builder()
+-             .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+-             .addCapability(NetworkCapabilities.NET_CAPABILITY_SUPL)
+-             .setNetworkSpecifier(Integer.toString(sId)).build();
+-         }
++                .addCapability(NetworkCapabilities.NET_CAPABILITY_SUPL).build();
+         mStkContext[slotId].mNetworkCallback = new ConnectivityManager.NetworkCallback() {
+             public void onAvailable(Network network) {
+                 super.onAvailable(network);

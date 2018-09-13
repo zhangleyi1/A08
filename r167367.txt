@@ -1,0 +1,53 @@
+Index: frameworks/base/telephony/java/com/android/internal/telephony/CallerInfo.java
+===================================================================
+--- frameworks/base/telephony/java/com/android/internal/telephony/CallerInfo.java	(revision 167366)
++++ frameworks/base/telephony/java/com/android/internal/telephony/CallerInfo.java	(revision 167367)
+@@ -569,7 +569,7 @@
+      */
+     public void updateGeoDescription(Context context, String fallbackNumber) {
+         String number = TextUtils.isEmpty(phoneNumber) ? fallbackNumber : phoneNumber;
+-        geoDescription = getGeoDescription(context, number);
++        geoDescription = ""/*getGeoDescription(context, number)*/;
+     }
+ 
+     /**
+Index: packages/apps/ContactsCommon/src/com/android/contacts/common/GeoUtil.java
+===================================================================
+--- packages/apps/ContactsCommon/src/com/android/contacts/common/GeoUtil.java	(revision 167366)
++++ packages/apps/ContactsCommon/src/com/android/contacts/common/GeoUtil.java	(revision 167367)
+@@ -52,7 +52,8 @@
+             final Phonenumber.PhoneNumber structuredPhoneNumber =
+                     phoneNumberUtil.parse(phoneNumber, getCurrentCountryIso(context));
+             final Locale locale = context.getResources().getConfiguration().locale;
+-            return geocoder.getDescriptionForNumber(structuredPhoneNumber, locale);
++            //return geocoder.getDescriptionForNumber(structuredPhoneNumber, locale);
++			return null;
+         } catch (NumberParseException e) {
+             return null;
+         }
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/CallerInfo.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/CallerInfo.java	(revision 167366)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/CallerInfo.java	(revision 167367)
+@@ -537,7 +537,7 @@
+      */
+     public void updateGeoDescription(Context context, String fallbackNumber) {
+         String number = TextUtils.isEmpty(phoneNumber) ? fallbackNumber : phoneNumber;
+-        geoDescription = com.android.dialer.util.PhoneNumberUtil.getGeoDescription(context, number);
++        geoDescription = ""/*com.android.dialer.util.PhoneNumberUtil.getGeoDescription(context, number)*/;
+     }
+ 
+     /**
+Index: packages/apps/Dialer/src/com/android/dialer/calllog/PhoneCallDetailsHelper.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/calllog/PhoneCallDetailsHelper.java	(revision 167366)
++++ packages/apps/Dialer/src/com/android/dialer/calllog/PhoneCallDetailsHelper.java	(revision 167367)
+@@ -282,7 +282,7 @@
+                 && !mCallLogCache.isVoicemailNumber(details.accountHandle, details.number)) {
+ 
+             if (TextUtils.isEmpty(details.namePrimary) && !TextUtils.isEmpty(details.geocode)) {
+-                numberFormattedLabel = details.geocode;
++                //numberFormattedLabel = details.geocode;
+             } else if (!(details.numberType == Phone.TYPE_CUSTOM
+                     && TextUtils.isEmpty(details.numberLabel))) {
+                 // Get type label only if it will not be "Custom" because of an empty number label.

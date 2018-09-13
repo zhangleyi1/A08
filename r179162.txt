@@ -1,0 +1,15 @@
+Index: vendor/sprd/platform/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/SignalClusterViewEx.java
+===================================================================
+--- vendor/sprd/platform/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/SignalClusterViewEx.java	(revision 179161)
++++ vendor/sprd/platform/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/SignalClusterViewEx.java	(revision 179162)
+@@ -1047,8 +1047,8 @@
+             setTint(mMobileDataInOut, StatusBarIconController.getTint(tintArea, mMobileType, tint));
+             setTint(mMobileCard, StatusBarIconController.getTint(tintArea, mMobileType, tint));
+             setTint(mMobileRoam, StatusBarIconController.getTint(tintArea, mMobileType, tint));
+-            setTint(mWifiOut, StatusBarIconController.getTint(tintArea, mMobileType, tint));
+-            setTint(mWifiIn, StatusBarIconController.getTint(tintArea, mMobileType, tint));
++        //    setTint(mWifiOut, StatusBarIconController.getTint(tintArea, mMobileType, tint));
++        //    setTint(mWifiIn, StatusBarIconController.getTint(tintArea, mMobileType, tint));
+             //setTint(mVolte, StatusBarIconController.getTint(tintArea, mMobileType, tint));
+             setTint(mHdVoice, StatusBarIconController.getTint(tintArea, mMobileType, tint));
+         }

@@ -1,0 +1,54 @@
+Index: packages/apps/Settings/src/com/sprd/settings/SprdUsbReceiver.java
+===================================================================
+--- packages/apps/Settings/src/com/sprd/settings/SprdUsbReceiver.java	(revision 170496)
++++ packages/apps/Settings/src/com/sprd/settings/SprdUsbReceiver.java	(revision 170497)
+@@ -11,6 +11,7 @@
+ import android.os.storage.StorageManager;
+ import android.util.Log;
+ import android.widget.Toast;
++import com.android.settings.R;
+ 
+ public class SprdUsbReceiver extends BroadcastReceiver {
+     private final String TAG = "SprdUsbReceiver";
+@@ -75,7 +76,7 @@
+             } else {
+                 Log.d(TAG,"SD Card is not exist. reset the function to none");
+                 mUsbManager.setCurrentFunction(null);
+-                //Toast.makeText(mContext, "Sdcards are not avalible for USB storage, reset to USB default function", Toast.LENGTH_SHORT).show();
++               	Toast.makeText(mContext, ""+mContext.getString(R.string.remove_sdcard_hint), Toast.LENGTH_SHORT).show();
+             }
+         }
+     }
+Index: packages/apps/Settings/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values-zh-rCN/strings.xml	(revision 170496)
++++ packages/apps/Settings/res/values-zh-rCN/strings.xml	(revision 170497)
+@@ -3239,7 +3239,7 @@
+     <string name="power_saving_summary">"手机在口袋中，自动关闭蓝牙和Wifi的搜索功能来节省功耗"</string>
+     <string name="smart_ok">确定</string>
+     <!-- @} -->
+-
++	<string name="remove_sdcard_hint">"未识别到外置存储默认选择为PTP"</string>
+     <string name="cmupdate_settings_title">系统更新</string>
+     <!-- SPRD 614538-->
+     <string name="current_label_phone">本机</string>
+Index: packages/apps/Settings/res/values/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values/strings.xml	(revision 170496)
++++ packages/apps/Settings/res/values/strings.xml	(revision 170497)
+@@ -7716,4 +7716,5 @@
+     <string name="storage_detail_free">Free</string>
+ 	<string name="sim_card1_summary">Smartfren</string>
+ 	<string name="sim_card2_summary">GSM</string>
++	<string name="remove_sdcard_hint">The default selection for external storage is PTP</string>
+ </resources>
+Index: packages/apps/Settings/res/values-in/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values-in/strings.xml	(revision 170496)
++++ packages/apps/Settings/res/values-in/strings.xml	(revision 170497)
+@@ -3099,4 +3099,5 @@
+     <string name="bluetooth_talkback_headphone" msgid="26580326066627664">"Headphone"</string>
+     <string name="bluetooth_talkback_input_peripheral" msgid="5165842622743212268">"Periferal Masukan"</string>
+     <string name="bluetooth_talkback_bluetooth" msgid="5615463912185280812">"Bluetooth"</string>
++	<string name="remove_sdcard_hint">"Pilihan default untuk penyimpanan eksternal adalah PTP"</string>
+ </resources>

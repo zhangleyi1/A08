@@ -1,0 +1,30 @@
+Index: kernel/arch/arm/boot/dts/sprd-battery.dtsi
+===================================================================
+--- kernel/arch/arm/boot/dts/sprd-battery.dtsi	(revision 171140)
++++ kernel/arch/arm/boot/dts/sprd-battery.dtsi	(revision 171141)
+@@ -58,9 +58,9 @@
+ 				1350 1400 1450 1500 1550 1600 1650>;
+ 		jeita-tab-size = <6>;
+ 		jeita-temp-tab = <1000 1100 1200 1450 1550 2000>;
+-		jeita-temp-recovery-tab = <870 970 1070 1420 1470 3000>;
+-		jeita-cur-tab = <0 100 500 1000 700 0>;
+-		jeita-cccv-tab = <4200 4200 4350 4350 4350 4350>;
++		jeita-temp-recovery-tab = <1000 1100 1200 1450 1550 2000>;
++		jeita-cur-tab = <2000 2000 2000 2000 2000 2000>;
++		jeita-cccv-tab = <4400 4400 4400 4400 4400 4400>;
+ 		fgu-mode = <0>;
+ 		alm-soc = <5>;
+ 		alm-vol = <3600>;
+Index: kernel/arch/arm/boot/dts/sprd-scx35l_sp9832a_2h11_volte.dts
+===================================================================
+--- kernel/arch/arm/boot/dts/sprd-scx35l_sp9832a_2h11_volte.dts	(revision 171140)
++++ kernel/arch/arm/boot/dts/sprd-scx35l_sp9832a_2h11_volte.dts	(revision 171141)
+@@ -1086,7 +1086,7 @@
+ 		&a_eic_gpio 9 0>;	/* battery detect */
+ 	chg-end-vol-h = <4400>;
+ 	chg-end-vol-pure = <4375>;
+-	chg-end-vol-l = <4365>;
++	chg-end-vol-l = <4360>;
+ 	chg-bat-safety-vol = <4430>;
+ 	rechg-vol = <4220>;
+ 	adp-cdp-cur = <700>;

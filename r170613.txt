@@ -1,0 +1,13 @@
+Index: frameworks/base/packages/SystemUI/res/values/dimens.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 170612)
++++ frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 170613)
+@@ -264,7 +264,7 @@
+     <dimen name="speed_bump_height">16dp</dimen>
+ 
+     <!-- Lockscreen unlocking falsing threshold. -->
+-    <dimen name="unlock_falsing_threshold">80dp</dimen>
++    <dimen name="unlock_falsing_threshold">10dp</dimen>
+ 
+     <!-- Lockscreen falsing threshold for quick settings. -->
+     <dimen name="qs_falsing_threshold">60dp</dimen>

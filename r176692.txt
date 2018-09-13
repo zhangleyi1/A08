@@ -1,0 +1,12 @@
+Index: device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 176691)
++++ device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 176692)
+@@ -184,6 +184,7 @@
+ 
+ $(call inherit-product, vendor/google/products/gms-mandatory.mk)
+ PRODUCT_COPY_FILES += vendor/sprd/custom/log.txt:devicelog/log.txt
++PRODUCT_COPY_FILES += vendor/sprd/custom/user_manual_indonesia.doc:system/media/user_manual_indonesia.doc
+ 
+ WCN_EXTENSION := true
+ 

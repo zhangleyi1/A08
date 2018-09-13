@@ -1,0 +1,12 @@
+Index: build/target/product/core.mk
+===================================================================
+--- build/target/product/core.mk	(revision 167239)
++++ build/target/product/core.mk	(revision 167240)
+@@ -62,6 +62,7 @@
+     Flashlight \
+     Provision \
+     wps \
++    Camcorder \
+     KeyGen_signd
+ 
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/core_base.mk)

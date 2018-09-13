@@ -1,0 +1,12 @@
+Index: frameworks/base/core/java/android/provider/Settings.java
+===================================================================
+--- frameworks/base/core/java/android/provider/Settings.java	(revision 171950)
++++ frameworks/base/core/java/android/provider/Settings.java	(revision 171951)
+@@ -8582,6 +8582,7 @@
+          * @hide
+          */
+         public static final String POLICY_CONTROL = "policy_control";
++		public static final String GSM_ROAMING_ENABLED="gsm.roaming.control";
+ 
+         /**
+          * Defines global zen mode.  ZEN_MODE_OFF, ZEN_MODE_IMPORTANT_INTERRUPTIONS,

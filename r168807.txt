@@ -1,0 +1,13 @@
+Index: packages/apps/Launcher3/res/values/array.xml
+===================================================================
+--- packages/apps/Launcher3/res/values/array.xml	(revision 168806)
++++ packages/apps/Launcher3/res/values/array.xml	(revision 168807)
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+ 
+-    <string-array name="predictedapp" translatable="false">
++    <string-array name="predictedapp_list" translatable="false">
+         <item>com.android.settings/.Settings</item>
+         <item>com.android.camera2/com.android.camera.CameraLauncher</item>
+         <item>com.android.gallery3d/.app.GalleryActivity</item>

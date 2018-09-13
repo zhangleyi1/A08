@@ -1,0 +1,13 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/StatusBarNotifier.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/StatusBarNotifier.java	(revision 170349)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/StatusBarNotifier.java	(revision 170350)
+@@ -390,7 +390,7 @@
+             addDismissAction(builder);
+             addSmsRejustAction(builder);    //Added by zhangleyi for 20170322
+             if (call.isVideoCall(mContext)) {
+-                addVoiceAction(builder);
++                //addVoiceAction(builder);
+                 addVideoCallAction(builder);
+             } else {
+                 addAnswerAction(builder);

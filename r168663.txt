@@ -1,0 +1,59 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 168662)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 168663)
+@@ -1481,6 +1481,7 @@
+                         final Intent intent = new CallIntentBuilder(number).
+                             setCallInitiationType(LogState.INITIATION_DIALPAD)
+                             .build();
++						Log.d("jiml", "DialpadFragment number is " + number);	
+                         DialerUtils.startActivityWithErrorToast(getActivity(), intent);
+                     }
+ 
+Index: packages/services/Telecomm/src/com/android/server/telecom/components/UserCallIntentProcessor.java
+===================================================================
+--- packages/services/Telecomm/src/com/android/server/telecom/components/UserCallIntentProcessor.java	(revision 168662)
++++ packages/services/Telecomm/src/com/android/server/telecom/components/UserCallIntentProcessor.java	(revision 168663)
+@@ -94,7 +94,7 @@
+         Uri handle = intent.getData();
+         String scheme = handle.getScheme();
+         String uriString = handle.getSchemeSpecificPart();
+-
++		android.util.Log.d("jiml", "UserCallIntentProcessor uriString is " + uriString);
+         if (!PhoneAccount.SCHEME_VOICEMAIL.equals(scheme)) {
+             handle = Uri.fromParts(PhoneNumberUtils.isUriNumber(uriString) ?
+                     PhoneAccount.SCHEME_SIP : PhoneAccount.SCHEME_TEL, uriString, null);
+Index: packages/services/Telecomm/src/com/android/server/telecom/CallIntentProcessor.java
+===================================================================
+--- packages/services/Telecomm/src/com/android/server/telecom/CallIntentProcessor.java	(revision 168662)
++++ packages/services/Telecomm/src/com/android/server/telecom/CallIntentProcessor.java	(revision 168663)
+@@ -132,7 +132,7 @@
+         Uri handle = intent.getData();
+         String scheme = handle.getScheme();
+         String uriString = handle.getSchemeSpecificPart();
+-
++		android.util.Log.d("jiml", "CallIntentProcessor uriString is " + uriString);
+         if (!PhoneAccount.SCHEME_VOICEMAIL.equals(scheme)) {
+             handle = Uri.fromParts(PhoneNumberUtils.isUriNumber(uriString) ?
+                     PhoneAccount.SCHEME_SIP : PhoneAccount.SCHEME_TEL, uriString, null);
+Index: vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/GsmCdmaPhoneEx.java
+===================================================================
+--- vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/GsmCdmaPhoneEx.java	(revision 168662)
++++ vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/GsmCdmaPhoneEx.java	(revision 168663)
+@@ -448,6 +448,8 @@
+             throw new CallStateException("Sending UUS information NOT supported in CDMA!");
+         }
+ 
++		Log.d("jiml", "GsmCdmaPhoneEx dial dialString is " + dialString);
++		
+         boolean isEmergency = PhoneNumberUtils.isEmergencyNumber(dialString);
+         Phone imsPhone = mImsPhone;
+ 
+@@ -560,6 +562,7 @@
+             intentExtras.putShort(VIDEO_STATE, (short) videoState);
+             // Only look at the Network portion for mmi
+             String networkPortion = PhoneNumberUtils.extractNetworkPortionAlt(newDialString);
++			Log.d("jiml", "GsmCdmaPhoneEx  dialInternal newDialString is " + newDialString + "   networkPortion is " + networkPortion);
+             GsmMmiCode mmi =
+                     GsmMmiCode.newFromDialString(networkPortion, this, mUiccApplication.get());
+             if (DBG) logd("dialing w/ mmi '" + mmi + "'...");

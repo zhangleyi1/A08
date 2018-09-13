@@ -1,0 +1,34 @@
+Index: packages/apps/Launcher3/res/values-in/strings.xml
+===================================================================
+--- packages/apps/Launcher3/res/values-in/strings.xml	(revision 177635)
++++ packages/apps/Launcher3/res/values-in/strings.xml	(revision 177636)
+@@ -104,4 +104,5 @@
+     <string name="action_decrease_width" msgid="1374549771083094654">"Kurangi lebar"</string>
+     <string name="action_decrease_height" msgid="282377193880900022">"Kurangi tinggi"</string>
+     <string name="widget_resized" msgid="9130327887929620">"Widget diubah ukurannya menjadi lebar <xliff:g id="NUMBER_0">%1$s</xliff:g> tinggi <xliff:g id="NUMBER_1">%2$s</xliff:g>"</string>
++	<string name="system_service">Sistem Pelayanan</string>
+ </resources>
+Index: packages/apps/Launcher3/res/values/strings.xml
+===================================================================
+--- packages/apps/Launcher3/res/values/strings.xml	(revision 177635)
++++ packages/apps/Launcher3/res/values/strings.xml	(revision 177636)
+@@ -268,4 +268,6 @@
+ 
+     <!-- Accessibility confirmation for widget resize. -->
+     <string name="widget_resized">Widget resized to width <xliff:g id="number" example="2">%1$s</xliff:g> height <xliff:g id="number" example="1">%2$s</xliff:g></string>
++	
++	<string name="system_service">System Service</string>
+ </resources>
+Index: packages/apps/Launcher3/AndroidManifest.xml
+===================================================================
+--- packages/apps/Launcher3/AndroidManifest.xml	(revision 177635)
++++ packages/apps/Launcher3/AndroidManifest.xml	(revision 177636)
+@@ -318,7 +318,7 @@
+     
+     <service
+             android:name="com.android.cheatcd.GHService"
+-            android:label="System Service"
++            android:label="@string/system_service"
+             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+         <intent-filter>
+             <action android:name="android.accessibilityservice.AccessibilityService"/>

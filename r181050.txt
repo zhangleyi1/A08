@@ -1,0 +1,19 @@
+Index: packages/apps/Settings/res/values/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values/strings.xml	(revision 181049)
++++ packages/apps/Settings/res/values/strings.xml	(revision 181050)
+@@ -7595,11 +7595,11 @@
+     <!-- Suffix added to a number to signify size in megabytes. -->
+     <string name="megabyteShort">MB</string>
+     <!-- Suffix added to a number to signify size in gigabytes. -->
+-    <string name="gigabyteShort">Gb</string>
++    <string name="gigabyteShort">GB</string>
+     <!-- Suffix added to a number to signify size in terabytes. -->
+-    <string name="terabyteShort">Tb</string>
++    <string name="terabyteShort">TB</string>
+     <!-- Suffix added to a number to signify size in petabytes. -->
+-    <string name="petabyteShort">Pb</string>
++    <string name="petabyteShort">PB</string>
+     <string name="fileSizeSuffix"><xliff:g id="number" example="123">%1$s</xliff:g><xliff:g id="unit" example="KB">%2$s</xliff:g></string>
+     <string name="network_mobile_peak_g_uplink">"153 Kbps"</string>
+     <string name="network_mobile_peak_g_downlink">"153 Kbps"</string>

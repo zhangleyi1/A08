@@ -1,0 +1,15 @@
+Index: vendor/sprd/platform/frameworks/base/core/res/res/values/config_ex.xml
+===================================================================
+--- vendor/sprd/platform/frameworks/base/core/res/res/values/config_ex.xml	(revision 176775)
++++ vendor/sprd/platform/frameworks/base/core/res/res/values/config_ex.xml	(revision 176776)
+@@ -53,6 +53,10 @@
+         <item>com.sprd.opm</item>
+     </string-array>
+     <string-array name="third_party_persistent_service_processes" translatable="false">
++    	<item>com.quanticapps.athan</item>
++    	<item>com.quanticapps.quranandroid</item>
++    	<item>com.quanticapps.quranandroid:feedback</item>
++    	<item>com.whatsapp</item>
+     </string-array>
+     <string-array name="third_party_persistent_service_components" translatable="false">
+     </string-array>

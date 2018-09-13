@@ -1,0 +1,44 @@
+Index: kernel/drivers/usb/gadget/dwc_otg/dwc_otg_hcd_linux.c
+===================================================================
+--- kernel/drivers/usb/gadget/dwc_otg/dwc_otg_hcd_linux.c	(revision 174303)
++++ kernel/drivers/usb/gadget/dwc_otg/dwc_otg_hcd_linux.c	(revision 174304)
+@@ -392,6 +392,7 @@
+ #endif
+ 
+ static int start_otg_flag = 0;
++static atomic_t otgid_value = ATOMIC_INIT(1);      // Default is high    
+ 
+ void usb_otg_cable_detect_work(void *p)
+ {
+@@ -400,7 +401,9 @@
+ 	int vbus_irq;
+ 
+ 	vbus_irq = usb_get_vbus_irq();
+-	value = usb_get_id_state();
++	//value = usb_get_id_state();
++	value = atomic_read(&otgid_value);   
++	
+ 	if (value){
+ 		if(start_otg_flag ==1){
+ 			pr_info("usb otg cable detect work plug out\n");
+@@ -427,6 +430,7 @@
+ 			_start(otg_dev->hcd);
+ 			dwc_otg_enable_global_interrupts(otg_dev->core_if);
+ #ifdef CONFIG_SPRD_EXT_IC_POWER
++			disable_irq(vbus_irq);
+ 			sprd_extic_otg_power(1);	//Turn on ext ic otg func
+ #endif
+ 			start_otg_flag = 1;
+@@ -467,9 +471,11 @@
+ 		usb_set_id_irq_type(irq, OTG_CABLE_PLUG_IN);
+ 	} else {
+ 		pr_info("usb otg cable detect plug in\n");
+-		disable_irq(vbus_irq);
++		//disable_irq(vbus_irq);
+ 		usb_set_id_irq_type(irq, OTG_CABLE_PLUG_OUT);
+ 	}
++
++	atomic_set(&otgid_value, value);     /*use DWC workqueue*/    
+ 	/*use DWC workqueue*/
+ 	DWC_WORKQ_SCHEDULE_DELAYED(otg_dev->core_if->wq_otg, usb_otg_cable_detect_work,
+ 			   otg_dev, 50, "OTG cable connect state change");

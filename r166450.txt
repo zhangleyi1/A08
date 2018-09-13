@@ -1,0 +1,14 @@
+Index: device/sprd/scx35l/common/device.mk
+===================================================================
+--- device/sprd/scx35l/common/device.mk	(revision 166449)
++++ device/sprd/scx35l/common/device.mk	(revision 166450)
+@@ -26,7 +26,8 @@
+ 
+ # set default USB interface
+ PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
+-	persist.sys.usb.config=ptp
++	persist.sys.usb.config=ptp \
++	persist.sys.usb.support_ums=true
+ 
+ # video modules
+ PRODUCT_PACKAGES += \

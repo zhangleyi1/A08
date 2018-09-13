@@ -1,0 +1,151 @@
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 168690)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 168691)
+@@ -77,7 +77,12 @@
+ import android.content.DialogInterface;
+ import android.content.DialogInterface.OnClickListener;
+ 
++import android.content.Context;
++import android.net.ConnectivityManager;
++import android.net.NetworkInfo;
++import android.telephony.TelephonyManager;
+ 
++
+ /**
+  * "Mobile network settings" screen.  This preference screen lets you
+  * enable/disable mobile data, and control data roaming and other
+@@ -204,6 +209,15 @@
+     //SPRD: Bug 623247 Fail to switch volte on/off
+     private ContentObserver mEnhancedLTEObserver;
+ 
++	
++	private int mNetworkType=0;//add
++	public static final int NETWORN_NONE = 7;
++    public static final int NETWORN_WIFI = 8;
++    public static final int NETWORN_2G = 9;
++    public static final int NETWORN_3G = 10;
++    public static final int NETWORN_4G = 11;
++    public static final int NETWORN_MOBILE = 12;
++	
+     private final PhoneStateListener mPhoneStateListener = new PhoneStateListener() {
+         /*
+          * Enable/disable the 'Enhanced 4G LTE Mode' when in/out of a call
+@@ -217,7 +231,7 @@
+             boolean enabled = (state == TelephonyManager.CALL_STATE_IDLE) &&
+                     ImsManager.isNonTtyOrTtyOnVolteEnabled(getApplicationContext());
+             Preference pref = getPreferenceScreen().findPreference(BUTTON_4G_LTE_KEY);
+-            if (pref != null) pref.setEnabled(enabled && hasActiveSubscriptions());
++            if (pref != null) pref.setEnabled(enabled && hasActiveSubscriptions() && mNetworkType==NETWORN_4G);
+         }
+     };
+ 
+@@ -649,6 +663,57 @@
+         if (DBG) log("onCreate:-");
+     }
+ 
++/*
++*
++*add 
++*/
++	private static int getNetworkState(Context context) {
++		ConnectivityManager mConnManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
++		if (null == mConnManager)
++            return NETWORN_NONE;
++		NetworkInfo activeNetInfo = mConnManager.getActiveNetworkInfo();
++        if (activeNetInfo == null || !activeNetInfo.isAvailable()) {
++            return NETWORN_NONE;
++        }
++		NetworkInfo networkInfo = mConnManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
++ 
++        if (null != networkInfo) {
++            NetworkInfo.State state = networkInfo.getState();
++            String strSubTypeName = networkInfo.getSubtypeName();
++            if (null != state)
++                if (state == NetworkInfo.State.CONNECTED || state == NetworkInfo.State.CONNECTING) {
++                    switch (activeNetInfo.getSubtype()) {
++                        case TelephonyManager.NETWORK_TYPE_GPRS: 
++                        case TelephonyManager.NETWORK_TYPE_CDMA: 
++                        case TelephonyManager.NETWORK_TYPE_EDGE: 
++                        case TelephonyManager.NETWORK_TYPE_1xRTT:
++                        case TelephonyManager.NETWORK_TYPE_IDEN:
++                            return NETWORN_2G;
++                        case TelephonyManager.NETWORK_TYPE_EVDO_A: 
++                        case TelephonyManager.NETWORK_TYPE_UMTS:
++                        case TelephonyManager.NETWORK_TYPE_EVDO_0:
++                        case TelephonyManager.NETWORK_TYPE_HSDPA:
++                        case TelephonyManager.NETWORK_TYPE_HSUPA:
++                        case TelephonyManager.NETWORK_TYPE_HSPA:
++                        case TelephonyManager.NETWORK_TYPE_EVDO_B:
++                        case TelephonyManager.NETWORK_TYPE_EHRPD:
++                        case TelephonyManager.NETWORK_TYPE_HSPAP:
++                            return NETWORN_3G;
++                        case TelephonyManager.NETWORK_TYPE_LTE:
++                            return NETWORN_4G;
++                        default:
++                            if (strSubTypeName.equalsIgnoreCase("TD-SCDMA") || strSubTypeName.equalsIgnoreCase("WCDMA") || strSubTypeName.equalsIgnoreCase("CDMA2000")) {
++                                return NETWORN_3G;
++                            } else {
++                                return NETWORN_MOBILE;
++                            }
++                    }
++                }
++        }
++        return NETWORN_NONE;
++		
++	}
++	
+     /* SPRD: modify by BUG 612017 @{ */
+     @Override
+     public void onSaveInstanceState(Bundle outState) {
+@@ -679,7 +744,12 @@
+             if (DBG) log("onResume:- ignore mUnavailable == false");
+             return;
+         }
+-
++		mNetworkType=getNetworkState(this);
++		log("mNetworkType = " + mNetworkType);
++		
++		if(mNetworkType!=NETWORN_4G){
++			mButton4glte.setEnabled(false);
++		}
+         // upon resumption from the sub-activity, make sure we re-enable the
+         // preferences.
+         // SPRD modify for bug 612903
+@@ -715,10 +785,13 @@
+         }
+ 
+         // NOTE: Buttons will be enabled/disabled in mPhoneStateListener
+-        boolean enh4glteMode = ImsManager.isEnhanced4gLteModeSettingEnabledByUser(this)
+-                && ImsManager.isNonTtyOrTtyOnVolteEnabled(this);
+-        mButton4glte.setChecked(enh4glteMode);
+-
++        if(mNetworkType!=NETWORN_4G){
++			mButton4glte.setEnabled(false);
++		}else{
++        	boolean enh4glteMode = ImsManager.isEnhanced4gLteModeSettingEnabledByUser(this)
++                	&& ImsManager.isNonTtyOrTtyOnVolteEnabled(this);
++        	mButton4glte.setChecked(enh4glteMode);
++		}
+         mSubscriptionManager.addOnSubscriptionsChangedListener(mOnSubscriptionsChangeListener);
+ 
+         //SPRD: Bug636916,FEATURE_MOBILE_DATA_BUTTON
+@@ -967,7 +1040,8 @@
+                 && ImsManager.isVolteProvisionedOnDevice(this))) {
+             Preference pref = prefSet.findPreference(BUTTON_4G_LTE_KEY);
+             if (pref != null) {
+-                prefSet.removePreference(pref);
++                //prefSet.removePreference(pref);
++                pref.setEnabled(false);
+             }
+ 
+             /* SPRD: FEATURE_VOLTE_LOCK @{ */
+@@ -1069,7 +1143,7 @@
+         /* @} */
+         mButtonPreferredNetworkMode.setEnabled(hasActiveSubscriptions);
+         mButtonEnabledNetworks.setEnabled(hasActiveSubscriptions);
+-        mButton4glte.setEnabled(hasActiveSubscriptions && canChange4glte);
++        mButton4glte.setEnabled(hasActiveSubscriptions && canChange4glte && mNetworkType==NETWORN_4G);
+         mLteDataServicePref.setEnabled(hasActiveSubscriptions);
+         Preference ps;
+         PreferenceScreen root = getPreferenceScreen();

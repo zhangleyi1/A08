@@ -1,0 +1,13 @@
+Index: kernel/arch/arm/boot/dts/sprd-scx35l_sp9832a_2h11_4m.dts
+===================================================================
+--- kernel/arch/arm/boot/dts/sprd-scx35l_sp9832a_2h11_4m.dts	(revision 176202)
++++ kernel/arch/arm/boot/dts/sprd-scx35l_sp9832a_2h11_4m.dts	(revision 176203)
+@@ -30,7 +30,7 @@
+ 	interrupt-parent = <&gic>;
+ 
+ 	chosen {
+-		bootargs = "loglevel=1 console=ttyS1,115200n8 init=/init root=/dev/ram0 rw androidboot.hardware=sc8830";
++		bootargs = "loglevel=0 console=ttyS1,115200n8 init=/init root=/dev/ram0 rw androidboot.hardware=sc8830";
+ 		linux,initrd-start = <0x85500000>;
+ 		linux,initrd-end   = <0x855a3212>;
+ 	};

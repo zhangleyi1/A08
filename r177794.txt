@@ -1,0 +1,12 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardFragment.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardFragment.java	(revision 177793)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardFragment.java	(revision 177794)
+@@ -1124,6 +1124,7 @@
+                 AnimUtils.fadeIn(mElapsedTime, AnimUtils.DEFAULT_DURATION);
+             }
+             String callTimeElapsed = DateUtils.formatElapsedTime(duration / 1000);
++			callTimeElapsed.replaceAll("[.]",":");
+             mElapsedTime.setText(callTimeElapsed);
+ 
+             String durationDescription =

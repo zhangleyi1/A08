@@ -1,0 +1,12 @@
+Index: vendor/sprd/modules/libcamera/sensor/s5k5e2ya/sensor_s5k5e2ya_mipi_raw.c
+===================================================================
+--- vendor/sprd/modules/libcamera/sensor/s5k5e2ya/sensor_s5k5e2ya_mipi_raw.c	(revision 167276)
++++ vendor/sprd/modules/libcamera/sensor/s5k5e2ya/sensor_s5k5e2ya_mipi_raw.c	(revision 167277)
+@@ -31,6 +31,7 @@
+ #include "sensor_s5k5e2ya_raw_param.c"
+ #endif
+ 
++#define CONFIG_CAMERA_AUTOFOCUS_NOT_SUPPORT
+ #ifndef CONFIG_CAMERA_AUTOFOCUS_NOT_SUPPORT
+ #include "../af_dw9714.h"
+ #endif

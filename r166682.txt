@@ -1,0 +1,25 @@
+Index: device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_4mvolt_vowifi.mk
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_4mvolt_vowifi.mk	(revision 166681)
++++ device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_4mvolt_vowifi.mk	(revision 166682)
+@@ -1,6 +1,7 @@
+ 
+ include device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk
+ 
++PRODUCT_LOCALES := in_ID en_US zh_CN
+ PRODUCT_REVISION := oversea multi-lang
+ include $(APPLY_PRODUCT_REVISION)
+ 
+Index: vendor/sprd/feature_configs/multi-lang/config.mk
+===================================================================
+--- vendor/sprd/feature_configs/multi-lang/config.mk	(revision 166681)
++++ vendor/sprd/feature_configs/multi-lang/config.mk	(revision 166682)
+@@ -14,7 +14,7 @@
+ 
+ # Now, let's get it on as follows
+ 
+-FEATURES.PRODUCT_LOCALES := en_US en_AU en_CA en_GB en_IE en_IN en_NZ en_SG en_ZA zh_CN zh_HK zh_TW ar_EG ar_IL fa_IR ru_RU fr_FR sw_TZ th_TH tr_TR es_ES es_US hi_IN in_ID vi_VN ha_GH my_MM nl_NL uk_UA it_IT pt_PT pt_BR et_EE as_ET ro_RO ms_MY bn_BD tl_PH ceb_PH te_IN ta_IN ur_PK am_ET pl_PL da_DK de_DE gu_IN cs_CZ pa_IN sl_SI el_GR hr_HR lv_LV ml_IN mr_IN kn_IN sv_SE nb_NO hu_HU bg_BG sq_AL lt_LT sr_RS sk_SK fi_FI ca_ES mk_MK eu_ES gl_ES km_KH lo_LA iw_IL ne_NP si_LK bs_BA ka_GE
++FEATURES.PRODUCT_LOCALES := in_ID en_US zh_CN
+ 
+ FEATURES.PRODUCT_PACKAGE_OVERLAYS += \
+     $(PRODUCT_REVISION_COMMON_CONFIG_PATH)/multi-lang/overlay

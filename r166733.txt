@@ -1,0 +1,12 @@
+Index: vendor/sprd/plugins/packages/apps/Launcher3/addons/UnreadInfo/src/plugins/sprd/unreadinfo/UnreadInfoManagerAddon.java
+===================================================================
+--- vendor/sprd/plugins/packages/apps/Launcher3/addons/UnreadInfo/src/plugins/sprd/unreadinfo/UnreadInfoManagerAddon.java	(revision 166732)
++++ vendor/sprd/plugins/packages/apps/Launcher3/addons/UnreadInfo/src/plugins/sprd/unreadinfo/UnreadInfoManagerAddon.java	(revision 166733)
+@@ -764,6 +764,7 @@
+             AllAppsContainerView mAllAppsContainerView) {
+         List<AppInfo> apps = new ArrayList<AppInfo>();
+         for (int i = 0; i < mApps.getNumFilteredApps(); i++) {
++            if (i >= mApps.getApps().size()) break;
+             AppInfo app = (AppInfo) mApps.getApps().get(i);
+             BubbleTextView bubble = new BubbleTextView(mLauncher);
+             bubble.setTag(app);

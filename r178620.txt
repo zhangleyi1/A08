@@ -1,0 +1,52 @@
+Index: frameworks/base/packages/SystemUI/res/values/dimens.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 178619)
++++ frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 178620)
+@@ -437,7 +437,7 @@
+     <dimen name="keyguard_affordance_icon_height">24dp</dimen>
+     <dimen name="keyguard_affordance_icon_width">24dp</dimen>
+ 
+-    <dimen name="keyguard_indication_margin_bottom">65dp</dimen>
++    <dimen name="keyguard_indication_margin_bottom">20dp</dimen>
+ 
+     <!-- The text size for battery level -->
+     <dimen name="battery_level_text_size">14sp</dimen>
+Index: frameworks/base/packages/Keyguard/res/values/dimens.xml
+===================================================================
+--- frameworks/base/packages/Keyguard/res/values/dimens.xml	(revision 178619)
++++ frameworks/base/packages/Keyguard/res/values/dimens.xml	(revision 178620)
+@@ -36,7 +36,7 @@
+ 
+     <!-- EmergencyCarrierArea overlap - amount to overlap the emergency button and carrier text.
+          Should be 0 on devices with plenty of room (e.g. tablets) -->
+-    <dimen name="eca_overlap">-10dip</dimen>
++    <dimen name="eca_overlap">-18dip</dimen>
+ 
+     <!-- Default clock parameters -->
+     <dimen name="bottom_text_spacing_digital">-1dp</dimen>
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/keyguard_bottom_area.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/keyguard_bottom_area.xml	(revision 178619)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/keyguard_bottom_area.xml	(revision 178620)
+@@ -36,6 +36,7 @@
+             android:id="@+id/keyguard_indication_text"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
++            android:layout_marginBottom="@dimen/keyguard_indication_margin_bottom"
+             android:layout_gravity="bottom|center_horizontal"
+             android:gravity="center_horizontal"
+             android:textStyle="italic"
+@@ -43,11 +44,11 @@
+             android:textAppearance="?android:attr/textAppearanceSmall"
+             android:accessibilityLiveRegion="polite" />
+ 
+-        <LinearLayout
++      <!--  <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="10dp">
+         </LinearLayout>
+-
++-->
+         <com.android.keyguard.KeyguardEmergencyButton
+             android:id="@+id/lockscreen_emergency_call_button"
+             android:layout_width="wrap_content"

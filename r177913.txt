@@ -1,0 +1,13 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/sprd/incallui/InCallUiUtils.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/sprd/incallui/InCallUiUtils.java	(revision 177912)
++++ packages/apps/Dialer/InCallUI/src/com/android/sprd/incallui/InCallUiUtils.java	(revision 177913)
+@@ -92,7 +92,7 @@
+ //                .isSimSlotForPrimaryCard(subId, defaultDataSubId, phoneId, context);
+         android.util. Log.d("zwj",android.util. Log.getStackTraceString(new Throwable()));
+         int phoneId = getPhoneIdBySubId(context, subId);
+-        boolean isPrimaryCard = SubscriptionManager.isValidPhoneId(phoneId) && phoneId == 0;
++        boolean isPrimaryCard = SubscriptionManager.isValidPhoneId(phoneId) && phoneId <= 0;
+        android.util.Log.e("zwj", "getSlotInfoBySubId isPrimaryCard "+isPrimaryCard);
+        android.util.Log.e("zwj", "getSlotInfoBySubId phoneId "+phoneId);
+         String card_slot = "";

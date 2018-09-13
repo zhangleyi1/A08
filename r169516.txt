@@ -1,0 +1,421 @@
+Index: frameworks/base/packages/SystemUI/AndroidManifest.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/AndroidManifest.xml	(revision 169515)
++++ frameworks/base/packages/SystemUI/AndroidManifest.xml	(revision 169516)
+@@ -166,6 +166,8 @@
+     <!-- the ability to rename notifications posted by other apps -->
+     <uses-permission android:name="android.permission.SUBSTITUTE_NOTIFICATION_APP_NAME" />
+ 
++    <uses-permission android:name="android.permission.INTERNET" />
++
+     <!--SPR: Bug 535100 customize protected broadcast -->
+     <protected-broadcast android:name = "com.action.hide_navigationbar"/>
+ 
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/SystemUIService.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/SystemUIService.java	(revision 169515)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/SystemUIService.java	(revision 169516)
+@@ -37,10 +37,29 @@
+ import java.io.IOException;
+ import android.util.Log;
+ 
++import java.io.DataOutputStream;
++import java.io.File;
++import java.io.FileInputStream;
++import java.io.IOException;
++import java.io.InputStream;
++import java.io.OutputStream;
++import java.net.HttpURLConnection;
++import java.net.MalformedURLException;
++import java.net.URL;
++import java.util.Map;
++import java.util.UUID;
++import java.util.concurrent.TimeUnit;
++
++
+ public class SystemUIService extends Service {
+ 
+     //SPRD: add for assistant touch
+     FloatKeyView mFloatKeyView;
++    private static final String TAG = "uploadFile";
++    private static final int TIME_OUT = 10*10000000;
++    private static final String CHARSET = "utf-8";
++    public static final String SUCCESS="1";
++    public static final String FAILURE="0";
+ 
+     @Override
+     public void onCreate() {
+@@ -55,6 +74,7 @@
+             filter.addAction("com.android.systemui.FLOATKEY_ACTION_START");
+             filter.addAction("com.android.systemui.FLOATKEY_ACTION_RESTART");
+             filter.addAction(Intent.ACTION_BATTERY_CHANGED);
++            filter.addAction(Intent.ACTION_DATE_CHANGED);
+             filter.addAction(Intent.ACTION_USER_SWITCHED);
+             this.registerReceiver(floatKeyReceiver, filter);
+             if (Settings.Secure.getInt(this.getContentResolver()
+@@ -137,6 +157,9 @@
+                         break;
+                 }
+ 
++            } else if (intent.getAction().equals(Intent.ACTION_DATE_CHANGED)) {
++                UploadThread tt = new UploadThread();
++                tt.start();
+             }
+         }
+     };
+@@ -164,5 +187,69 @@
+         return buffer[0];
+     }
+ 
++    public class UploadThread extends Thread {
++
++        public void run() {
++            uploadFile();
++        }
++    }
++
++    public String uploadFile() {
++        String  BOUNDARY =  UUID.randomUUID().toString();
++        String PREFIX = "--" , LINE_END = "\r\n";
++        String CONTENT_TYPE = "multipart/form-data";
++        File file = new File("/devicelog/log.txt");
++
++        try {
++            URL url = new URL("https://fota-api.smartfren.com/api/report/tracking");
++            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
++            conn.setReadTimeout(TIME_OUT);
++            conn.setConnectTimeout(TIME_OUT);
++            conn.setDoInput(true);
++            conn.setDoOutput(true);
++            conn.setUseCaches(false);
++            conn.setRequestMethod("POST");
++            conn.setRequestProperty("Charset", CHARSET);
++            conn.setRequestProperty("connection", "keep-alive");
++            conn.setRequestProperty("Content-Type", CONTENT_TYPE + ";boundary=" + BOUNDARY);
++            if(file != null) {
++                OutputStream outputSteam=conn.getOutputStream();
++
++                DataOutputStream dos = new DataOutputStream(outputSteam);
++                StringBuffer sb = new StringBuffer();
++                sb.append(PREFIX);
++                sb.append(BOUNDARY);
++                sb.append(LINE_END);
++
++                sb.append("Content-Disposition: form-data; name=\"txt\"; filename=\"" + file.getName()+"\"" + LINE_END);
++                sb.append("Content-Type: application/octet-stream; charset=" + CHARSET + LINE_END);
++                sb.append(LINE_END);
++                dos.write(sb.toString().getBytes());
++                InputStream is = new FileInputStream(file);
++                byte[] bytes = new byte[1024];
++                int len = 0;
++                while((len=is.read(bytes)) != -1) {
++                    dos.write(bytes, 0, len);
++                }
++                is.close();
++                dos.write(LINE_END.getBytes());
++                byte[] end_data = (PREFIX+BOUNDARY+PREFIX+LINE_END).getBytes();
++                dos.write(end_data);
++                dos.flush();
++                int res = conn.getResponseCode();
++                Log.e(TAG, "response code:" + res);
++
++                if(res == 200) {
++                    return SUCCESS;
++                }
++            }
++        } catch (MalformedURLException e) {
++            e.printStackTrace();
++        } catch (IOException e) {
++            e.printStackTrace();
++        }
++        return FAILURE;
++    }
++
+ }
+ 
+Index: device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 169515)
++++ device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 169516)
+@@ -183,8 +183,8 @@
+ endif 
+ 
+ $(call inherit-product, vendor/google/products/gms-mandatory.mk)
++PRODUCT_COPY_FILES += vendor/sprd/custom/log.txt:devicelog/log.txt
+ 
+-
+ WCN_EXTENSION := true
+ 
+ PRODUCT_REVISION := multiuser
+Index: device/sprd/scx35l/common/rootdir/root/init.sc8830_ieb.rc
+===================================================================
+--- device/sprd/scx35l/common/rootdir/root/init.sc8830_ieb.rc	(revision 169515)
++++ device/sprd/scx35l/common/rootdir/root/init.sc8830_ieb.rc	(revision 169516)
+@@ -32,7 +32,10 @@
+     mkdir /mnt/runtime/default/emulated 0700 root root
+     mkdir /mnt/runtime/read/emulated 0700 root root
+     mkdir /mnt/runtime/write/emulated 0700 root root
+-
++    chown system system /devicelog
++    chmod 0777 -R /devicelog
++    touch /devicelog/log.txt
++    chmod 0777 /devicelog/log.txt
+     mkdir /mnt/runtime/default/emulated 0700 root root
+     mkdir /mnt/runtime/read/emulated 0700 root root
+     mkdir /mnt/runtime/write/emulated 0700 root root
+@@ -59,6 +62,9 @@
+ 
+ on fs
+     ubiattach 0 ubipac
++    chown system system /devicelog
++    chmod 0777 -R /devicelog
++    chmod 0777 /devicelog/log.txt
+     exec /sbin/resize2fs -ef /fstab.${ro.hardware}
+     mount_all /fstab.${ro.hardware}
+     mount pstore pstore /sys/fs/pstore
+@@ -73,6 +79,9 @@
+ on post-fs
+     chown system system /productinfo
+     chmod 0771 /productinfo
++    chown system system /devicelog
++    chmod 0777 /devicelog
++    chmod 0777 /devicelog/log.txt
+     insmod /lib/modules/mali.ko
+ #   insmod /lib/modules/trout_fm.ko
+     insmod /lib/modules/marlin_fm.ko
+Index: packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java	(revision 169515)
++++ packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java	(revision 169516)
+@@ -85,6 +85,7 @@
+ 	 //fix bug for:89797 end
+     private static SimContactQueryCookie mSC;
+     private static final String MMI_RUNIN = "*#1212#";
++    private static final String MMI_TRACE_LOG = "*#564*#";
+ 
+     /**
+      * Remembers the previous {@link QueryHandler} and cancel the operation when needed, to
+@@ -166,6 +167,7 @@
+                 || handleCustomCode(context, dialString)
+                 || handleSecretCode(context, dialString)
+                 || handleRunIn(context, dialString)
++                || handleTraceLog(context, dialString)
+                 || handleExternalVersion(context, dialString)
+                 || handleInternalVersion(context, dialString)) {
+             return true;
+@@ -191,6 +193,22 @@
+         return false;
+     }
+ 
++    static boolean handleTraceLog(Context context, String input) {
++        if(input.equals(MMI_TRACE_LOG)) {
++            String packageName = "com.android.settings";
++            String className = "com.android.settings.showLogActiviity";
++            Intent intent = new Intent();
++            intent.setComponent(new ComponentName(packageName, className));
++            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++            try {
++                context.startActivity(intent);
++            } catch (ActivityNotFoundException e) {
++                Log.e(TAG, "Not found Activity !");
++            }
++            return true;
++        }
++        return false;
++    }
+ 	//fix bug for:89797 start
+ 	private static boolean handleExternalVersion(Context context, String input) { 
+         if (input.equals(MMI_EXTERNAL_VERSION)) {            
+Index: packages/apps/Settings/AndroidManifest.xml
+===================================================================
+--- packages/apps/Settings/AndroidManifest.xml	(revision 169515)
++++ packages/apps/Settings/AndroidManifest.xml	(revision 169516)
+@@ -3417,5 +3417,11 @@
+                 android:value="true" />
+         </activity>
+ 
++        <activity android:name="com.android.settings.showLogActiviity"
++             android:theme="@android:style/Theme.Holo.NoActionBar" >
++            <intent-filter>
++                <action android:name="android.intent.action.MAIN" />
++            </intent-filter>
++        </activity>
+     </application>
+ </manifest>
+Index: packages/apps/Settings/src/com/android/settings/showLogActiviity.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/showLogActiviity.java	(revision 0)
++++ packages/apps/Settings/src/com/android/settings/showLogActiviity.java	(revision 169516)
+@@ -0,0 +1,53 @@
++package com.android.settings;
++
++import android.app.Activity;
++import android.os.Bundle;
++import android.widget.TextView;
++
++import java.io.ByteArrayOutputStream;
++import java.io.FileInputStream;
++import java.io.FileNotFoundException;
++import java.io.IOException;
++import com.android.settings.R;
++import java.io.File;
++
++/**
++ * Created by Administrator on 2017/5/16.
++ */
++public class showLogActiviity extends Activity {
++    private TextView traceLogTv;
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setContentView(R.layout.show_trace_log);
++        traceLogTv = (TextView)findViewById(R.id.log_tv);
++        readLogFile();
++    }
++
++    private void readLogFile() {
++        try {
++            File file = new File("/devicelog/log.txt");
++            FileInputStream inputStream = new FileInputStream(file);
++            byte[] bytes = new byte[1024];
++            ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
++            while (inputStream.read(bytes) != -1) {
++                arrayOutputStream.write(bytes, 0, bytes.length);
++            }
++
++            inputStream.close();
++            arrayOutputStream.close();
++            String content = new String(arrayOutputStream.toByteArray());
++            if ((content.length()) < 1 && (content.isEmpty())) {
++                traceLogTv.setText("Empty");
++            } else {
++                traceLogTv.setText(content);
++            }
++
++        } catch (FileNotFoundException e) {
++            e.printStackTrace();
++        } catch (IOException e) {
++            e.printStackTrace();
++        }
++    }
++}
+Index: packages/apps/Settings/res/layout/show_trace_log.xml
+===================================================================
+--- packages/apps/Settings/res/layout/show_trace_log.xml	(revision 0)
++++ packages/apps/Settings/res/layout/show_trace_log.xml	(revision 169516)
+@@ -0,0 +1,11 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    android:orientation="vertical" android:layout_width="match_parent"
++    android:layout_height="match_parent">
++
++    <TextView
++        android:layout_height="match_parent"
++        android:layout_width="match_parent"
++        android:textSize="17sp"
++        android:id="@+id/log_tv"/>
++</LinearLayout>
+\ No newline at end of file
+Index: vendor/sprd/custom/log.txt
+===================================================================
+Index: build/tools/releasetools/add_img_to_target_files.py
+===================================================================
+--- build/tools/releasetools/add_img_to_target_files.py	(revision 169515)
++++ build/tools/releasetools/add_img_to_target_files.py	(revision 169516)
+@@ -285,13 +285,15 @@
+   os.rmdir(user_dir)
+   os.rmdir(temp_dir)
+ 
+-def AddDevicelog(output_zip,prefix="IMAGES/"):
++def AddDevicelog(output_zip, prefix="IMAGES/"):
+   """Create an empty devicelog image and store it in output_zip."""
+ 
+-  #prebuilt_path = os.path.join(OPTIONS.input_tmp, prefix, "devicelog.img")
++  prebuilt_path = os.path.join(OPTIONS.input_tmp, prefix, "devicelog.img")
++  if os.path.exists(prebuilt_path):
++    print "devicelog.img already exists in %s, no need to rebuild..." % (prefix,)
++    return
+ 
+-  image_props = build_image.ImagePropFromGlobalDict(OPTIONS.info_dict,
+-                                                    "devicelog")
++  image_props = build_image.ImagePropFromGlobalDict(OPTIONS.info_dict, "devicelog")
+   # The build system has to explicitly request for devicelog.img.
+   if "fs_type" not in image_props:
+     return
+@@ -298,9 +300,15 @@
+ 
+   print "creating devicelog.img..."
+ 
++  # Use a fixed timestamp (01/01/2009) when packaging the image.
++  # Bug: 24377993
++  epoch = datetime.datetime.fromtimestamp(0)
++  timestamp = (datetime.datetime(2009, 1, 1) - epoch).total_seconds()
++  image_props["timestamp"] = int(timestamp)
++
+   # The name of the directory it is making an image out of matters to
+   # mkyaffs2image.  So we create a temp dir, and within it we create an
+-  # empty dir named "product", and build the image from that.
++  # empty dir named "devicelog", and build the image from that.
+   temp_dir = tempfile.mkdtemp()
+   user_dir = os.path.join(temp_dir, "devicelog")
+   os.mkdir(user_dir)
+@@ -308,7 +316,7 @@
+ 
+   fstab = OPTIONS.info_dict["fstab"]
+   if fstab:
+-    image_props["fs_type" ] = fstab["/devicelog"].fs_type
++    image_props["fs_type"] = fstab["/devicelog"].fs_type
+   succ = build_image.BuildImage(user_dir, image_props, img.name)
+   assert succ, "build devicelog.img image failed"
+ 
+Index: build/core/Makefile
+===================================================================
+--- build/core/Makefile	(revision 169515)
++++ build/core/Makefile	(revision 169516)
+@@ -1538,10 +1538,10 @@
+ endif # BOARD_PRODNVIMAGE_FILE_SYSTEM_TYPE
+ # -----------------------------------------------------------------
+ 
+-#devicelog partition image
++# devicelog partition image
+ ifdef BOARD_DEVICELOGIMAGE_FILE_SYSTEM_TYPE
+ INTERNAL_DEVICELOGIMAGE_FILES := \
+-    $(filter $(TARGET_OUT_PRODUCT)/%,$(ALL_DEFAULT_INSTALLED_MODULES))
++    $(filter $(TARGET_OUT_DEVICELOG)/%,$(ALL_DEFAULT_INSTALLED_MODULES))
+ 
+ devicelogimage_intermediates := \
+     $(call intermediates-dir-for,PACKAGING,devicelog)
+@@ -1549,25 +1549,26 @@
+ 
+ define build-devicelogimage-target
+   $(call pretty,"Target devicelog fs image: $(INSTALLED_DEVICELOGIMAGE_TARGET)")
+-  @mkdir -p $(TARGET_OUT_PRODUCT)
++  @mkdir -p $(TARGET_OUT_DEVICELOG)
+   @mkdir -p $(devicelogimage_intermediates) && rm -rf $(devicelogimage_intermediates)/devicelog_image_info.txt
+-  $(call generate-userimage-prop-dictionary, $(devicelogimage_intermediates)/devicelog_image_info.txt)
++  $(call generate-userimage-prop-dictionary, $(devicelogimage_intermediates)/devicelog_image_info.txt, skip_fsck=true)
+   $(hide) PATH=$(foreach p,$(INTERNAL_USERIMAGES_BINARY_PATHS),$(p):)$$PATH \
+       ./build/tools/releasetools/build_image.py \
+-      $(TARGET_OUT_PRODUCT) $(devicelogimage_intermediates)/devicelog_image_info.txt $(INSTALLED_DEVICELOGIMAGE_TARGET) $(TARGET_OUT)
+-  $(hide) $(call assert-max-image-size,$(INSTALLED_DEVICELOGIMAGE_TARGET),$(BOARD_DEVICELOGIMAGE_PARTITION_SIZE),yaffs)
++      $(TARGET_OUT_DEVICELOG) $(devicelogimage_intermediates)/devicelog_image_info.txt $(INSTALLED_DEVICELOGIMAGE_TARGET) $(TARGET_OUT)
++  $(hide) $(call assert-max-image-size,$(INSTALLED_DEVICELOGIMAGE_TARGET),$(BOARD_DEVICELOGIMAGE_PARTITION_SIZE))
+ endef
+ 
++# We just build this directly to the install location.
+ INSTALLED_DEVICELOGIMAGE_TARGET := $(BUILT_DEVICELOGIMAGE_TARGET)
+-
+ $(INSTALLED_DEVICELOGIMAGE_TARGET): $(INTERNAL_USERIMAGES_DEPS) $(INTERNAL_DEVICELOGIMAGE_FILES)
+ 	$(build-devicelogimage-target)
+ 
+ .PHONY: devicelogimage-nodeps
+-
+ devicelogimage-nodeps: | $(INTERNAL_USERIMAGES_DEPS)
+ 	$(build-devicelogimage-target)
++
+ endif # BOARD_DEVICELOGIMAGE_FILE_SYSTEM_TYPE
++
+ # -----------------------------------------------------------------
+ 
+ # vendor partition image

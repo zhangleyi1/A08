@@ -1,0 +1,1413 @@
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/imsphone/ImsPhoneMmiCode.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/imsphone/ImsPhoneMmiCode.java	(revision 182559)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/imsphone/ImsPhoneMmiCode.java	(revision 182560)
+@@ -24,6 +24,7 @@
+ import android.os.Message;
+ import android.os.RemoteException;
+ import android.os.ServiceManager;
++import android.telephony.CarrierConfigManagerEx;
+ import android.telephony.PhoneNumberUtils;
+ import android.text.SpannableStringBuilder;
+ import android.text.TextUtils;
+@@ -1678,12 +1679,22 @@
+     }
+ 
+ 
+-    /* SPRD: add for VoWifi @{ */
++    /* SPRD: add for VoWifi & 757327 @{ */
+     private IImsServiceEx mImsServiceEx;
+     public boolean shouldSendUssdOnIms(){
+-        return isVoWiFiRegistered();
++        return isVoWiFiRegistered() && supportOverVoWifi(mPhone.getSubId());
+     }
+ 
++    private boolean supportOverVoWifi(int subId) {
++        CarrierConfigManagerEx carrierMgr = CarrierConfigManagerEx.from(mPhone.getContext());
++        if ((carrierMgr != null)
++                && (carrierMgr.getConfigForSubId(subId) != null)) {
++            return carrierMgr.getConfigForSubId(subId).getBoolean(
++                    CarrierConfigManagerEx.KEY_SUPPORT_SEND_USSD_OVER_VOWIFI);
++        }
++        return true;
++    }
++
+     private IImsServiceEx getIImsServiceEx() {
+         if (mImsServiceEx == null) {
+             IBinder b = ServiceManager.getService("ims_ex");
+Index: frameworks/native/libs/gui/BufferQueueProducer.cpp
+===================================================================
+--- frameworks/native/libs/gui/BufferQueueProducer.cpp	(revision 182559)
++++ frameworks/native/libs/gui/BufferQueueProducer.cpp	(revision 182560)
+@@ -941,12 +941,12 @@
+     }
+ 
+     // Wait without lock held
+-    if (connectedApi == NATIVE_WINDOW_API_EGL) {
++    //if (mCore->mConnectedApi == NATIVE_WINDOW_API_EGL) {
+         // Waiting here allows for two full buffers to be queued but not a
+         // third. In the event that frames take varying time, this makes a
+         // small trade-off in favor of latency rather than throughput.
+-        lastQueuedFence->waitForever("Throttling EGL Production");
+-    }
++        //mLastQueueBufferFence->waitForever("Throttling EGL Production");
++    //}
+ 
+     return NO_ERROR;
+ }
+Index: system/bt/btif/src/btif_sock_sdp.c
+===================================================================
+--- system/bt/btif/src/btif_sock_sdp.c	(revision 182559)
++++ system/bt/btif/src/btif_sock_sdp.c	(revision 182560)
+@@ -61,7 +61,11 @@
+   BTA_PBS_REALM_CHARSET,                          // realm_charset: Server only
+   BTA_PBS_USERID_REQ,                             // userid_req: Server only
+   (BTA_PBS_SUPF_DOWNLOAD | BTA_PBS_SURF_BROWSE),  // supported_features
+-  BTA_PBS_REPOSIT_LOCAL,                          // supported_repositories
++#ifdef SPRD_FEATURE_ZHONGXING_BTNAME
++  (BTA_PBS_REPOSIT_LOCAL | BTA_PBS_REPOSIT_SIM)     // supported_repositories
++#else
++  BTA_PBS_REPOSIT_LOCAL                           // supported_repositories
++#endif
+ };
+ 
+ // object format lookup table
+Index: system/bt/bta/dm/bta_dm_act.c
+===================================================================
+--- system/bt/bta/dm/bta_dm_act.c	(revision 182559)
++++ system/bt/bta/dm/bta_dm_act.c	(revision 182560)
+@@ -544,6 +544,7 @@
+ #if (defined(SPRD_FEATURE_AOBFIX) && SPRD_FEATURE_AOBFIX == TRUE)
+         if(BTM_GetNumAclLinks() != bta_dm_cb.device_list.count) {
+             btm_remove_all_acl();
++            trigger_disc = TRUE;
+         }
+         else
+ #endif
+Index: device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_claro.mk
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_claro.mk	(revision 182559)
++++ device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_claro.mk	(revision 182560)
+@@ -34,4 +34,6 @@
+ # enable the Wi-Fi calling menu in settings.
+ PRODUCT_PROPERTY_OVERRIDES += persist.dbg.wfc_avail_ovr=1
+ # vowifi voice engine in ap/cp
+-PRODUCT_PROPERTY_OVERRIDES += persist.sys.vowifi.voice=cp
+\ No newline at end of file
++PRODUCT_PROPERTY_OVERRIDES += persist.sys.vowifi.voice=cp
++#disable recovery
++PRODUCT_PROPERTY_OVERRIDES += persist.radio.dataconn.recovery=0
+Index: packages/apps/Settings/res/values-th/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values-th/strings.xml	(revision 182559)
++++ packages/apps/Settings/res/values-th/strings.xml	(revision 182560)
+@@ -889,7 +889,7 @@
+     <string name="accessibility_personal_account_title" msgid="2169071663029067826">"บัญชีส่วนตัว - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
+     <string name="search_settings" msgid="1910951467596035063">"ค้นหา"</string>
+     <string name="search_settings_summary" msgid="9205656546570654169">"จัดการการตั้งค่าและประวัติการค้นหา"</string>
+-    <string name="display_settings" msgid="7965901687241669598">"การแสดงผล"</string>
++    <string name="display_settings" msgid="7965901687241669598">"ขนาดการแสดงผล"</string>
+     <string name="accelerometer_title" msgid="7854608399547349157">"หมุนหน้าจออัตโนมัติ"</string>
+     <string name="accelerometer_summary_on" product="tablet" msgid="429982132339828942">"เปลี่ยนการวางแนวโดยอัตโนมัติเมื่อหมุนแท็บเล็ต"</string>
+     <string name="accelerometer_summary_on" product="default" msgid="1133737282813048021">"สลับแนวหน้าจออัตโนมัติเมื่อหมุนโทรศัพท์"</string>
+@@ -907,7 +907,7 @@
+     <string name="wallpaper_suggestion_title" msgid="8583988696513822528">"เปลี่ยนวอลเปเปอร์"</string>
+     <string name="wallpaper_suggestion_summary" msgid="1579144009898110491">"ปรับเปลี่ยนหน้าจอในแบบของคุณ"</string>
+     <string name="wallpaper_settings_fragment_title" msgid="519078346877860129">"เลือกวอลเปเปอร์จาก"</string>
+-    <string name="screensaver_settings_title" msgid="1770575686476851778">"โปรแกรมรักษาหน้าจอ"</string>
++    <string name="screensaver_settings_title" msgid="1770575686476851778">"พักหน้าจอ"</string>
+     <string name="screensaver_settings_summary_either_long" msgid="2458481525925378465">"เมื่อวางบนแท่นชาร์จหรืออยู่ในโหมดสลีปและกำลังชาร์จ"</string>
+     <string name="screensaver_settings_summary_either_short" msgid="6140527286137331478">"แบบใดก็ได้"</string>
+     <string name="screensaver_settings_summary_sleep" msgid="9086186698140423493">"ขณะที่ชาร์จ"</string>
+Index: packages/apps/Messaging/MmsFolderView/src/com/android/mmsfolderview/ui/SortMsgListItemView.java
+===================================================================
+--- packages/apps/Messaging/MmsFolderView/src/com/android/mmsfolderview/ui/SortMsgListItemView.java	(revision 182559)
++++ packages/apps/Messaging/MmsFolderView/src/com/android/mmsfolderview/ui/SortMsgListItemView.java	(revision 182560)
+@@ -371,7 +371,8 @@
+ 
+         mConversationNameView.setText(bidiFormattedName);
+         if (SortDisplayController.getInstance().isSimSms()) {
+-            Linkify.addLinks(mConversationNameView, Linkify.PHONE_NUMBERS | Linkify.EMAIL_ADDRESSES);
++            //Linkify.addLinks(mConversationNameView, Linkify.PHONE_NUMBERS | Linkify.EMAIL_ADDRESSES);
++             computeLinkfyInUIThread(mConversationNameView);//modify by bug751728
+             /*Modify by SPRD for bug560804  2016.5.10*/
+         }
+     }
+Index: packages/apps/Messaging/MmsFolderView/src/com/android/mmsfolderview/util/LinkifyUtil.java
+===================================================================
+--- packages/apps/Messaging/MmsFolderView/src/com/android/mmsfolderview/util/LinkifyUtil.java	(revision 182559)
++++ packages/apps/Messaging/MmsFolderView/src/com/android/mmsfolderview/util/LinkifyUtil.java	(revision 182560)
+@@ -128,7 +128,8 @@
+         }
+ 
+         if ((mask & PHONE_NUMBERS) != 0) {
+-            gatherTelLinks(links, text);
++            gatherLinksSprd(links, text, Patterns.PHONE,new String[] { "tel:" },sPhoneNumberMatchFilter, sPhoneNumberTransformFilter,mask);//modify by bug751728
++            //gatherTelLinks(links, text);
+         }
+ 
+         if ((mask & MAP_ADDRESSES) != 0) {
+Index: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 182559)
++++ packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 182560)
+@@ -2816,6 +2816,12 @@
+ 
+     @Override
+     public boolean dispatchKeyEvent(KeyEvent event) {
++        if(isWorkspaceLoading()){
++            String msg = LogUtils.DEBUG_ALL ? event.toString() : Integer.toString(event.getKeyCode());
++            LogUtils.w(TAG,"Workspace is loading, don't dispatch key event: " + msg);
++            return true;
++        }
++
+         if (event.getAction() == KeyEvent.ACTION_DOWN) {
+             switch (event.getKeyCode()) {
+                 case KeyEvent.KEYCODE_HOME:
+Index: packages/apps/Dialer/src/com/android/dialer/CallDetailActivity.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/CallDetailActivity.java	(revision 182559)
++++ packages/apps/Dialer/src/com/android/dialer/CallDetailActivity.java	(revision 182560)
+@@ -430,7 +430,6 @@
+         mIsSaveInstanceState = false;
+         /* @} */
+         // SPRD: Add for VoLTE modify bug597258
+-        DialerUtils.tryRegisterImsListener(this);
+         mContactsPreferences.refreshValue(ContactsPreferences.DISPLAY_ORDER_KEY);
+         getCallDetails();
+     }
+@@ -643,7 +642,6 @@
+     /* SPRD: modify for bug607071 @{ */
+     protected void onDestroy() {
+         // SPRD: add for Bug 613526
+-        DialerUtils.unRegisterImsListener(this);
+         mContext.getContentResolver().unregisterContentObserver(mObserver);
+         super.onDestroy();
+         }
+@@ -715,9 +713,9 @@
+             addContactIcon.setVisibility(View.GONE);
+         }
+ 
+-        // SPRD: modify for bug600829
++        // SPRD: modify for bug600829 & 755270
+         if (ImsManager.isVolteEnabledByPlatform(this)) {
+-            if (CallUtil.isVideoEnabled(mContext) && DialerUtils.isVideoEnable()) {
++            if (CallUtil.isVideoEnabled(mContext)) {
+                 videoCallIcon.setVisibility(View.GONE);
+             } else {
+                 videoCallIcon.setVisibility(View.GONE);
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 182559)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 182560)
+@@ -1171,14 +1171,12 @@
+                     mPopupMenu.setOnMenuItemClickListener(this);
+                 }
+             }
+-            /* SPRD: Add for VoLTE modify for bug597258 @{*/
++            /* SPRD: Add for VoLTE modify for bug597258 &755270 @{*/
+             if (ImsManager.isVolteEnabledByPlatform(getActivity())) {
+-                if (CallUtil.isVideoEnabled(getActivity())) {
++                if (CallUtil.isVideoEnabled(getActivity()) || mIsVideoEnable) {
+                     mPopupMenu.getMenu().add(0, MENU_MAKE_VIDEO_CALL, 0,
+                             R.string.make_video_call_menu);
+-                    mPopupMenu.getMenu().findItem(MENU_MAKE_VIDEO_CALL).setVisible(mIsVideoEnable
+-                            // SPRD: modify for bug596782
+-                            && TelephonyManager.getDefault().isVideoCallingEnabled());
++                    mPopupMenu.getMenu().findItem(MENU_MAKE_VIDEO_CALL).setVisible(true);
+                 }
+ //                mPopupMenu.getMenu().add(0, MENU_MAKE_MULTE_CALL, 0,
+ //                        R.string.dialpad_multi_call_menu);
+@@ -2371,8 +2369,8 @@
+             if (getActivity() != null) {
+                 if (videoCallItem != null) {
+                     videoCallItem.setVisible(mIsVideoEnable
+-                            // SPRD: modify for bug567183
+-                            && TelephonyManager.getDefault().isVideoCallingEnabled());
++                            // SPRD: modify for bug567183 & 755270
++                            || CallUtil.isVideoEnabled(getActivity()));
+                 }
+ //                if (groupCallItem != null) {
+ //                    groupCallItem.setVisible(mIsVideoEnable
+Index: packages/services/Telephony/src/com/android/phone/CallFeaturesSetting.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/CallFeaturesSetting.java	(revision 182559)
++++ packages/services/Telephony/src/com/android/phone/CallFeaturesSetting.java	(revision 182560)
+@@ -49,6 +49,7 @@
+ import android.telecom.PhoneAccountHandle;
+ import android.telecom.TelecomManager;
+ import android.telephony.CarrierConfigManager;
++import android.telephony.CarrierConfigManagerEx;
+ import android.telephony.PhoneStateListener;
+ import android.telephony.ServiceState;
+ import android.telephony.SubscriptionManager;
+@@ -189,8 +190,9 @@
+                     && ImsManager.isEnhanced4gLteModeSettingEnabledByUser(this)
+                     && mDefaultDataSubId == mPhone.getSubId()) {
+                 log("volte is support and volte is enable and is primary card");
+-                /* SPRD: add for bug653676 & 662956 @{ */
+-                if (mTelephonyManager.getDataEnabled()) {
++                /* SPRD: add for bug653676 & 662956 & 754508 @{ */
++                if (mTelephonyManager.getDataEnabled()
++                        || !isSupportShowDialog(mPhone.getSubId())) {
+                     return false;
+                 } else {
+                     showOpenDataDialog(this, preference);
+@@ -637,6 +639,18 @@
+     }
+     /* @} */
+ 
++    /* SPRD: add for bug754508 @{ */
++    private boolean isSupportShowDialog(int subId) {
++        CarrierConfigManagerEx carrierMgr = CarrierConfigManagerEx.from(this);
++        if ((carrierMgr != null)
++                && (carrierMgr.getConfigForSubId(subId) != null)) {
++            return carrierMgr.getConfigForSubId(subId).getBoolean(
++                    CarrierConfigManagerEx.KEY_SUPPORT_SHOW_NETWORK_DIALOG);
++        }
++        return true;
++    }
++    /* @} */
++
+     /* SPRD: add for bug653676 & 662956 @{ */
+     private void showOpenDataDialog(final PreferenceActivity preferenceActivity,
+             final Preference preference) {
+Index: vendor/sprd/plugins/frameworks/opt/telephony/addons/TelcelDataConnection/res/values-es/strings.xml
+===================================================================
+--- vendor/sprd/plugins/frameworks/opt/telephony/addons/TelcelDataConnection/res/values-es/strings.xml	(revision 182559)
++++ vendor/sprd/plugins/frameworks/opt/telephony/addons/TelcelDataConnection/res/values-es/strings.xml	(revision 182560)
+@@ -1,6 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+     <string name="failcause_user_authentication">FALLA DE AUTENTICACION -29-</string>
+-    <string name="failcause_service_option_not_subscribed">SIN SUBSCRIPCION AL SERVICIO -33-</string>
++    <!-- SPRD: modify for bug756390 -->
++    <string name="failcause_service_option_not_subscribed">Gprs no disponible verifique los servicios de red</string>
+ </resources>
+ 
+Index: vendor/sprd/platform/packages/apps/SprdContacts/src/com/sprd/contacts/BatchOperationService.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/src/com/sprd/contacts/BatchOperationService.java	(revision 182559)
++++ vendor/sprd/platform/packages/apps/SprdContacts/src/com/sprd/contacts/BatchOperationService.java	(revision 182560)
+@@ -220,7 +220,17 @@
+     }
+ 
+     public void onDestroy() {
+-        unregisterReceiver(mCallTaskReceiver);
++        /**
++         * SPRD:bug 737657 mCallTaskReceiver may is not register @{
++         *
++         **/
++        if (mCallTaskReceiver != null) {
++            unregisterReceiver(mCallTaskReceiver);
++            mCallTaskReceiver = null;
++        }
++        /**
++         * @}
++         **/
+     }
+ 
+     public boolean isRunning() {
+Index: vendor/sprd/platform/packages/apps/SprdStk/src/com/android/stk/StkAppService.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdStk/src/com/android/stk/StkAppService.java	(revision 182559)
++++ vendor/sprd/platform/packages/apps/SprdStk/src/com/android/stk/StkAppService.java	(revision 182560)
+@@ -884,18 +884,20 @@
+             }
+             /* @} */
+ 
+-            TextMessage msg = mStkContext[slotId].mCurrentCmd.geTextMessage();
+-            if (msg == null || msg.text == null || msg.text.length() == 0) {
+-                CatLog.d(this, "[stkapp] launchRefreshMsg is null");
+-                return;
++            if (Resources.getSystem().getBoolean(com.android.internal.R.bool.config_show_refresh_toast)) {
++                TextMessage msg = mStkContext[slotId].mCurrentCmd.geTextMessage();
++                if (msg == null || msg.text == null || msg.text.length() == 0) {
++                    CatLog.d(this, "[stkapp] launchRefreshMsg is null");
++                    return;
++                }
++                if(mToast != null){
++                    mToast.cancel();
++                }
++                mToast = Toast.makeText(mContext.getApplicationContext(), msg.text,
++                        Toast.LENGTH_LONG);
++                mToast.setGravity(Gravity.BOTTOM, 0, 0);
++                mToast.show();
+             }
+-            if(mToast != null){
+-                mToast.cancel();
+-            }
+-            mToast = Toast.makeText(mContext.getApplicationContext(), msg.text,
+-                    Toast.LENGTH_LONG);
+-            mToast.setGravity(Gravity.BOTTOM, 0, 0);
+-            mToast.show();
+         }
+         /* @} */
+ 
+Index: vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_60203.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_60203.xml	(revision 0)
++++ vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_60203.xml	(revision 182560)
+@@ -0,0 +1,21 @@
++<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
++
++<carrier_config_list>
++    <carrier_config network_preferred="true">
++        <string name="ecclist_nocard">122,123,180,129</string>
++        <string name="ecclist_withcard">122,123,180,129</string>
++    </carrier_config>
++    <!-- SPRD: add for bug749870 & 757344 @{ -->
++    <carrier_config network_preferred="true">
++        <int name="networkRATPrefer" value="2" />
++    </carrier_config>
++    <carrier_config>
++        <boolean name="support_send_ussd_over_vowifi" value="false"/>
++    </carrier_config>
++    <!-- @} -->
++    <!-- SPRD: add for bug754508 @{ -->
++    <carrier_config>
++        <boolean name="support_show_open_network_dialog" value="false"/>
++    </carrier_config>
++    <!-- @} -->
++</carrier_config_list>
+Index: vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_50216.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_50216.xml	(revision 0)
++++ vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_50216.xml	(revision 182560)
+@@ -0,0 +1,8 @@
++<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
++<carrier_config_list>
++    <!-- SPRD: add for bug757327 @{ -->
++    <carrier_config>
++        <boolean name="support_send_ussd_over_vowifi" value="false"/>
++    </carrier_config>
++    <!-- @} -->
++</carrier_config_list>
+Index: vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/sprd/providers/contacts/ContactAccountManager.java
+===================================================================
+--- vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/sprd/providers/contacts/ContactAccountManager.java	(revision 182559)
++++ vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/sprd/providers/contacts/ContactAccountManager.java	(revision 182560)
+@@ -87,7 +87,8 @@
+      */
+     /**
+      * SPRD:BUG 725374 monkey test,acore crash, asynchronous operation,mInitializationLatch may is null
+-     * SPRD:BUG 727216 it occured crash low probably for ConcurrentModificationException in auto test @{
++     * SPRD:BUG 727216 it occured crash low probably for ConcurrentModificationException in auto test
++     * SPRD:BUG 758318 it occured crash low probably for ConcurrentModificationException in auto test @{
+      */
+     private synchronized void loadAccountsInBackground() {
+         if (DEBUG)
+@@ -102,9 +103,9 @@
+                     mAccounts.add(account);
+                 }
+             }
++            if (DEBUG)
++                Log.v(TAG, "loadAccountsInBackground Account list: \n" + mAccounts);
+         }
+-        if (DEBUG)
+-            Log.v(TAG, "loadAccountsInBackground Account list: \n" + mAccounts);
+         // A initialization flag to indicate the accounts initialized.
+         if (mInitializationLatch != null) {
+             mInitializationLatch.countDown();
+Index: vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/GlobalConfigController.java
+===================================================================
+--- vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/GlobalConfigController.java	(revision 182559)
++++ vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/GlobalConfigController.java	(revision 182560)
+@@ -216,7 +216,7 @@
+         if (phoneCount != mGlobalConfig.length) {
+             return;
+         }
+-        int CONFIG_CHANGED_SUB = 2;
++        int CONFIG_CHANGED_SUB = 1;
+         if (intent != null) {
+             int configChangedType = intent.getIntExtra(CarrierConfigManagerEx.CARRIER_CONFIG_CHANGED_TYPE, -1);
+             if (configChangedType == CONFIG_CHANGED_SUB) {
+Index: vendor/sprd/platform/frameworks/base/telephony/java/android/telephony/CarrierConfigManagerEx.java
+===================================================================
+--- vendor/sprd/platform/frameworks/base/telephony/java/android/telephony/CarrierConfigManagerEx.java	(revision 182559)
++++ vendor/sprd/platform/frameworks/base/telephony/java/android/telephony/CarrierConfigManagerEx.java	(revision 182560)
+@@ -192,6 +192,11 @@
+     public static final String KEY_UT_FALLBACK_VOLTE =
+             "ut_fallback_volte";
+ 
++    // SPRD:add for Bug754508
++    public static final String KEY_SUPPORT_SHOW_NETWORK_DIALOG = "support_show_open_network_dialog";
++    // SPRD: add for bug757327
++    public static final String KEY_SUPPORT_SEND_USSD_OVER_VOWIFI = "support_send_ussd_over_vowifi";
++
+     // SPRD:add for Bug711538
+     public static final String KEY_CALL_FORWARD_SHOW_DIALOG = "call_forward_show_dialog";
+     /** The default value for every variable. */
+@@ -268,6 +273,10 @@
+         sDefaultsEx.putBoolean(KEY_CARRIER_SUPPORTS_VOWIFI_EMERGENCY_CALL, false);//SPRD:add for bug661370
+         sDefaultsEx.putString(KEY_UT_PRIORITY, "");
+         sDefaultsEx.putString(KEY_UT_FALLBACK_VOLTE, "");
++        // SPRD:add for Bug754508
++        sDefaultsEx.putBoolean(KEY_SUPPORT_SHOW_NETWORK_DIALOG, true);
++        // SPRD: add for bug757327
++        sDefaultsEx.putBoolean(KEY_SUPPORT_SEND_USSD_OVER_VOWIFI, true);
+         sDefaultsEx.putBoolean(KEY_CALL_FORWARD_SHOW_DIALOG, true); //SPRD:add for Bug711538
+         sDefaultsEx.putBoolean(KEY_LTE_NETWORK_MODE_EXCEPT_GSM,false);
+     }
+Index: vendor/sprd/platform/frameworks/base/core/res/res/values/config_ex.xml
+===================================================================
+--- vendor/sprd/platform/frameworks/base/core/res/res/values/config_ex.xml	(revision 182559)
++++ vendor/sprd/platform/frameworks/base/core/res/res/values/config_ex.xml	(revision 182560)
+@@ -52,6 +52,9 @@
+     <string-array name="hide_packages" translatable="false">
+         <item>com.sprd.opm</item>
+     </string-array>
++    <!-- SPRD: Add for sprd Stk feature begin -->
++    <bool name="config_show_refresh_toast">true</bool>
++    <!-- SPRD: Add for sprd Stk feature end -->
+     <string-array name="third_party_persistent_service_processes" translatable="false">
+     	<item>com.quanticapps.athan</item>
+     	<item>com.quanticapps.quranandroid</item>
+Index: vendor/sprd/platform/frameworks/base/core/res/res/values/symbols_ex.xml
+===================================================================
+--- vendor/sprd/platform/frameworks/base/core/res/res/values/symbols_ex.xml	(revision 182559)
++++ vendor/sprd/platform/frameworks/base/core/res/res/values/symbols_ex.xml	(revision 182560)
+@@ -71,6 +71,7 @@
+   <java-symbol type="array" name="hide_packages" />
+   <!-- SPRD: Add for sprd Stk feature begin -->
+   <java-symbol type="string" name="stk_refresh_sim_init_message" />
++  <java-symbol type="bool" name="config_show_refresh_toast"/>
+   <!-- SPRD: Add for sprd Stk feature end -->
+ 
+   <!--SPRD: used in AMS for cache protecting feature BEGIN-->
+Index: vendor/sprd/telephony-res/operatorname_overlay/frameworks/base/core/res/res/values/numeric_operator.xml
+===================================================================
+--- vendor/sprd/telephony-res/operatorname_overlay/frameworks/base/core/res/res/values/numeric_operator.xml	(revision 182559)
++++ vendor/sprd/telephony-res/operatorname_overlay/frameworks/base/core/res/res/values/numeric_operator.xml	(revision 182560)
+@@ -185,6 +185,8 @@
+         <item>4568=Metfone</item>
+         <item>6241=MTN CAM</item>
+         <item>6242=Orange</item>
++        <item>6243=Vodafone</item>
++        <item>6245=CAMTEL</item>
+         <item>302220=Telus</item>
+         <item>302221=Telus</item>
+         <item>302270=unknown</item>
+@@ -1063,8 +1065,8 @@
+         <item>2972=T-Mobile</item>
+         <item>2973=m:tel CG</item>
+         <item>2974=T-Mobile</item>
+-        <item>6040=Méditel</item>
+-        <item>6041=IAM</item>
++        <item>6040=Orange</item>
++        <item>6041=Maroc Telecom</item>
+         <item>6042=inwi</item>
+         <item>6045=INWI</item>
+         <item>6431=mCel</item>
+@@ -1439,7 +1441,7 @@
+         <item>5201=AIS</item>
+         <item>5202=CAT CDMA</item>
+         <item>5203=AIS</item>
+-        <item>5204=TRUE 3G+</item>
++        <item>5204=TRUE-H</item>
+         <!-- SPRD: add operator for bug278002 -->
+         <item>5205=DTAC</item>
+         <item>52010=\t</item>
+@@ -1447,7 +1449,7 @@
+         <item>52018=dtac</item>
+         <item>52023=AIS GSM 1800</item>
+         <item>52088=True Move H</item>
+-        <item>52099=True</item>
++        <item>52099=TRUE-H</item>
+         <item>6151=TG-TOGO CELL</item>
+         <item>6153=Moov</item>
+         <item>5391=U-CALL</item>
+Index: vendor/sprd/telephony-res/spn/spn-conf.xml
+===================================================================
+--- vendor/sprd/telephony-res/spn/spn-conf.xml	(revision 182559)
++++ vendor/sprd/telephony-res/spn/spn-conf.xml	(revision 182560)
+@@ -571,7 +571,7 @@
+ <spnOverride numeric="60302" spn="Djezzy"/>
+ <spnOverride numeric="60303" spn="Ooredoo"/>
+ <spnOverride numeric="60400" spn="MEDITEL"/>
+-<spnOverride numeric="60401" spn="IAM"/>
++<spnOverride numeric="60401" spn="Maroc Telecom"/>
+ <spnOverride numeric="60501" spn="Orange"/>
+ <spnOverride numeric="60502" spn="TUNTEL"/>
+ <spnOverride numeric="60503" spn="TUNISIANA"/>
+@@ -605,7 +605,7 @@
+ <spnOverride numeric="61501" spn="TG-TOGO CELL"/>
+ <!-- SPRD:modify for bug578392 -->
+ <spnOverride numeric="61503" spn="Etisalat Togo"/>
+-<spnOverride numeric="61602" spn="TLCL-BEN"/>
++<spnOverride numeric="61602" spn="Moov"/>
+ <spnOverride numeric="61603" spn="MTN"/>
+ <spnOverride numeric="61605" spn="GloBenin"/>
+ <spnOverride numeric="61701" spn="CELL +"/>
+@@ -632,6 +632,8 @@
+ <spnOverride numeric="62304" spn="NationLink"/>
+ <spnOverride numeric="62401" spn="MTN"/>
+ <spnOverride numeric="62402" spn="Orange CAM"/>
++<spnOverride numeric="62403" spn="Vodafone"/>
++<spnOverride numeric="62405" spn="CAMTEL"/>
+ <spnOverride numeric="62501" spn="CPV MOVEL"/>
+ <spnOverride numeric="62502" spn="CPV T+"/>
+ <spnOverride numeric="62601" spn="CSTmovel"/>
+@@ -659,7 +661,7 @@
+ <spnOverride numeric="63402" spn="MTN"/>
+ <spnOverride numeric="63405" spn="Vivacell"/>
+ <!-- SPRD:modify for bug578402 -->
+-<spnOverride numeric="63510" spn="MTN Rwanda"/>
++<spnOverride numeric="63510" spn="MTN"/>
+ <spnOverride numeric="63512" spn="RWTEL"/>
+ <spnOverride numeric="63513" spn="TIGO"/>
+ <spnOverride numeric="63601" spn="ET-MTN"/>
+Index: vendor/sprd/feature_configs/claro/overlay/vendor/sprd/platform/frameworks/base/core/res/res/values/config_ex.xml
+===================================================================
+--- vendor/sprd/feature_configs/claro/overlay/vendor/sprd/platform/frameworks/base/core/res/res/values/config_ex.xml	(revision 182559)
++++ vendor/sprd/feature_configs/claro/overlay/vendor/sprd/platform/frameworks/base/core/res/res/values/config_ex.xml	(revision 182560)
+@@ -3,4 +3,6 @@
+     <!-- SPRD: Add for stk-->
+     <add-resource name="config_showChannelConnecting" type="bool"/>
+     <bool name="config_showChannelConnecting">false</bool>
++    <add-resource name="config_show_refresh_toast" type="bool"/>
++    <bool name="config_show_refresh_toast">false</bool>
+ </resources>
+Index: vendor/sprd/proprietories-source/engmode/wifi_eut_sprd.c
+===================================================================
+--- vendor/sprd/proprietories-source/engmode/wifi_eut_sprd.c	(revision 182559)
++++ vendor/sprd/proprietories-source/engmode/wifi_eut_sprd.c	(revision 182560)
+@@ -227,8 +227,8 @@
+     goto ok;
+   }
+ #ifdef SPRD_WCN_MARLIN
+-  ret = system("wcnd_cli wcn poweron");
+-  ENG_LOG("ADL %s(), callED system(wcnd_cli wcn poweron), ret = %d", __func__,
++  ret = system("connmgr_cli wcn poweron");
++  ENG_LOG("ADL %s(), callED system(connmgr_cli wcn poweron), ret = %d", __func__,
+           ret);
+ #endif
+   ret = system("rmmod sprdwl.ko");
+@@ -324,8 +324,8 @@
+ #endif
+   system("rmmod sprdwl.ko");
+ #ifdef SPRD_WCN_MARLIN
+-  ret = system("wcnd_cli wcn poweroff ");
+-  ENG_LOG("ADL %s(), callED system(wcnd_cli wcn poweroff ), ret = %d", __func__,
++  ret = system("connmgr_cli wcn poweroff ");
++  ENG_LOG("ADL %s(), callED system(connmgr_cli wcn poweroff ), ret = %d", __func__,
+           ret);
+ #endif
+   memset(&g_wifi_data, 0, sizeof(WIFI_ELEMENT));
+@@ -2191,6 +2191,11 @@
+     goto err;
+   }
+ 
++  if (NULL == mac){
++    ENG_LOG("%s(), mac is null", __func__);
++    goto err;
++  }
++
+   /* parese mac as string if on_off is 1 */
+   if (1 == on_off) {
+     unsigned char len = 0;
+Index: vendor/sprd/proprietories-source/engmode/eng_cmd4linuxhdlr.c
+===================================================================
+--- vendor/sprd/proprietories-source/engmode/eng_cmd4linuxhdlr.c	(revision 182559)
++++ vendor/sprd/proprietories-source/engmode/eng_cmd4linuxhdlr.c	(revision 182560)
+@@ -1184,8 +1184,8 @@
+         goto out;
+       }
+       //enable wcn armlog
+-      system("wcnd_cli wcn poweron");
+-      system("wcnd_cli wcn at+armlog=1");
++      system("connmgr_cli wcn poweron");
++      system("connmgr_cli wcn at+armlog=1");
+     } else if(ptr_cmd[0] == '0') {
+       //notice slogmodem
+       if(notice_slogmodem(DISABLE_WCN_LOG_CMD) < 0) {
+@@ -1192,7 +1192,7 @@
+         goto out;
+       }
+       //disable wcn armlog
+-      system("wcnd_cli wcn at+armlog=0");
++      system("connmgr_cli wcn at+armlog=0");
+     } else {
+       ENG_LOG("%s: ERROR: invalid cmmond\n", __FUNCTION__);
+       goto out;
+Index: vendor/sprd/modules/libcamera/oem/src/cmr_fd_sprd.c
+===================================================================
+--- vendor/sprd/modules/libcamera/oem/src/cmr_fd_sprd.c	(revision 182559)
++++ vendor/sprd/modules/libcamera/oem/src/cmr_fd_sprd.c	(revision 182560)
+@@ -780,8 +780,6 @@
+     opt.angleFullProfile = FD_ANGLE_RANGE_30; // FD_ANGLE_NONE; for Bug 636739;
+     opt.detectDensity = 5;
+     opt.scoreThreshold = 0;
+-    opt.initFrames = 2;
+-    opt.detectFrames = 1;
+     opt.detectInterval = 6;
+     opt.trackDensity = 5;
+     opt.lostRetryCount = 1;
+Index: vendor/sprd/modules/libcamera/oem/Android.mk
+===================================================================
+--- vendor/sprd/modules/libcamera/oem/Android.mk	(revision 182559)
++++ vendor/sprd/modules/libcamera/oem/Android.mk	(revision 182560)
+@@ -99,83 +99,6 @@
+ 		endif
+ 	endif
+ 
+-# SPRD face detection
+-ifeq ($(strip $(TARGET_BOARD_CAMERA_FACE_DETECT)),true)
+-	ifeq ($(strip $(TARGET_BOARD_CAMERA_FD_LIB)),sprd)
+-	ifeq ($(strip $(TARGET_ARCH)),arm64)
+-		include $(CLEAR_VARS)
+-		LOCAL_MODULE := libsprdfd
+-		LOCAL_MODULE_CLASS := STATIC_LIBRARIES
+-		LOCAL_MULTILIB := both
+-		LOCAL_MODULE_STEM_32 := libsprdfd.a
+-		LOCAL_MODULE_STEM_64 := libsprdfd.a
+-		LOCAL_SRC_FILES_32 := ../arithmetic/sprdface/lib/armeabi-v7a/libsprdfd.a
+-		LOCAL_SRC_FILES_64 := ../arithmetic/sprdface/lib/arm64-v8a/libsprdfd.a
+-		LOCAL_MODULE_TAGS := optional
+-		include $(BUILD_PREBUILT)
+-
+-		# SPRD face alignment library
+-		include $(CLEAR_VARS)
+-		LOCAL_MODULE := libsprdfa
+-		LOCAL_MODULE_CLASS := STATIC_LIBRARIES
+-		LOCAL_MULTILIB := both
+-		LOCAL_MODULE_STEM_32 := libsprdfa.a
+-		LOCAL_MODULE_STEM_64 := libsprdfa.a
+-		LOCAL_SRC_FILES_32 := ../arithmetic/sprdface/lib/armeabi-v7a/libsprdfa.a
+-		LOCAL_SRC_FILES_64 := ../arithmetic/sprdface/lib/arm64-v8a/libsprdfa.a
+-		LOCAL_MODULE_TAGS := optional
+-		include $(BUILD_PREBUILT)
+-
+-		# SPRD face attribute recognition (smile detection) library
+-		include $(CLEAR_VARS)
+-		LOCAL_MODULE := libsprdfar
+-		LOCAL_MODULE_CLASS := STATIC_LIBRARIES
+-		LOCAL_MULTILIB := both
+-		LOCAL_MODULE_STEM_32 := libsprdfar.a
+-		LOCAL_MODULE_STEM_64 := libsprdfar.a
+-		LOCAL_SRC_FILES_32 := ../arithmetic/sprdface/lib/armeabi-v7a/libsprdfar.a
+-		LOCAL_SRC_FILES_64 := ../arithmetic/sprdface/lib/arm64-v8a/libsprdfar.a
+-		LOCAL_MODULE_TAGS := optional
+-		include $(BUILD_PREBUILT)
+-	else
+-		include $(CLEAR_VARS)
+-		LOCAL_MODULE := libsprdfd
+-		LOCAL_SRC_FILES := ../arithmetic/sprdface/lib/armeabi-v7a/libsprdfd.a
+-		LOCAL_MODULE_TAGS := optional
+-		include $(PREBUILT_STATIC_LIBRARY)
+-
+-		include $(CLEAR_VARS)
+-		LOCAL_PREBUILT_LIBS := ../arithmetic/sprdface/lib/armeabi-v7a/libsprdfd.a
+-		LOCAL_MODULE_TAGS := optional
+-		include $(BUILD_MULTI_PREBUILT)
+-
+-		# SPRD face alignment library
+-		include $(CLEAR_VARS)
+-		LOCAL_MODULE := libsprdfa
+-		LOCAL_SRC_FILES := ../arithmetic/sprdface/lib/armeabi-v7a/libsprdfa.a
+-		LOCAL_MODULE_TAGS := optional
+-		include $(PREBUILT_STATIC_LIBRARY)
+-
+-		include $(CLEAR_VARS)
+-		LOCAL_PREBUILT_LIBS := ../arithmetic/sprdface/lib/armeabi-v7a/libsprdfa.a
+-		LOCAL_MODULE_TAGS := optional
+-		include $(BUILD_MULTI_PREBUILT)
+-
+-		# SPRD face attribute recognition (smile detection) library
+-		include $(CLEAR_VARS)
+-		LOCAL_MODULE := libsprdfar
+-		LOCAL_SRC_FILES := ../arithmetic/sprdface/lib/armeabi-v7a/libsprdfar.a
+-		LOCAL_MODULE_TAGS := optional
+-		include $(PREBUILT_STATIC_LIBRARY)
+-
+-		include $(CLEAR_VARS)
+-		LOCAL_PREBUILT_LIBS := ../arithmetic/sprdface/lib/armeabi-v7a/libsprdfar.a
+-		LOCAL_MODULE_TAGS := optional
+-		include $(BUILD_MULTI_PREBUILT)
+-	endif # end TARGET_ARCH
+-	endif # end TARGET_BOARD_CAMERA_FD_LIB
+-endif
+-
+ 	ifeq ($(strip $(TARGET_BOARD_CAMERA_HDR_CAPTURE)),true)
+                 ifeq ($(strip $(TARGET_ARCH)),arm64)
+                         include $(CLEAR_VARS)
+Index: vendor/sprd/modules/wcn/wlan/driver/sdio.c
+===================================================================
+--- vendor/sprd/modules/wcn/wlan/driver/sdio.c	(revision 182559)
++++ vendor/sprd/modules/wcn/wlan/driver/sdio.c	(revision 182560)
+@@ -97,6 +97,8 @@
+ 		dev_err(&sdev->pdev->dev,
+ 			"%s err:%s too long:%d > %d,drop it\n",
+ 			__func__, info, msg->len, len);
++		WARN_ON(1);
++		dev_kfree_skb(msg->skb);
+ 		sprdwl_free_msg_buf(msg, msg->msglist);
+ 		return 0;
+ 	}
+Index: vendor/sprd/modules/wcn/connconfig/marlin2/sp9850ka_2c30/connectivity_calibration.ini
+===================================================================
+--- vendor/sprd/modules/wcn/connconfig/marlin2/sp9850ka_2c30/connectivity_calibration.ini	(revision 0)
++++ vendor/sprd/modules/wcn/connconfig/marlin2/sp9850ka_2c30/connectivity_calibration.ini	(revision 182560)
+@@ -0,0 +1,130 @@
++[SETCTION 0]
++#-----------------------------------------------------------------
++# Marlin2 cali Version info
++#-----------------------------------------------------------------
++cali_version = 1
++
++[SETCTION 1]
++#-----------------------------------------------------------------
++# Calibration Config
++#-----------------------------------------------------------------
++is_calibrated   = 1
++rc_cali_en      = 1
++dcoc_cali_en    = 1
++txiq_cali_en    = 1
++rxiq_cali_en    = 1
++txpower_cali_en = 1
++dpd_cali_en     = 1
++config_reserved = -85, -59, 20, 10
++
++[SETCTION 2]
++#-----------------------------------------------------------------
++# rc calibration data
++#-----------------------------------------------------------------
++rctune_value    = 0x7f
++rc_cali_reserved= -67, 0x0
++
++[SETCTION 3]
++#-----------------------------------------------------------------
++# doco calibration data
++#-----------------------------------------------------------------
++dcoc_cali_code    = 0x80a, 0x7fa, 0x80e, 0x7fa, 0x80a, 0x7fe, 0x7fa, 0x7fe, 0x802, 0x7fa, 0x802, 0x806, 0x802, 0x802, 0x802, 0x7fe, 0x7fe, 0x802
++dcoc_reserved   = 0x0, 0x0, 0x0, 0x0
++
++[SETCTION 4]
++#-----------------------------------------------------------------
++# txiq calibration data
++#-----------------------------------------------------------------
++rf_txiq_c11     = 0xfe3
++rf_txiq_c12     = 0xffffffed
++rf_txiq_c22     = 0x101d
++rf_txiq_dc      = 0xc00d
++txiq_reserved   = 0x0, 0x0, 0x0, 0x0
++
++[SETCTION 5]
++#-----------------------------------------------------------------
++# rxiq calibration data
++#-----------------------------------------------------------------
++rf_rxiq_coef21_22   = 0xff5041d
++rf_rxiq_coef11_12   = 0x4000000
++rxiq_reserved       = 0x0, 0x0
++
++[SETCTION 6]
++#-----------------------------------------------------------------
++# txpower calibration data
++#-----------------------------------------------------------------
++txpower_psat_temperature   = 0
++txpower_psat_gainindex   = 11
++txpower_psat_power   = 2800
++txpower_psat_backoff   = -15
++txpower_psat_upper_limit   = 1
++txpower_psat_lower_limit   = 50
++txpower_freq_delta_gainindex = -2, 1, 2, 1, 0, 0, -1, -1, 0, 1, 1, 1, 0, 0
++txpower_psat_11b_backoff = 1
++txpower_psat_11g_backoff = 0
++txpower_psat_11n_backoff = 0
++txpower_sar_11b_backoff = 0
++txpower_sar_11g_backoff = 0
++txpower_sar_11n_backoff = 0
++txpower_countrycode_11b_backoff = 0
++txpower_countrycode_11g_backoff = 0
++txpower_countrycode_11n_backoff = 0
++g_txpower_npi_set = 0
++txpower_gain_mapping_flag    = 0
++txpower_gain_mapping_table1  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table2  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table3  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table4  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table5  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table6  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table7  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table8  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table9  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table10 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table11 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table12 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table13 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table14 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_compensation_flag = 0
++txpower_subcarries_channel1  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel2  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel3  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel4  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel5  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel6  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel7  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel8  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel9  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel10 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel11 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel12 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel13 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel14 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_psat_trace_value = 0, 0, 0, 0
++txpower_reserved = 0, 0, 0, 0
++c_pad = 0, 0, 0
++[SETCTION 7]
++#-----------------------------------------------------------------
++# DPD calibration data
++#-----------------------------------------------------------------
++dpd_cali_channel_num   = 0
++dpd_cali_channel   = 3, 8, 13
++dpd_mod_switch_flag = 0
++dpd_npi_cali_flag = 0
++channel1_dpd_cali_table = 0x4000fff9, 0x4000fff9, 0x4007fffc, 0x40baffec, 0x40b8000a, 0x41ba0021, 0x41ca0051, 0x4247005b, 0x430b0099, 0x42f700d0, 0x432f00e7, 0x43bb00ba, 0x440100fd, 0x442d0138, 0x44830147, 0x44cd0175, 0x448c018a, 0x44d301a3, 0x451e01d6, 0x454801cf, 0x456801d0, 0x4552022f, 0x459f0233, 0x45920243, 0x45a5025a, 0x45c90262, 0x45eb0272, 0x4608029f, 0x463c02a4, 0x465b02b0, 0x464702c4, 0x467502b7, 0x468302d4, 0x46a102b9, 0x46ad02da, 0x46cc02ed, 0x46eb02e4, 0x46f802f6, 0x47250302, 0x4740030b, 0x471b0313, 0x474d0317, 0x4756031c, 0x478b031b, 0x47880323, 0x4785031d, 0x479f0312, 0x47bd031a, 0x47ba0314, 0x47b30308, 0x47990317, 0x47ae031e, 0x47be0319, 0x47a80316, 0x47a20305, 0x47830309, 0x47960313, 0x47a30306, 0x478e030d, 0x477502fd, 0x479b02f5, 0x47a502dd, 0x47a702d9, 0x47a002d6, 0x47be02d2, 0x479802c1, 0x479802b5, 0x479f02a1, 0x47a0029c, 0x47850290, 0x47900281, 0x479e0272, 0x47730266, 0x477d0254, 0x4775024f, 0x47550225, 0x47620217, 0x475f0211, 0x472901ff, 0x473901ed, 0x472d01d1, 0x471401c0, 0x46e9019c, 0x46e201ac, 0x46cb019d, 0x46c50188, 0x46ab017d, 0x4694016c, 0x466f017a, 0x4668015a, 0x46520146, 0x46440149, 0x4632013f, 0x46110135, 0x46070131, 0x46000121, 0x45ed0110, 0x45f000f5, 0x45c300f1, 0x45b600dd, 0x45b400bc, 0x459600b5, 0x459600ab, 0x457400a0, 0x45660088, 0x45570081, 0x45430077, 0x45220055, 0x45150045, 0x45180038, 0x45080036, 0x44d10026, 0x44dc001f, 0x44bb0023, 0x44b40006, 0x44a5fff9, 0x448cffeb, 0x4469ffdc, 0x4465ffd9, 0x444bffcc, 0x442bffce, 0x440effbf, 0x440bffc3, 0x43e3ffb5, 0x43d4ffb1, 0x43b7ffaf, 0x439eff9b, 0x438fff9b, 0x436fff7a, 0x436aff79, 0x434cff7a, 0x4338ff72, 0x4331ff60, 0x4322ff67, 0x4307ff65, 0x42f1ff57, 0x42d6ff50, 0x42c9ff4e, 0x42c0ff45, 0x42b0ff3f, 0x4285ff44, 0x4291ff31, 0x4265ff41, 0x425eff36, 0x424bff36, 0x4250ff3a, 0x422aff33, 0x420eff2d, 0x4204ff26, 0x41deff3a, 0x41cfff3e, 0x41caff34, 0x41a2ff30, 0x41a4ff41, 0x4185ff41, 0x416aff42, 0x416dff48, 0x414cff48, 0x4142ff5c, 0x412eff61, 0x4120ff5b, 0x4117ff5e, 0x40f9ff65, 0x40eeff6b, 0x40e3ff6c, 0x40cfff7e, 0x40bbff7b, 0x40afff83, 0x40aaff85, 0x409bff99, 0x4089ff9b, 0x4074ff9c, 0x4065ffa5, 0x404effb3, 0x404cffba, 0x4037ffc6, 0x4024ffc9, 0x4023ffd0, 0x4008ffdb, 0x4009ffdf, 0x3ffefffe, 0x3fff0000
++channel2_dpd_cali_table = 0x4008ffb9, 0x4008ffb9, 0x4020ffec, 0x40f0ffe8, 0x41090049, 0x41d5007b, 0x4228007d, 0x42af007a, 0x435400fc, 0x4366015b, 0x43f0017b, 0x44560160, 0x44d1018c, 0x44ef01dd, 0x45430236, 0x45b50222, 0x45dd0255, 0x46220288, 0x467202be, 0x468b02d1, 0x46b402f7, 0x46fe033b, 0x475a033e, 0x475a0368, 0x476b039a, 0x479503da, 0x47ac03f6, 0x47c60402, 0x47f90428, 0x4833043c, 0x4833044d, 0x48740469, 0x48ad0477, 0x48b9048d, 0x48cf04b1, 0x48fc04ae, 0x490404c8, 0x491d04d0, 0x494b04dd, 0x496204e7, 0x496804ef, 0x499604fa, 0x49b804f1, 0x49e004ff, 0x49f204f9, 0x49fc04f1, 0x4a0404fc, 0x4a2904ee, 0x4a1304e3, 0x4a2304d9, 0x4a3904d5, 0x4a4304d1, 0x4a5d04d1, 0x4a4e04c2, 0x4a5004c5, 0x4a4804c5, 0x4a6004b2, 0x4a5d04a4, 0x4a56049b, 0x4a350488, 0x4a4f0480, 0x4a40047b, 0x4a390472, 0x4a2f045b, 0x4a33044a, 0x4a06043c, 0x4a0c0433, 0x4a080409, 0x4a070401, 0x49e603fd, 0x49fa03db, 0x49f103ae, 0x49d303b5, 0x49d5039f, 0x49d40377, 0x499f0364, 0x49a7034f, 0x498e033f, 0x49720341, 0x495f0323, 0x495a030c, 0x494402ff, 0x492702da, 0x491302ca, 0x490302a8, 0x48ff0292, 0x48eb028a, 0x48c4026a, 0x48ab0252, 0x487e024a, 0x4877023a, 0x485b0232, 0x48420216, 0x482601fb, 0x480201e8, 0x47e901dd, 0x47b701c3, 0x479c01a5, 0x4782019e, 0x4762018e, 0x4759016a, 0x473c015c, 0x472a0156, 0x47030141, 0x46dd0130, 0x46dc0112, 0x46c00106, 0x469b00f9, 0x467600d5, 0x467200cb, 0x465500b8, 0x463600ae, 0x462d009e, 0x45fc0093, 0x45f40084, 0x45dc0087, 0x45bd006b, 0x4593005d, 0x45920041, 0x45780037, 0x45650033, 0x455c0031, 0x453d0026, 0x4519001e, 0x450d0017, 0x44e10001, 0x44da0000, 0x44aefffc, 0x448affe2, 0x4479fffd, 0x4466ffda, 0x4459ffd5, 0x443effd9, 0x4414ffe9, 0x43f7ffde, 0x43e4ffdf, 0x43c0ffd8, 0x43adffd5, 0x4398ffd0, 0x4393ffcf, 0x4368ffd0, 0x4356ffc6, 0x4336ffd0, 0x432affc1, 0x430effcd, 0x42fcffbb, 0x42deffcd, 0x42ceffc4, 0x42b6ffd4, 0x429dffcc, 0x428cffc7, 0x4271ffbe, 0x424bffce, 0x4246ffb3, 0x4236ffc7, 0x4219ffc1, 0x420effc5, 0x41f9ffbe, 0x41eaffbb, 0x41d5ffc6, 0x41b7ffc3, 0x41a1ffcc, 0x418effd3, 0x4183ffdb, 0x4168ffe0, 0x4146ffe4, 0x4136ffde, 0x411fffef, 0x4114ffe4, 0x40f3fff2, 0x40d8fffc, 0x40b6fffb, 0x40a70003, 0x40930004, 0x408b0003, 0x4081000c, 0x405e0010, 0x40510014, 0x40400009, 0x401d0010, 0x3fff0004, 0x3fff0000
++channel3_dpd_cali_table = 0x4000fffe, 0x4000fffe, 0x4000ffff, 0x408fffec, 0x4098001e, 0x412b0056, 0x414d0081, 0x41a60097, 0x422900ba, 0x42640134, 0x427d014e, 0x42af0177, 0x4316017e, 0x434101a1, 0x437801de, 0x43bf01df, 0x43c20216, 0x4423021d, 0x44660258, 0x44890284, 0x448302a2, 0x449f02d5, 0x44dd02f2, 0x44f2030e, 0x4513031f, 0x452b034d, 0x45350378, 0x453803a3, 0x455403cc, 0x458403cb, 0x456203ff, 0x459503f7, 0x45a8041f, 0x45c40426, 0x45ec0447, 0x460b0456, 0x46140475, 0x462c047d, 0x4656048a, 0x46730498, 0x465d0495, 0x46870499, 0x469504ac, 0x46ad04b5, 0x46c704be, 0x46cd04ce, 0x46e504c9, 0x470d04de, 0x470c04ed, 0x471504f8, 0x471c04fd, 0x47220503, 0x474e04f9, 0x474d04f3, 0x475e04ea, 0x475704f0, 0x477304ee, 0x477c04dc, 0x477c04db, 0x476904d3, 0x479304d4, 0x478f04c8, 0x479204c8, 0x479704ba, 0x479904b4, 0x477604af, 0x477c04ab, 0x4781049f, 0x47760496, 0x47510484, 0x47630476, 0x475f0473, 0x4747045f, 0x47470460, 0x47430452, 0x471d0434, 0x47370425, 0x472c0415, 0x47160409, 0x471203eb, 0x470f03e3, 0x470403ce, 0x46e903c1, 0x46e503a5, 0x46ca039a, 0x46d4038a, 0x46c20379, 0x46b0035d, 0x46970345, 0x46870323, 0x46750314, 0x467002fc, 0x465802ed, 0x464e02d6, 0x463402c9, 0x463002b5, 0x461502a0, 0x46080288, 0x45e80273, 0x45d50266, 0x45d5024a, 0x45b1023f, 0x45a3022f, 0x457d020e, 0x456c0203, 0x456301f8, 0x454f01df, 0x452a01d2, 0x451101c3, 0x450301b8, 0x44f301a5, 0x44d40194, 0x44cc0182, 0x44aa0179, 0x44a60169, 0x44980166, 0x447c0164, 0x445b0153, 0x44520153, 0x44400143, 0x44300143, 0x441b0127, 0x440d011e, 0x43f4010d, 0x43ed00fe, 0x43d300f7, 0x43bc00e9, 0x43ad00e4, 0x439d00de, 0x438d00c9, 0x437600bc, 0x436600c1, 0x435d00ba, 0x433e00aa, 0x432f00a5, 0x433200a4, 0x4309009a, 0x42f80088, 0x42f00082, 0x42e40085, 0x42be0080, 0x42b1007b, 0x428c0068, 0x4284006a, 0x4273006a, 0x42610060, 0x424e0054, 0x4243004c, 0x42230047, 0x420a004b, 0x41f60047, 0x41da0041, 0x41cf0042, 0x41c4003b, 0x41aa0038, 0x419b0038, 0x4186003e, 0x416e002a, 0x41610031, 0x4149002e, 0x41360034, 0x412b002f, 0x411b0031, 0x4119003b, 0x40fa0028, 0x40e50026, 0x40d60026, 0x40d10027, 0x40c8002b, 0x40ab0027, 0x40a00028, 0x4083002d, 0x40810023, 0x40750022, 0x405e0025, 0x40440022, 0x4029001c, 0x402a0015, 0x4010001c, 0x4010001c, 0x3fff0003, 0x3fff0000
++dpd_reserved   = 0x0, 0x0, 0x0, 0x0
++[SETCTION 8]
++#-----------------------------------------------------------------
++# RF parameters data
++#-----------------------------------------------------------------
++rf_ctune = 7, 7, 7, 7, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5
++rf_reserved = 0xFE, 0x8, 1, 1
++
++[SETCTION 9]
++#-----------------------------------------------------------------
++# TPC Configuration data
++#-----------------------------------------------------------------
++tpc_cfg = 0x0, 0xc4256de, 0xb9215be, 0xdbaf1ee, 0xc4256de, 0x114caae6, 0x114bb524, 0xdbaf1ee, 0xdba56de, 0xf6bb524, 0xf6b4dec, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1c8095f, 0x1c8095f, 0x1c8095f, 0x1c8095f, 0x1c8095f, 0x1c8095f, 0x1c8095f, 0x1c8095f, 0x1c8095f, 0x1c8095f, 0x1c8095f, 0x1c8095f, 0x1c8095f
++tpc_reserved = 0x0, 0x0, 0x0, 0x0
+Index: vendor/sprd/modules/wcn/connconfig/marlin2/sp9850ka_2c30/connectivity_configure.ini
+===================================================================
+--- vendor/sprd/modules/wcn/connconfig/marlin2/sp9850ka_2c30/connectivity_configure.ini	(revision 0)
++++ vendor/sprd/modules/wcn/connconfig/marlin2/sp9850ka_2c30/connectivity_configure.ini	(revision 182560)
+@@ -0,0 +1,174 @@
++[SETCTION 0]
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++# Marlin config Version info
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++conf_version = 1
++
++[SETCTION 1]
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++# wifi TX Power  tx power control
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++data_rate_power = 1
++channel_num = 3
++channel_range = 1, 5, 6, 9, 10, 13   #range1:ch1~ch5,range2:ch6~ch9,range3:ch10~ch13
++b_tx_power_dr0= 3, 3, 3           #(1M,2M)
++b_tx_power_dr1= 3, 3, 3           #(5.5,11M)
++
++g_tx_power_dr0 = 0, 0, 0          #(6/9M)
++g_tx_power_dr1 = 3, 3, 3          #(12/18M)
++g_tx_power_dr2 = 3, 3, 3          #(24/36M)
++g_tx_power_dr3 = 3, 3, 3          #(48/54M)
++
++n_tx_power_dr0 = 3, 3, 3          #(MCS0/1)
++n_tx_power_dr1 = 3, 3, 3          #(MCS2/3)
++n_tx_power_dr2 = 3, 3, 3          #(MCS4/5)
++n_tx_power_dr3 = 3, 3, 3          #(MCS6/7)
++
++power_reserved = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++
++[SETCTION 2]
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++# wifi PHY/RF reg init
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++phy0_init_num = 2
++init_phy0_regs = 0x569F, 0x57E3, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
++
++phy1_init_num = 0
++init_phy1_regs = 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
++
++RF_init_num =0
++init_rf_regs = 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
++
++reserved_w16_num = 0
++reserved_w16_regs = 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
++
++reserved_w32_num = 0
++reserved_w32_regs = 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
++
++[SETCTION 3]
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++# wifi enhance config
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++tpc_enable = 0
++power_save_key = 0
++enhance_reserved = 0, 0, 0, 0
++
++[SETCTION 4]
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++# Wifi/BT/lte coex config
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++CoexExcutionMode = 0
++CoexWifiScanCntPerChannel = 4
++CoexWifiScanDurationOneTime = 20
++CoexScoPeriodsToBlockDuringDhcp = 1
++CoexA2dpDhcpProtectLevel = 1
++CoexScoperiodsToBlockDuringEap = 1
++CoexA2dpEapProtectLevel = 1
++CoexScoPeriodsToBlockDuringWifiJoin = 1
++CoexA2dpWifiJoinProtectLevel = 1
++CoexEnterPMStateTime = 15
++CoexAclA2dpBtWorkTime = 50
++CoexAclA2dpWifiWorkTime = 40
++CoexAclNoA2dpBtWorkTime = 40
++CoexAclNoA2dpWifiWorkTime = 50
++CoexAclMixBtWorkTime = 60
++CoexAclMixWifiWorkTime = 30
++CoexPageInqBtWorkTime = 400
++CoexPageInqWifiWorkTime = 100
++CoexScoSchema = 1
++CoexDynamicScoSchemaEnable = 1
++CoexScoPeriodsBtTakeAll = 5
++CoexLteTxAdvancedTime = 1500
++CoexLteOneSubFrameLen = 1000
++CoexLteTxTimerLen = 800
++CoexLteTxTimerFrameHeadLen = 200
++CoexLteStrategyFlag = 15
++CoexWifiDegradePowerValue = 0
++CoexBtDegradePowerValue = 0
++CoexWifi2300TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexWifi2310TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexWifi2320TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexWifi2330TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexWifi2340TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexWifi2350TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexWifi2360TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexWifi2370TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexWifi2380TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexWifi2390TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexWifi2400TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2300 = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2310 = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2320 = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2330 = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2340 = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2350 = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2360 = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2370 = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2380 = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2390 = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2400 = 0, 0, 0, 0, 0, 0, 0
++CoexReserved = 1, 1,3000,407, 412, 462, 500, 100, 0, 0, 0, 400, 112, 250, 0, 0
++
++[SETCTION 5]
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++# Wifi&BT public config
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++public_reserved = 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
++
++[SETCTION 6]
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++# Bluetooth pskey for marlin
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++pskey_cmd = 0x001C0101 #
++g_dbg_source_sink_syn_test_data = 0
++g_sys_sleep_in_standby_supported = 1
++g_sys_sleep_master_supported = 1
++g_sys_sleep_slave_supported = 1
++
++default_ahb_clk = 26000000
++device_class = 0x001F00
++win_ext = 30
++
++g_aGainValue = 0x0000F600, 0x0000D000, 0x0000AA00, 0x00008400, 0x00004400, 0x00000A00
++g_aPowerValue = 0x8A200000, 0x8A1A0000, 0x8A140000, 0x8A0E0000, 0x8A080000
++g_aBRChannelpwrvalue = 0x8A070000, 0x8A070000, 0x8A080000, 0x8A070000, 0x8A050000, 0x8A050000, 0x8A050000, 0x8A050000
++g_aEDRChannelpwrvalue = 0x8A070000, 0x8A070000, 0x8A080000, 0x8A070000, 0x8A050000, 0x8A050000, 0x8A050000, 0x8A050000
++g_aLEPowerControlFlag = 0xFFFF
++g_aLEChannelpwrvalue = 0x0B7C, 0x0B7C, 0x0B7C, 0x0B7C, 0x0B7C, 0x0B7C, 0x0B7C, 0x0B7C
++g_central_or_peripheral = 0x00
++
++feature_set = 0xFF, 0xFF, 0x8D, 0xFE, 0xDB, 0x7D, 0x7B, 0x83, 0xFF, 0xA7, 0xFF, 0x7F, 0x00, 0xE0, 0xF7, 0x3E
++device_addr = 0x6D, 0x6D, 0x8E, 0x8E, 0x8F, 0x8F
++
++g_sys_sco_transmit_mode = 0 #true tramsmit by uart, otherwise by share memory
++g_sys_uart0_communication_supported = 1 #true use uart0, otherwise use uart1 for debug
++edr_tx_edr_delay = 5
++edr_rx_edr_delay = 14
++
++g_wbs_nv_117 = 0x007C
++
++is_wdg_supported = 0
++
++share_memo_rx_base_addr = 0
++#share_memo_tx_base_addr = 0
++g_wbs_nv_118 = 0x0076
++g_nbv_nv_117 = 0x10F9
++
++share_memo_tx_packet_num_addr = 1
++share_memo_tx_data_base_addr = 0
++
++g_PrintLevel = 0xFFFFFFFF
++
++share_memo_tx_block_length = 0
++share_memo_rx_block_length = 0
++share_memo_tx_water_mark = 0
++#share_memo_tx_timeout_value = 0
++g_nbv_nv_118 = 0x0A55
++
++uart_rx_watermark = 48
++uart_flow_control_thld = 63
++
++comp_id = 0x01EC
++pcm_clk_divd = 0x26
++br_edr_diff_reserved = 0xFFFF
++bt_reserved = 0, 0, 0, 0, 0, 0, 0, 0
+Index: vendor/sprd/modules/wcn/connconfig/marlin2/sp9850ka_2c40/connectivity_calibration.ini
+===================================================================
+--- vendor/sprd/modules/wcn/connconfig/marlin2/sp9850ka_2c40/connectivity_calibration.ini	(revision 0)
++++ vendor/sprd/modules/wcn/connconfig/marlin2/sp9850ka_2c40/connectivity_calibration.ini	(revision 182560)
+@@ -0,0 +1,130 @@
++[SETCTION 0]
++#-----------------------------------------------------------------
++# Marlin2 cali Version info
++#-----------------------------------------------------------------
++cali_version = 1
++
++[SETCTION 1]
++#-----------------------------------------------------------------
++# Calibration Config
++#-----------------------------------------------------------------
++is_calibrated   = 1
++rc_cali_en      = 1
++dcoc_cali_en    = 1
++txiq_cali_en    = 1
++rxiq_cali_en    = 1
++txpower_cali_en = 1
++dpd_cali_en     = 1
++config_reserved = -85, -59, 20, 10
++
++[SETCTION 2]
++#-----------------------------------------------------------------
++# rc calibration data
++#-----------------------------------------------------------------
++rctune_value    = 0x7f
++rc_cali_reserved= -67, 0x0
++
++[SETCTION 3]
++#-----------------------------------------------------------------
++# doco calibration data
++#-----------------------------------------------------------------
++dcoc_cali_code    = 0x80a, 0x7fa, 0x80e, 0x7fa, 0x80a, 0x7fe, 0x7fa, 0x7fe, 0x802, 0x7fa, 0x802, 0x806, 0x802, 0x802, 0x802, 0x7fe, 0x7fe, 0x802
++dcoc_reserved   = 0x0, 0x0, 0x0, 0x0
++
++[SETCTION 4]
++#-----------------------------------------------------------------
++# txiq calibration data
++#-----------------------------------------------------------------
++rf_txiq_c11     = 0xfe3
++rf_txiq_c12     = 0xffffffed
++rf_txiq_c22     = 0x101d
++rf_txiq_dc      = 0xc00d
++txiq_reserved   = 0x0, 0x0, 0x0, 0x0
++
++[SETCTION 5]
++#-----------------------------------------------------------------
++# rxiq calibration data
++#-----------------------------------------------------------------
++rf_rxiq_coef21_22   = 0xff5041d
++rf_rxiq_coef11_12   = 0x4000000
++rxiq_reserved       = 0x0, 0x0
++
++[SETCTION 6]
++#-----------------------------------------------------------------
++# txpower calibration data
++#-----------------------------------------------------------------
++txpower_psat_temperature   = 0
++txpower_psat_gainindex   = 11
++txpower_psat_power   = 2800
++txpower_psat_backoff   = -15
++txpower_psat_upper_limit   = 1
++txpower_psat_lower_limit   = 50
++txpower_freq_delta_gainindex = -2, 1, 2, 1, 0, 0, -1, -1, 0, 1, 1, 1, 0, 0
++txpower_psat_11b_backoff = 1
++txpower_psat_11g_backoff = 0
++txpower_psat_11n_backoff = 0
++txpower_sar_11b_backoff = 0
++txpower_sar_11g_backoff = 0
++txpower_sar_11n_backoff = 0
++txpower_countrycode_11b_backoff = 0
++txpower_countrycode_11g_backoff = 0
++txpower_countrycode_11n_backoff = 0
++g_txpower_npi_set = 0
++txpower_gain_mapping_flag    = 0
++txpower_gain_mapping_table1  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table2  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table3  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table4  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table5  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table6  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table7  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table8  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table9  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table10 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table11 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table12 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table13 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_gain_mapping_table14 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_compensation_flag = 0
++txpower_subcarries_channel1  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel2  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel3  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel4  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel5  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel6  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel7  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel8  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel9  = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel10 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel11 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel12 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel13 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_subcarries_channel14 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++txpower_psat_trace_value = 0, 0, 0, 0
++txpower_reserved = 0, 0, 0, 0
++c_pad = 0, 0, 0
++[SETCTION 7]
++#-----------------------------------------------------------------
++# DPD calibration data
++#-----------------------------------------------------------------
++dpd_cali_channel_num   = 0
++dpd_cali_channel   = 3, 8, 13
++dpd_mod_switch_flag = 0
++dpd_npi_cali_flag = 0
++channel1_dpd_cali_table = 0x4000fff9, 0x4000fff9, 0x4007fffc, 0x40baffec, 0x40b8000a, 0x41ba0021, 0x41ca0051, 0x4247005b, 0x430b0099, 0x42f700d0, 0x432f00e7, 0x43bb00ba, 0x440100fd, 0x442d0138, 0x44830147, 0x44cd0175, 0x448c018a, 0x44d301a3, 0x451e01d6, 0x454801cf, 0x456801d0, 0x4552022f, 0x459f0233, 0x45920243, 0x45a5025a, 0x45c90262, 0x45eb0272, 0x4608029f, 0x463c02a4, 0x465b02b0, 0x464702c4, 0x467502b7, 0x468302d4, 0x46a102b9, 0x46ad02da, 0x46cc02ed, 0x46eb02e4, 0x46f802f6, 0x47250302, 0x4740030b, 0x471b0313, 0x474d0317, 0x4756031c, 0x478b031b, 0x47880323, 0x4785031d, 0x479f0312, 0x47bd031a, 0x47ba0314, 0x47b30308, 0x47990317, 0x47ae031e, 0x47be0319, 0x47a80316, 0x47a20305, 0x47830309, 0x47960313, 0x47a30306, 0x478e030d, 0x477502fd, 0x479b02f5, 0x47a502dd, 0x47a702d9, 0x47a002d6, 0x47be02d2, 0x479802c1, 0x479802b5, 0x479f02a1, 0x47a0029c, 0x47850290, 0x47900281, 0x479e0272, 0x47730266, 0x477d0254, 0x4775024f, 0x47550225, 0x47620217, 0x475f0211, 0x472901ff, 0x473901ed, 0x472d01d1, 0x471401c0, 0x46e9019c, 0x46e201ac, 0x46cb019d, 0x46c50188, 0x46ab017d, 0x4694016c, 0x466f017a, 0x4668015a, 0x46520146, 0x46440149, 0x4632013f, 0x46110135, 0x46070131, 0x46000121, 0x45ed0110, 0x45f000f5, 0x45c300f1, 0x45b600dd, 0x45b400bc, 0x459600b5, 0x459600ab, 0x457400a0, 0x45660088, 0x45570081, 0x45430077, 0x45220055, 0x45150045, 0x45180038, 0x45080036, 0x44d10026, 0x44dc001f, 0x44bb0023, 0x44b40006, 0x44a5fff9, 0x448cffeb, 0x4469ffdc, 0x4465ffd9, 0x444bffcc, 0x442bffce, 0x440effbf, 0x440bffc3, 0x43e3ffb5, 0x43d4ffb1, 0x43b7ffaf, 0x439eff9b, 0x438fff9b, 0x436fff7a, 0x436aff79, 0x434cff7a, 0x4338ff72, 0x4331ff60, 0x4322ff67, 0x4307ff65, 0x42f1ff57, 0x42d6ff50, 0x42c9ff4e, 0x42c0ff45, 0x42b0ff3f, 0x4285ff44, 0x4291ff31, 0x4265ff41, 0x425eff36, 0x424bff36, 0x4250ff3a, 0x422aff33, 0x420eff2d, 0x4204ff26, 0x41deff3a, 0x41cfff3e, 0x41caff34, 0x41a2ff30, 0x41a4ff41, 0x4185ff41, 0x416aff42, 0x416dff48, 0x414cff48, 0x4142ff5c, 0x412eff61, 0x4120ff5b, 0x4117ff5e, 0x40f9ff65, 0x40eeff6b, 0x40e3ff6c, 0x40cfff7e, 0x40bbff7b, 0x40afff83, 0x40aaff85, 0x409bff99, 0x4089ff9b, 0x4074ff9c, 0x4065ffa5, 0x404effb3, 0x404cffba, 0x4037ffc6, 0x4024ffc9, 0x4023ffd0, 0x4008ffdb, 0x4009ffdf, 0x3ffefffe, 0x3fff0000
++channel2_dpd_cali_table = 0x4008ffb9, 0x4008ffb9, 0x4020ffec, 0x40f0ffe8, 0x41090049, 0x41d5007b, 0x4228007d, 0x42af007a, 0x435400fc, 0x4366015b, 0x43f0017b, 0x44560160, 0x44d1018c, 0x44ef01dd, 0x45430236, 0x45b50222, 0x45dd0255, 0x46220288, 0x467202be, 0x468b02d1, 0x46b402f7, 0x46fe033b, 0x475a033e, 0x475a0368, 0x476b039a, 0x479503da, 0x47ac03f6, 0x47c60402, 0x47f90428, 0x4833043c, 0x4833044d, 0x48740469, 0x48ad0477, 0x48b9048d, 0x48cf04b1, 0x48fc04ae, 0x490404c8, 0x491d04d0, 0x494b04dd, 0x496204e7, 0x496804ef, 0x499604fa, 0x49b804f1, 0x49e004ff, 0x49f204f9, 0x49fc04f1, 0x4a0404fc, 0x4a2904ee, 0x4a1304e3, 0x4a2304d9, 0x4a3904d5, 0x4a4304d1, 0x4a5d04d1, 0x4a4e04c2, 0x4a5004c5, 0x4a4804c5, 0x4a6004b2, 0x4a5d04a4, 0x4a56049b, 0x4a350488, 0x4a4f0480, 0x4a40047b, 0x4a390472, 0x4a2f045b, 0x4a33044a, 0x4a06043c, 0x4a0c0433, 0x4a080409, 0x4a070401, 0x49e603fd, 0x49fa03db, 0x49f103ae, 0x49d303b5, 0x49d5039f, 0x49d40377, 0x499f0364, 0x49a7034f, 0x498e033f, 0x49720341, 0x495f0323, 0x495a030c, 0x494402ff, 0x492702da, 0x491302ca, 0x490302a8, 0x48ff0292, 0x48eb028a, 0x48c4026a, 0x48ab0252, 0x487e024a, 0x4877023a, 0x485b0232, 0x48420216, 0x482601fb, 0x480201e8, 0x47e901dd, 0x47b701c3, 0x479c01a5, 0x4782019e, 0x4762018e, 0x4759016a, 0x473c015c, 0x472a0156, 0x47030141, 0x46dd0130, 0x46dc0112, 0x46c00106, 0x469b00f9, 0x467600d5, 0x467200cb, 0x465500b8, 0x463600ae, 0x462d009e, 0x45fc0093, 0x45f40084, 0x45dc0087, 0x45bd006b, 0x4593005d, 0x45920041, 0x45780037, 0x45650033, 0x455c0031, 0x453d0026, 0x4519001e, 0x450d0017, 0x44e10001, 0x44da0000, 0x44aefffc, 0x448affe2, 0x4479fffd, 0x4466ffda, 0x4459ffd5, 0x443effd9, 0x4414ffe9, 0x43f7ffde, 0x43e4ffdf, 0x43c0ffd8, 0x43adffd5, 0x4398ffd0, 0x4393ffcf, 0x4368ffd0, 0x4356ffc6, 0x4336ffd0, 0x432affc1, 0x430effcd, 0x42fcffbb, 0x42deffcd, 0x42ceffc4, 0x42b6ffd4, 0x429dffcc, 0x428cffc7, 0x4271ffbe, 0x424bffce, 0x4246ffb3, 0x4236ffc7, 0x4219ffc1, 0x420effc5, 0x41f9ffbe, 0x41eaffbb, 0x41d5ffc6, 0x41b7ffc3, 0x41a1ffcc, 0x418effd3, 0x4183ffdb, 0x4168ffe0, 0x4146ffe4, 0x4136ffde, 0x411fffef, 0x4114ffe4, 0x40f3fff2, 0x40d8fffc, 0x40b6fffb, 0x40a70003, 0x40930004, 0x408b0003, 0x4081000c, 0x405e0010, 0x40510014, 0x40400009, 0x401d0010, 0x3fff0004, 0x3fff0000
++channel3_dpd_cali_table = 0x4000fffe, 0x4000fffe, 0x4000ffff, 0x408fffec, 0x4098001e, 0x412b0056, 0x414d0081, 0x41a60097, 0x422900ba, 0x42640134, 0x427d014e, 0x42af0177, 0x4316017e, 0x434101a1, 0x437801de, 0x43bf01df, 0x43c20216, 0x4423021d, 0x44660258, 0x44890284, 0x448302a2, 0x449f02d5, 0x44dd02f2, 0x44f2030e, 0x4513031f, 0x452b034d, 0x45350378, 0x453803a3, 0x455403cc, 0x458403cb, 0x456203ff, 0x459503f7, 0x45a8041f, 0x45c40426, 0x45ec0447, 0x460b0456, 0x46140475, 0x462c047d, 0x4656048a, 0x46730498, 0x465d0495, 0x46870499, 0x469504ac, 0x46ad04b5, 0x46c704be, 0x46cd04ce, 0x46e504c9, 0x470d04de, 0x470c04ed, 0x471504f8, 0x471c04fd, 0x47220503, 0x474e04f9, 0x474d04f3, 0x475e04ea, 0x475704f0, 0x477304ee, 0x477c04dc, 0x477c04db, 0x476904d3, 0x479304d4, 0x478f04c8, 0x479204c8, 0x479704ba, 0x479904b4, 0x477604af, 0x477c04ab, 0x4781049f, 0x47760496, 0x47510484, 0x47630476, 0x475f0473, 0x4747045f, 0x47470460, 0x47430452, 0x471d0434, 0x47370425, 0x472c0415, 0x47160409, 0x471203eb, 0x470f03e3, 0x470403ce, 0x46e903c1, 0x46e503a5, 0x46ca039a, 0x46d4038a, 0x46c20379, 0x46b0035d, 0x46970345, 0x46870323, 0x46750314, 0x467002fc, 0x465802ed, 0x464e02d6, 0x463402c9, 0x463002b5, 0x461502a0, 0x46080288, 0x45e80273, 0x45d50266, 0x45d5024a, 0x45b1023f, 0x45a3022f, 0x457d020e, 0x456c0203, 0x456301f8, 0x454f01df, 0x452a01d2, 0x451101c3, 0x450301b8, 0x44f301a5, 0x44d40194, 0x44cc0182, 0x44aa0179, 0x44a60169, 0x44980166, 0x447c0164, 0x445b0153, 0x44520153, 0x44400143, 0x44300143, 0x441b0127, 0x440d011e, 0x43f4010d, 0x43ed00fe, 0x43d300f7, 0x43bc00e9, 0x43ad00e4, 0x439d00de, 0x438d00c9, 0x437600bc, 0x436600c1, 0x435d00ba, 0x433e00aa, 0x432f00a5, 0x433200a4, 0x4309009a, 0x42f80088, 0x42f00082, 0x42e40085, 0x42be0080, 0x42b1007b, 0x428c0068, 0x4284006a, 0x4273006a, 0x42610060, 0x424e0054, 0x4243004c, 0x42230047, 0x420a004b, 0x41f60047, 0x41da0041, 0x41cf0042, 0x41c4003b, 0x41aa0038, 0x419b0038, 0x4186003e, 0x416e002a, 0x41610031, 0x4149002e, 0x41360034, 0x412b002f, 0x411b0031, 0x4119003b, 0x40fa0028, 0x40e50026, 0x40d60026, 0x40d10027, 0x40c8002b, 0x40ab0027, 0x40a00028, 0x4083002d, 0x40810023, 0x40750022, 0x405e0025, 0x40440022, 0x4029001c, 0x402a0015, 0x4010001c, 0x4010001c, 0x3fff0003, 0x3fff0000
++dpd_reserved   = 0x0, 0x0, 0x0, 0x0
++[SETCTION 8]
++#-----------------------------------------------------------------
++# RF parameters data
++#-----------------------------------------------------------------
++rf_ctune = 7, 7, 7, 7, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5
++rf_reserved = 0xFE, 0x8, 1, 1
++
++[SETCTION 9]
++#-----------------------------------------------------------------
++# TPC Configuration data
++#-----------------------------------------------------------------
++tpc_cfg = 0x0, 0xc4256de, 0xb9215be, 0xdbaf1ee, 0xc4256de, 0x114caae6, 0x114bb524, 0xdbaf1ee, 0xdba56de, 0xf6bb524, 0xf6b4dec, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1160b97, 0x1c8095f, 0x1c8095f, 0x1c8095f, 0x1c8095f, 0x1c8095f, 0x1c8095f, 0x1c8095f, 0x1c8095f, 0x1c8095f, 0x1c8095f, 0x1c8095f, 0x1c8095f, 0x1c8095f
++tpc_reserved = 0x0, 0x0, 0x0, 0x0
+Index: vendor/sprd/modules/wcn/connconfig/marlin2/sp9850ka_2c40/connectivity_configure.ini
+===================================================================
+--- vendor/sprd/modules/wcn/connconfig/marlin2/sp9850ka_2c40/connectivity_configure.ini	(revision 0)
++++ vendor/sprd/modules/wcn/connconfig/marlin2/sp9850ka_2c40/connectivity_configure.ini	(revision 182560)
+@@ -0,0 +1,174 @@
++[SETCTION 0]
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++# Marlin config Version info
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++conf_version = 1
++
++[SETCTION 1]
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++# wifi TX Power  tx power control
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++data_rate_power = 1
++channel_num = 3
++channel_range = 1, 5, 6, 9, 10, 13   #range1:ch1~ch5,range2:ch6~ch9,range3:ch10~ch13
++b_tx_power_dr0= 3, 3, 3           #(1M,2M)
++b_tx_power_dr1= 3, 3, 3           #(5.5,11M)
++
++g_tx_power_dr0 = 0, 0, 0          #(6/9M)
++g_tx_power_dr1 = 3, 3, 3          #(12/18M)
++g_tx_power_dr2 = 3, 3, 3          #(24/36M)
++g_tx_power_dr3 = 3, 3, 3          #(48/54M)
++
++n_tx_power_dr0 = 3, 3, 3          #(MCS0/1)
++n_tx_power_dr1 = 3, 3, 3          #(MCS2/3)
++n_tx_power_dr2 = 3, 3, 3          #(MCS4/5)
++n_tx_power_dr3 = 3, 3, 3          #(MCS6/7)
++
++power_reserved = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
++
++[SETCTION 2]
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++# wifi PHY/RF reg init
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++phy0_init_num = 2
++init_phy0_regs = 0x569F, 0x57E3, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
++
++phy1_init_num = 0
++init_phy1_regs = 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
++
++RF_init_num =0
++init_rf_regs = 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
++
++reserved_w16_num = 0
++reserved_w16_regs = 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
++
++reserved_w32_num = 0
++reserved_w32_regs = 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
++
++[SETCTION 3]
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++# wifi enhance config
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++tpc_enable = 0
++power_save_key = 0
++enhance_reserved = 0, 0, 0, 0
++
++[SETCTION 4]
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++# Wifi/BT/lte coex config
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++CoexExcutionMode = 0
++CoexWifiScanCntPerChannel = 4
++CoexWifiScanDurationOneTime = 20
++CoexScoPeriodsToBlockDuringDhcp = 1
++CoexA2dpDhcpProtectLevel = 1
++CoexScoperiodsToBlockDuringEap = 1
++CoexA2dpEapProtectLevel = 1
++CoexScoPeriodsToBlockDuringWifiJoin = 1
++CoexA2dpWifiJoinProtectLevel = 1
++CoexEnterPMStateTime = 15
++CoexAclA2dpBtWorkTime = 50
++CoexAclA2dpWifiWorkTime = 40
++CoexAclNoA2dpBtWorkTime = 40
++CoexAclNoA2dpWifiWorkTime = 50
++CoexAclMixBtWorkTime = 60
++CoexAclMixWifiWorkTime = 30
++CoexPageInqBtWorkTime = 400
++CoexPageInqWifiWorkTime = 100
++CoexScoSchema = 1
++CoexDynamicScoSchemaEnable = 1
++CoexScoPeriodsBtTakeAll = 5
++CoexLteTxAdvancedTime = 1500
++CoexLteOneSubFrameLen = 1000
++CoexLteTxTimerLen = 800
++CoexLteTxTimerFrameHeadLen = 200
++CoexLteStrategyFlag = 15
++CoexWifiDegradePowerValue = 0
++CoexBtDegradePowerValue = 0
++CoexWifi2300TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexWifi2310TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexWifi2320TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexWifi2330TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexWifi2340TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexWifi2350TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexWifi2360TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexWifi2370TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexWifi2380TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexWifi2390TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexWifi2400TxSpur2Lte = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2300 = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2310 = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2320 = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2330 = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2340 = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2350 = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2360 = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2370 = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2380 = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2390 = 0, 0, 0, 0, 0, 0, 0
++CoexLteTxSpur2Wifi2400 = 0, 0, 0, 0, 0, 0, 0
++CoexReserved = 1, 1,3000,407, 412, 462, 500, 100, 0, 0, 0, 400, 112, 250, 0, 0
++
++[SETCTION 5]
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++# Wifi&BT public config
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++public_reserved = 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
++
++[SETCTION 6]
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++# Bluetooth pskey for marlin
++#------------------------------------------------------------------------------------------------------------------------------------------------------------
++pskey_cmd = 0x001C0101 #
++g_dbg_source_sink_syn_test_data = 0
++g_sys_sleep_in_standby_supported = 1
++g_sys_sleep_master_supported = 1
++g_sys_sleep_slave_supported = 1
++
++default_ahb_clk = 26000000
++device_class = 0x001F00
++win_ext = 30
++
++g_aGainValue = 0x0000F600, 0x0000D000, 0x0000AA00, 0x00008400, 0x00004400, 0x00000A00
++g_aPowerValue = 0x8A200000, 0x8A1A0000, 0x8A140000, 0x8A0E0000, 0x8A080000
++g_aBRChannelpwrvalue = 0x8A070000, 0x8A070000, 0x8A080000, 0x8A070000, 0x8A050000, 0x8A050000, 0x8A050000, 0x8A050000
++g_aEDRChannelpwrvalue = 0x8A070000, 0x8A070000, 0x8A080000, 0x8A070000, 0x8A050000, 0x8A050000, 0x8A050000, 0x8A050000
++g_aLEPowerControlFlag = 0xFFFF
++g_aLEChannelpwrvalue = 0x0B7C, 0x0B7C, 0x0B7C, 0x0B7C, 0x0B7C, 0x0B7C, 0x0B7C, 0x0B7C
++g_central_or_peripheral = 0x00
++
++feature_set = 0xFF, 0xFF, 0x8D, 0xFE, 0xDB, 0x7D, 0x7B, 0x83, 0xFF, 0xA7, 0xFF, 0x7F, 0x00, 0xE0, 0xF7, 0x3E
++device_addr = 0x6D, 0x6D, 0x8E, 0x8E, 0x8F, 0x8F
++
++g_sys_sco_transmit_mode = 0 #true tramsmit by uart, otherwise by share memory
++g_sys_uart0_communication_supported = 1 #true use uart0, otherwise use uart1 for debug
++edr_tx_edr_delay = 5
++edr_rx_edr_delay = 14
++
++g_wbs_nv_117 = 0x007C
++
++is_wdg_supported = 0
++
++share_memo_rx_base_addr = 0
++#share_memo_tx_base_addr = 0
++g_wbs_nv_118 = 0x0076
++g_nbv_nv_117 = 0x10F9
++
++share_memo_tx_packet_num_addr = 1
++share_memo_tx_data_base_addr = 0
++
++g_PrintLevel = 0xFFFFFFFF
++
++share_memo_tx_block_length = 0
++share_memo_rx_block_length = 0
++share_memo_tx_water_mark = 0
++#share_memo_tx_timeout_value = 0
++g_nbv_nv_118 = 0x0A55
++
++uart_rx_watermark = 48
++uart_flow_control_thld = 63
++
++comp_id = 0x01EC
++pcm_clk_divd = 0x26
++br_edr_diff_reserved = 0xFFFF
++bt_reserved = 0, 0, 0, 0, 0, 0, 0, 0
+Index: vendor/sprd/modules/gps/GreenEye2/lib32_x86/gps.default.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/gps/GreenEye2/lib64/gps.default.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/gps/GreenEye2/lib64_x86/gps.default.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/gps/versioninfo.txt
+===================================================================
+--- vendor/sprd/modules/gps/versioninfo.txt	(revision 182559)
++++ vendor/sprd/modules/gps/versioninfo.txt	(revision 182560)
+@@ -1,13 +1,16 @@
+-﻿GNSS_W17.38.4:
++GNSS_W17.40.4:
+ 
+-firmware:
+-GE2:GE2_16A_W17.38.4_GLO@GE2_16A_W17.38.4_BDS@GE2_16A_W17.38.4
+-
++firmware:(all)
++GE2:GE2_16A_W17.39.4_GLO@GE2_16A_W17.39.4_BDS@GE2_16A_W17.39.4
++
+ libgps:
+-W17.38.4,2017.09.21  commo  native lcs
++W17.40.4p1,2017.10.09  commo  native lcs
+ 
+ AGPS:
+ AGPS_W17.37.1_W17.9.5
+ 
+-从GNSS_W17.37.1开始,GNSS的firmware和AGPS,libgps将分别出版本
++从GNSS_W17.37.1开始,GNSS的firmware和AGPS,libgps将分别出版本
++W17.40.4更新的版本:libgps
++W17.39.4更新的版本:firmware和libgps
+ W17.38.4更新的版本:firmware和libgps
++W17.37.1更新的版本:AGPS

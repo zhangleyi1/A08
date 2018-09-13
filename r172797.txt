@@ -1,0 +1,18 @@
+Index: packages/apps/Settings/src/com/android/settings/sim/SimSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/sim/SimSettings.java	(revision 172796)
++++ packages/apps/Settings/src/com/android/settings/sim/SimSettings.java	(revision 172797)
+@@ -481,11 +481,8 @@
+             if (sir != null) {
+                 /*setSummary(sir.getDisplayName().toString().trim().isEmpty()
+                         ? "SIM" + (sir.getSimSlotIndex() + 1) : sir.getDisplayName());*/
+-              	if(sir.getSimSlotIndex()==0){
+-					setSummary(mContext.getResources().getString(R.string.sim_card1_summary));
+-				}else{
+-					setSummary(mContext.getResources().getString(R.string.sim_card2_summary));
+-				}
++				setSummary(sir.getDisplayName().toString().trim().isEmpty()
++                        ? (sir.getSimSlotIndex()==0 ? mContext.getResources().getString(R.string.sim_card1_summary) : mContext.getResources().getString(R.string.sim_card2_summary)) : sir.getDisplayName());
+                 updateDataSwitch(sir.getSubscriptionId());
+             } else if (sir == null) {
+                 setSummary(R.string.sim_selection_required_pref);

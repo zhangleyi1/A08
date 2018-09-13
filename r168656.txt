@@ -1,0 +1,254 @@
+Index: packages/services/Telephony/AndroidManifest.xml
+===================================================================
+--- packages/services/Telephony/AndroidManifest.xml	(revision 168655)
++++ packages/services/Telephony/AndroidManifest.xml	(revision 168656)
+@@ -171,6 +171,20 @@
+             android:theme="@style/EmergencyDialerTheme"
+             android:screenOrientation="portrait">
+             <intent-filter>
++                <action android:name="com.android.phone.EmergencyDialer.DIAL1" />
++                <category android:name="android.intent.category.DEFAULT" />
++            </intent-filter>
++            <intent-filter>
++                <action android:name="com.android.phone.EmergencyDialer.DIAL1" />
++                <category android:name="android.intent.category.DEFAULT" />
++                <data android:scheme="tel" />
++            </intent-filter>
++        </activity>
++		<activity android:name="EnmergencyCall"
++            android:label="@string/emergencyDialerIconLabel"
++            android:theme="@style/EmergencyDialerTheme"
++            android:screenOrientation="portrait">
++            <intent-filter>
+                 <action android:name="com.android.phone.EmergencyDialer.DIAL" />
+                 <category android:name="android.intent.category.DEFAULT" />
+             </intent-filter>
+Index: packages/services/Telephony/src/com/android/phone/EnmergencyCall.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/EnmergencyCall.java	(revision 0)
++++ packages/services/Telephony/src/com/android/phone/EnmergencyCall.java	(revision 168656)
+@@ -0,0 +1,116 @@
++package com.android.phone;
++
++import android.app.Activity;
++import android.app.AlertDialog;
++import android.content.DialogInterface;
++import android.os.Bundle;
++import android.view.View;
++import android.view.View.OnClickListener;
++import android.view.Window;
++import android.widget.Button;
++import android.widget.ImageView;
++import android.widget.TextView;
++import android.widget.Toast;
++import android.view.WindowManager;
++import android.content.Intent;
++import android.net.Uri;
++
++public class EnmergencyCall extends Activity implements OnClickListener{
++  
++    ImageView back;
++	Button user_input,police,emergency;
++ 
++    
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
++		WindowManager.LayoutParams lp = getWindow().getAttributes();
++        lp.flags |= WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED;
++		getWindow().setAttributes(lp);
++		
++        setContentView(R.layout.emergency_call); 
++		
++        back =(ImageView) findViewById(R.id.back);
++        user_input =(Button) findViewById(R.id.user_input);
++        police =(Button) findViewById(R.id.police);
++        emergency =(Button) findViewById(R.id.emergency);
++        
++        back.setOnClickListener(this);
++        user_input.setOnClickListener(this);
++        police.setOnClickListener(this);
++        emergency.setOnClickListener(this);
++		 }
++		 
++		 
++	@Override
++    public void onClick(View v) {
++        // TODO Auto-generated method stub
++        switch (v.getId()) {
++        case R.id.back:
++            finish();
++            break;
++        case R.id.user_input:
++            Intent intent = new Intent();
++            intent.setAction("com.android.phone.EmergencyDialer.DIAL1");
++            startActivity(intent);
++            break;
++        case R.id.police:
++            dialog110();
++            break;
++        case R.id.emergency:
++			dialog112();
++            break;
++            default:
++            break;
++        }
++   
++    }	 
++	private void dialog110(){  
++        AlertDialog.Builder builder=new AlertDialog.Builder(this);
++        builder.setTitle("Emergency Call Number");
++        builder.setMessage("110");  
++        builder.setPositiveButton("CALL", new DialogInterface.OnClickListener() { 
++            @Override  
++            public void onClick(DialogInterface dialog, int which) {  
++			Intent callIntent = new Intent(Intent.ACTION_CALL,Uri.parse("tel:110"));
++			callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++			startActivity(callIntent);
++                dialog.dismiss(); 
++            }  
++        });  
++        builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() { 
++            @Override  
++            public void onClick(DialogInterface dialog, int which) {  
++                dialog.dismiss();    
++            }  
++        });  
++   
++        builder.create().show();  
++    }  
++    private void dialog112(){  
++        AlertDialog.Builder builder=new AlertDialog.Builder(this);
++        builder.setTitle("Emergency Call Number");
++        builder.setMessage("112");  
++        builder.setPositiveButton("CALL", new DialogInterface.OnClickListener() { 
++            @Override  
++            public void onClick(DialogInterface dialog, int which) {  
++			Intent callIntent = new Intent(Intent.ACTION_CALL,Uri.parse("tel:112"));
++			callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++			startActivity(callIntent);
++                dialog.dismiss(); 
++            }  
++        });  
++        builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() { 
++            @Override  
++            public void onClick(DialogInterface dialog, int which) {  
++                dialog.dismiss();         
++            }  
++        });  
++   
++        builder.create().show();  
++    }  
++}
++
++	
++	
+\ No newline at end of file
+Index: packages/services/Telephony/res/layout/emergency_call.xml
+===================================================================
+--- packages/services/Telephony/res/layout/emergency_call.xml	(revision 0)
++++ packages/services/Telephony/res/layout/emergency_call.xml	(revision 168656)
+@@ -0,0 +1,88 @@
++<?xml version="1.0" encoding="utf-8"?>
++<RelativeLayout  xmlns:android="http://schemas.android.com/apk/res/android"
++                xmlns:tools="http://schemas.android.com/tools"
++                 android:id="@+id/mobile_combo"
++    android:layout_width="wrap_content"
++    android:layout_height="wrap_content"
++	android:background="#ffffff"
++    >
++    
++    <RelativeLayout
++     android:id="@+id/el"   
++     android:layout_width="match_parent"
++     android:layout_height="wrap_content"
++     android:background="#3E68DA"
++     >
++    <ImageView
++    android:id="@+id/back"
++    android:layout_width="wrap_content"
++    android:layout_height="wrap_content"
++    android:src="@drawable/ic_arrow_back_24dp"
++    android:layout_margin="16dp" />
++    
++    <TextView
++        android:id="@+id/emergency_call_list"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:text="@string/emergency_call_list" 
++        android:textSize="23dp"
++        android:textColor="#FBFCFE"
++        android:layout_centerHorizontal="true"
++        android:layout_margin="16dp"
++        
++        />
++    </RelativeLayout>
++<LinearLayout
++     android:layout_width="match_parent"
++     android:layout_height="match_parent"
++     android:orientation="vertical"
++     android:layout_below="@+id/el"
++     >
++     
++    <Button
++        android:id="@+id/user_input"
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:text="@string/user_input" 
++        android:textSize="20dp"
++		android:textColor="#080808"
++        android:background="#ffffff"
++        />
++
++    <ImageView
++        android:id="@+id/imageView2"
++        android:layout_width="match_parent"
++        android:layout_height="2dp"
++        android:background="#B4BEEE" />
++
++    <Button
++        android:id="@+id/police"
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:text="@string/police" 
++        android:textSize="20dp"
++		android:textColor="#080808"
++        android:background="#ffffff"
++        />
++ <ImageView
++        android:id="@+id/imageView2"
++        android:layout_width="match_parent"
++        android:layout_height="2dp"
++        android:background="#B4BEEE" />
++    <Button
++        android:id="@+id/emergency"
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:text="@string/emergency"
++        android:textSize="18dp"
++		android:textColor="#080808"
++        android:background="#ffffff"
++         />
++     <ImageView
++        android:id="@+id/imageView2"
++        android:layout_width="match_parent"
++        android:layout_height="2dp"
++        android:background="#B4BEEE" />
++</LinearLayout>
++
++</RelativeLayout>
+Index: packages/services/Telephony/res/values/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values/strings.xml	(revision 168655)
++++ packages/services/Telephony/res/values/strings.xml	(revision 168656)
+@@ -1336,4 +1336,9 @@
+     <string name="close_volte_info">Disabling VoLTE will make call and sms unavailable. Are you sure?</string>
+     <string name="confirm">OK</string>
+     <string name="votle_cancel">CANCEL</string>
++	
++	<string name="user_input">User input</string>
++	<string name="police">Police</string>
++	<string name="emergency">Emergency</string>
++	<string name="emergency_call_list">Emergency Call List</string>
+ </resources>

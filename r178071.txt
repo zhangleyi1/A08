@@ -1,0 +1,30 @@
+Index: vendor/custom/cts/device/sprd/scx35l/sp9832a_2h11/modem/sprd_720p.bmp
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/custom/cts/device/sprd/scx35l/sp9832a_2h11/modem/sprd_720p.bmp
+===================================================================
+--- vendor/custom/cts/device/sprd/scx35l/sp9832a_2h11/modem/sprd_720p.bmp	(revision 0)
++++ vendor/custom/cts/device/sprd/scx35l/sp9832a_2h11/modem/sprd_720p.bmp	(revision 178071)
+
+Property changes on: vendor/custom/cts/device/sprd/scx35l/sp9832a_2h11/modem/sprd_720p.bmp
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/custom/cts/device/sprd/scx35l/sp9832a_2h11/modem/sprd_720p.bmp(1)
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/custom/cts/device/sprd/scx35l/sp9832a_2h11/modem/sprd_720p.bmp(1)
+===================================================================
+--- vendor/custom/cts/device/sprd/scx35l/sp9832a_2h11/modem/sprd_720p.bmp(1)	(revision 0)
++++ vendor/custom/cts/device/sprd/scx35l/sp9832a_2h11/modem/sprd_720p.bmp(1)	(revision 178071)
+
+Property changes on: vendor/custom/cts/device/sprd/scx35l/sp9832a_2h11/modem/sprd_720p.bmp(1)
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property

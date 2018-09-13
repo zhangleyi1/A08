@@ -1,0 +1,696 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/CallButtonPresenter.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/CallButtonPresenter.java	(revision 182603)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/CallButtonPresenter.java	(revision 182604)
+@@ -32,9 +32,14 @@
+ import static com.android.incallui.CallButtonFragment.Buttons.BUTTON_INVITE;
+ import static com.android.incallui.CallButtonFragment.Buttons.BUTTON_RECORD;
+ import static com.android.incallui.CallButtonFragment.Buttons.BUTTON_HIDE_PREVIEW_VIDEO;
++import static com.android.incallui.CallButtonFragment.Buttons.BUTTON_VIDEO_CALL_RX;
++import static com.android.incallui.CallButtonFragment.Buttons.BUTTON_VIDEO_CALL_TX;
+ 
++import android.app.AlertDialog;
+ import android.content.Context;
++import android.content.DialogInterface;
+ import android.content.SharedPreferences;
++import android.content.res.Resources;
+ import android.os.Build;
+ import android.os.Bundle;
+ import android.telecom.CallAudioState;
+@@ -74,6 +79,8 @@
+ import com.android.incallui.InCallVideoCallCallbackNotifier.CameraEventListener;
+ import android.net.Uri;
+ import java.io.File;
++import java.util.ArrayList;
++
+ import android.content.SharedPreferences;
+ import android.content.SharedPreferences.Editor;
+ import android.os.Environment;
+@@ -113,6 +120,8 @@
+     protected SharedPreferences mPreferences;
+     private final String VERTICAL_PHOTO = "vertical_photo";
+     /* @} */
++    private boolean misVideoPaused = false;
++
+     public CallButtonPresenter() {
+     }
+ 
+@@ -382,6 +391,12 @@
+         if (videoCall == null) {
+             return;
+         }
++
++        if (getUi() != null && useExt(getUi().getContext())) {
++            displayModifyCallOptions(mCall, getUi().getContext());
++            return;
++        }
++
+         int currVideoState = mCall.getVideoState();
+         int currUnpausedVideoState = VideoUtils.getUnPausedVideoState(currVideoState);
+         currUnpausedVideoState |= VideoProfile.STATE_BIDIRECTIONAL;
+@@ -389,11 +404,8 @@
+         VideoProfile videoProfile = new VideoProfile(currUnpausedVideoState);
+         /* SPRD: Add feature of low battery for Reliance @{ */
+         if (CallUtil.isBatteryLow()) {
+-            if (getUi() != null) {
+-                Context context = getUi().getContext();
+-                android.telecom.Call telecomCall = InCallPresenter.getInstance().getTelecomCallById(mCall.getId());
+-                CallUtil.showLowBatteryChangeToVideoDialog(telecomCall,videoProfile);
+-            }
++            android.telecom.Call telecomCall = InCallPresenter.getInstance().getTelecomCallById(mCall.getId());
++            CallUtil.showLowBatteryChangeToVideoDialog(telecomCall,videoProfile);
+         } else {
+             videoCall.sendSessionModifyRequest(videoProfile);
+             mCall.setSessionModificationState(Call.SessionModificationState.WAITING_FOR_RESPONSE);
+@@ -449,14 +461,16 @@
+         /* @} */
+ 
+         if (pause) {
+-            videoCall.setCamera(null);
++            misVideoPaused = true;
++            //videoCall.setCamera(null);
+             VideoProfile videoProfile = new VideoProfile(
+                     mCall.getVideoState() & ~VideoProfile.STATE_TX_ENABLED);
+             videoCall.sendSessionModifyRequest(videoProfile);
+         } else {
+-            InCallCameraManager cameraManager = InCallPresenter.getInstance().
++            misVideoPaused = false;
++            /*InCallCameraManager cameraManager = InCallPresenter.getInstance().
+                     getInCallCameraManager();
+-            videoCall.setCamera(cameraManager.getActiveCameraId());
++            videoCall.setCamera(cameraManager.getActiveCameraId());*/
+             VideoProfile videoProfile = new VideoProfile(
+                     mCall.getVideoState() | VideoProfile.STATE_TX_ENABLED);
+             videoCall.sendSessionModifyRequest(videoProfile);
+@@ -543,11 +557,19 @@
+                 .showMergeButton(call);
+         /* @} */
+         /*SPRD: Modify for bug594043 and 598376{@*/
+-        final boolean showUpgradeToVideo = !isVideo && hasVideoCallCapabilities(call)
++        final boolean showUpgradeToVideo = !VideoUtils.isBidirectionalVideoCall(call) && hasVideoCallCapabilities(call)
+                  && call.getChildCallIds().isEmpty() && CallUtil.isVideoEnabled(ui.getContext())
+                  && !isCallOnHold;
+         /* @} */
+         final boolean showDowngradeToAudio = isVideo && isDowngradeToAudioSupported(call) && isCallActive && !((call.isConferenceCall() && !call.hasProperty(Details.PROPERTY_GENERIC_CONFERENCE)) || call.isConferenceCall());
++        final boolean showChangeToVideoRx = (VideoUtils.isBidirectionalVideoCall(call) || !isVideo) && hasVideoCallCapabilities(call)
++                && call.getChildCallIds().isEmpty() && CallUtil.isVideoEnabled(ui.getContext())
++                && !isCallOnHold;
++
++        final boolean showChangeToVideoTx = (VideoUtils.isBidirectionalVideoCall(call) || !isVideo) && hasVideoCallCapabilities(call)
++                && call.getChildCallIds().isEmpty() && CallUtil.isVideoEnabled(ui.getContext())
++                && !isCallOnHold;
++        final boolean showPauseVideo = false;//VideoUtils.isBidirectionalVideoCall(call) || misVideoPaused;
+         final boolean showMute = call.can(android.telecom.Call.Details.CAPABILITY_MUTE);
+         /*SPRD: add for VoLTE{@*/
+         int currVideoState = call.getVideoState();
+@@ -574,6 +596,8 @@
+         ui.showButton(BUTTON_MUTE, showMute);
+         ui.showButton(BUTTON_UPGRADE_TO_VIDEO, showUpgradeToVideo);
+         ui.showButton(BUTTON_DOWNGRADE_TO_AUDIO, showDowngradeToAudio);
++        ui.showButton(BUTTON_VIDEO_CALL_RX, showChangeToVideoRx);
++        ui.showButton(BUTTON_VIDEO_CALL_TX, showChangeToVideoTx);
+         ui.showButton(BUTTON_SWITCH_CAMERA, isVideo /*&& !(isVolteEnable && ui.getLocalHided())*/);
+         ui.showButton(BUTTON_PAUSE_VIDEO, isVideo /*&& !(isVolteEnable && ui.getLocalHided())*/);
+         ui.showButton(BUTTON_DIALPAD, true);
+@@ -592,7 +616,7 @@
+             if (call.getState() == Call.State.ACTIVE) {
+                 ui.showButton(BUTTON_RECORD,true);
+                 /* SPRD:fix for bug 595703 @{ */
+-                ui.showButton(BUTTON_PAUSE_VIDEO, true);
++                ui.showButton(BUTTON_PAUSE_VIDEO, showPauseVideo);
+                 ui.showButton(BUTTON_SWITCH_CAMERA, showSwitchCamera);
+                 /* @} */
+             } else {
+@@ -937,4 +961,120 @@
+         updateButtonsState(mCall);
+     }
+     /* @} */
++    public boolean useExt(Context context) {
++        if (context == null) {
++            Log.w(this, "Context is null...");
++        }
++        return context != null && context.getResources().getBoolean(R.bool.video_call_use_ext);
++    }
++
++    /**
++     * The function is called when Modify Call button gets pressed. The function creates and
++     * displays modify call options.
++     */
++    public void displayModifyCallOptions(final Call call, final Context context) {
++        if (call == null) {
++            Log.d(this, "Can't display modify call options. Call is null");
++            return;
++        }
++
++        /*if (context.getResources().getBoolean(
++                R.bool.config_enable_enhance_video_call_ui)) {
++            // selCallType is set to -1 default, if the value is not updated, it is unexpected.
++            if (selectType != -1) {
++                VideoProfile videoProfile = new VideoProfile(selectType);
++                Log.v(this, "Videocall: Enhance videocall: upgrade/downgrade to "
++                        + callTypeToString(selectType));
++                changeToVideoClicked(call, videoProfile);
++            }
++            return;
++        }*/
++
++        final ArrayList<CharSequence> items = new ArrayList<CharSequence>();
++        final ArrayList<Integer> itemToCallType = new ArrayList<Integer>();
++        final Resources res = context.getResources();
++
++        // Prepare the string array and mapping.
++        if (isDowngradeToAudioSupported(call)) {
++            items.add(res.getText(R.string.call_type_voice));
++            itemToCallType.add(VideoProfile.STATE_AUDIO_ONLY);
++        }
++
++        if (hasVideoCallCapabilities(call)) {
++            items.add(res.getText(R.string.onscreenVideoCallRxText));
++            itemToCallType.add(VideoProfile.STATE_RX_ENABLED);
++
++            items.add(res.getText(R.string.onscreenVideoCallTxText));
++            itemToCallType.add(VideoProfile.STATE_TX_ENABLED);
++
++            items.add(res.getText(R.string.onscreenVideoCallText));
++            itemToCallType.add(VideoProfile.STATE_BIDIRECTIONAL);
++        }
++
++        AlertDialog.Builder builder = new AlertDialog.Builder(context);
++        builder.setTitle(R.string.call_type_title);
++        final AlertDialog alert;
++
++        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
++            @Override
++            public void onClick(DialogInterface dialog, int item) {
++                Toast.makeText(context, items.get(item), Toast.LENGTH_SHORT).show();
++                final int selCallType = itemToCallType.get(item);
++                /*Log.v(this, "Videocall: ModifyCall: upgrade/downgrade to "
++                        + callTypeToString(selCallType));*/
++                VideoProfile videoProfile = new VideoProfile(selCallType);
++                changeToCallTypeClicked(item);
++                //changeToVideoClicked(call, videoProfile);
++                dialog.dismiss();
++            }
++        };
++        final int currUnpausedVideoState = VideoUtils.getUnPausedVideoState(call.getVideoState());
++        final int index = itemToCallType.indexOf(currUnpausedVideoState);
++        builder.setSingleChoiceItems(items.toArray(new CharSequence[0]), index, listener);
++        alert = builder.create();
++        alert.show();
++    }
++
++    /**
++     * Sends a session modify request to the telephony framework
++     */
++    private void changeToVideoClicked(Call call, VideoProfile videoProfile) {
++        VideoCall videoCall = call.getVideoCall();
++        if (videoCall == null) {
++            return;
++        }
++        videoCall.sendSessionModifyRequest(videoProfile);
++        call.setSessionModificationState(Call.SessionModificationState.WAITING_FOR_RESPONSE);
++        //InCallAudioManager.getInstance().onModifyCallClicked(call, videoProfile.getVideoState());//ͬ������Audio״̬
++    }
++
++    public void changeToCallTypeClicked(int id) {
++        int selectedCallProfile = -1;
++        if(mCall == null){
++            Log.d(this,"mCall == null");
++            return;
++        }
++        VideoCall videoCall = mCall.getVideoCall();
++        if (videoCall == null) {
++            Log.d(this,"videoCall == null");
++            return;
++        }
++
++        Log.d(this,"changeToCallTypeClicked id = "+id);
++        switch (id){
++            case R.id.changeToVideoRxButton:
++                selectedCallProfile = VideoProfile.STATE_RX_ENABLED;
++                break;
++            case R.id.changeToVideoTxButton:
++                selectedCallProfile = VideoProfile.STATE_TX_ENABLED;
++                break;
++        }
++
++        VideoProfile videoProfile = new VideoProfile(selectedCallProfile);
++        videoCall.sendSessionModifyRequest(videoProfile);
++
++        if(!VideoUtils.isVideoCall(mCall)){
++            mCall.setSessionModificationState(Call.SessionModificationState.WAITING_FOR_RESPONSE);
++        }
++    }
+ }
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/VideoCallPresenter.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/VideoCallPresenter.java	(revision 182603)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/VideoCallPresenter.java	(revision 182604)
+@@ -1300,10 +1300,11 @@
+     }
+ 
+     private static int toCameraDirection(int videoState) {
+-        return VideoProfile.isTransmissionEnabled(videoState) &&
++        /*return VideoProfile.isTransmissionEnabled(videoState) &&
+                 !VideoProfile.isBidirectional(videoState)
+                 ? Call.VideoSettings.CAMERA_DIRECTION_BACK_FACING
+-                : Call.VideoSettings.CAMERA_DIRECTION_FRONT_FACING;
++                : Call.VideoSettings.CAMERA_DIRECTION_FRONT_FACING;*/
++        return Call.VideoSettings.CAMERA_DIRECTION_FRONT_FACING;
+     }
+ 
+     private static boolean isCameraDirectionSet(Call call) {
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/VideoUtils.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/VideoUtils.java	(revision 182603)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/VideoUtils.java	(revision 182604)
+@@ -42,7 +42,7 @@
+     }
+ 
+     public static boolean isBidirectionalVideoCall(Call call) {
+-        if (!CompatUtils.isVideoCompatible()) {
++        if (!CompatUtils.isVideoCompatible() || call == null || !InCallPresenter.getInstance().isVideoCallEnabaled()) {
+             return false;
+         }
+ 
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/CallButtonFragment.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/CallButtonFragment.java	(revision 182603)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/CallButtonFragment.java	(revision 182604)
+@@ -34,6 +34,8 @@
+ import static com.android.incallui.CallButtonFragment.Buttons.BUTTON_ECT;
+ import static com.android.incallui.CallButtonFragment.Buttons.BUTTON_INVITE;
+ import static com.android.incallui.CallButtonFragment.Buttons.BUTTON_HIDE_PREVIEW_VIDEO;
++import static com.android.incallui.CallButtonFragment.Buttons.BUTTON_VIDEO_CALL_RX;
++import static com.android.incallui.CallButtonFragment.Buttons.BUTTON_VIDEO_CALL_TX;
+ 
+ import android.content.Context;
+ import android.content.res.ColorStateList;
+@@ -99,7 +101,9 @@
+         public static final int BUTTON_INVITE = 14; //SPRD:Add for invite feature in volte
+         public static final int BUTTON_RECORD = 15; // SPRD: Add for call recorder feature
+         public static final int BUTTON_HIDE_PREVIEW_VIDEO = 16;//SPRD:Add for video conference
+-        public static final int BUTTON_COUNT = 17; // @orig: 12
++        public static final int BUTTON_VIDEO_CALL_RX = 17;//SPRD:Add for received video call only
++        public static final int BUTTON_VIDEO_CALL_TX = 18;//SPRD:Add for broadcast video call only
++        public static final int BUTTON_COUNT = 19; // @orig: 12
+     }
+ 
+     private SparseIntArray mButtonVisibilityMap = new SparseIntArray(BUTTON_COUNT);
+@@ -125,6 +129,8 @@
+     private boolean mAudioModePopupVisible;
+     private PopupMenu mOverflowPopup;
+     private ImageButton mHidePreviewVideoButton;//SPRD:Add for video conference
++    private ImageButton  mVideoCallRxButton;        //SPRD:Add for received video call only
++    private ImageButton  mVideoCallTxButton;        //SPRD:Add for broadcast video call only
+ 
+     private int mPrevAudioMode = 0;
+ 
+@@ -233,6 +239,12 @@
+         mHidePreviewVideoButton = (ImageButton) parent.findViewById(R.id.hidePreviewVideoButton);
+         mHidePreviewVideoButton.setOnClickListener(this);
+         /* @} */
++        /* SPRD: Add for received/broadcast video call only@{*/
++        mVideoCallRxButton = (ImageButton) parent.findViewById(R.id.changeToVideoRxButton);
++        mVideoCallRxButton.setOnClickListener(this);
++        mVideoCallTxButton = (ImageButton) parent.findViewById(R.id.changeToVideoTxButton);
++        mVideoCallTxButton.setOnClickListener(this);
++        /* @} */
+         return parent;
+     }
+ 
+@@ -322,7 +334,12 @@
+              getPresenter().hidePreviewVideoClicked(!mHidePreviewVideoButton.isSelected());
+           }
+         /* @} */
+-          else {
++        /*SPRD: add for received/broadcast video call only{@*/
++        else if(id == R.id.changeToVideoRxButton || id == R.id.changeToVideoTxButton){
++            getPresenter().changeToCallTypeClicked(id);
++        }
++        /* @} */
++        else {
+             Log.wtf(this, "onClick: unexpected");
+             return;
+         }
+@@ -368,7 +385,9 @@
+                 mChangeToVoiceButton,
+                 mAddCallButton,
+                 mMergeButton,
+-                mOverflowButton
++                mOverflowButton,
++                mVideoCallRxButton,
++                mVideoCallTxButton
+         };
+ 
+         for (ImageButton button : normalButtons) {
+@@ -467,6 +486,8 @@
+         mSendSmsButton.setEnabled(isEnabled); // Enable send sms in incallui feature for cmcc case
+         mTransferButton.setEnabled(isEnabled); //SPRD: Porting Explicit Transfer Call.
+         mRecordButton.setEnabled(isEnabled); // SPRD: Add for call record feature
++        mVideoCallRxButton.setEnabled(isEnabled);      //SPRD: Add for received video call only
++        mVideoCallTxButton.setEnabled(isEnabled);      //SPRD: Add for broadcast video call only
+     }
+ 
+     @Override
+@@ -533,6 +554,14 @@
+         	  return mHidePreviewVideoButton;
+         }
+         /*@}*/
++        /*SPRD: add for received/broadcast video call only{@*/
++        else if (id == BUTTON_VIDEO_CALL_RX) {
++            return mVideoCallRxButton;
++        }
++        else if (id == BUTTON_VIDEO_CALL_TX) {
++            return mVideoCallTxButton;
++        }
++        /*@}*/
+         else {
+             Log.w(this, "Invalid button id");
+             return null;
+Index: packages/apps/Dialer/InCallUI/res/drawable-xxhdpi/ic_toolbar_video_rx.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/InCallUI/res/drawable-xxhdpi/ic_toolbar_video_rx.png
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/drawable-xxhdpi/ic_toolbar_video_rx.png	(revision 0)
++++ packages/apps/Dialer/InCallUI/res/drawable-xxhdpi/ic_toolbar_video_rx.png	(revision 182604)
+
+Property changes on: packages/apps/Dialer/InCallUI/res/drawable-xxhdpi/ic_toolbar_video_rx.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Dialer/InCallUI/res/drawable-xxhdpi/ic_toolbar_video_tx.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/InCallUI/res/drawable-xxhdpi/ic_toolbar_video_tx.png
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/drawable-xxhdpi/ic_toolbar_video_tx.png	(revision 0)
++++ packages/apps/Dialer/InCallUI/res/drawable-xxhdpi/ic_toolbar_video_tx.png	(revision 182604)
+
+Property changes on: packages/apps/Dialer/InCallUI/res/drawable-xxhdpi/ic_toolbar_video_tx.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Dialer/InCallUI/res/drawable-xhdpi/ic_toolbar_video_rx.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/InCallUI/res/drawable-xhdpi/ic_toolbar_video_rx.png
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/drawable-xhdpi/ic_toolbar_video_rx.png	(revision 0)
++++ packages/apps/Dialer/InCallUI/res/drawable-xhdpi/ic_toolbar_video_rx.png	(revision 182604)
+
+Property changes on: packages/apps/Dialer/InCallUI/res/drawable-xhdpi/ic_toolbar_video_rx.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Dialer/InCallUI/res/drawable-xhdpi/ic_toolbar_video_tx.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/InCallUI/res/drawable-xhdpi/ic_toolbar_video_tx.png
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/drawable-xhdpi/ic_toolbar_video_tx.png	(revision 0)
++++ packages/apps/Dialer/InCallUI/res/drawable-xhdpi/ic_toolbar_video_tx.png	(revision 182604)
+
+Property changes on: packages/apps/Dialer/InCallUI/res/drawable-xhdpi/ic_toolbar_video_tx.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Dialer/InCallUI/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/values-zh-rCN/strings.xml	(revision 182603)
++++ packages/apps/Dialer/InCallUI/res/values-zh-rCN/strings.xml	(revision 182604)
+@@ -123,6 +123,11 @@
+     <string name="onscreenSwitchCameraText" msgid="7141261218152736690">"切换摄像头"</string>
+     <string name="onscreenPauseVideoText" msgid="1268768027709892604">"暂停视频"</string>
+     <string name="onscreenOverflowText" msgid="7932741239724473887">"更多选项"</string>
++    <!-- SPRD:Add for modify call type feature. -->
++    <string name="call_type_title">请选择通话类型</string>
++    <string name="call_type_voice">语音通话</string>
++    <string name="onscreenVideoCallRxText">视频只接收</string>
++    <string name="onscreenVideoCallTxText">视频只发送</string>
+     <string name="player_started" msgid="3478865572468310331">"播放器已启动"</string>
+     <string name="player_stopped" msgid="1278611664986561535">"播放器已停止"</string>
+     <string name="camera_not_ready" msgid="6614469280264241251">"摄像头尚未准备就绪"</string>
+Index: packages/apps/Dialer/InCallUI/res/values/config_ex.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/values/config_ex.xml	(revision 182603)
++++ packages/apps/Dialer/InCallUI/res/values/config_ex.xml	(revision 182604)
+@@ -39,4 +39,7 @@
+     <string name="incallui_voice_clear_code_plugin_name">
+         com.sprd.incallui.voiceClearCodePlugin.VoiceClearCodePlugin
+     </string>
++    <!-- SPRD : modify video call type Feature. @{ -->
++    <bool name="video_call_use_ext">false</bool>
++    <bool name="config_enable_enhance_video_call_ui">true</bool>
+ </resources>
+Index: packages/apps/Dialer/InCallUI/res/values/strings.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/values/strings.xml	(revision 182603)
++++ packages/apps/Dialer/InCallUI/res/values/strings.xml	(revision 182604)
+@@ -319,6 +319,11 @@
+     <string name="onscreenResumeVideoText">Resume video</string>
+     <!-- Text for the onscreen overflow button, to see additional actions which can be done. -->
+     <string name="onscreenOverflowText">More options</string>
++    <!-- SPRD:Add for modify call type feature. -->
++    <string name="call_type_title">Which type of call?</string>
++    <string name="call_type_voice">Voice Only</string>
++    <string name="onscreenVideoCallRxText">Received Video Only</string>
++    <string name="onscreenVideoCallTxText">Broadcast Video Only</string>
+ 
+     <!-- Message indicating that Video Started flowing for IMS-VT calls -->
+     <string name="player_started">Player Started</string>
+Index: packages/apps/Dialer/InCallUI/res/drawable-mdpi/ic_toolbar_video_rx.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/InCallUI/res/drawable-mdpi/ic_toolbar_video_rx.png
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/drawable-mdpi/ic_toolbar_video_rx.png	(revision 0)
++++ packages/apps/Dialer/InCallUI/res/drawable-mdpi/ic_toolbar_video_rx.png	(revision 182604)
+
+Property changes on: packages/apps/Dialer/InCallUI/res/drawable-mdpi/ic_toolbar_video_rx.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Dialer/InCallUI/res/drawable-mdpi/ic_toolbar_video_tx.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/InCallUI/res/drawable-mdpi/ic_toolbar_video_tx.png
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/drawable-mdpi/ic_toolbar_video_tx.png	(revision 0)
++++ packages/apps/Dialer/InCallUI/res/drawable-mdpi/ic_toolbar_video_tx.png	(revision 182604)
+
+Property changes on: packages/apps/Dialer/InCallUI/res/drawable-mdpi/ic_toolbar_video_tx.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Dialer/InCallUI/res/drawable/btn_change_to_video_rx.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/drawable/btn_change_to_video_rx.xml	(revision 0)
++++ packages/apps/Dialer/InCallUI/res/drawable/btn_change_to_video_rx.xml	(revision 182604)
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="utf-8"?>
++
++<!--
++  ~ Copyright (C) 2014 The Android Open Source Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License
++  -->
++
++<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
++
++    <item android:id="@+id/backgroundItem"
++          android:drawable="@drawable/btn_background" />
++
++    <item>
++        <bitmap android:src="@drawable/ic_toolbar_video_rx"
++            android:gravity="center"
++            android:tint="@color/selectable_icon_tint"
++            android:autoMirrored="true" />
++    </item>
++
++</layer-list>
+Index: packages/apps/Dialer/InCallUI/res/drawable/btn_change_to_video_tx.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/drawable/btn_change_to_video_tx.xml	(revision 0)
++++ packages/apps/Dialer/InCallUI/res/drawable/btn_change_to_video_tx.xml	(revision 182604)
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="utf-8"?>
++
++<!--
++  ~ Copyright (C) 2014 The Android Open Source Project
++  ~
++  ~ Licensed under the Apache License, Version 2.0 (the "License");
++  ~ you may not use this file except in compliance with the License.
++  ~ You may obtain a copy of the License at
++  ~
++  ~      http://www.apache.org/licenses/LICENSE-2.0
++  ~
++  ~ Unless required by applicable law or agreed to in writing, software
++  ~ distributed under the License is distributed on an "AS IS" BASIS,
++  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  ~ See the License for the specific language governing permissions and
++  ~ limitations under the License
++  -->
++
++<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
++
++    <item android:id="@+id/backgroundItem"
++          android:drawable="@drawable/btn_background" />
++
++    <item>
++        <bitmap android:src="@drawable/ic_toolbar_video_tx"
++            android:gravity="center"
++            android:tint="@color/selectable_icon_tint"
++            android:autoMirrored="true" />
++    </item>
++
++</layer-list>
+Index: packages/apps/Dialer/InCallUI/res/drawable-hdpi/ic_toolbar_video_rx.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/InCallUI/res/drawable-hdpi/ic_toolbar_video_rx.png
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/drawable-hdpi/ic_toolbar_video_rx.png	(revision 0)
++++ packages/apps/Dialer/InCallUI/res/drawable-hdpi/ic_toolbar_video_rx.png	(revision 182604)
+
+Property changes on: packages/apps/Dialer/InCallUI/res/drawable-hdpi/ic_toolbar_video_rx.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Dialer/InCallUI/res/drawable-hdpi/ic_toolbar_video_tx.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/InCallUI/res/drawable-hdpi/ic_toolbar_video_tx.png
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/drawable-hdpi/ic_toolbar_video_tx.png	(revision 0)
++++ packages/apps/Dialer/InCallUI/res/drawable-hdpi/ic_toolbar_video_tx.png	(revision 182604)
+
+Property changes on: packages/apps/Dialer/InCallUI/res/drawable-hdpi/ic_toolbar_video_tx.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Dialer/InCallUI/res/drawable-xxxhdpi/ic_toolbar_video_rx.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/InCallUI/res/drawable-xxxhdpi/ic_toolbar_video_rx.png
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/drawable-xxxhdpi/ic_toolbar_video_rx.png	(revision 0)
++++ packages/apps/Dialer/InCallUI/res/drawable-xxxhdpi/ic_toolbar_video_rx.png	(revision 182604)
+
+Property changes on: packages/apps/Dialer/InCallUI/res/drawable-xxxhdpi/ic_toolbar_video_rx.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Dialer/InCallUI/res/drawable-xxxhdpi/ic_toolbar_video_tx.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/InCallUI/res/drawable-xxxhdpi/ic_toolbar_video_tx.png
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/drawable-xxxhdpi/ic_toolbar_video_tx.png	(revision 0)
++++ packages/apps/Dialer/InCallUI/res/drawable-xxxhdpi/ic_toolbar_video_tx.png	(revision 182604)
+
+Property changes on: packages/apps/Dialer/InCallUI/res/drawable-xxxhdpi/ic_toolbar_video_tx.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Dialer/InCallUI/res/layout/call_button_fragment.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/layout/call_button_fragment.xml	(revision 182603)
++++ packages/apps/Dialer/InCallUI/res/layout/call_button_fragment.xml	(revision 182604)
+@@ -215,8 +215,17 @@
+             style="@style/InCallButton"
+             android:background="@drawable/btn_compound_hide_video_sprd"
+             android:contentDescription="@string/hide_preview_video"
+-            android:visibility="gone"
+-            android:layout_weight="1"/>
++            android:visibility="gone" />
++        <ImageButton android:id="@+id/changeToVideoRxButton"
++            style="@style/InCallButton"
++            android:background="@drawable/btn_change_to_video_rx"
++            android:contentDescription="@string/onscreenVideoCallRxText"
++            android:visibility="gone" />
++        <ImageButton android:id="@+id/changeToVideoTxButton"
++            style="@style/InCallButton"
++            android:background="@drawable/btn_change_to_video_tx"
++            android:contentDescription="@string/onscreenVideoCallTxText"
++            android:visibility="gone" />
+     </LinearLayout>
+ 
+ </LinearLayout>
+Index: proprietories-sp9832a_2h11_vwf_Smartfren-user.zip
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/custom/Android.mk
+===================================================================
+--- vendor/sprd/custom/Android.mk	(revision 182603)
++++ vendor/sprd/custom/Android.mk	(revision 182604)
+@@ -98,14 +98,14 @@
+ LOCAL_SRC_FILES := GoogleMaps.apk
+ include $(BUILD_PREBUILT)
+ 
+-include $(CLEAR_VARS)
+-LOCAL_MODULE_TAGS := optional
+-LOCAL_MODULE := ims
+-LOCAL_MODULE_STEM := ims.apk
+-LOCAL_MODULE_CLASS := APPS
+-LOCAL_CERTIFICATE := platform
+-LOCAL_MODULE_PATH := $(TARGET_OUT)/app/
+-LOCAL_SRC_FILES := ims.apk
+-include $(BUILD_PREBUILT)
++#include $(CLEAR_VARS)
++#LOCAL_MODULE_TAGS := optional
++#LOCAL_MODULE := ims
++#LOCAL_MODULE_STEM := ims.apk
++#LOCAL_MODULE_CLASS := APPS
++#LOCAL_CERTIFICATE := platform
++#LOCAL_MODULE_PATH := $(TARGET_OUT)/app/
++#LOCAL_SRC_FILES := ims.apk
++#include $(BUILD_PREBUILT)
+ 
+ include $(call all-makefiles-under,$(LOCAL_PATH))
+Index: proprietories-sp9832a_2h11_vwf_Smartfren-userdebug.zip
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream

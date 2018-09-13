@@ -1,0 +1,12 @@
+Index: vendor/sprd/modules/gps/GreenEye2/gnssmodem.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/gps/GreenEye2/gnssbdmodem.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/gps/GreenEye2/lib32/gps.default.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream

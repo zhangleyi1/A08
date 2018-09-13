@@ -1,0 +1,38 @@
+Index: vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/QuickContactActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/QuickContactActivity.java	(revision 169701)
++++ vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/QuickContactActivity.java	(revision 169702)
+@@ -2324,8 +2324,8 @@
+                 int videoCapability = CallUtil.getVideoCallingAvailability(context);
+                 boolean isPresenceEnabled =
+                         (videoCapability & CallUtil.VIDEO_CALLING_PRESENCE) != 0;
+-                //boolean isVideoEnabled = (videoCapability & CallUtil.VIDEO_CALLING_ENABLED) != 0;
+-                boolean isVideoEnabled = false;
++                boolean isVideoEnabled = (videoCapability & CallUtil.VIDEO_CALLING_ENABLED) != 0;
++                //boolean isVideoEnabled = false;
+ 
+                 /*
+                  * SPRD Bug 589982: androidN porting add displaying video call icon.
+Index: vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/interactions/CallLogInteraction.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/interactions/CallLogInteraction.java	(revision 169701)
++++ vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/interactions/CallLogInteraction.java	(revision 169702)
+@@ -121,7 +121,7 @@
+     public Intent getIntent(Context context, boolean enableButton) {
+         String number = getNumber();
+         UserManager userManager = (UserManager)context.getSystemService(Context.USER_SERVICE);
+-		/*
++		
+         if (userManager.isSystemUser()) {
+             if ((getFeature() == IS_VOLTE_VIDEO_CALL) && enableButton) {
+                 if (enableButton) {
+@@ -134,8 +134,7 @@
+                         CALL_ORIGIN_QUICK_CONTACTS_ACTIVITY).setData(
+                         Uri.parse(URI_TARGET_PREFIX + number));
+             }
+-        }
+-        */
++        } 
+         return number == null ? null : new Intent(Intent.ACTION_CALL).setData(
+                 Uri.parse(URI_TARGET_PREFIX + number));
+     }

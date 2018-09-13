@@ -1,0 +1,11 @@
+Index: vendor/sprd/platform/packages/apps/AudioProfile/res/values-in/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/AudioProfile/res/values-in/strings.xml	(revision 174767)
++++ vendor/sprd/platform/packages/apps/AudioProfile/res/values-in/strings.xml	(revision 174768)
+@@ -63,4 +63,5 @@
+      <string name="vibrate_category_feedback_title">"Getar"</string>
+      <string name="vibrate_msg_title">"Pesan"</string>
+      <string name="vibrate_msg_summary">"Getaran feedback untuk pesan"</string>
++	<string name="motion_sound_effect_title">"Efek suara gerakan"</string>
+ </resources>
+\ No newline at end of file

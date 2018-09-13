@@ -1,0 +1,2736 @@
+Index: packages/apps/Launcher3/WallpaperPicker/src/com/android/launcher3/SprdLauncherDrmUtils.java
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/src/com/android/launcher3/SprdLauncherDrmUtils.java	(revision 173371)
++++ packages/apps/Launcher3/WallpaperPicker/src/com/android/launcher3/SprdLauncherDrmUtils.java	(revision 173372)
+@@ -1,26 +0,0 @@
+-package com.android.launcher3;
+-
+-import android.content.Context;
+-import android.content.Intent;
+-
+-public class SprdLauncherDrmUtils {
+-    static SprdLauncherDrmUtils sInstance;
+-
+-    public static SprdLauncherDrmUtils getInstance() {
+-        if (sInstance == null) {
+-            sInstance = (SprdLauncherDrmUtils) SprdAddonUtils.instance(
+-                    R.string.feature_launcher_drm, SprdLauncherDrmUtils.class);
+-            if (sInstance == null) {
+-                return new SprdLauncherDrmUtils();
+-            }
+-        }
+-        return sInstance;
+-    }
+-
+-    public SprdLauncherDrmUtils() {
+-    }
+-
+-    public void addIntentExtra(Intent intent) {
+-    }
+-
+-}
+Index: packages/apps/Launcher3/WallpaperPicker/src/com/android/launcher3/SprdAddonUtils.java
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/src/com/android/launcher3/SprdAddonUtils.java	(revision 173371)
++++ packages/apps/Launcher3/WallpaperPicker/src/com/android/launcher3/SprdAddonUtils.java	(revision 173372)
+@@ -1,33 +0,0 @@
+-package com.android.launcher3;
+-
+-import java.lang.reflect.InvocationTargetException;
+-import java.lang.reflect.Method;
+-
+-// SPRD: bug395717 2015-01-19 Feature to support device not with addon.
+-public class SprdAddonUtils {
+-
+-    public static Object instance(int addOnNameResId, Class stubClass) {
+-        Object obj = null;
+-        try {
+-            Class clazz = Class.forName("android.app.AddonManager");
+-
+-            Method defMethod = clazz.getMethod("getDefault");
+-            Object addonManager = defMethod.invoke(null);
+-
+-            Method getMethod = clazz.getMethod("getAddon", new Class[] {int.class, Class.class});
+-            obj = getMethod.invoke(addonManager, addOnNameResId, stubClass);
+-        } catch (ClassNotFoundException e) {
+-            e.printStackTrace();
+-        } catch (NoSuchMethodException e) {
+-            e.printStackTrace();
+-        } catch (IllegalAccessException e) {
+-            e.printStackTrace();
+-        } catch (IllegalArgumentException e) {
+-            e.printStackTrace();
+-        } catch (InvocationTargetException e) {
+-            e.printStackTrace();
+-        }
+-        return obj;
+-    }
+-
+-}
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_00_small
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_01_small
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_02_small
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_03_small
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_04_small
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_05_small
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_06_small
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_00
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_01
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_02
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_03
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_04
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_05
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_06
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/src/sprd/utils/SPRDShakeDetector.java
+===================================================================
+--- packages/apps/Launcher3/src/sprd/utils/SPRDShakeDetector.java	(revision 173371)
++++ packages/apps/Launcher3/src/sprd/utils/SPRDShakeDetector.java	(revision 173372)
+@@ -1,94 +0,0 @@
+-package com.sprd.launcher3.utils;
+-
+-import android.content.Context;
+-import android.hardware.Sensor;
+-import android.hardware.SprdSensor;
+-import android.hardware.SensorEvent;
+-import android.hardware.SensorEventListener;
+-import android.hardware.SensorManager;
+-
+-
+-import java.util.ArrayList;
+-
+-
+-public class SPRDShakeDetector implements SensorEventListener {
+-
+-    private long mLastUpdateTime;
+-    private Context mContext;
+-    private SensorManager mSensorManager;
+-    private ArrayList<OnShakeListener> mListeners;
+-    private ArrayList list = new ArrayList();
+-    private static final int MAX = 5;
+-    private static final int MIN = -5;
+-    public static final int SENSOR_RIGHT_SHAKE = 1;
+-    public static final int SENSOR_LEFT_SHAKE = 2;
+-    public static final int SPEED_MIN = 3000;
+-    private static final int TIME_THRESHOLD = 80;
+-
+-    private float mLastX;
+-    private float mLastY;
+-    private float mLastZ;
+-
+-
+-    public SPRDShakeDetector(Context context) {
+-        mContext = context;
+-        mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+-        mListeners = new ArrayList<OnShakeListener>();
+-    }
+-
+-    public interface OnShakeListener {
+-        void onShake(int direction);
+-    }
+-
+-    @Override
+-    public void onSensorChanged(SensorEvent sensorEvent) {
+-        int z = (int)sensorEvent.values[2];
+-        if (z == 1) {
+-            this.notifyListeners(SENSOR_LEFT_SHAKE);
+-        } else if (z == 2) {
+-            this.notifyListeners(SENSOR_RIGHT_SHAKE);
+-        }
+-    }
+-
+-    @Override
+-    public void onAccuracyChanged(Sensor sensor, int i) {
+-
+-    }
+-
+-    public void registerOnShakeListener(OnShakeListener listener) {
+-        if (mListeners.contains(listener)) {
+-            return;
+-        }
+-        mListeners.add(listener);
+-    }
+-
+-    public void unregisterOnShakeListener(OnShakeListener listener) {
+-        mListeners.remove(listener);
+-    }
+-
+-    public void start() {
+-        if (mSensorManager == null) {
+-            throw new UnsupportedOperationException();
+-        }
+-        Sensor sensor = mSensorManager.getDefaultSensor(SprdSensor.TYPE_SPRDHUB_SHAKE);
+-        if (sensor == null) {
+-            return;
+-        }
+-        boolean success = mSensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME);
+-        if (!success) {
+-            throw new UnsupportedOperationException();
+-        }
+-    }
+-
+-    public void stop() {
+-        if (mSensorManager != null) {
+-            mSensorManager.unregisterListener(this);
+-        }
+-    }
+-
+-    private void notifyListeners(int direction) {
+-        for (OnShakeListener listener : mListeners) {
+-            listener.onShake(direction);
+-        }
+-    }
+-}
+\ No newline at end of file
+Index: packages/apps/Launcher3/src/sprd/utils/DynamicDeskClockUtil.java
+===================================================================
+--- packages/apps/Launcher3/src/sprd/utils/DynamicDeskClockUtil.java	(revision 173371)
++++ packages/apps/Launcher3/src/sprd/utils/DynamicDeskClockUtil.java	(revision 173372)
+@@ -1,36 +0,0 @@
+-package com.sprd.launcher3.utils;
+-
+-import android.app.AddonManager;
+-import android.content.Context;
+-import com.android.launcher3.R;
+-
+-public class DynamicDeskClockUtil {
+-    static DynamicDeskClockUtil sInstance;
+-
+-    public DynamicDeskClockUtil() {
+-        // TODO
+-    }
+-
+-    public static DynamicDeskClockUtil getInstance() {
+-        if (sInstance != null) {
+-            return sInstance;
+-        }
+-
+-        sInstance = (DynamicDeskClockUtil) AddonManager.getDefault().getAddon(
+-                R.string.feature_dynamic_deskclock, DynamicDeskClockUtil.class);
+-        return sInstance;
+-    }
+-
+-    public static DynamicDeskClockUtil getInstance(Context context) {
+-        if (sInstance != null) {
+-            return sInstance;
+-        }
+-        sInstance = (DynamicDeskClockUtil) AddonManager.getDefault().getAddon(
+-                R.string.feature_dynamic_deskclock, DynamicDeskClockUtil.class);
+-        return sInstance;
+-    }
+-
+-    public boolean isDynamicDeskClock() {
+-        return false;
+-    }
+-}
+Index: packages/apps/Launcher3/src/sprd/utils/DynamicCalendarUtil.java
+===================================================================
+--- packages/apps/Launcher3/src/sprd/utils/DynamicCalendarUtil.java	(revision 173371)
++++ packages/apps/Launcher3/src/sprd/utils/DynamicCalendarUtil.java	(revision 173372)
+@@ -1,36 +0,0 @@
+-package com.sprd.launcher3.utils;
+-
+-import android.app.AddonManager;
+-import android.content.Context;
+-import com.android.launcher3.R;
+-
+-public class DynamicCalendarUtil {
+-    static DynamicCalendarUtil sInstance;
+-
+-    public DynamicCalendarUtil() {
+-        // TODO
+-    }
+-
+-    public static DynamicCalendarUtil getInstance() {
+-        if (sInstance != null) {
+-            return sInstance;
+-        }
+-
+-        sInstance = (DynamicCalendarUtil) AddonManager.getDefault().getAddon(
+-                R.string.feature_dynamic_calendar, DynamicCalendarUtil.class);
+-        return sInstance;
+-    }
+-
+-    public static DynamicCalendarUtil getInstance(Context context) {
+-        if (sInstance != null) {
+-            return sInstance;
+-        }
+-        sInstance = (DynamicCalendarUtil) AddonManager.getDefault().getAddon(
+-                R.string.feature_dynamic_calendar, DynamicCalendarUtil.class);
+-        return sInstance;
+-    }
+-
+-    public boolean isDynamicCalendar() {
+-        return false;
+-    }
+-}
+Index: packages/apps/Launcher3/src/com/android/launcher3/ClockBubbleTextView.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/ClockBubbleTextView.java	(revision 173371)
++++ packages/apps/Launcher3/src/com/android/launcher3/ClockBubbleTextView.java	(revision 173372)
+@@ -1,192 +0,0 @@
+-/*
+- * Copyright (C) 2008 The Android Open Source Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-package com.android.launcher3;
+-
+-import java.util.Calendar;
+-
+-import android.content.BroadcastReceiver;
+-import android.content.Context;
+-import android.content.Intent;
+-import android.content.IntentFilter;
+-import android.content.res.Resources;
+-import android.graphics.Bitmap;
+-import android.graphics.BitmapFactory;
+-import android.graphics.Canvas;
+-import android.graphics.Bitmap.Config;
+-import android.graphics.drawable.Drawable;
+-import android.os.Handler;
+-import android.os.Message;
+-import android.util.AttributeSet;
+-
+-/**
+- * TextView that draws a bubble behind the text. We cannot use a LineBackgroundSpan
+- * because we want to make the bubble taller than the text and TextView's clip is
+- * too aggressive.
+- */
+-public class ClockBubbleTextView extends BubbleTextView{
+-
+-    private Resources mRes;
+-    private Context mContext;
+-    private Bitmap mBackgroundBitmap;
+-    private IntentFilter mFilter;
+-    private Bitmap mCicleBitmap;
+-    private Bitmap mHourBitmap;
+-    private Bitmap mMinuteBitmap;
+-//  private Bitmap mSecondBitmap;
+-    private Handler mHandler;
+-    private Canvas mCanvas ;
+-    private Bitmap mBitmap;
+-    private int mBackgroundWidth;
+-    private int mBackgroundHeight;
+-    private int mCicleWidth;
+-    private int mCicleHeight;
+-    private Launcher mLauncher;
+-
+-    public ClockBubbleTextView(Context context) {
+-        this(context, null, 0);
+-    }
+-
+-    public ClockBubbleTextView(Context context, AttributeSet attrs) {
+-        this(context, attrs, 0);
+-    }
+-
+-    public ClockBubbleTextView(Context context, AttributeSet attrs, int defStyle) {
+-        super(context, attrs, defStyle);
+-        mContext = context;
+-        mRes = context.getResources();
+-        mLauncher = (Launcher) context;
+-        init();
+-    }
+-
+-    private void init(){
+-        mFilter = new IntentFilter();
+-        mFilter.addAction(Intent.ACTION_TIME_TICK);
+-        mFilter.addAction(Intent.ACTION_TIME_CHANGED);
+-        mFilter.addAction(Intent.ACTION_DATE_CHANGED);
+-        mFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
+-
+-        mBackgroundBitmap = BitmapFactory.decodeResource(mRes, R.drawable.ic_dial_plate);
+-        mCicleBitmap = BitmapFactory.decodeResource(mRes, R.drawable.ic_cicle);
+-        mHourBitmap = BitmapFactory.decodeResource(mRes, R.drawable.ic_hour_hand);
+-        mMinuteBitmap = BitmapFactory.decodeResource(mRes, R.drawable.ic_minute_hand);
+-//      mSecondBitmap = BitmapFactory.decodeResource(mRes, R.drawable.ic_second_hand);
+-        mBackgroundWidth = mBackgroundBitmap.getWidth();
+-        mBackgroundHeight = mBackgroundBitmap.getHeight();
+-        mCicleWidth = mCicleBitmap.getWidth();
+-        mCicleHeight = mCicleBitmap.getHeight();
+-        mBitmap = Bitmap.createBitmap(mBackgroundWidth, mBackgroundHeight, Config.ARGB_8888);
+-        mCanvas = new Canvas(mBitmap);
+-        if (mHandler == null) {
+-            mHandler = new Handler() {
+-                @Override
+-                public void handleMessage(Message msg) {
+-                     super.handleMessage(msg);
+-                     updateDeskClock();
+-                     Message msgUp = mHandler.obtainMessage();
+-                     mHandler.sendMessageDelayed(msgUp, 60000);
+-                 }
+-            };
+-            Message msgUp = mHandler.obtainMessage();
+-            mHandler.sendMessageDelayed(msgUp, 60000);
+-        }
+-    }
+-
+-    @Override
+-    protected void onAttachedToWindow() {
+-        super.onAttachedToWindow();
+-        mContext.registerReceiver(mBroadcastReceiver, mFilter);
+-        updateDeskClock();
+-    }
+-
+-    @Override
+-    protected void onDetachedFromWindow() {
+-        super.onDetachedFromWindow();
+-        mContext.unregisterReceiver(mBroadcastReceiver);
+-        updateDeskClock();
+-    }
+-
+-    BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+-        @Override
+-        public void onReceive(Context context, Intent intent) {
+-            updateDeskClock();
+-        }
+-    };
+-
+-    public void applyFromShortcutInfo(ShortcutInfo info, IconCache iconCache,
+-            boolean promiseStateChanged) {
+-        super.applyFromShortcutInfo(info, iconCache, promiseStateChanged);
+-        updateDeskClock();
+-    }
+-
+-    public void applyFromApplicationInfo(AppInfo info) {
+-        super.applyFromApplicationInfo(info);
+-        updateDeskClock();
+-    }
+-
+-    private void updateDeskClock() {
+-        Calendar c = Calendar.getInstance();
+-        int hour = c.get(Calendar.HOUR_OF_DAY);
+-        int minute = c.get(Calendar.MINUTE);
+-        int second = c.get(Calendar.SECOND);
+-
+-        /* SPRD:bug 519737 the location of hour hand was wrong @{ */
+-        //float Seconds = second;
+-        float Minutes = minute + second / 60.0f;
+-        float Hour = hour + Minutes / 60.0f;
+-
+-        //float angleSecond = Seconds / 60.0f * 360.0f - 90;
+-        float angleMinute = Minutes / 60.0f * 360.0f - 90;
+-        float angleHour = Hour / 12.0f * 360.0f - 90;
+-        /* @} */
+-        Drawable d = getCompoundDrawables()[1];
+-        if (d != null) {
+-            /*SPRD: bug519731, modify to prevent sawtooth-shaped border @{*/
+-            if(mBitmap != null) {
+-                mBitmap.recycle();
+-                mBitmap = null;
+-            }
+-            mBitmap = Bitmap.createBitmap(mBackgroundWidth, mBackgroundHeight, Config.ARGB_8888);
+-            mCanvas = new Canvas(mBitmap);
+-            mCanvas.drawBitmap(mBackgroundBitmap, 0, 0, null);
+-            mCanvas.drawBitmap(mCicleBitmap, mBackgroundWidth/2 - mCicleWidth/2 ,
+-                mBackgroundHeight/2-mCicleHeight/2, null);
+-
+-            mCanvas.save();
+-            //SPRD:bug 519737 the location of hour hand was wrong
+-            mCanvas.rotate(angleHour, mBackgroundWidth/ 2, mBackgroundHeight/2);
+-            mCanvas.drawBitmap(mHourBitmap,  mBackgroundWidth/ 2- mCicleWidth/2,mBackgroundHeight/2 - mHourBitmap.getHeight()/2, null);
+-            mCanvas.restore();
+-
+-            mCanvas.save();
+-            //SPRD:bug 519737 the location of hour hand was wrong
+-            mCanvas.rotate(angleMinute, mBackgroundWidth/ 2, mBackgroundHeight/2);
+-            mCanvas.drawBitmap(mMinuteBitmap, mBackgroundWidth/ 2 - mCicleWidth/2,mBackgroundHeight/2 - mMinuteBitmap.getHeight()/2, null);
+-            mCanvas.restore();
+-
+-            mCanvas.save();
+-            //SPRD:bug 519737 the location of hour hand was wrong
+-//            mCanvas.rotate(angleSecond,mBackgroundWidth/ 2, mBackgroundHeight/2);
+-//            mCanvas.drawBitmap(mSecondBitmap,mBackgroundWidth/ 2- mCicleWidth/2,mBackgroundHeight/2 - mSecondBitmap.getHeight()/2, null);
+-//            mCanvas.restore();
+-            d = mLauncher.createIconDrawable(mBitmap);
+-            if (mIconSize != -1) {
+-                d.setBounds(0, 0, mIconSize, mIconSize);
+-            }
+-            setCompoundDrawables(null , d, null, null);
+-        }
+-    }
+-}
+Index: packages/apps/Launcher3/src/com/android/launcher3/SprdCmccWorkspaceAddonStub.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/SprdCmccWorkspaceAddonStub.java	(revision 173371)
++++ packages/apps/Launcher3/src/com/android/launcher3/SprdCmccWorkspaceAddonStub.java	(revision 173372)
+@@ -1,31 +0,0 @@
+-package com.android.launcher3;
+-
+-import java.util.ArrayList;
+-import java.util.HashMap;
+-
+-//import android.app.AddonManager;
+-import android.content.ComponentName;
+-import android.util.Log;
+-
+-public class SprdCmccWorkspaceAddonStub {
+-    private static final String TAG = "SprdCmccWorkspaceAddonStub";
+-
+-    private static SprdCmccWorkspaceAddonStub sInstance;
+-    protected boolean mHasCustomizeData = false;
+-
+-    public static SprdCmccWorkspaceAddonStub getInstance() {
+-        if (sInstance == null) {
+-            sInstance = (SprdCmccWorkspaceAddonStub) SprdAddonUtils.instance(
+-                    R.string.feature_cmcc_app, SprdCmccWorkspaceAddonStub.class);
+-            if (sInstance == null) {
+-                sInstance = new SprdCmccWorkspaceAddonStub();
+-            }
+-        }
+-        return sInstance;
+-    }
+-
+-    protected boolean isDefault() {
+-        Log.d(TAG, "[isDefault]::");
+-        return mHasCustomizeData;
+-    }
+-}
+Index: packages/apps/Launcher3/src/com/android/launcher3/CalendarBubbleTextView.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/CalendarBubbleTextView.java	(revision 173371)
++++ packages/apps/Launcher3/src/com/android/launcher3/CalendarBubbleTextView.java	(revision 173372)
+@@ -1,183 +0,0 @@
+-/*
+- * Created by Spreadst
+- */
+-
+-package com.android.launcher3;
+-
+-import java.util.Calendar;
+-
+-import android.content.BroadcastReceiver;
+-import android.content.Context;
+-import android.content.Intent;
+-import android.content.IntentFilter;
+-import android.content.res.Resources;
+-import android.graphics.Bitmap;
+-import android.graphics.BitmapFactory;
+-import android.graphics.Canvas;
+-import android.graphics.Bitmap.Config;
+-import android.graphics.drawable.Drawable;
+-import android.os.Handler;
+-import android.os.Message;
+-import android.util.AttributeSet;
+-
+-/**
+- * TextView that draws a bubble behind the text. We cannot use a LineBackgroundSpan
+- * because we want to make the bubble taller than the text and TextView's clip is
+- * too aggressive.
+- */
+-public class CalendarBubbleTextView extends BubbleTextView{
+-
+-    private Resources mRes;
+-    private Context mContext;
+-    private Bitmap mBackgroundBitmap;
+-    private Bitmap mBitmap;
+-    private IntentFilter mFilter;
+-    private Launcher mLauncher;
+-    private Canvas mCanvas;
+-    private Handler mHandler;
+-    private int mLastDay;
+-    private int mCalendarWidth;
+-    private int mCalendarHeight;
+-
+-    private Integer[] mThumbIds = {
+-        R.drawable.ic_date1,
+-        R.drawable.ic_date2,
+-        R.drawable.ic_date3,
+-        R.drawable.ic_date4,
+-        R.drawable.ic_date5,
+-        R.drawable.ic_date6,
+-        R.drawable.ic_date7,
+-        R.drawable.ic_date8,
+-        R.drawable.ic_date9,
+-        R.drawable.ic_date10,
+-        R.drawable.ic_date11,
+-        R.drawable.ic_date12,
+-        R.drawable.ic_date13,
+-        R.drawable.ic_date14,
+-        R.drawable.ic_date15,
+-        R.drawable.ic_date16,
+-        R.drawable.ic_date17,
+-        R.drawable.ic_date18,
+-        R.drawable.ic_date19,
+-        R.drawable.ic_date20,
+-        R.drawable.ic_date21,
+-        R.drawable.ic_date22,
+-        R.drawable.ic_date23,
+-        R.drawable.ic_date24,
+-        R.drawable.ic_date25,
+-        R.drawable.ic_date26,
+-        R.drawable.ic_date27,
+-        R.drawable.ic_date28,
+-        R.drawable.ic_date29,
+-        R.drawable.ic_date30,
+-        R.drawable.ic_date31
+-        };
+-
+-    public CalendarBubbleTextView(Context context) {
+-        this(context, null, 0);
+-    }
+-
+-    public CalendarBubbleTextView(Context context, AttributeSet attrs) {
+-        this(context, attrs, 0);
+-    }
+-
+-    public CalendarBubbleTextView(Context context, AttributeSet attrs, int defStyle) {
+-        super(context, attrs, defStyle);
+-        mLauncher = (Launcher) context;
+-        mContext = context;
+-        mRes = context.getResources();
+-        init();
+-    }
+-
+-    private void init(){
+-        mFilter = new IntentFilter();
+-        mFilter.addAction(Intent.ACTION_TIME_TICK);
+-        mFilter.addAction(Intent.ACTION_TIME_CHANGED);
+-        mFilter.addAction(Intent.ACTION_DATE_CHANGED);
+-        mFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
+-        mBackgroundBitmap = BitmapFactory.decodeResource(mRes, R.drawable.ic_calendar_plate);
+-        mCalendarWidth = mBackgroundBitmap.getWidth();
+-        mCalendarHeight = mBackgroundBitmap.getHeight();
+-        mBitmap = Bitmap.createBitmap(mCalendarWidth,  mCalendarHeight, Config.ARGB_8888);
+-        mCanvas = new Canvas(mBitmap);
+-        if (mHandler == null) {
+-            mHandler = new Handler() {
+-                @Override
+-                public void handleMessage(Message msg) {
+-                     super.handleMessage(msg);
+-                     updateCalendarDate();
+-                     Message msgUp = mHandler.obtainMessage();
+-                     mHandler.sendMessageDelayed(msgUp, 60000);
+-                 }
+-            };
+-            Message msgUp = mHandler.obtainMessage();
+-            mHandler.sendMessageDelayed(msgUp, 60000);
+-        }
+-    }
+-
+-    @Override
+-    protected void onAttachedToWindow() {
+-        super.onAttachedToWindow();
+-        mContext.registerReceiver(mBroadcastReceiver, mFilter);
+-        /* SPRD: add for bug 526593 to update date @{ */
+-        updateCalendarDate();
+-        /* @} */
+-    }
+-
+-    @Override
+-    protected void onDetachedFromWindow() {
+-        super.onDetachedFromWindow();
+-        mContext.unregisterReceiver(mBroadcastReceiver);
+-        updateCalendarDate();
+-    }
+-
+-    private int getTodayDate(){
+-        Calendar c = Calendar.getInstance();
+-        int date = c.get(Calendar.DATE);
+-        return date;
+-    }
+-
+-    BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+-        @Override
+-        public void onReceive(Context context, Intent intent) {
+-            if(mLastDay == getTodayDate()){
+-                return;
+-            }else{
+-                updateCalendarDate();
+-                invalidate();
+-            }
+-        }
+-    };
+-
+-    public void applyFromShortcutInfo(ShortcutInfo info, IconCache iconCache, boolean promiseStateChanged) {
+-        super.applyFromShortcutInfo(info, iconCache, promiseStateChanged);
+-        updateCalendarDate();
+-    }
+-
+-    public void applyFromApplicationInfo(AppInfo info) {
+-        super.applyFromApplicationInfo(info);
+-        updateCalendarDate();
+-    }
+-
+-    private void updateCalendarDate() {
+-        mLastDay = getTodayDate();
+-        Bitmap todayBitmap = BitmapFactory.decodeResource(mRes, mThumbIds[mLastDay-1]);
+-
+-        Drawable d = getCompoundDrawables()[1];
+-        if (d != null) {
+-            if(mBitmap != null) {
+-                mBitmap.recycle();
+-                mBitmap = null;
+-            }
+-            mBitmap = Bitmap.createBitmap(mCalendarWidth, mCalendarHeight, Config.ARGB_8888);
+-            mCanvas = new Canvas(mBitmap);
+-            mCanvas.drawBitmap(mBackgroundBitmap, 0, 0, null);
+-            mCanvas.drawBitmap(todayBitmap, 0 ,0, null);
+-            d = mLauncher.createIconDrawable(mBitmap);
+-            if (mIconSize != -1) {
+-                d.setBounds(0, 0, mIconSize, mIconSize);
+-            }
+-            setCompoundDrawables(null , d, null, null);
+-        }
+-    }
+-}
+Index: packages/apps/Launcher3/src/com/android/launcher3/SprdCuccWorkspaceAddonStub.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/SprdCuccWorkspaceAddonStub.java	(revision 173371)
++++ packages/apps/Launcher3/src/com/android/launcher3/SprdCuccWorkspaceAddonStub.java	(revision 173372)
+@@ -1,31 +0,0 @@
+-package com.android.launcher3;
+-
+-import java.util.ArrayList;
+-import java.util.HashMap;
+-
+-//import android.app.AddonManager;
+-import android.content.ComponentName;
+-import android.util.Log;
+-
+-public class SprdCuccWorkspaceAddonStub {
+-    private static final String TAG = "SprdCmccWorkspaceAddonStub";
+-
+-    private static SprdCuccWorkspaceAddonStub sInstance;
+-    protected boolean mHasCustomizeData = false;
+-
+-    public static SprdCuccWorkspaceAddonStub getInstance() {
+-        if (sInstance == null) {
+-            sInstance = (SprdCuccWorkspaceAddonStub) SprdAddonUtils.instance(
+-                    R.string.feature_cucc_app, SprdCuccWorkspaceAddonStub.class);
+-            if (sInstance == null) {
+-                sInstance = new SprdCuccWorkspaceAddonStub();
+-            }
+-        }
+-        return sInstance;
+-    }
+-
+-    protected boolean isDefault() {
+-        Log.d(TAG, "[isDefault]::");
+-        return mHasCustomizeData;
+-    }
+-}
+Index: packages/apps/Launcher3/src/com/android/launcher3/SprdAppSortAddonStub.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/SprdAppSortAddonStub.java	(revision 173371)
++++ packages/apps/Launcher3/src/com/android/launcher3/SprdAppSortAddonStub.java	(revision 173372)
+@@ -1,58 +0,0 @@
+-package com.android.launcher3;
+-
+-import java.util.ArrayList;
+-import java.util.List;
+-import java.util.HashMap;
+-import com.android.launcher3.AppInfo;
+-import android.app.AddonManager;
+-import android.content.ComponentName;
+-import android.util.Log;
+-
+-// SPRD: bug476770/375932 2014-12-02 Feature customize app icon sort.
+-public class SprdAppSortAddonStub {
+-
+-    private static final String TAG = "SprdAppSortAddonStub";
+-
+-    private static SprdAppSortAddonStub sInstance;
+-    protected boolean mHasCustomizeData = false;
+-
+-    public static SprdAppSortAddonStub getInstance() {
+-        Log.d(TAG, "=====SprdAppSortAddonStub   getInstance");
+-        if (sInstance != null) {
+-            return sInstance;
+-        }
+-        sInstance = (SprdAppSortAddonStub) AddonManager.getDefault().getAddon(R.string.feature_app_sort,
+-                SprdAppSortAddonStub.class);
+-        return sInstance;
+-    }
+-
+-    public final boolean hasCustomizeData() {
+-        return mHasCustomizeData;
+-    }
+-
+-    protected void onSortApps(ArrayList<AppInfo> appInfos) {
+-        Log.d(TAG, "onSortApps");
+-    }
+-
+-    public final void sortApps(List<AppInfo> apps) {
+-        Log.d(TAG, "sortApps :" + hasCustomizeData());
+-        if (!hasCustomizeData()) {
+-            return;
+-        }
+-
+-        ArrayList<AppInfo> sortedCNs = new ArrayList<AppInfo>();
+-
+-        for (AppInfo app : apps) {
+-            sortedCNs.add(app);
+-        }
+-
+-        onSortApps(sortedCNs);
+-
+-        apps.clear();
+-        for (int i = 0; i < sortedCNs.size(); i ++) {
+-            apps.add(sortedCNs.get(i));
+-        }
+-
+-    }
+-
+-}
+Index: packages/apps/Launcher3/src/com/android/launcher3/RootBootLoader.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/RootBootLoader.java	(revision 173371)
++++ packages/apps/Launcher3/src/com/android/launcher3/RootBootLoader.java	(revision 173372)
+@@ -1,40 +0,0 @@
+-package com.android.launcher3;
+-
+-import android.app.Activity;
+-import android.os.Bundle;
+-import android.os.Handler;
+-import android.os.Message;
+-
+-import android.widget.TextView;
+-
+-public class RootBootLoader extends Activity {
+-    private static final int FLASH_TIME_MESSAGE = 0;
+-    private TextView mTimeTv;
+-    private int TIME = 5;
+-
+-    @Override
+-    protected void onCreate(Bundle savedInstanceState) {
+-        super.onCreate(savedInstanceState);
+-        setContentView(R.layout.rootbootloader);
+-        mTimeTv = (TextView)findViewById(R.id.tv_content_three);
+-        mTimeTv.setText(getString(R.string.tv_content_three_text, 5));
+-        mHandler.sendEmptyMessageDelayed(FLASH_TIME_MESSAGE, 2000);
+-    }
+-
+-    private Handler mHandler = new Handler() {
+-        @Override
+-        public void handleMessage(Message msg) {
+-            if (msg.what == FLASH_TIME_MESSAGE) {
+-                if (TIME > 0) {
+-                    String time = getString(R.string.tv_content_three_text, TIME--);
+-                    mTimeTv.setText(time);
+-                    mHandler.sendEmptyMessageDelayed(FLASH_TIME_MESSAGE, 1000);
+-                } else {
+-                    finish();
+-                }
+-            }
+-            super.handleMessage(msg);
+-        }
+-    };
+-}
+-
+Index: packages/apps/Launcher3/src/com/android/launcher3/PredictedAppController.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/PredictedAppController.java	(revision 173371)
++++ packages/apps/Launcher3/src/com/android/launcher3/PredictedAppController.java	(revision 173372)
+@@ -1,144 +0,0 @@
+-
+-package com.android.launcher3;
+-
+-
+-import android.content.ComponentName;
+-import android.content.Context;
+-import android.content.SharedPreferences;
+-import android.util.Log;
+-
+-import com.android.launcher3.compat.UserHandleCompat;
+-import com.android.launcher3.util.ComponentKey;
+-
+-import org.json.JSONArray;
+-import org.json.JSONException;
+-
+-import java.util.ArrayList;
+-import java.util.Collections;
+-import java.util.Comparator;
+-import java.util.List;
+-import java.util.Map;
+-import java.util.Set;
+-import java.util.concurrent.ConcurrentHashMap;
+-
+-class PredictedAppController {
+-    private static final String TAG = "PredictedAppController";
+-    Context mContext;
+-    private String[] mPredictedCustomApp;
+-    private static ConcurrentHashMap<ComponentName, Integer> mPredictedList = new ConcurrentHashMap<>();
+-    private static final String CLICK_APP_LIST = "click_app_list";
+-
+-    PredictedAppController(Context context) {
+-        // TODO Auto-generated constructor stub
+-        mContext = context;
+-        mPredictedCustomApp = mContext.getResources().getStringArray(R.array.predictedapp_list);
+-    }
+-
+-    void initPredictedList(){
+-        if(!getSavedPredictedList().isEmpty()){
+-            mPredictedList.putAll(getSavedPredictedList());
+-        }else {
+-            for (String cnStr : mPredictedCustomApp) {
+-                ComponentName cn = ComponentName.unflattenFromString(cnStr);
+-                mPredictedList.put(cn, 0);
+-            }
+-        }
+-    }
+-
+-    void updatePredictedList(ComponentName cn){
+-        if(cn == null){
+-            return;
+-        }
+-        if(!mPredictedList.isEmpty()) {
+-            if (mPredictedList.containsKey(cn)) {
+-                int clickCount = mPredictedList.get(cn);
+-                mPredictedList.put(cn, clickCount + 1);
+-            }else{
+-                mPredictedList.put(cn, 1);
+-            }
+-        }else{
+-                initPredictedList();
+-        }
+-    }
+-
+-    void removeAppsFromPredicteList(final ArrayList<AppInfo> appInfos){
+-        for(int i = 0; i < appInfos.size(); i++){
+-            ComponentName cn = appInfos.get(i).componentName;
+-            if(cn != null){
+-                mPredictedList.remove(cn);
+-            }
+-        }
+-    }
+-
+-    List<ComponentKey> getCurrentPredictedList(){
+-        synchronized (this) {
+-            List<ComponentKey> currentPredictedList = new ArrayList<>();
+-
+-            List<Map.Entry<ComponentName, Integer>> temp = new ArrayList<>(mPredictedList.entrySet());
+-
+-            Collections.sort(temp, new Comparator<Map.Entry<ComponentName, Integer>>() {
+-                public int compare(Map.Entry<ComponentName, Integer> o1, Map.Entry<ComponentName, Integer> o2) {
+-                    return o2.getValue() - o1.getValue();
+-                }
+-            });
+-
+-            for (int i = 0; i < temp.size() - 1; i++) {
+-                ComponentName cn = temp.get(i).getKey();
+-                currentPredictedList.add(new ComponentKey(cn, UserHandleCompat.myUserHandle()));
+-           }
+-            return currentPredictedList;
+-        }
+-    }
+-
+-    private ConcurrentHashMap<ComponentName, Integer> getSavedPredictedList(){
+-        ConcurrentHashMap<ComponentName, Integer> savePredictedist = new ConcurrentHashMap<>();
+-        SharedPreferences sp = mContext.getSharedPreferences(CLICK_APP_LIST, Context.MODE_PRIVATE);
+-        int size = sp.getInt("predicted_app_size", 0);
+-        if(size != 0){
+-            for(int i = 0; i < size; i++){
+-                try {
+-                    JSONArray jsonArray = new JSONArray(sp.getString("predicted_app" + i, ""));
+-                    int length = jsonArray.length();
+-                    String[] data = new String[length];
+-                    for (int j = 0; j < length; j++){
+-                        String str = jsonArray.getString(j);
+-                        data[j] = str;
+-                    }
+-                    if(data[0] != null && data[1] != null) {
+-                        savePredictedist.put(ComponentName.unflattenFromString(data[0]), Integer.valueOf(data[1]));
+-                    }
+-                } catch (JSONException e) {
+-                    e.printStackTrace();
+-                }
+-            }
+-        }
+-        return  savePredictedist;
+-    }
+-
+-    void savePredictedList(){
+-        synchronized (this) {
+-            int size = mPredictedList.size();
+-            SharedPreferences sp = mContext.getSharedPreferences(CLICK_APP_LIST, Context.MODE_PRIVATE);
+-            SharedPreferences.Editor editor = sp.edit();
+-            editor.putInt("predicted_app_size", size);
+-            Log.d(TAG, "set predicted_app_size = " + size);
+-
+-            Set set = mPredictedList.keySet();
+-            int i = 0;
+-            for (Object obj : set){
+-                String[] data = new String[2];
+-                data[0] = ((ComponentName) obj).flattenToString();
+-                data[1] = mPredictedList.get(obj).toString();
+-
+-                JSONArray jsonArray = new JSONArray();
+-                for (String str : data) {
+-                    jsonArray.put(str);
+-                }
+-
+-                editor.putString("predicted_app" + i, jsonArray.toString());
+-                i++;
+-            }
+-            editor.apply();
+-        }
+-    }
+-}
+Index: packages/apps/Launcher3/src/com/android/launcher3/PiflowUntil.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/PiflowUntil.java	(revision 173371)
++++ packages/apps/Launcher3/src/com/android/launcher3/PiflowUntil.java	(revision 173372)
+@@ -1,32 +0,0 @@
+-/***
+- * 瀑布流配置工具
+- * 
+- */
+-package com.android.launcher3;
+-
+-import java.io.FileOutputStream;
+-import java.util.Properties;
+-import android.content.Context;
+-import android.util.Log;
+-
+-public class PiflowUntil{
+-	private final static String TAG = "piflowUntil";
+-	public final static String PIFLOW_PK_NAMGE="com.example.piflow";
+-	public final static String PIFLOW_LAYOUT = "activity_main";
+-	
+-	/**
+-	 * 保存配置信息至sdcard  
+-	 * @param context
+-	 */
+-	public static void saveConfig(Context context){
+-		try{
+-			Properties p = new Properties();
+-			p.put("launcher_pk_name", context.getPackageName());
+-			String file = "/sdcard/piflowConfig.dat";
+-			FileOutputStream s = new FileOutputStream(file,false);
+-			p.store(s, "");
+-		}catch(Exception e){
+-			Log.e(TAG,"save inveno piflow information error:"+e.getMessage());
+-		}
+-	}
+-}
+Index: packages/apps/Launcher3/src/com/android/launcher3/SprdUnreadInfoManager.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/SprdUnreadInfoManager.java	(revision 173371)
++++ packages/apps/Launcher3/src/com/android/launcher3/SprdUnreadInfoManager.java	(revision 173372)
+@@ -1,137 +0,0 @@
+-package com.android.launcher3;
+-
+-import java.io.File;
+-import java.io.FileOutputStream;
+-import java.lang.ref.WeakReference;
+-import java.util.ArrayList;
+-import java.util.HashMap;
+-import java.util.List;
+-
+-import android.app.AddonManager;
+-import android.content.ComponentName;
+-import android.content.ContentResolver;
+-import android.content.Context;
+-import android.content.Intent;
+-import android.content.UriMatcher;
+-import android.content.pm.PackageManager;
+-import android.database.ContentObserver;
+-import android.database.Cursor;
+-import android.graphics.Bitmap;
+-import android.graphics.Canvas;
+-import android.graphics.Color;
+-import android.graphics.Paint;
+-import android.graphics.Rect;
+-import android.graphics.drawable.Drawable;
+-import android.net.Uri;
+-import android.os.AsyncTask;
+-import android.os.Environment;
+-import android.provider.BaseColumns;
+-import android.provider.CallLog;
+-import android.util.Log;
+-import android.view.View;
+-import android.Manifest.permission;
+-
+-import com.android.launcher3.allapps.AllAppsContainerView;
+-import com.android.launcher3.allapps.AlphabeticalAppsList;
+-import com.android.launcher3.compat.UserHandleCompat;
+-
+-public class SprdUnreadInfoManager extends ContentObserver{
+-
+-    private static final String TAG = "SprdUnreadInfoManager";
+-    private static final boolean DEBUG = true;
+-
+-    private WeakReference<Launcher> mLauncherRef;
+-    private IconCache mIconCache;
+-    static SprdUnreadInfoManager sInstance;
+-
+-    public static SprdUnreadInfoManager getInstance() {
+-        if (sInstance == null)
+-            sInstance = (SprdUnreadInfoManager) AddonManager.getDefault().getAddon(R.string.unread_info_manager,
+-                    SprdUnreadInfoManager.class);
+-        return sInstance;
+-    }
+-
+-    public SprdUnreadInfoManager() {
+-        super(null);
+-    }
+-
+-    public SprdUnreadInfoManager(LauncherAppState appState) {
+-        super(null);
+-        Log.d(TAG, "SprdUnreadInfoManager");
+-    }
+-
+-    public void init(LauncherAppState appState){
+-    }
+-
+-    public void registerContentObservers(){
+-    }
+-
+-    public boolean isUnreadinfoOn(){
+-        return false;
+-    }
+-
+-    public void bindLauncher(Launcher launcher) {
+-    }
+-
+-    public void terminate() {
+-    }
+-
+-    /**
+-     * Note: this method be called in Launcher.onResume to check if there has
+-     * any unread info need to be updated, then update these unread info all at
+-     * once.
+-     */
+-    public void updateUnreadInfoIfNeeded() {
+-
+-    }
+-
+-    /**
+-     * Note: this method is called by Working thread in LauncherModel before load
+-     * and bind any icon into Workspace or AppsCustomizePagedView.
+-     *
+-     * Prepare the unread data and bitmap and then apply these bitmap when
+-     * new BubbleTextView need to be created.
+-     *
+-     * This method should not be called in UI thread for it manipulate database.
+-     */
+-    public void prepareUnreadInfo() {
+-
+-    }
+-
+-    @Override
+-    public void onChange(boolean selfChange, Uri uri) {
+-        super.onChange(selfChange, uri);
+-    }
+-
+-    public Bitmap getBitmapWithUnreadInfo(ShortcutInfo info, Bitmap originBmp) {
+-        return originBmp;
+-    }
+-
+-    public Bitmap getBitmapWithUnreadInfo(AppInfo info, Bitmap originBmp) {
+-        return originBmp;
+-    }
+-
+-    public boolean updateBubbleTextViewUnreadInfo(BubbleTextView bubble) {
+-        return false;
+-    }
+-
+-    private Bitmap getBitmapWithUnreadInfoInternal(ComponentName cn, Bitmap origin) {
+-        return origin;
+-    }
+-
+-    private boolean hasComponentUnreadInfoChanged(ComponentName cn) {
+-        return false;
+-    }
+-
+-    public void resetComponentsUnreadInfoChangedValue() {
+-
+-    }
+-
+-    public void updateUnreadInfo(Workspace wp) {
+-
+-    }
+-
+-    public void updateUnreadInfo(Launcher mLauncher,AlphabeticalAppsList mApps,AllAppsContainerView mAllAppsContainerView) {
+-
+-    }
+-}
+Index: packages/apps/Launcher3/src/com/android/launcher3/RootUtil.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/RootUtil.java	(revision 173371)
++++ packages/apps/Launcher3/src/com/android/launcher3/RootUtil.java	(revision 173372)
+@@ -1,39 +0,0 @@
+-package com.android.launcher3;
+-
+-import java.io.BufferedReader;
+-import java.io.File;
+-import java.io.InputStreamReader;
+-
+-public class RootUtil {
+-    public static boolean isDeviceRooted() {
+-        return checkRootMethod1() || checkRootMethod2() || checkRootMethod3();
+-    }
+-
+-    private static boolean checkRootMethod1() {
+-        String buildTags = android.os.Build.TAGS;
+-        return buildTags != null && buildTags.contains("test-keys");
+-    }
+-
+-    private static boolean checkRootMethod2() {
+-        String[] paths = { "/system/app/Superuser.apk", "/sbin/su", "/system/bin/su", "/system/xbin/su",
+-                "/data/local/xbin/su", "/data/local/bin/su", "/system/sd/xbin/su"};
+-        for (String path : paths) {
+-            if (new File(path).exists()) return true;
+-        }
+-        return false;
+-    }
+-
+-    private static boolean checkRootMethod3() {
+-        Process process = null;
+-        try {
+-            process = Runtime.getRuntime().exec(new String[] {"/system/xbin/which", "su"});
+-            BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+-            if (in.readLine() != null) return true;
+-            return false;
+-        } catch (Throwable t) {
+-            return false;
+-        } finally {
+-            if (process != null) process.destroy();
+-        }
+-    }
+-}
+Index: packages/apps/Launcher3/res/raw/collision.ogg
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xxhdpi/ic_hour_hand.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xxhdpi/ic_cicle.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xxhdpi/ic_minute_hand.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xxhdpi/ic_dial_plate.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_minute_hand.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/unread_info_background.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date10.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date11.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date12.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date13.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date14.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date15.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date16.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date17.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date18.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date19.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date1.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date2.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date3.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date4.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date5.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date6.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date7.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date8.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date9.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_hour_hand.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date20.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date21.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date22.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date23.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date24.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date25.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date26.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date27.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date28.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date29.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_calendar_plate.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_dial_plate.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date30.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_date31.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xhdpi/ic_cicle.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/values/array.xml
+===================================================================
+--- packages/apps/Launcher3/res/values/array.xml	(revision 173371)
++++ packages/apps/Launcher3/res/values/array.xml	(revision 173372)
+@@ -1,12 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<resources>
+-
+-    <string-array name="predictedapp_list" translatable="false">
+-        <item>com.android.settings/.Settings</item>
+-        <item>com.android.camera2/com.android.camera.CameraLauncher</item>
+-        <item>com.android.gallery3d/.app.GalleryActivity</item>
+-        <item>com.android.email/.activity.Welcome</item>
+-        <item>com.android.calculator2/.Calculator</item>
+-        <item>com.sprd.note/.NoteActivity</item>
+-    </string-array>
+-</resources>
+Index: packages/apps/Launcher3/res/drawable-mdpi/unread_info_background.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date10.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date11.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date12.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date13.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date14.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date15.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date16.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date17.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date18.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date19.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date1.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date2.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date3.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date4.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date5.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date6.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date7.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date8.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date9.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_hour_hand.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date20.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date21.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date22.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date23.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date24.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date25.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date26.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date27.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date28.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date29.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_calendar_plate.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_dial_plate.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date30.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_date31.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_cicle.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-mdpi/ic_minute_hand.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/unread_info_symbol.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/unread_info_background.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date10.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date11.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date12.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date13.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date14.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date15.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date16.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date17.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date18.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date19.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date1.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date2.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date3.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date4.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date5.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date311.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date6.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date7.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date8.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date9.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_hour_hand.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date20.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date21.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date22.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date23.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date24.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date25.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date26.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date27.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date28.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date29.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_info.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_calendar_plate.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_dial_plate.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date30.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_date31.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_cicle.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_minute_hand.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xxxhdpi/ic_minute_hand.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xxxhdpi/ic_dial_plate.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xxxhdpi/ic_hour_hand.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-xxxhdpi/ic_cicle.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/layout/application_clock.xml
+===================================================================
+--- packages/apps/Launcher3/res/layout/application_clock.xml	(revision 173371)
++++ packages/apps/Launcher3/res/layout/application_clock.xml	(revision 173372)
+@@ -1,19 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!-- Copyright (C) 2008 The Android Open Source Project
+-
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-
+-          http://www.apache.org/licenses/LICENSE-2.0
+-
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-
+-<com.android.launcher3.ClockBubbleTextView xmlns:android="http://schemas.android.com/apk/res/android"
+-   style="@style/Icon"
+-   android:focusable="true" />
+Index: packages/apps/Launcher3/res/layout/apps_customize_application_calendar.xml
+===================================================================
+--- packages/apps/Launcher3/res/layout/apps_customize_application_calendar.xml	(revision 173371)
++++ packages/apps/Launcher3/res/layout/apps_customize_application_calendar.xml	(revision 173372)
+@@ -1,15 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!-- Created by Spreadst -->
+-
+-<com.android.launcher3.CalendarBubbleTextView
+-    xmlns:android="http://schemas.android.com/apk/res/android"
+-    xmlns:launcher="http://schemas.android.com/apk/res-auto"
+-    style="@style/Icon.AllApps"
+-    android:id="@+id/application_icon"
+-    android:layout_width="match_parent"
+-    android:layout_height="wrap_content"
+-    android:layout_gravity="center"
+-    android:focusable="true"
+-    android:paddingTop="@dimen/all_apps_icon_top_bottom_padding"
+-    android:paddingBottom="@dimen/all_apps_icon_top_bottom_padding"
+-    launcher:iconDisplay="all_apps" />
+Index: packages/apps/Launcher3/res/layout/application.xml
+===================================================================
+--- packages/apps/Launcher3/res/layout/application.xml	(revision 173371)
++++ packages/apps/Launcher3/res/layout/application.xml	(revision 173372)
+@@ -1,19 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!-- Copyright (C) 2008 The Android Open Source Project
+-
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-
+-          http://www.apache.org/licenses/LICENSE-2.0
+-
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-
+-<com.android.launcher3.BubbleTextView xmlns:android="http://schemas.android.com/apk/res/android"
+-   style="@style/Icon"
+-   android:focusable="true" />
+Index: packages/apps/Launcher3/res/layout/web_view.xml
+===================================================================
+--- packages/apps/Launcher3/res/layout/web_view.xml	(revision 173371)
++++ packages/apps/Launcher3/res/layout/web_view.xml	(revision 173372)
+@@ -1,8 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<WebView
+-    xmlns:android="http://schemas.android.com/apk/res/android"
+-    xmlns:tools="http://schemas.android.com/tools"
+-    android:layout_width="wrap_content"
+-    android:layout_height="wrap_content"
+-    android:id="@+id/webView"
+-    />
+Index: packages/apps/Launcher3/res/layout/folder_application_clock.xml
+===================================================================
+--- packages/apps/Launcher3/res/layout/folder_application_clock.xml	(revision 173371)
++++ packages/apps/Launcher3/res/layout/folder_application_clock.xml	(revision 173372)
+@@ -1,19 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!-- Copyright (C) 2014 The Android Open Source Project
+-
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-
+-          http://www.apache.org/licenses/LICENSE-2.0
+-
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-
+-<com.android.launcher3.ClockBubbleTextView xmlns:android="http://schemas.android.com/apk/res/android"
+-   style="@style/Icon.Folder"
+-   android:focusable="true" />
+Index: packages/apps/Launcher3/res/layout/folder_application_calendar.xml
+===================================================================
+--- packages/apps/Launcher3/res/layout/folder_application_calendar.xml	(revision 173371)
++++ packages/apps/Launcher3/res/layout/folder_application_calendar.xml	(revision 173372)
+@@ -1,19 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!-- Copyright (C) 2014 The Android Open Source Project
+-
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-
+-          http://www.apache.org/licenses/LICENSE-2.0
+-
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-
+-<com.android.launcher3.CalendarBubbleTextView xmlns:android="http://schemas.android.com/apk/res/android"
+-   style="@style/Icon.Folder"
+-   android:focusable="true" />
+Index: packages/apps/Launcher3/res/layout/application_calendar.xml
+===================================================================
+--- packages/apps/Launcher3/res/layout/application_calendar.xml	(revision 173371)
++++ packages/apps/Launcher3/res/layout/application_calendar.xml	(revision 173372)
+@@ -1,6 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!-- Created by Spreadst -->
+-
+-<com.android.launcher3.CalendarBubbleTextView xmlns:android="http://schemas.android.com/apk/res/android"
+-   style="@style/Icon"
+-   android:focusable="true" />
+Index: packages/apps/Launcher3/res/layout/rootbootloader.xml
+===================================================================
+--- packages/apps/Launcher3/res/layout/rootbootloader.xml	(revision 173371)
++++ packages/apps/Launcher3/res/layout/rootbootloader.xml	(revision 173372)
+@@ -1,93 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:layout_width="match_parent"
+-    android:layout_height="match_parent"
+-    android:paddingBottom="@dimen/activity_vertical_margin"
+-    android:paddingLeft="@dimen/activity_horizontal_margin"
+-    android:paddingRight="@dimen/activity_horizontal_margin"
+-    android:background="#FF000000">
+-
+-    <ImageView
+-        android:layout_width="50dp"
+-        android:layout_height="50dp"
+-        android:id="@+id/iv_title"
+-        android:src="@drawable/ic_info" />
+-
+-    <TextView
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:textSize="20sp"
+-        android:layout_toRightOf="@id/iv_title"
+-        android:id="@+id/tv_title"
+-        android:text="@string/title_text"
+-        android:textColor="#FFFFF000"/>
+-
+-    <TextView
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:textSize="20sp"
+-        android:layout_toRightOf="@id/iv_title"
+-        android:layout_below="@id/tv_title"
+-        android:id="@+id/iv_title_summary"
+-        android:text="@string/iv_title_summary_text"
+-        android:textColor="#FFFFF000"/>
+-
+-    <View
+-        android:layout_width="match_parent"
+-        android:layout_height="2dp"
+-        android:id="@+id/line"
+-        android:layout_marginTop="10dp"
+-        android:layout_below="@id/iv_title"
+-        android:background="#FFFFF000"/>
+-
+-    <TextView
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:id="@+id/tv_content_one"
+-        android:layout_below="@+id/line"
+-        android:layout_marginTop="10dp"
+-        android:text="@string/tv_content_one_text"/>
+-
+-    <TextView
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:id="@+id/tv_content_two"
+-        android:textColor="#FFFFF000"
+-        android:textSize="20dp"
+-        android:layout_below="@+id/tv_content_one"
+-        android:text="@string/tv_content_two_text"/>
+-
+-    <TextView
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:id="@+id/tv_content_three"
+-        android:textSize="15sp"
+-        android:layout_below="@+id/tv_content_two" />
+-
+-    <TextView
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:id="@+id/tv_content_four"
+-        android:textSize="15sp"
+-        android:layout_below="@+id/tv_content_three"
+-        android:text="@string/tv_content_four_text"/>
+-
+-    <TextView
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:id="@+id/tv_content_five"
+-        android:textColor="#FFFFF000"
+-        android:textSize="20dp"
+-        android:layout_below="@+id/tv_content_four"
+-        android:text="@string/tv_content_five_text"/>
+-
+-    <TextView
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:id="@+id/tv_content_six"
+-        android:textSize="15sp"
+-        android:layout_below="@+id/tv_content_five"
+-        android:text="@string/tv_content_six_text"/>
+-
+-</RelativeLayout>
+-
+Index: packages/apps/Launcher3/res/layout/apps_customize_application_clock.xml
+===================================================================
+--- packages/apps/Launcher3/res/layout/apps_customize_application_clock.xml	(revision 173371)
++++ packages/apps/Launcher3/res/layout/apps_customize_application_clock.xml	(revision 173372)
+@@ -1,28 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!-- Copyright (C) 2011 The Android Open Source Project
+-
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-
+-          http://www.apache.org/licenses/LICENSE-2.0
+-
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-
+-<com.android.launcher3.ClockBubbleTextView
+-    xmlns:android="http://schemas.android.com/apk/res/android"
+-    xmlns:launcher="http://schemas.android.com/apk/res-auto"
+-    style="@style/Icon.AllApps"
+-    android:id="@+id/application_icon"
+-    android:layout_width="match_parent"
+-    android:layout_height="wrap_content"
+-    android:layout_gravity="center"
+-    android:focusable="true"
+-    android:paddingTop="@dimen/all_apps_icon_top_bottom_padding"
+-    android:paddingBottom="@dimen/all_apps_icon_top_bottom_padding"
+-    launcher:iconDisplay="all_apps" />
+Index: packages/apps/Launcher3/res/xml/default_workspace_cmcc_5x5.xml
+===================================================================
+--- packages/apps/Launcher3/res/xml/default_workspace_cmcc_5x5.xml	(revision 173371)
++++ packages/apps/Launcher3/res/xml/default_workspace_cmcc_5x5.xml	(revision 173372)
+@@ -1,116 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!-- Copyright (C) 2009 The Android Open Source Project
+-
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-
+-          http://www.apache.org/licenses/LICENSE-2.0
+-
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-
+-<favorites xmlns:launcher="http://schemas.android.com/apk/res-auto/com.android.launcher3">
+-    <!-- Far-left screen [0] -->
+-
+-    <!-- Left screen [1] -->
+-    <appwidget
+-        launcher:packageName="com.android.settings"
+-        launcher:className="com.android.settings.widget.SettingsAppWidgetProvider"
+-        launcher:screen="1"
+-        launcher:x="0"
+-        launcher:y="3"
+-        launcher:spanX="4"
+-        launcher:spanY="1" />
+-
+-    <!-- Middle screen [2] -->
+-    <appwidget
+-        launcher:packageName="com.android.deskclock"
+-        launcher:className="com.android.alarmclock.AnalogAppWidgetProvider"
+-        launcher:screen="2"
+-        launcher:x="1"
+-        launcher:y="0"
+-        launcher:spanX="2"
+-        launcher:spanY="2" />
+-
+-    <!-- Right screen [3] -->
+-    <favorite
+-        launcher:packageName="com.android.camera2"
+-        launcher:className="com.android.camera.CameraLauncher"
+-        launcher:screen="3"
+-        launcher:x="0"
+-        launcher:y="3" />
+-    <favorite
+-        launcher:packageName="com.android.settings"
+-        launcher:className="com.android.settings.wifi.WifiSettings"
+-        launcher:screen="3"
+-        launcher:x="0"
+-        launcher:y="2" />
+-    <favorite
+-        launcher:packageName="com.android.gallery3d"
+-        launcher:className="com.android.gallery3d.app.GalleryActivity"
+-        launcher:screen="3"
+-        launcher:x="1"
+-        launcher:y="3" />
+-    <favorite
+-        launcher:packageName="com.android.settings"
+-        launcher:className="com.android.settings.Settings"
+-        launcher:screen="3"
+-        launcher:x="2"
+-        launcher:y="3" />
+-    <favorite
+-        launcher:className="com.sprd.appbackup.activities.MainActivity"
+-        launcher:packageName="com.sprd.appbackup"
+-        launcher:screen="3"
+-        launcher:x="3"
+-        launcher:y="3" />
+-
+-    <!-- Far-right screen [4] -->
+-
+-    <!-- Hotseat (We use the screen as the position of the item in the hotseat) -->
+-    <!-- Dialer, Contacts, [All Apps], Messaging, Browser -->
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="0"
+-        launcher:x="0"
+-        launcher:y="0" >
+-
+-        <favorite
+-            launcher:packageName="com.android.dialer"
+-            launcher:className="com.android.dialer.DialtactsActivity" />
+-    </resolve>
+-
+-    <favorite
+-        launcher:packageName="com.android.contacts"
+-        launcher:className="com.android.contacts.activities.PeopleActivity"
+-        launcher:container="-101"
+-        launcher:screen="1"
+-        launcher:x="1"
+-        launcher:y="0" />
+-
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="3"
+-        launcher:x="3"
+-        launcher:y="0" >
+-
+-        <favorite
+-            launcher:packageName="com.android.messaging"
+-            launcher:className="com.android.messaging.ui.conversationlist.ConversationListActivity" />
+-    </resolve>
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="4"
+-        launcher:x="4"
+-        launcher:y="0" >
+-
+-        <favorite
+-            launcher:packageName="com.android.browser"
+-            launcher:className="com.android.browser.BrowserActivity" />
+-    </resolve>
+-
+-</favorites>
+Index: packages/apps/Launcher3/res/xml/default_workspace_cmcc_5x6.xml
+===================================================================
+--- packages/apps/Launcher3/res/xml/default_workspace_cmcc_5x6.xml	(revision 173371)
++++ packages/apps/Launcher3/res/xml/default_workspace_cmcc_5x6.xml	(revision 173372)
+@@ -1,109 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!-- Copyright (C) 2012 The Android Open Source Project
+-
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-
+-          http://www.apache.org/licenses/LICENSE-2.0
+-
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-
+-<favorites xmlns:launcher="http://schemas.android.com/apk/res-auto/com.android.launcher3">
+-    <!-- Far-left screen [0] -->
+-
+-    <!-- Left screen [1] -->
+-    <appwidget
+-        launcher:packageName="com.android.settings"
+-        launcher:className="com.android.settings.widget.SettingsAppWidgetProvider"
+-        launcher:screen="1"
+-        launcher:x="0"
+-        launcher:y="3"
+-        launcher:spanX="4"
+-        launcher:spanY="1" />
+-
+-    <!-- Middle screen [2] -->
+-    <appwidget
+-        launcher:packageName="com.android.deskclock"
+-        launcher:className="com.android.alarmclock.AnalogAppWidgetProvider"
+-        launcher:screen="2"
+-        launcher:x="1"
+-        launcher:y="0"
+-        launcher:spanX="2"
+-        launcher:spanY="2" />
+-
+-    <!-- Right screen [3] -->
+-    <favorite
+-        launcher:packageName="com.android.camera2"
+-        launcher:className="com.android.camera.CameraLauncher"
+-        launcher:screen="3"
+-        launcher:x="0"
+-        launcher:y="3" />
+-    <favorite
+-        launcher:packageName="com.android.settings"
+-        launcher:className="com.android.settings.wifi.WifiSettings"
+-        launcher:screen="3"
+-        launcher:x="0"
+-        launcher:y="2" />
+-    <favorite
+-        launcher:packageName="com.android.gallery3d"
+-        launcher:className="com.android.gallery3d.app.GalleryActivity"
+-        launcher:screen="3"
+-        launcher:x="1"
+-        launcher:y="3" />
+-    <favorite
+-        launcher:className="com.sprd.appbackup.activities.MainActivity"
+-        launcher:packageName="com.sprd.appbackup"
+-        launcher:screen="3"
+-        launcher:x="3"
+-        launcher:y="3" />
+-
+-    <!-- Far-right screen [4] -->
+-
+-    <!-- Hotseat (We use the screen as the position of the item in the hotseat) -->
+-    <!-- Dialer, Contacts, [All Apps], Messaging, Browser -->
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="1"
+-        launcher:x="1"
+-        launcher:y="0" >
+-
+-        <favorite
+-            launcher:packageName="com.android.dialer"
+-            launcher:className="com.android.dialer.DialtactsActivity" />
+-    </resolve>
+-
+-    <favorite
+-        launcher:packageName="com.android.contacts"
+-        launcher:className="com.android.contacts.activities.PeopleActivity"
+-        launcher:container="-101"
+-        launcher:screen="2"
+-        launcher:x="2"
+-        launcher:y="0" />
+-
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="4"
+-        launcher:x="4"
+-        launcher:y="0" >
+-
+-        <favorite
+-            launcher:packageName="com.android.messaging"
+-            launcher:className="com.android.messaging.ui.conversationlist.ConversationListActivity" />
+-    </resolve>
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="5"
+-        launcher:x="5"
+-        launcher:y="0" >
+-
+-        <favorite
+-            launcher:packageName="com.android.browser"
+-            launcher:className="com.android.browser.BrowserActivity" />
+-    </resolve>
+-</favorites>
+Index: packages/apps/Launcher3/res/xml/default_workspace_cucc_4x4.xml
+===================================================================
+--- packages/apps/Launcher3/res/xml/default_workspace_cucc_4x4.xml	(revision 173371)
++++ packages/apps/Launcher3/res/xml/default_workspace_cucc_4x4.xml	(revision 173372)
+@@ -1,116 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!-- Copyright (C) 2009 The Android Open Source Project
+-
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-
+-          http://www.apache.org/licenses/LICENSE-2.0
+-
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-
+-<favorites xmlns:launcher="http://schemas.android.com/apk/res-auto/com.android.launcher3">
+-    <!-- Far-left screen [0] -->
+-
+-    <!-- Left screen [1] -->
+-    <appwidget
+-        launcher:packageName="com.android.settings"
+-        launcher:className="com.android.settings.widget.SettingsAppWidgetProvider"
+-        launcher:screen="1"
+-        launcher:x="0"
+-        launcher:y="3"
+-        launcher:spanX="4"
+-        launcher:spanY="1" />
+-
+-    <!-- Middle screen [2] -->
+-    <appwidget
+-        launcher:packageName="com.android.deskclock"
+-        launcher:className="com.android.alarmclock.AnalogAppWidgetProvider"
+-        launcher:screen="2"
+-        launcher:x="1"
+-        launcher:y="0"
+-        launcher:spanX="2"
+-        launcher:spanY="2" />
+-
+-    <!-- Right screen [3] -->
+-    <favorite
+-        launcher:packageName="com.android.settings"
+-        launcher:className="com.android.settings.wifi.WifiSettings"
+-        launcher:screen="3"
+-        launcher:x="0"
+-        launcher:y="2" />
+-    <favorite
+-        launcher:packageName="com.android.camera2"
+-        launcher:className="com.android.camera.CameraLauncher"
+-        launcher:screen="3"
+-        launcher:x="0"
+-        launcher:y="3" />
+-    <favorite
+-        launcher:packageName="com.android.gallery3d"
+-        launcher:className="com.android.gallery3d.app.GalleryActivity"
+-        launcher:screen="3"
+-        launcher:x="1"
+-        launcher:y="3" />
+-    <favorite
+-        launcher:packageName="com.android.settings"
+-        launcher:className="com.android.settings.Settings"
+-        launcher:screen="3"
+-        launcher:x="2"
+-        launcher:y="3" />
+-    <favorite
+-        launcher:className="com.sprd.appbackup.activities.MainActivity"
+-        launcher:packageName="com.sprd.appbackup"
+-        launcher:screen="3"
+-        launcher:x="3"
+-        launcher:y="3" />
+-
+-<!-- Far-right screen [4] -->
+-
+-    <!-- Hotseat (We use the screen as the position of the item in the hotseat) -->
+-    <!-- Dialer, Contacts, [All Apps], Messaging, Browser -->
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="0"
+-        launcher:x="0"
+-        launcher:y="0" >
+-
+-        <favorite
+-            launcher:packageName="com.android.dialer"
+-            launcher:className="com.android.dialer.DialtactsActivity" />
+-    </resolve>
+-
+-    <favorite
+-        launcher:packageName="com.android.contacts"
+-        launcher:className="com.android.contacts.activities.PeopleActivity"
+-        launcher:container="-101"
+-        launcher:screen="1"
+-        launcher:x="1"
+-        launcher:y="0" />
+-
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="3"
+-        launcher:x="3"
+-        launcher:y="0" >
+-
+-        <favorite
+-            launcher:packageName="com.android.messaging"
+-            launcher:className="com.android.messaging.ui.conversationlist.ConversationListActivity" />
+-    </resolve>
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="4"
+-        launcher:x="4"
+-        launcher:y="0" >
+-
+-        <favorite
+-            launcher:packageName="com.android.browser"
+-            launcher:className="com.android.browser.BrowserActivity" />
+-    </resolve>
+-
+-</favorites>
+Index: packages/apps/Launcher3/res/xml/default_workspace_cucc_5x5.xml
+===================================================================
+--- packages/apps/Launcher3/res/xml/default_workspace_cucc_5x5.xml	(revision 173371)
++++ packages/apps/Launcher3/res/xml/default_workspace_cucc_5x5.xml	(revision 173372)
+@@ -1,116 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!-- Copyright (C) 2009 The Android Open Source Project
+-
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-
+-          http://www.apache.org/licenses/LICENSE-2.0
+-
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-
+-<favorites xmlns:launcher="http://schemas.android.com/apk/res-auto/com.android.launcher3">
+-    <!-- Far-left screen [0] -->
+-
+-    <!-- Left screen [1] -->
+-    <appwidget
+-        launcher:packageName="com.android.settings"
+-        launcher:className="com.android.settings.widget.SettingsAppWidgetProvider"
+-        launcher:screen="1"
+-        launcher:x="0"
+-        launcher:y="3"
+-        launcher:spanX="4"
+-        launcher:spanY="1" />
+-
+-    <!-- Middle screen [2] -->
+-    <appwidget
+-        launcher:packageName="com.android.deskclock"
+-        launcher:className="com.android.alarmclock.AnalogAppWidgetProvider"
+-        launcher:screen="2"
+-        launcher:x="1"
+-        launcher:y="0"
+-        launcher:spanX="2"
+-        launcher:spanY="2" />
+-
+-    <!-- Right screen [3] -->
+-    <favorite
+-        launcher:packageName="com.android.settings"
+-        launcher:className="com.android.settings.wifi.WifiSettings"
+-        launcher:screen="3"
+-        launcher:x="0"
+-        launcher:y="2" />
+-    <favorite
+-        launcher:packageName="com.android.camera2"
+-        launcher:className="com.android.camera.CameraLauncher"
+-        launcher:screen="3"
+-        launcher:x="0"
+-        launcher:y="3" />
+-    <favorite
+-        launcher:packageName="com.android.gallery3d"
+-        launcher:className="com.android.gallery3d.app.GalleryActivity"
+-        launcher:screen="3"
+-        launcher:x="1"
+-        launcher:y="3" />
+-    <favorite
+-        launcher:packageName="com.android.settings"
+-        launcher:className="com.android.settings.Settings"
+-        launcher:screen="3"
+-        launcher:x="2"
+-        launcher:y="3" />
+-    <favorite
+-        launcher:className="com.sprd.appbackup.activities.MainActivity"
+-        launcher:packageName="com.sprd.appbackup"
+-        launcher:screen="3"
+-        launcher:x="3"
+-        launcher:y="3" />
+-
+-    <!-- Far-right screen [4] -->
+-
+-    <!-- Hotseat (We use the screen as the position of the item in the hotseat) -->
+-    <!-- Dialer, Contacts, [All Apps], Messaging, Browser -->
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="0"
+-        launcher:x="0"
+-        launcher:y="0" >
+-
+-        <favorite
+-            launcher:packageName="com.android.dialer"
+-            launcher:className="com.android.dialer.DialtactsActivity" />
+-    </resolve>
+-
+-    <favorite
+-        launcher:packageName="com.android.contacts"
+-        launcher:className="com.android.contacts.activities.PeopleActivity"
+-        launcher:container="-101"
+-        launcher:screen="1"
+-        launcher:x="1"
+-        launcher:y="0" />
+-
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="3"
+-        launcher:x="3"
+-        launcher:y="0" >
+-
+-        <favorite
+-            launcher:packageName="com.android.messaging"
+-            launcher:className="com.android.messaging.ui.conversationlist.ConversationListActivity" />
+-    </resolve>
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="4"
+-        launcher:x="4"
+-        launcher:y="0" >
+-
+-        <favorite
+-            launcher:packageName="com.android.browser"
+-            launcher:className="com.android.browser.BrowserActivity" />
+-    </resolve>
+-
+-</favorites>
+Index: packages/apps/Launcher3/res/xml/default_workspace_cucc_5x6.xml
+===================================================================
+--- packages/apps/Launcher3/res/xml/default_workspace_cucc_5x6.xml	(revision 173371)
++++ packages/apps/Launcher3/res/xml/default_workspace_cucc_5x6.xml	(revision 173372)
+@@ -1,109 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!-- Copyright (C) 2012 The Android Open Source Project
+-
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-
+-          http://www.apache.org/licenses/LICENSE-2.0
+-
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-
+-<favorites xmlns:launcher="http://schemas.android.com/apk/res-auto/com.android.launcher3">
+-    <!-- Far-left screen [0] -->
+-
+-    <!-- Left screen [1] -->
+-    <appwidget
+-        launcher:packageName="com.android.settings"
+-        launcher:className="com.android.settings.widget.SettingsAppWidgetProvider"
+-        launcher:screen="1"
+-        launcher:x="0"
+-        launcher:y="3"
+-        launcher:spanX="4"
+-        launcher:spanY="1" />
+-
+-    <!-- Middle screen [2] -->
+-    <appwidget
+-        launcher:packageName="com.android.deskclock"
+-        launcher:className="com.android.alarmclock.AnalogAppWidgetProvider"
+-        launcher:screen="2"
+-        launcher:x="1"
+-        launcher:y="0"
+-        launcher:spanX="2"
+-        launcher:spanY="2" />
+-
+-    <!-- Right screen [3] -->
+-    <favorite
+-        launcher:packageName="com.android.settings"
+-        launcher:className="com.android.settings.wifi.WifiSettings"
+-        launcher:screen="3"
+-        launcher:x="0"
+-        launcher:y="2" />
+-    <favorite
+-        launcher:packageName="com.android.camera2"
+-        launcher:className="com.android.camera.CameraLauncher"
+-        launcher:screen="3"
+-        launcher:x="0"
+-        launcher:y="3" />
+-    <favorite
+-        launcher:packageName="com.android.gallery3d"
+-        launcher:className="com.android.gallery3d.app.GalleryActivity"
+-        launcher:screen="3"
+-        launcher:x="1"
+-        launcher:y="3" />
+-    <favorite
+-        launcher:className="com.sprd.appbackup.activities.MainActivity"
+-        launcher:packageName="com.sprd.appbackup"
+-        launcher:screen="3"
+-        launcher:x="3"
+-        launcher:y="3" />
+-
+-    <!-- Far-right screen [4] -->
+-
+-    <!-- Hotseat (We use the screen as the position of the item in the hotseat) -->
+-    <!-- Dialer, Contacts, [All Apps], Messaging, Browser -->
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="1"
+-        launcher:x="1"
+-        launcher:y="0" >
+-
+-        <favorite
+-            launcher:packageName="com.android.dialer"
+-            launcher:className="com.android.dialer.DialtactsActivity" />
+-    </resolve>
+-
+-    <favorite
+-        launcher:packageName="com.android.contacts"
+-        launcher:className="com.android.contacts.activities.PeopleActivity"
+-        launcher:container="-101"
+-        launcher:screen="2"
+-        launcher:x="2"
+-        launcher:y="0" />
+-
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="4"
+-        launcher:x="4"
+-        launcher:y="0" >
+-
+-        <favorite
+-            launcher:packageName="com.android.messaging"
+-            launcher:className="com.android.messaging.ui.conversationlist.ConversationListActivity" />
+-    </resolve>
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="5"
+-        launcher:x="5"
+-        launcher:y="0" >
+-
+-        <favorite
+-            launcher:packageName="com.android.browser"
+-            launcher:className="com.android.browser.BrowserActivity" />
+-    </resolve>
+-</favorites>
+Index: packages/apps/Launcher3/res/xml/default_workspace_cmcc_4x4.xml
+===================================================================
+--- packages/apps/Launcher3/res/xml/default_workspace_cmcc_4x4.xml	(revision 173371)
++++ packages/apps/Launcher3/res/xml/default_workspace_cmcc_4x4.xml	(revision 173372)
+@@ -1,116 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!-- Copyright (C) 2009 The Android Open Source Project
+-
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-
+-          http://www.apache.org/licenses/LICENSE-2.0
+-
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-
+-<favorites xmlns:launcher="http://schemas.android.com/apk/res-auto/com.android.launcher3">
+-    <!-- Far-left screen [0] -->
+-
+-    <!-- Left screen [1] -->
+-    <appwidget
+-        launcher:packageName="com.android.settings"
+-        launcher:className="com.android.settings.widget.SettingsAppWidgetProvider"
+-        launcher:screen="1"
+-        launcher:x="0"
+-        launcher:y="3"
+-        launcher:spanX="4"
+-        launcher:spanY="1" />
+-
+-    <!-- Middle screen [2] -->
+-    <appwidget
+-        launcher:packageName="com.android.deskclock"
+-        launcher:className="com.android.alarmclock.AnalogAppWidgetProvider"
+-        launcher:screen="2"
+-        launcher:x="1"
+-        launcher:y="0"
+-        launcher:spanX="2"
+-        launcher:spanY="2" />
+-
+-    <!-- Right screen [3] -->
+-        <favorite
+-        launcher:packageName="com.android.camera2"
+-        launcher:className="com.android.camera.CameraLauncher"
+-        launcher:screen="3"
+-        launcher:x="0"
+-        launcher:y="3" />
+-    <favorite
+-        launcher:packageName="com.android.settings"
+-        launcher:className="com.android.settings.wifi.WifiSettings"
+-        launcher:screen="3"
+-        launcher:x="0"
+-        launcher:y="2" />
+-    <favorite
+-        launcher:packageName="com.android.gallery3d"
+-        launcher:className="com.android.gallery3d.app.GalleryActivity"
+-        launcher:screen="3"
+-        launcher:x="1"
+-        launcher:y="3" />
+-    <favorite
+-        launcher:packageName="com.android.settings"
+-        launcher:className="com.android.settings.Settings"
+-        launcher:screen="3"
+-        launcher:x="2"
+-        launcher:y="3" />
+-    <favorite
+-        launcher:className="com.sprd.appbackup.activities.MainActivity"
+-        launcher:packageName="com.sprd.appbackup"
+-        launcher:screen="3"
+-        launcher:x="3"
+-        launcher:y="3" />
+-
+-<!-- Far-right screen [4] -->
+-
+-    <!-- Hotseat (We use the screen as the position of the item in the hotseat) -->
+-    <!-- Dialer, Contacts, [All Apps], Messaging, Browser -->
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="0"
+-        launcher:x="0"
+-        launcher:y="0" >
+-
+-        <favorite
+-            launcher:packageName="com.android.dialer"
+-            launcher:className="com.android.dialer.DialtactsActivity" />
+-    </resolve>
+-
+-    <favorite
+-        launcher:packageName="com.android.contacts"
+-        launcher:className="com.android.contacts.activities.PeopleActivity"
+-        launcher:container="-101"
+-        launcher:screen="1"
+-        launcher:x="1"
+-        launcher:y="0" />
+-
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="3"
+-        launcher:x="3"
+-        launcher:y="0" >
+-
+-        <favorite
+-            launcher:packageName="com.android.messaging"
+-            launcher:className="com.android.messaging.ui.conversationlist.ConversationListActivity" />
+-    </resolve>
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="4"
+-        launcher:x="4"
+-        launcher:y="0" >
+-
+-        <favorite
+-            launcher:packageName="com.android.browser"
+-            launcher:className="com.android.browser.BrowserActivity" />
+-    </resolve>
+-
+-</favorites>

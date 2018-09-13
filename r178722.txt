@@ -1,0 +1,27 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardFragment.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardFragment.java	(revision 178721)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardFragment.java	(revision 178722)
+@@ -210,6 +210,7 @@
+     private boolean mShowNumAndTime = true;//SPRD: add for bug603665
+     private View mTelcelIndicator;    // SPRD: Support Telcel Operator requirement.
+     private ImageButton mVolumeBoostUpButton;
++	private boolean mHasElapsedTimeFadeIn = false;
+ 
+     @Override
+     public CallCardPresenter.CallCardUi getUi() {
+@@ -1120,11 +1121,12 @@
+     @Override
+     public void setPrimaryCallElapsedTime(boolean show, long duration) {
+         if (show) {
+-            if (mElapsedTime.getVisibility() != View.VISIBLE) {
++            if (mElapsedTime.getVisibility() != View.VISIBLE || !mHasElapsedTimeFadeIn) {
+                 AnimUtils.fadeIn(mElapsedTime, AnimUtils.DEFAULT_DURATION);
++				mHasElapsedTimeFadeIn = true;
+             }
+             String callTimeElapsed = DateUtils.formatElapsedTime(duration / 1000);
+-			callTimeElapsed.replaceAll("[.]",":");
++
+             mElapsedTime.setText(callTimeElapsed);
+ 
+             String durationDescription =

@@ -1,0 +1,420 @@
+Index: vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/ExpandingEntryCardView.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/ExpandingEntryCardView.java	(revision 166621)
++++ vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/ExpandingEntryCardView.java	(revision 166622)
+@@ -118,6 +118,14 @@
+         private final int mIconResourceId;
+         private final int mThirdAction;
+         private final Bundle mThirdExtras;
++        private final Drawable mCall2gIcon;
++        private final Intent mCall2gIntent;
++        private final Drawable mSmsIcon;
++        private final Intent mSmsIntent;
++        private final Drawable mVideoCallIcon;
++        private final Intent mVideoCallIntent;
++        private final Drawable mCall4gIcon;
++        private final Intent mCall4gIntent;
+ 
+         public Entry(int id, Drawable mainIcon, String header, String subHeader,
+                 Drawable subHeaderIcon, String text, Drawable textIcon,
+@@ -126,7 +134,9 @@
+                 Spannable alternateContentDescription, boolean shouldApplyColor, boolean isEditable,
+                 EntryContextMenuInfo entryContextMenuInfo, Drawable thirdIcon, Intent thirdIntent,
+                 String thirdContentDescription, int thirdAction, Bundle thirdExtras,
+-                int iconResourceId) {
++                int iconResourceId, Drawable call2gIcon, Intent call2gIntent, Drawable smsIcon,
++                Intent smsIntent, Drawable videoCallIcon, Intent videoCallIntent, Drawable call4gIcon,
++                Intent call4gIntent) {
+             mId = id;
+             mIcon = mainIcon;
+             mHeader = header;
+@@ -148,6 +158,14 @@
+             mThirdAction = thirdAction;
+             mThirdExtras = thirdExtras;
+             mIconResourceId = iconResourceId;
++            mCall2gIcon = call2gIcon;
++            mCall2gIntent = call2gIntent;
++            mSmsIcon = smsIcon;
++            mSmsIntent = smsIntent;
++            mVideoCallIcon = videoCallIcon;
++            mVideoCallIntent = videoCallIntent;
++            mCall4gIcon = call4gIcon;
++            mCall4gIntent = call4gIntent;
+         }
+ 
+         Drawable getIcon() {
+@@ -233,6 +251,39 @@
+         public Bundle getThirdExtras() {
+             return mThirdExtras;
+         }
++
++        Drawable getCall2gIcon() {
++            return mCall2gIcon;
++        }
++
++        Intent getCall2gIntent() {
++            return mCall2gIntent;
++        }
++
++        Drawable getSmsIcon() {
++            return mSmsIcon;
++        }
++
++        Intent getSmsIntent() {
++            return mSmsIntent;
++        }
++
++        Drawable getVideoCallIcon() {
++            return mVideoCallIcon;
++        }
++
++        Intent getVideoCallIntent() {
++            return mVideoCallIntent;
++        }
++
++        Drawable getCall4gIcon() {
++            return mCall4gIcon;
++        }
++
++        Intent getCall4gIntent() {
++            return mCall4gIntent;
++        }
++
+     }
+ 
+     public interface ExpandingEntryCardViewListener {
+@@ -795,6 +846,38 @@
+                     view.getPaddingBottom());
+         }
+ 
++        final ImageView call2gIcon = (ImageView) view.findViewById(R.id.icon_2g);
++        if ((null != entry.getCall2gIcon()) && (null != entry.getCall2gIntent())) {
++            call2gIcon.setImageDrawable(entry.getCall2gIcon());
++            call2gIcon.setOnClickListener(mOnClickListener);
++            call2gIcon.setTag(new EntryTag(entry.getId(), entry.getCall2gIntent()));
++            call2gIcon.setVisibility(View.VISIBLE);
++        }
++
++        final ImageView smsIcon = (ImageView) view.findViewById(R.id.icon_sms);
++        if ((null != entry.getSmsIcon()) && (null != entry.getSmsIntent())) {
++            smsIcon.setImageDrawable(entry.getSmsIcon());
++            smsIcon.setOnClickListener(mOnClickListener);
++            smsIcon.setTag(new EntryTag(entry.getId(), entry.getSmsIntent()));
++            smsIcon.setVisibility(View.VISIBLE);
++        }
++
++        final ImageView videoCallIcon = (ImageView) view.findViewById(R.id.icon_video_call);
++        if ((null != entry.getVideoCallIcon()) && (null != entry.getVideoCallIntent())) {
++            videoCallIcon.setImageDrawable(entry.getVideoCallIcon());
++            videoCallIcon.setOnClickListener(mOnClickListener);
++            videoCallIcon.setTag(new EntryTag(entry.getId(), entry.getVideoCallIntent()));
++            videoCallIcon.setVisibility(View.VISIBLE);
++        }
++
++        final ImageView call4gIcon = (ImageView) view.findViewById(R.id.icon_4g);
++        if ((null != entry.getCall4gIcon()) && (null != entry.getCall4gIntent())) {
++            call4gIcon.setImageDrawable(entry.getCall4gIcon());
++            call4gIcon.setOnClickListener(mOnClickListener);
++            call4gIcon.setTag(new EntryTag(entry.getId(), entry.getCall4gIntent()));
++            call4gIcon.setVisibility(View.VISIBLE);
++        }
++
+         final ImageView alternateIcon = (ImageView) view.findViewById(R.id.icon_alternate);
+         final ImageView thirdIcon = (ImageView) view.findViewById(R.id.third_icon);
+ 
+@@ -802,7 +885,7 @@
+             alternateIcon.setImageDrawable(entry.getAlternateIcon());
+             alternateIcon.setOnClickListener(mOnClickListener);
+             alternateIcon.setTag(new EntryTag(entry.getId(), entry.getAlternateIntent()));
+-            alternateIcon.setVisibility(View.VISIBLE);
++            //alternateIcon.setVisibility(View.VISIBLE);
+             alternateIcon.setContentDescription(entry.getAlternateContentDescription());
+         }
+ 
+
+Property changes on: vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/ExpandingEntryCardView.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/ExpandingEntryCardView.java:r161638
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/ExpandingEntryCardView.java:r165464
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/ExpandingEntryCardView.java:r163700
+Index: vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/QuickContactActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/QuickContactActivity.java	(revision 166621)
++++ vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/QuickContactActivity.java	(revision 166622)
+@@ -247,6 +247,8 @@
+ import android.os.Message;
+ import android.os.Handler;
+ import android.os.HandlerThread;
++import android.telecom.PhoneAccountHandle;
++
+ /*
+  * @}
+  */
+@@ -1831,7 +1833,11 @@
+                     /* thirdContentDescription = */ null,
+                     /* thirdAction = */ Entry.ACTION_NONE,
+                     /* thirdExtras = */ null,
+-                    /* iconResourceId = */  0);
++                    /* iconResourceId = */  0,
++                    /*call2g*/null, null,
++                    /*sms*/null, null,
++                    /*videCcall*/null, null,
++                    /*call4g*/null, null);
+             List<Entry> phoneticList = new ArrayList<>();
+             phoneticList.add(phoneticEntry);
+             // Phonetic name comes after nickname. Check to see if the first entry type is nickname
+@@ -1886,7 +1892,11 @@
+                 /* thirdContentDescription = */ null,
+                 /* thirdAction = */ Entry.ACTION_NONE,
+                 /* thirdExtras = */ null,
+-                R.drawable.ic_phone_24dp);
++                R.drawable.ic_phone_24dp,
++                /*call2gIcon*/null, null,
++                /*sms*/null, null,
++                /*videCcall*/null, null,
++                /*call4g*/null, null);
+ 
+         final Drawable emailIcon = getResources().getDrawable(
+                 R.drawable.ic_email_24dp).mutate();
+@@ -1900,7 +1910,11 @@
+                 /* EntryContextMenuInfo = */ null, /* thirdIcon = */ null,
+                 /* thirdIntent = */ null, /* thirdContentDescription = */ null,
+                 /* thirdAction = */ Entry.ACTION_NONE, /* thirdExtras = */ null,
+-                R.drawable.ic_email_24dp);
++                R.drawable.ic_email_24dp,
++                /*call2gIcon*/null, null,
++                /*sms*/null, null,
++                /*videCcall*/null, null,
++                /*call4g*/null, null);
+ 
+         final List<List<Entry>> promptEntries = new ArrayList<>();
+         promptEntries.add(new ArrayList<Entry>(1));
+@@ -2063,6 +2077,16 @@
+         boolean shouldApplyColor = true;
+         Drawable alternateIcon = null;
+         Intent alternateIntent = null;
++        //Added by zhangleyi for 20170309 begin
++        Drawable call2gIcon = null;
++        Intent call2gIntent = null;
++        Drawable smsIcon = null;
++        Intent smsIntent = null;
++        Drawable videoCallIcon = null;
++        Intent videoCallIntent = null;
++        Drawable call4gIcon = null;
++        Intent call4gIntent = null;
++        //Added by zhangeleyi for 20170309 end
+         StringBuilder alternateContentDescription = new StringBuilder();
+         final boolean isEditable = false;
+         EntryContextMenuInfo entryContextMenuInfo = null;
+@@ -2222,6 +2246,29 @@
+                 smsContentDescription = com.android.contacts.common.util.ContactDisplayUtils
+                         .getTelephoneTtsSpannable(alternateContentDescription.toString(), header);
+ 
++                //Added by zhangleyi for 20170309 begin
++                TelecomManager telecomManager = (TelecomManager) context.getSystemService(Context.TELECOM_SERVICE);
++                if (telecomManager != null) {
++                    List<PhoneAccountHandle> phoneAccountHandleList = telecomManager.getCallCapablePhoneAccounts();
++                    if (2 == (phoneAccountHandleList.size())) {
++                        call2gIntent = new Intent();
++                        call2gIntent.setAction(Intent.ACTION_CALL);
++                        call2gIntent.setData(Uri.parse("tel:" + phone.getNumber()));
++                        call2gIntent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, phoneAccountHandleList.get(1));
++                    }
++                    call4gIntent = new Intent();
++                    call4gIntent.setAction(Intent.ACTION_CALL);
++                    call4gIntent.setData(Uri.parse("tel:" + phone.getNumber()));
++                    call4gIntent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, phoneAccountHandleList.get(0));
++                }
++                call2gIcon = res.getDrawable(R.drawable.ic_call_2g);
++                call4gIcon = res.getDrawable(R.drawable.ic_call_4g);
++                smsIcon = res.getDrawable(R.drawable.ic_sms);
++                smsIntent = new Intent(Intent.ACTION_SENDTO,
++                        Uri.fromParts(ContactsUtils.SCHEME_SMSTO, phone.getNumber(), null));
++                videoCallIcon = res.getDrawable(R.drawable.ic_video_call);
++                //Added by zhangleyi for 20170309 end
++
+                 int videoCapability = CallUtil.getVideoCallingAvailability(context);
+                 boolean isPresenceEnabled =
+                         (videoCapability & CallUtil.VIDEO_CALLING_PRESENCE) != 0;
+@@ -2497,7 +2544,8 @@
+                         : smsContentDescription,
+                 shouldApplyColor, isEditable,
+                 entryContextMenuInfo, thirdIcon, thirdIntent, thirdContentDescription, thirdAction,
+-                thirdExtras, iconResourceId);
++                thirdExtras, iconResourceId, call2gIcon, call2gIntent, smsIcon,
++                smsIntent, videoCallIcon, videoCallIntent, call4gIcon, call4gIntent);
+     }
+ 
+     private List<Entry> dataItemsToEntries(List<DataItem> dataItems,
+@@ -2807,7 +2855,11 @@
+                     /* thirdContentDescription = */ null,
+                     /* thirdAction = */ Entry.ACTION_NONE,
+                     /* thirdActionExtras = */ null,
+-                    interaction.getIconResourceId()));
++                    interaction.getIconResourceId(),
++                    /*call2gIcon*/null, null,
++                    /*sms*/null, null,
++                    /*videCcall*/null, null,
++                    /*call4g*/null, null));
+         }
+         return entries;
+     }
+
+Property changes on: vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/QuickContactActivity.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/QuickContactActivity.java:r161638
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/QuickContactActivity.java:r165464
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/QuickContactActivity.java:r163700
+Index: vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_sms.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_sms.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_sms.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_sms.png	(revision 166622)
+
+Property changes on: vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_sms.png
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_sms.png:r165464
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_call_4g.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_call_4g.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_call_4g.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_call_4g.png	(revision 166622)
+
+Property changes on: vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_call_4g.png
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_call_4g.png:r165464
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_video_call.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_video_call.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_video_call.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_video_call.png	(revision 166622)
+
+Property changes on: vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_video_call.png
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_video_call.png:r165464
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_call_2g.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_call_2g.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_call_2g.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_call_2g.png	(revision 166622)
+
+Property changes on: vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_call_2g.png
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/platform/packages/apps/SprdContacts/res/drawable-hdpi/ic_call_2g.png:r165464
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/SprdContacts/res/layout/expanding_entry_card_item.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/res/layout/expanding_entry_card_item.xml	(revision 166621)
++++ vendor/sprd/platform/packages/apps/SprdContacts/res/layout/expanding_entry_card_item.xml	(revision 166622)
+@@ -100,16 +100,59 @@
+          android:paddingLeft="@dimen/expanding_entry_card_item_icon_margin_left"
+          android:paddingRight="@dimen/expanding_entry_card_item_icon_margin_right"/>
+ 
+-     <ImageView
+-         android:id="@+id/icon_alternate"
+-         android:layout_width="wrap_content"
+-         android:layout_height="wrap_content"
+-         android:layout_alignParentEnd="true"
+-         android:layout_alignParentTop="true"
+-         android:visibility="gone"
+-         android:background="?android:attr/selectableItemBackgroundBorderless"
+-         android:paddingTop="@dimen/expanding_entry_card_item_icon_margin_top"
+-         android:paddingBottom="@dimen/expanding_entry_card_item_icon_margin_bottom"
+-         android:paddingLeft="@dimen/expanding_entry_card_item_icon_margin_left"
+-         android:paddingRight="@dimen/expanding_entry_card_item_icon_margin_right"/>
++    <ImageView
++        android:id="@+id/icon_alternate"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_alignParentEnd="true"
++        android:layout_alignParentTop="true"
++        android:visibility="gone"
++        android:background="?android:attr/selectableItemBackgroundBorderless"
++        android:paddingTop="@dimen/expanding_entry_card_item_icon_margin_top"
++        android:paddingBottom="@dimen/expanding_entry_card_item_icon_margin_bottom"
++        android:paddingLeft="@dimen/expanding_entry_card_item_icon_margin_left"
++        android:paddingRight="@dimen/expanding_entry_card_item_icon_margin_right"/>
++
++    <LinearLayout
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:orientation="horizontal"
++        android:layout_below="@+id/text" >
++
++    <ImageView
++        android:id="@+id/icon_2g"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:focusable="true"
++        android:visibility="gone"
++        android:layout_marginLeft="20dp"
++        android:src="@drawable/ic_call_2g" />
++
++    <ImageView
++        android:id="@+id/icon_sms"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:focusable="true"
++        android:visibility="gone"
++        android:layout_marginLeft="20dp"
++        android:src="@drawable/ic_sms"/>
++
++    <ImageView
++        android:id="@+id/icon_video_call"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:focusable="true"
++        android:visibility="gone"
++        android:layout_marginLeft="20dp"
++        android:src="@drawable/ic_video_call"/>
++
++    <ImageView
++        android:id="@+id/icon_4g"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:focusable="true"
++        android:visibility="gone"
++        android:layout_marginLeft="20dp"
++        android:src="@drawable/ic_call_4g"/>
++    </LinearLayout>
+ </view>
+
+Property changes on: vendor/sprd/platform/packages/apps/SprdContacts/res/layout/expanding_entry_card_item.xml
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/vendor/sprd/platform/packages/apps/SprdContacts/res/layout/expanding_entry_card_item.xml:r161638
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/platform/packages/apps/SprdContacts/res/layout/expanding_entry_card_item.xml:r165464
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/vendor/sprd/platform/packages/apps/SprdContacts/res/layout/expanding_entry_card_item.xml:r163700

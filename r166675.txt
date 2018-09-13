@@ -1,0 +1,20 @@
+Index: frameworks/base/core/res/res/values/config.xml
+===================================================================
+--- frameworks/base/core/res/res/values/config.xml	(revision 166674)
++++ frameworks/base/core/res/res/values/config.xml	(revision 166675)
+@@ -992,7 +992,7 @@
+ 
+     <!-- Minimum screen brightness setting allowed by the power manager.
+          The user is forbidden from setting the brightness below this level. -->
+-    <integer name="config_screenBrightnessSettingMinimum">10</integer>
++    <integer name="config_screenBrightnessSettingMinimum">1</integer>
+ 
+     <!-- Maximum screen brightness allowed by the power manager.
+          The user is forbidden from setting the brightness above this level. -->
+
+Property changes on: frameworks/base/core/res/res/values/config.xml
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/frameworks/base/core/res/res/values/config.xml:r165587
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/frameworks/base/core/res/res/values/config.xml:r163740
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/frameworks/base/core/res/res/values/config.xml:r163615

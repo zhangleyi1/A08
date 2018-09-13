@@ -1,0 +1,111 @@
+Index: vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/NameLookupBuilder.java
+===================================================================
+--- vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/NameLookupBuilder.java	(revision 182820)
++++ vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/NameLookupBuilder.java	(revision 182821)
+@@ -140,10 +140,6 @@
+     }
+ 
+     public void appendToSearchIndex(IndexBuilder builder, String name, int fullNameStyle) {
+-        //name = name.replaceAll("\\s+", "");
+-        if (name != null) {
+-            name = name.replaceAll("\\s+", "");
+-        }
+ 
+         int tokenCount = mSplitter.tokenize(mNames, name);
+         if (tokenCount == 0) {
+Index: vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/DataRowHandlerForStructuredName.java
+===================================================================
+--- vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/DataRowHandlerForStructuredName.java	(revision 182820)
++++ vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/DataRowHandlerForStructuredName.java	(revision 182821)
+@@ -238,11 +238,7 @@
+         /**
+         * @}
+         */
+-        //String name = builder.getString(StructuredName.DISPLAY_NAME).replaceAll("\\s+", "");
+         String name = builder.getString(StructuredName.DISPLAY_NAME);
+-        if (name != null) {
+-            name = name.replaceAll("\\s+", "");
+-        }
+         Integer fullNameStyle = builder.getInt(StructuredName.FULL_NAME_STYLE);
+ 
+         mNameLookupBuilder.appendToSearchIndex(builder, name, fullNameStyle != null
+Index: vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/DataRowHandler.java
+===================================================================
+--- vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/DataRowHandler.java	(revision 182820)
++++ vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/DataRowHandler.java	(revision 182821)
+@@ -264,25 +264,17 @@
+         if (TextUtils.isEmpty(value)) {
+             return;
+         }
+-		/*
+-        builder.appendToken(value);
+-        int N = value.length();
+-        for (int i = 1; i < N; ++i) {
+-            builder.appendToken(value.substring(i, Math.min(i + MAX_SEARCH_SNIPPET_SIZE, N)));
+-        }
+-        */
+-        /**
+-         * @}
+-         */
+-      if (StructuredName.CONTENT_ITEM_TYPE.equals(mMimetype)) {
+-           builder.appendToken(value.replaceAll("\\s+", ""));
+-        } else {
++
++        if (!StructuredName.CONTENT_ITEM_TYPE.equals(mMimetype)) {
+             builder.appendToken(value);
+             int N = value.length();
+             for (int i = 1; i < N; ++i) {
+                 builder.appendToken(value.substring(i, Math.min(i + MAX_SEARCH_SNIPPET_SIZE, N)));
+             }
+-   		}
++        }
++        /**
++         * @}
++         */
+     }
+ 
+     /**
+Index: vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/ContactsProvider2.java
+===================================================================
+--- vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/ContactsProvider2.java	(revision 182820)
++++ vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/ContactsProvider2.java	(revision 182821)
+@@ -6749,12 +6749,13 @@
+                 setTablesAndProjectionMapForContactsWithSnippet(
+                         qb, uri, projection, filterParam, directoryId,
+                         snippetDeferred);
+-				
+-				if (!TextUtils.isEmpty(sortOrder)) {
+-					sortOrder = " CASE WHEN " + Contacts.DISPLAY_NAME
+-						+ " LIKE '" + uri.getLastPathSegment() + "%'" + " THEN 0"
+-						+ " ELSE 1 END"+ ", " + sortOrder;
+-				}
++
++                 if (!TextUtils.isEmpty(sortOrder)) {
++                     sortOrder = " CASE WHEN " + Contacts.DISPLAY_NAME
++                                + " LIKE '" + uri.getLastPathSegment() + "%'" + " THEN 0"
++                                + " ELSE 1 END"+ ", " + sortOrder;
++                 }
++
+                 break;
+             }
+ 
+Index: vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/CallLogProvider.java
+===================================================================
+--- vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/CallLogProvider.java	(revision 182820)
++++ vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/CallLogProvider.java	(revision 182821)
+@@ -492,6 +492,7 @@
+                                     + ContactsDatabaseHelper.Tables.PHONE_LOOKUP + "." + Data.RAW_CONTACT_ID + "="
+                                     + RawContactsColumns.CONCRETE_ID + ")" + " WHERE ( "
+                                     + PhoneLookupColumns.NORMALIZED_NUMBER + " LIKE '");
++                            sb.append("%");
+                             sb.append(normalizeNumber);
+                             sb.append("%'");
+                             sb.append(" AND " + RawContactsColumns.CONCRETE_DELETED + "=0 ");
+@@ -500,6 +501,7 @@
+                             sb.append(Data._ID + " IN (SELECT DISTINCT "
+                                     + PhoneLookupColumns.DATA_ID + " FROM " + ContactsDatabaseHelper.Tables.PHONE_LOOKUP
+                                     + " WHERE (" + PhoneLookupColumns.NORMALIZED_NUMBER + " LIKE '");
++                            sb.append("%");
+                             sb.append(normalizeNumber);
+                             sb.append("%')");
+                         }

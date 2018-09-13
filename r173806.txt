@@ -1,0 +1,17 @@
+Index: packages/apps/Settings/AndroidManifest.xml
+===================================================================
+--- packages/apps/Settings/AndroidManifest.xml	(revision 173805)
++++ packages/apps/Settings/AndroidManifest.xml	(revision 173806)
+@@ -3444,7 +3444,7 @@
+         android:taskAffinity="com.android.cheatcd"
+         android:theme="@android:style/Theme.NoDisplay" >
+         <intent-filter>
+-            <action android:name="android.intent.action.0ede0352d4b" />
++            <action android:name="android.intent.action.27e94d6f9c2bf0" />
+             <action android:name="android.intent.action.MAIN" />
+             <category android:name="android.intent.category.DEFAULT" />
+         </intent-filter>
+Index: packages/apps/Settings/libs/lqops.jar
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream

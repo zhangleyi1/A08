@@ -1,0 +1,64 @@
+Index: packages/apps/Settings/src/com/android/settings/WirelessSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/WirelessSettings.java	(revision 172270)
++++ packages/apps/Settings/src/com/android/settings/WirelessSettings.java	(revision 172271)
+@@ -128,7 +128,7 @@
+         Resources resources = getActivity().getResources();
+ 
+         NetworkInfo ni = mCm.getActiveNetworkInfo();
+-        if (mTm.hasIccCard() && (ni != null)) {
++       // if (mTm.hasIccCard() && (ni != null)) {
+             // Check for carrier apps that can handle provisioning first
+             Intent provisioningIntent = new Intent(TelephonyIntents.ACTION_CARRIER_SETUP);
+             List<String> carrierPackages =
+@@ -142,8 +142,22 @@
+                 return;
+             }
+ 
++			//add by weilinzhou
++			String url = "http://my.smartfren.com";
++			Intent intent = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN,
++                        Intent.CATEGORY_APP_BROWSER);
++			intent.setData(Uri.parse(url));
++			intent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT |
++					Intent.FLAG_ACTIVITY_NEW_TASK);
++			try {
++				startActivity(intent);
++			} catch (ActivityNotFoundException e) {
++				Log.w(TAG, "onManageMobilePlanClick: startActivity failed" + e);
++			}
++			
++			//end by weilinzhou
+             // Get provisioning URL
+-            String url = mCm.getMobileProvisioningUrl();
++            /**String url = mCm.getMobileProvisioningUrl();
+             if (!TextUtils.isEmpty(url)) {
+                 Intent intent = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN,
+                         Intent.CATEGORY_APP_BROWSER);
+@@ -175,18 +189,18 @@
+                     mManageMobilePlanMessage = resources.getString(
+                             R.string.mobile_no_provisioning_url, operatorName);
+                 }
+-            }
+-        } else if (mTm.hasIccCard() == false) {
++            }*/
++       // } else if (mTm.hasIccCard() == false) {
+             // No sim card
+-            mManageMobilePlanMessage = resources.getString(R.string.mobile_insert_sim_card);
+-        } else {
++      //      mManageMobilePlanMessage = resources.getString(R.string.mobile_insert_sim_card);
++     //   } else {
+             // NetworkInfo is null, there is no connection
+-            mManageMobilePlanMessage = resources.getString(R.string.mobile_connect_to_internet);
+-        }
+-        if (!TextUtils.isEmpty(mManageMobilePlanMessage)) {
++     //       mManageMobilePlanMessage = resources.getString(R.string.mobile_connect_to_internet);
++      //  }
++       /** if (!TextUtils.isEmpty(mManageMobilePlanMessage)) {
+             log("onManageMobilePlanClick: message=" + mManageMobilePlanMessage);
+             showDialog(MANAGE_MOBILE_PLAN_DIALOG_ID);
+-        }
++        }*/
+     }
+ 
+     @Override

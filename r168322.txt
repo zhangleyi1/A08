@@ -1,0 +1,12 @@
+Index: vendor/google/products/gms-mandatory.mk
+===================================================================
+--- vendor/google/products/gms-mandatory.mk	(revision 168321)
++++ vendor/google/products/gms-mandatory.mk	(revision 168322)
+@@ -59,6 +59,7 @@
+     Music2 \
+     Photos \
+     Velvet \
++    Videos \
+     YouTube
+ #    Videos
+ # Overrides

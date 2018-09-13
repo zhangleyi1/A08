@@ -1,0 +1,13 @@
+Index: packages/apps/Launcher3/res/values/dimens.xml
+===================================================================
+--- packages/apps/Launcher3/res/values/dimens.xml	(revision 176407)
++++ packages/apps/Launcher3/res/values/dimens.xml	(revision 176408)
+@@ -81,7 +81,7 @@
+     <dimen name="all_apps_grid_view_start_margin">0dp</dimen>
+     <dimen name="all_apps_grid_section_y_offset">8dp</dimen>
+     <dimen name="all_apps_grid_section_text_size">24sp</dimen>
+-    <dimen name="all_apps_search_bar_height">60dp</dimen>
++    <dimen name="all_apps_search_bar_height">45dp</dimen>
+     <dimen name="all_apps_search_bar_prediction_bar_padding">8dp</dimen>
+     <dimen name="all_apps_icon_top_bottom_padding">14dp</dimen>
+     <dimen name="all_apps_icon_width_gap">24dp</dimen>

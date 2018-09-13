@@ -1,0 +1,1933 @@
+Index: kernel/net/sctp/ipv6.c
+===================================================================
+--- kernel/net/sctp/ipv6.c	(revision 183240)
++++ kernel/net/sctp/ipv6.c	(revision 183241)
+@@ -657,6 +657,9 @@
+ 	newnp = inet6_sk(newsk);
+ 
+ 	memcpy(newnp, np, sizeof(struct ipv6_pinfo));
++	newnp->ipv6_mc_list = NULL;
++	newnp->ipv6_ac_list = NULL;
++	newnp->ipv6_fl_list = NULL;
+ 
+ 	/* Initialize sk's sport, dport, rcv_saddr and daddr for getsockname()
+ 	 * and getpeername().
+Index: frameworks/av/media/libeffects/downmix/EffectDownmix.c
+===================================================================
+--- frameworks/av/media/libeffects/downmix/EffectDownmix.c	(revision 183240)
++++ frameworks/av/media/libeffects/downmix/EffectDownmix.c	(revision 183241)
+@@ -445,6 +445,10 @@
+             return -EINVAL;
+         }
+         effect_param_t *cmd = (effect_param_t *) pCmdData;
++        if (cmd->psize != sizeof(int32_t)) {
++            android_errorWriteLog(0x534e4554, "63662938");
++            return -EINVAL;
++        }
+         *(int *)pReplyData = Downmix_setParameter(pDownmixer, *(int32_t *)cmd->data,
+                 cmd->vsize, cmd->data + sizeof(int32_t));
+         break;
+Index: frameworks/av/media/libeffects/lvm/wrapper/Reverb/EffectReverb.cpp
+===================================================================
+--- frameworks/av/media/libeffects/lvm/wrapper/Reverb/EffectReverb.cpp	(revision 183240)
++++ frameworks/av/media/libeffects/lvm/wrapper/Reverb/EffectReverb.cpp	(revision 183241)
+@@ -180,12 +180,13 @@
+ void Reverb_free            (ReverbContext *pContext);
+ int  Reverb_setConfig       (ReverbContext *pContext, effect_config_t *pConfig);
+ void Reverb_getConfig       (ReverbContext *pContext, effect_config_t *pConfig);
+-int  Reverb_setParameter    (ReverbContext *pContext, void *pParam, void *pValue);
++int  Reverb_setParameter    (ReverbContext *pContext, void *pParam, void *pValue, int vsize);
+ int  Reverb_getParameter    (ReverbContext *pContext,
+                              void          *pParam,
+                              uint32_t      *pValueSize,
+                              void          *pValue);
+ int Reverb_LoadPreset       (ReverbContext   *pContext);
++int Reverb_paramValueSize   (int32_t param);
+ 
+ /* Effect Library Interface Implementation */
+ 
+@@ -1747,12 +1748,13 @@
+ //  pContext         - handle to instance data
+ //  pParam           - pointer to parameter
+ //  pValue           - pointer to value
++//  vsize            - value size
+ //
+ // Outputs:
+ //
+ //----------------------------------------------------------------------------
+ 
+-int Reverb_setParameter (ReverbContext *pContext, void *pParam, void *pValue){
++int Reverb_setParameter (ReverbContext *pContext, void *pParam, void *pValue, int vsize){
+     int status = 0;
+     int16_t level;
+     int16_t ratio;
+@@ -1776,6 +1778,11 @@
+         return 0;
+     }
+ 
++    if (vsize < Reverb_paramValueSize(param)) {
++        android_errorWriteLog(0x534e4554, "63526567");
++        return -EINVAL;
++    }
++
+     switch (param){
+         case REVERB_PARAM_PROPERTIES:
+             ALOGV("\tReverb_setParameter() REVERB_PARAM_PROPERTIES");
+@@ -1851,6 +1858,31 @@
+     return status;
+ } /* end Reverb_setParameter */
+ 
++
++/**
++ * returns the size in bytes of the value of each environmental reverb parameter
++ */
++int Reverb_paramValueSize(int32_t param) {
++    switch (param) {
++    case REVERB_PARAM_ROOM_LEVEL:
++    case REVERB_PARAM_ROOM_HF_LEVEL:
++    case REVERB_PARAM_REFLECTIONS_LEVEL:
++    case REVERB_PARAM_REVERB_LEVEL:
++        return sizeof(int16_t); // millibel
++    case REVERB_PARAM_DECAY_TIME:
++    case REVERB_PARAM_REFLECTIONS_DELAY:
++    case REVERB_PARAM_REVERB_DELAY:
++        return sizeof(uint32_t); // milliseconds
++    case REVERB_PARAM_DECAY_HF_RATIO:
++    case REVERB_PARAM_DIFFUSION:
++    case REVERB_PARAM_DENSITY:
++        return sizeof(int16_t); // permille
++    case REVERB_PARAM_PROPERTIES:
++        return sizeof(s_reverb_settings); // struct of all reverb properties
++    }
++    return sizeof(int32_t);
++}
++
+ } // namespace
+ } // namespace
+ 
+@@ -2022,7 +2054,8 @@
+ 
+             *(int *)pReplyData = android::Reverb_setParameter(pContext,
+                                                              (void *)p->data,
+-                                                              p->data + p->psize);
++                                                              p->data + p->psize,
++                                                              p->vsize);
+         } break;
+ 
+         case EFFECT_CMD_ENABLE:
+Index: frameworks/av/media/libmedia/IDataSource.cpp
+===================================================================
+--- frameworks/av/media/libmedia/IDataSource.cpp	(revision 183240)
++++ frameworks/av/media/libmedia/IDataSource.cpp	(revision 183241)
+@@ -54,8 +54,16 @@
+         data.writeInterfaceToken(IDataSource::getInterfaceDescriptor());
+         data.writeInt64(offset);
+         data.writeInt64(size);
+-        remote()->transact(READ_AT, data, &reply);
+-        return reply.readInt64();
++        status_t err = remote()->transact(READ_AT, data, &reply);
++        if (err != OK) {
++            return err;
++        }
++        int64_t value = 0;
++        err = reply.readInt64(&value);
++        if (err != OK) {
++            return err;
++        }
++        return (ssize_t)value;
+     }
+ 
+     virtual status_t getSize(off64_t* size) {
+Index: frameworks/av/media/libstagefright/MPEG4Extractor.cpp
+===================================================================
+--- frameworks/av/media/libstagefright/MPEG4Extractor.cpp	(revision 183240)
++++ frameworks/av/media/libstagefright/MPEG4Extractor.cpp	(revision 183241)
+@@ -71,6 +71,7 @@
+                 Vector<SidxEntry> &sidx,
+                 const Trex *trex,
+                 off64_t firstMoofOffset);
++    virtual status_t init();
+ 
+     virtual status_t start(MetaData *params = NULL);
+     virtual status_t stop();
+@@ -940,6 +941,12 @@
+                 ALOGE("moov: depth %d", depth);
+                 return ERROR_MALFORMED;
+             }
++
++            if (chunk_type == FOURCC('m', 'o', 'o', 'v') && mInitCheck == OK) {
++                ALOGE("duplicate moov");
++                return ERROR_MALFORMED;
++            }
++
+             if (chunk_type == FOURCC('m', 'o', 'o', 'f') && !mMoofFound) {
+                 // store the offset of the first segment
+                 mMoofFound = true;
+@@ -1013,6 +1020,12 @@
+                 if (!mLastTrack->meta->findInt32(kKeyTrackID, &trackId)) {
+                     mLastTrack->skipTrack = true;
+                 }
++
++                status_t err = verifyTrack(mLastTrack);
++                if (err != OK) {
++                    mLastTrack->skipTrack = true;
++                }
++
+                 if (mLastTrack->skipTrack) {
+                     Track *cur = mFirstTrack;
+ 
+@@ -1030,12 +1043,6 @@
+ 
+                     return OK;
+                 }
+-
+-                status_t err = verifyTrack(mLastTrack);
+-
+-                if (err != OK) {
+-                    return err;
+-                }
+             } else if (chunk_type == FOURCC('m', 'o', 'o', 'v')) {
+                 mInitCheck = OK;
+ 
+@@ -2116,7 +2123,10 @@
+             *offset += chunk_size;
+ 
+             if (underQTMetaPath(mPath, 3)) {
+-                parseQTMetaKey(data_offset, chunk_data_size);
++                status_t err = parseQTMetaKey(data_offset, chunk_data_size);
++                if (err != OK) {
++                    return err;
++                }
+             }
+             break;
+         }
+@@ -2275,7 +2285,10 @@
+ 
+         case FOURCC('s', 'i', 'd', 'x'):
+         {
+-            parseSegmentIndex(data_offset, chunk_data_size);
++            status_t err = parseSegmentIndex(data_offset, chunk_data_size);
++            if (err != OK) {
++                return err;
++            }
+             *offset += chunk_size;
+             return UNKNOWN_ERROR; // stop parsing after sidx
+         }
+@@ -2285,7 +2298,10 @@
+             // check if we're parsing 'ilst' for meta keys
+             // if so, treat type as a number (key-id).
+             if (underQTMetaPath(mPath, 3)) {
+-                parseQTMetaVal(chunk_type, data_offset, chunk_data_size);
++                status_t err = parseQTMetaVal(chunk_type, data_offset, chunk_data_size);
++                if (err != OK) {
++                    return err;
++                }
+             }
+ 
+             *offset += chunk_size;
+@@ -3110,9 +3126,13 @@
+         }
+     }
+ 
+-    return new MPEG4Source(this,
++    sp<MPEG4Source> source =  new MPEG4Source(this,
+             track->meta, mDataSource, track->timescale, track->sampleTable,
+             mSidxEntries, trex, mMoofOffset);
++    if (source->init() != OK) {
++        return NULL;
++    }
++    return source;
+ }
+ 
+ // static
+@@ -3516,6 +3536,7 @@
+       mTrex(trex),
+       mFirstMoofOffset(firstMoofOffset),
+       mCurrentMoofOffset(firstMoofOffset),
++      mNextMoofOffset(-1),
+       mCurrentTime(0),
+       mCurrentSampleInfoAllocSize(0),
+       mCurrentSampleInfoSizes(NULL),
+@@ -3580,10 +3601,14 @@
+ 
+     CHECK(format->findInt32(kKeyTrackID, &mTrackId));
+ 
++}
++
++status_t MPEG4Source::init() {
+     if (mFirstMoofOffset != 0) {
+         off64_t offset = mFirstMoofOffset;
+-        parseChunk(&offset);
++        return parseChunk(&offset);
+     }
++    return OK;
+ }
+ 
+ MPEG4Source::~MPEG4Source() {
+@@ -3708,9 +3733,30 @@
+                     }
+                     chunk_size = ntohl(hdr[0]);
+                     chunk_type = ntohl(hdr[1]);
++                    if (chunk_size == 1) {
++                        // ISO/IEC 14496-12:2012, 8.8.4 Movie Fragment Box, moof is a Box
++                        // which is defined in 4.2 Object Structure.
++                        // When chunk_size==1, 8 bytes follows as "largesize".
++                        if (mDataSource->readAt(*offset + 8, &chunk_size, 8) < 8) {
++                            return ERROR_IO;
++                        }
++                        chunk_size = ntoh64(chunk_size);
++                        if (chunk_size < 16) {
++                            // The smallest valid chunk is 16 bytes long in this case.
++                            return ERROR_MALFORMED;
++                        }
++                    } else if (chunk_size == 0) {
++                        // next box extends to end of file.
++                    } else if (chunk_size < 8) {
++                        // The smallest valid chunk is 8 bytes long in this case.
++                        return ERROR_MALFORMED;
++                    }
++
+                     if (chunk_type == FOURCC('m', 'o', 'o', 'f')) {
+                         mNextMoofOffset = *offset;
+                         break;
++                    } else if (chunk_size == 0) {
++                        break;
+                     }
+                     *offset += chunk_size;
+                 }
+@@ -4590,17 +4636,25 @@
+                 totalOffset += se->mSize;
+             }
+             mCurrentMoofOffset = totalOffset;
++            mNextMoofOffset = -1;
+             mCurrentSamples.clear();
+             mCurrentSampleIndex = 0;
+-            parseChunk(&totalOffset);
++            status_t err = parseChunk(&totalOffset);
++            if (err != OK) {
++                return err;
++            }
+             mCurrentTime = totalTime * mTimescale / 1000000ll;
+         } else {
+             // without sidx boxes, we can only seek to 0
+             mCurrentMoofOffset = mFirstMoofOffset;
++            mNextMoofOffset = -1;
+             mCurrentSamples.clear();
+             mCurrentSampleIndex = 0;
+             off64_t tmp = mCurrentMoofOffset;
+-            parseChunk(&tmp);
++            status_t err = parseChunk(&tmp);
++            if (err != OK) {
++                return err;
++            }
+             mCurrentTime = 0;
+         }
+ 
+@@ -4629,7 +4683,10 @@
+             mCurrentMoofOffset = nextMoof;
+             mCurrentSamples.clear();
+             mCurrentSampleIndex = 0;
+-            parseChunk(&nextMoof);
++            status_t err = parseChunk(&nextMoof);
++            if (err != OK) {
++                return err;
++            }
+             if (mCurrentSampleIndex >= mCurrentSamples.size()) {
+                 return ERROR_END_OF_STREAM;
+             }
+Index: frameworks/av/media/libstagefright/NuMediaExtractor.cpp
+===================================================================
+--- frameworks/av/media/libstagefright/NuMediaExtractor.cpp	(revision 183240)
++++ frameworks/av/media/libstagefright/NuMediaExtractor.cpp	(revision 183241)
+@@ -305,8 +305,15 @@
+ 
+     sp<IMediaSource> source = mImpl->getTrack(index);
+ 
+-    CHECK_EQ((status_t)OK, source->start());
++    if (source == nullptr) {
++        return ERROR_MALFORMED;
++    }
+ 
++    status_t ret = source->start();
++    if (ret != OK) {
++        return ret;
++    }
++
+     mSelectedTracks.push();
+     TrackInfo *info = &mSelectedTracks.editItemAt(mSelectedTracks.size() - 1);
+ 
+Index: frameworks/av/media/libstagefright/SampleTable.cpp
+===================================================================
+--- frameworks/av/media/libstagefright/SampleTable.cpp	(revision 183240)
++++ frameworks/av/media/libstagefright/SampleTable.cpp	(revision 183241)
+@@ -561,7 +561,7 @@
+ 
+     if (mDataSource->readAt(data_offset + 8, mSyncSamples,
+             (size_t)allocSize) != (ssize_t)allocSize) {
+-        delete mSyncSamples;
++        delete[] mSyncSamples;
+         mSyncSamples = NULL;
+         return ERROR_IO;
+     }
+@@ -986,4 +986,3 @@
+ }
+ 
+ }  // namespace android
+-
+Index: frameworks/av/media/libstagefright/omx/SimpleSoftOMXComponent.cpp
+===================================================================
+--- frameworks/av/media/libstagefright/omx/SimpleSoftOMXComponent.cpp	(revision 183240)
++++ frameworks/av/media/libstagefright/omx/SimpleSoftOMXComponent.cpp	(revision 183241)
+@@ -199,6 +199,13 @@
+     Mutex::Autolock autoLock(mLock);
+     CHECK_LT(portIndex, mPorts.size());
+ 
++    PortInfo *port = &mPorts.editItemAt(portIndex);
++    if (size < port->mDef.nBufferSize) {
++        ALOGE("b/63522430, Buffer size is too small.");
++        android_errorWriteLog(0x534e4554, "63522430");
++        return OMX_ErrorBadParameter;
++    }
++
+     *header = new OMX_BUFFERHEADERTYPE;
+     (*header)->nSize = sizeof(OMX_BUFFERHEADERTYPE);
+     (*header)->nVersion.s.nVersionMajor = 1;
+@@ -221,8 +228,6 @@
+     (*header)->nOutputPortIndex = portIndex;
+     (*header)->nInputPortIndex = portIndex;
+ 
+-    PortInfo *port = &mPorts.editItemAt(portIndex);
+-
+     CHECK(mState == OMX_StateLoaded || port->mDef.bEnabled == OMX_FALSE);
+ 
+     CHECK_LT(port->mBuffers.size(), port->mDef.nBufferCountActual);
+Index: frameworks/av/media/libstagefright/OggExtractor.cpp
+===================================================================
+--- frameworks/av/media/libstagefright/OggExtractor.cpp	(revision 183240)
++++ frameworks/av/media/libstagefright/OggExtractor.cpp	(revision 183241)
+@@ -578,6 +578,10 @@
+             }
+             // First two pages are header pages.
+             if (err == ERROR_END_OF_STREAM || mCurrentPage.mPageNo > 2) {
++                if (mBuf != NULL) {
++                    mBuf->release();
++                    mBuf = NULL;
++                }
+                 break;
+             }
+             curGranulePosition = mCurrentPage.mGranulePosition;
+Index: frameworks/av/media/libstagefright/foundation/base64.cpp
+===================================================================
+--- frameworks/av/media/libstagefright/foundation/base64.cpp	(revision 183240)
++++ frameworks/av/media/libstagefright/foundation/base64.cpp	(revision 183241)
+@@ -78,8 +78,7 @@
+         accum = (accum << 6) | value;
+ 
+         if (((i + 1) % 4) == 0) {
+-            out[j++] = (accum >> 16);
+-
++            if (j < outLen) { out[j++] = (accum >> 16); }
+             if (j < outLen) { out[j++] = (accum >> 8) & 0xff; }
+             if (j < outLen) { out[j++] = accum & 0xff; }
+ 
+Index: frameworks/av/cmds/stagefright/stream.cpp
+===================================================================
+--- frameworks/av/cmds/stagefright/stream.cpp	(revision 183240)
++++ frameworks/av/cmds/stagefright/stream.cpp	(revision 183241)
+@@ -171,7 +171,8 @@
+     mWriter = new MPEG2TSWriter(
+             this, &MyConvertingStreamSource::WriteDataWrapper);
+ 
+-    for (size_t i = 0; i < extractor->countTracks(); ++i) {
++    size_t numTracks = extractor->countTracks();
++    for (size_t i = 0; i < numTracks; ++i) {
+         const sp<MetaData> &meta = extractor->getTrackMetaData(i);
+ 
+         const char *mime;
+@@ -181,7 +182,12 @@
+             continue;
+         }
+ 
+-        CHECK_EQ(mWriter->addSource(extractor->getTrack(i)), (status_t)OK);
++        sp<IMediaSource> track = extractor->getTrack(i);
++        if (track == nullptr) {
++            fprintf(stderr, "skip NULL track %zu, total tracks %zu\n", i, numTracks);
++            continue;
++        }
++        CHECK_EQ(mWriter->addSource(track), (status_t)OK);
+     }
+ 
+     CHECK_EQ(mWriter->start(), (status_t)OK);
+Index: frameworks/av/cmds/stagefright/stagefright.cpp
+===================================================================
+--- frameworks/av/cmds/stagefright/stagefright.cpp	(revision 183240)
++++ frameworks/av/cmds/stagefright/stagefright.cpp	(revision 183241)
+@@ -1037,6 +1037,10 @@
+                 bool haveVideo = false;
+                 for (size_t i = 0; i < numTracks; ++i) {
+                     sp<IMediaSource> source = extractor->getTrack(i);
++                    if (source == nullptr) {
++                        fprintf(stderr, "skip NULL track %zu, track count %zu.\n", i, numTracks);
++                        continue;
++                    }
+ 
+                     const char *mime;
+                     CHECK(source->getFormat()->findCString(
+@@ -1099,6 +1103,10 @@
+                 }
+ 
+                 mediaSource = extractor->getTrack(i);
++                if (mediaSource == nullptr) {
++                    fprintf(stderr, "skip NULL track %zu, total tracks %zu.\n", i, numTracks);
++                    return -1;
++                }
+             }
+         }
+ 
+Index: frameworks/base/services/core/java/com/android/server/wm/WindowState.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/wm/WindowState.java	(revision 183240)
++++ frameworks/base/services/core/java/com/android/server/wm/WindowState.java	(revision 183241)
+@@ -79,6 +79,7 @@
+ import static android.view.WindowManager.LayoutParams.LAST_SUB_WINDOW;
+ import static android.view.WindowManager.LayoutParams.MATCH_PARENT;
+ import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_COMPATIBLE_WINDOW;
++import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
+ import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_KEYGUARD;
+ import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_LAYOUT_CHILD_WINDOW_IN_PARENT_FRAME;
+ import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_WILL_NOT_REPLACE_ON_RELAUNCH;
+@@ -90,7 +91,9 @@
+ import static android.view.WindowManager.LayoutParams.TYPE_DOCK_DIVIDER;
+ import static android.view.WindowManager.LayoutParams.TYPE_INPUT_METHOD;
+ import static android.view.WindowManager.LayoutParams.TYPE_INPUT_METHOD_DIALOG;
++import static android.view.WindowManager.LayoutParams.TYPE_TOAST;
+ import static android.view.WindowManager.LayoutParams.TYPE_WALLPAPER;
++import static android.view.WindowManager.LayoutParams.isSystemAlertWindowType;
+ import static android.view.WindowManagerPolicy.FINISH_LAYOUT_REDO_WALLPAPER;
+ import static com.android.server.wm.DragResizeMode.DRAG_RESIZE_MODE_DOCKED_DIVIDER;
+ import static com.android.server.wm.DragResizeMode.DRAG_RESIZE_MODE_FREEFORM;
+@@ -141,6 +144,7 @@
+     final int mAppOp;
+     // UserId and appId of the owner. Don't display windows of non-current user.
+     final int mOwnerUid;
++    final boolean mOwnerCanAddInternalSystemWindow;
+     final IWindowId mWindowId;
+     WindowToken mToken;
+     WindowToken mRootToken;
+@@ -166,6 +170,8 @@
+     boolean mPolicyVisibility = true;
+     boolean mPolicyVisibilityAfterAnim = true;
+     boolean mAppOpVisibility = true;
++    // This is a non-system overlay window that is currently force hidden.
++    private boolean mForceHideNonSystemOverlayWindow;
+     boolean mAppFreezing;
+     boolean mAttachedHidden;    // is our parent window hidden?
+     boolean mWallpaperVisible;  // for wallpaper, what was last vis report?
+@@ -511,6 +517,7 @@
+         mAppOp = appOp;
+         mToken = token;
+         mOwnerUid = s.mUid;
++        mOwnerCanAddInternalSystemWindow = s.mCanAddInternalSystemWindow;
+         mWindowId = new IWindowId.Stub() {
+             @Override
+             public void registerFocusObserver(IWindowFocusObserver observer) {
+@@ -1862,6 +1869,10 @@
+             // Being hidden due to app op request.
+             return false;
+         }
++        if (mForceHideNonSystemOverlayWindow) {
++            // This is an alert window that is currently force hidden.
++            return false;
++        }
+         if (mPolicyVisibility && mPolicyVisibilityAfterAnim) {
+             // Already showing.
+             return false;
+@@ -1935,6 +1946,22 @@
+         return true;
+     }
+ 
++    void setForceHideNonSystemOverlayWindowIfNeeded(boolean forceHide) {
++        if (mOwnerCanAddInternalSystemWindow
++                || (!isSystemAlertWindowType(mAttrs.type) && mAttrs.type != TYPE_TOAST)) {
++            return;
++        }
++        if (mForceHideNonSystemOverlayWindow == forceHide) {
++            return;
++        }
++        mForceHideNonSystemOverlayWindow = forceHide;
++        if (forceHide) {
++            hideLw(true /* doAnimation */, true /* requestAnim */);
++        } else {
++            showLw(true /* doAnimation */, true /* requestAnim */);
++        }
++    }
++
+     public void setAppOpVisibilityLw(boolean state) {
+         if (mAppOpVisibility != state) {
+             mAppOpVisibility = state;
+@@ -2736,6 +2763,17 @@
+         }
+     }
+ 
++    /**
++     * Returns true if any window added by an application process that if of type
++     * {@link android.view.WindowManager.LayoutParams#TYPE_TOAST} or that requires that requires
++     * {@link android.app.AppOpsManager#OP_SYSTEM_ALERT_WINDOW} permission should be hidden when
++     * this window is visible.
++     */
++    boolean hideNonSystemOverlayWindowsWhenVisible() {
++        return (mAttrs.privateFlags & PRIVATE_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS) != 0
++                && mSession.mCanHideNonSystemOverlayWindows;
++    }
++
+     String makeInputChannelName() {
+         return Integer.toHexString(System.identityHashCode(this))
+             + " " + getWindowTag();
+Index: frameworks/base/services/core/java/com/android/server/wm/WindowStateAnimator.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/wm/WindowStateAnimator.java	(revision 183240)
++++ frameworks/base/services/core/java/com/android/server/wm/WindowStateAnimator.java	(revision 183241)
+@@ -586,6 +586,7 @@
+             //dump();
+             mLastHidden = true;
+             if (mSurfaceController != null) {
++                mService.updateNonSystemOverlayWindowsVisibilityIfNeeded(mWin, false);
+                 mSurfaceController.hideInTransaction(reason);
+             }
+         }
+@@ -1812,6 +1813,7 @@
+         if (!shown)
+             return false;
+ 
++        mService.updateNonSystemOverlayWindowsVisibilityIfNeeded(mWin, true);
+         if (mWin.mTurnOnScreen) {
+             if (DEBUG_VISIBILITY) Slog.v(TAG, "Show surface turning screen on: " + mWin);
+             mWin.mTurnOnScreen = false;
+Index: frameworks/base/services/core/java/com/android/server/wm/Session.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/wm/Session.java	(revision 183240)
++++ frameworks/base/services/core/java/com/android/server/wm/Session.java	(revision 183241)
+@@ -16,6 +16,9 @@
+ 
+ package com.android.server.wm;
+ 
++import static android.Manifest.permission.HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
++import static android.Manifest.permission.INTERNAL_SYSTEM_WINDOW;
++import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+ import static com.android.server.wm.WindowManagerDebugConfig.DEBUG_DRAG;
+ import static com.android.server.wm.WindowManagerDebugConfig.DEBUG_TASK_POSITIONING;
+ import static com.android.server.wm.WindowManagerDebugConfig.SHOW_LIGHT_TRANSACTIONS;
+@@ -67,6 +70,8 @@
+     final int mUid;
+     final int mPid;
+     final String mStringName;
++    final boolean mCanAddInternalSystemWindow;
++    final boolean mCanHideNonSystemOverlayWindows;
+     SurfaceSession mSurfaceSession;
+     int mNumWindow = 0;
+     boolean mClientDead = false;
+@@ -80,6 +85,10 @@
+         mInputContext = inputContext;
+         mUid = Binder.getCallingUid();
+         mPid = Binder.getCallingPid();
++        mCanAddInternalSystemWindow = service.mContext.checkCallingOrSelfPermission(
++                INTERNAL_SYSTEM_WINDOW) == PERMISSION_GRANTED;
++        mCanHideNonSystemOverlayWindows = service.mContext.checkCallingOrSelfPermission(
++                HIDE_NON_SYSTEM_OVERLAY_WINDOWS) == PERMISSION_GRANTED;
+         mLastReportedAnimatorScale = service.getCurrentAnimatorScale();
+         StringBuilder sb = new StringBuilder();
+         sb.append("Session{");
+Index: frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java	(revision 183240)
++++ frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java	(revision 183241)
+@@ -487,6 +487,9 @@
+      */
+     final ArrayList<WindowState> mForceRemoves = new ArrayList<>();
+ 
++    /** List of window currently causing non-system overlay windows to be hidden. */
++    private ArrayList<WindowState> mHidingNonSystemOverlayWindows = new ArrayList<WindowState>();
++
+     /**
+      * Windows that clients are waiting to have drawn.
+      */
+@@ -2066,6 +2069,9 @@
+                 }
+             }
+ 
++            final boolean hideSystemAlertWindows = !mHidingNonSystemOverlayWindows.isEmpty();
++            win.setForceHideNonSystemOverlayWindowIfNeeded(hideSystemAlertWindows);
++
+             if (type == TYPE_APPLICATION_STARTING && token.appWindowToken != null) {
+                 token.appWindowToken.startingWindow = win;
+                 if (DEBUG_STARTING_WINDOW) Slog.v (TAG_WM, "addWindow: " + token.appWindowToken
+@@ -2497,6 +2503,7 @@
+ 
+         mPendingRemove.remove(win);
+         mResizingWindows.remove(win);
++        updateNonSystemOverlayWindowsVisibilityIfNeeded(win, false /* surfaceShown */);
+         mWindowsChanged = true;
+         if (DEBUG_WINDOW_MOVEMENT) Slog.v(TAG_WM, "Final remove of window: " + win);
+ 
+@@ -11488,6 +11495,36 @@
+         }
+     }
+ 
++    void updateNonSystemOverlayWindowsVisibilityIfNeeded(WindowState win, boolean surfaceShown) {
++        if (!win.hideNonSystemOverlayWindowsWhenVisible()) {
++            return;
++        }
++        final boolean systemAlertWindowsHidden = !mHidingNonSystemOverlayWindows.isEmpty();
++        if (surfaceShown) {
++            if (!mHidingNonSystemOverlayWindows.contains(win)) {
++                mHidingNonSystemOverlayWindows.add(win);
++            }
++        } else {
++            mHidingNonSystemOverlayWindows.remove(win);
++        }
++
++        final boolean hideSystemAlertWindows = !mHidingNonSystemOverlayWindows.isEmpty();
++
++        if (systemAlertWindowsHidden == hideSystemAlertWindows) {
++            return;
++        }
++
++        final int numDisplays = mDisplayContents.size();
++        for (int displayNdx = 0; displayNdx < numDisplays; ++displayNdx) {
++            final WindowList windows = mDisplayContents.valueAt(displayNdx).getWindowList();
++            final int numWindows = windows.size();
++            for (int winNdx = 0; winNdx < numWindows; ++winNdx) {
++                final WindowState w = windows.get(winNdx);
++                w.setForceHideNonSystemOverlayWindowIfNeeded(hideSystemAlertWindows);
++            }
++        }
++    }
++
+     /* SPRD: add for STK 27.22.7.5.1/27.22.7.6.1 @{ */
+     private boolean mUserActivityEventNeeded = false;
+     private boolean mIdleScreenEventNeeded = false;
+Index: frameworks/base/core/java/android/service/gatekeeper/GateKeeperResponse.java
+===================================================================
+--- frameworks/base/core/java/android/service/gatekeeper/GateKeeperResponse.java	(revision 183240)
++++ frameworks/base/core/java/android/service/gatekeeper/GateKeeperResponse.java	(revision 183241)
+@@ -85,6 +85,8 @@
+             if (mPayload != null) {
+                 dest.writeInt(mPayload.length);
+                 dest.writeByteArray(mPayload);
++            } else {
++                dest.writeInt(0);
+             }
+         }
+     }
+Index: frameworks/base/core/java/android/view/WindowManager.java
+===================================================================
+--- frameworks/base/core/java/android/view/WindowManager.java	(revision 183240)
++++ frameworks/base/core/java/android/view/WindowManager.java	(revision 183241)
+@@ -646,6 +646,25 @@
+          */
+         public static final int LAST_SYSTEM_WINDOW      = 2999;
+ 
++        /**
++         * Return true if the window type is an alert window.
++         *
++         * @param type The window type.
++         * @return If the window type is an alert window.
++         * @hide
++         */
++        public static boolean isSystemAlertWindowType(int type) {
++            switch (type) {
++                case TYPE_PHONE:
++                case TYPE_PRIORITY_PHONE:
++                case TYPE_SYSTEM_ALERT:
++                case TYPE_SYSTEM_ERROR:
++                case TYPE_SYSTEM_OVERLAY:
++                    return true;
++            }
++            return false;
++        }
++
+         /** @deprecated this is ignored, this value is set automatically when needed. */
+         @Deprecated
+         public static final int MEMORY_TYPE_NORMAL = 0;
+@@ -1254,6 +1273,15 @@
+         public static final int PRIVATE_FLAG_SUSTAINED_PERFORMANCE_MODE = 0x00040000;
+ 
+         /**
++         * Flag to indicate that any window added by an application process that is of type
++         * {@link #TYPE_TOAST} or that requires
++         * {@link android.app.AppOpsManager#OP_SYSTEM_ALERT_WINDOW} permission should be hidden when
++         * this window is visible.
++         * @hide
++         */
++        public static final int PRIVATE_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS = 0x00080000;
++
++        /**
+          * Control flags that are private to the platform.
+          * @hide
+          */
+Index: frameworks/base/core/res/AndroidManifest.xml
+===================================================================
+--- frameworks/base/core/res/AndroidManifest.xml	(revision 183240)
++++ frameworks/base/core/res/AndroidManifest.xml	(revision 183241)
+@@ -2143,6 +2143,15 @@
+     <permission android:name="android.permission.INTERNAL_SYSTEM_WINDOW"
+         android:protectionLevel="signature" />
+ 
++    <!-- @SystemApi Allows an application to use
++        {@link android.view.WindowManager.LayoutsParams#PRIVATE_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS}
++        to hide non-system-overlay windows.
++        <p>Not for use by third-party applications.
++        @hide
++    -->
++    <permission android:name="android.permission.HIDE_NON_SYSTEM_OVERLAY_WINDOWS"
++        android:protectionLevel="signature|installer" />
++
+     <!-- @SystemApi Allows an application to manage (create, destroy,
+          Z-order) application tokens in the window manager.
+          <p>Not for use by third-party applications.
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/KeyguardBottomAreaView.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/KeyguardBottomAreaView.java	(revision 183240)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/KeyguardBottomAreaView.java	(revision 183241)
+@@ -305,14 +305,13 @@
+             return;
+         }
+         ResolveInfo resolved = resolveCameraIntent();
+-        /*boolean visible = !isCameraDisabledByDpm() && resolved != null
++        /*boolean visible = !isCameraDisabled
++                && resolved != null
+                 && getResources().getBoolean(R.bool.config_keyguardShowCameraAffordance)
+                 && mUserSetupComplete;*/
+ 		 boolean visible = !isCameraDisabledByDpm()&& getResources().getBoolean(R.bool.config_keyguardShowCameraAffordance);
+   		
+ 		Log.d(TAG, "visible"+visible);		
+-		Log.d(TAG, "isCameraDisabledByDpm()"+!isCameraDisabledByDpm());
+-		Log.d(TAG, "resolved != null"+(resolved != null));
+ 		Log.d(TAG, "getResources().getBoolean(R.bool.config_keyguardShowCameraAffordance)"+getResources().getBoolean(R.bool.config_keyguardShowCameraAffordance));
+ 		Log.d(TAG, "mUserSetupComplete"+mUserSetupComplete);		
+         mCameraImageView.setVisibility(visible ? View.VISIBLE : View.GONE);
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/NotificationPanelView.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/NotificationPanelView.java	(revision 183240)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/NotificationPanelView.java	(revision 183241)
+@@ -32,6 +32,7 @@
+ import android.util.AttributeSet;
+ import android.util.Log;
+ import android.util.MathUtils;
++import android.util.EventLog;
+ import android.view.MotionEvent;
+ import android.view.VelocityTracker;
+ import android.view.View;
+@@ -2327,6 +2328,10 @@
+      * @param keyguardIsShowing whether keyguard is being shown
+      */
+     public boolean canCameraGestureBeLaunched(boolean keyguardIsShowing) {
++        if (!mStatusBar.isCameraAllowedByAdmin()) {
++            EventLog.writeEvent(0x534e4554, "63787722", -1, "");
++            return false;
++        }
+         ResolveInfo resolveInfo = mKeyguardBottomArea.resolveCameraIntent();
+         String packageToLaunch = (resolveInfo == null || resolveInfo.activityInfo == null)
+                 ? null : resolveInfo.activityInfo.packageName;
+Index: frameworks/base/api/system-current.txt
+===================================================================
+--- frameworks/base/api/system-current.txt	(revision 183240)
++++ frameworks/base/api/system-current.txt	(revision 183241)
+@@ -112,6 +112,7 @@
+     field public static final java.lang.String GRANT_RUNTIME_PERMISSIONS = "android.permission.GRANT_RUNTIME_PERMISSIONS";
+     field public static final java.lang.String HARDWARE_TEST = "android.permission.HARDWARE_TEST";
+     field public static final java.lang.String HDMI_CEC = "android.permission.HDMI_CEC";
++    field public static final java.lang.String HIDE_NON_SYSTEM_OVERLAY_WINDOWS = "android.permission.HIDE_NON_SYSTEM_OVERLAY_WINDOWS";
+     field public static final java.lang.String INJECT_EVENTS = "android.permission.INJECT_EVENTS";
+     field public static final java.lang.String INSTALL_GRANT_RUNTIME_PERMISSIONS = "android.permission.INSTALL_GRANT_RUNTIME_PERMISSIONS";
+     field public static final java.lang.String INSTALL_LOCATION_PROVIDER = "android.permission.INSTALL_LOCATION_PROVIDER";
+Index: packages/apps/PackageInstaller/src/com/android/packageinstaller/PackageInstallerActivity.java
+===================================================================
+--- packages/apps/PackageInstaller/src/com/android/packageinstaller/PackageInstallerActivity.java	(revision 183240)
++++ packages/apps/PackageInstaller/src/com/android/packageinstaller/PackageInstallerActivity.java	(revision 183241)
+@@ -57,6 +57,8 @@
+ import android.widget.TextView;
+ import com.android.packageinstaller.permission.utils.Utils;
+ 
++import com.android.packageinstaller.permission.ui.OverlayTouchActivity;
++
+ import java.io.File;
+ import java.io.FileOutputStream;
+ import java.io.IOException;
+@@ -73,7 +75,7 @@
+  * Based on the user response the package is then installed by launching InstallAppConfirm
+  * sub activity. All state transitions are handled in this activity
+  */
+-public class PackageInstallerActivity extends Activity implements OnCancelListener, OnClickListener {
++public class PackageInstallerActivity extends OverlayTouchActivity implements OnCancelListener, OnClickListener {
+     private static final String TAG = "PackageInstaller";
+ 
+     private static final int REQUEST_ENABLE_UNKNOWN_SOURCES = 1;
+@@ -508,10 +510,23 @@
+             removeDialog(DLG_UNKNOWN_SOURCES);
+             processPackageUri(tempPackageUri);
+         }
++        if (mOk != null) {
++            mOk.setEnabled(mOkCanInstall);
++        }
+     }
+     /*@}*/
+ 
+     @Override
++    protected void onPause() {
++        super.onPause();
++
++        if (mOk != null) {
++            // Don't allow the install button to be clicked as there might be overlays
++            mOk.setEnabled(false);
++        }
++    }
++
++    @Override
+     protected void onDestroy() {
+         if (mStagingAsynTask != null) {
+             mStagingAsynTask.cancel(true);
+Index: packages/apps/Settings/AndroidManifest.xml
+===================================================================
+--- packages/apps/Settings/AndroidManifest.xml	(revision 183240)
++++ packages/apps/Settings/AndroidManifest.xml	(revision 183241)
+@@ -82,7 +82,7 @@
+     <uses-permission android:name="android.permission.CHANGE_APP_IDLE_STATE" />
+     <uses-permission android:name="android.permission.PEERS_MAC_ADDRESS"/>
+     <uses-permission android:name="android.permission.MANAGE_NOTIFICATIONS"/>
+-
++    <uses-permission android:name="android.permission.HIDE_NON_SYSTEM_OVERLAY_WINDOWS" />
+     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+     <uses-permission android:name="android.permission.WAKE_LOCK" />
+     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+Index: packages/apps/Settings/src/com/android/settings/DeviceAdminAdd.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/DeviceAdminAdd.java	(revision 183240)
++++ packages/apps/Settings/src/com/android/settings/DeviceAdminAdd.java	(revision 183241)
+@@ -16,6 +16,8 @@
+ 
+ package com.android.settings;
+ 
++import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
++
+ import android.app.Activity;
+ import android.app.ActivityManagerNative;
+ import android.app.AlertDialog;
+@@ -88,7 +90,6 @@
+     Handler mHandler;
+ 
+     DevicePolicyManager mDPM;
+-    AppOpsManager mAppOps;
+     DeviceAdminInfo mDeviceAdmin;
+     CharSequence mAddMsgText;
+     String mProfileOwnerName;
+@@ -113,8 +114,6 @@
+     boolean mWaitingForRemoveMsg;
+     boolean mAddingProfileOwner;
+     boolean mAdminPoliciesInitialized;
+-    int mCurSysAppOpMode;
+-    int mCurToastAppOpMode;
+ 
+     boolean mIsCalledFromSupportDialog = false;
+ 
+@@ -121,11 +120,11 @@
+     @Override
+     protected void onCreate(Bundle icicle) {
+         super.onCreate(icicle);
++        getWindow().addPrivateFlags(PRIVATE_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS);
+ 
+         mHandler = new Handler(getMainLooper());
+ 
+         mDPM = (DevicePolicyManager)getSystemService(Context.DEVICE_POLICY_SERVICE);
+-        mAppOps = (AppOpsManager)getSystemService(Context.APP_OPS_SERVICE);
+         PackageManager packageManager = getPackageManager();
+ 
+         if ((getIntent().getFlags()&Intent.FLAG_ACTIVITY_NEW_TASK) != 0) {
+@@ -451,24 +450,14 @@
+     @Override
+     protected void onResume() {
+         super.onResume();
++        mActionButton.setEnabled(true);
+         updateInterface();
+-        // As long as we are running, don't let this admin overlay stuff on top of the screen.
+-        final int uid = mDeviceAdmin.getActivityInfo().applicationInfo.uid;
+-        final String pkg = mDeviceAdmin.getActivityInfo().applicationInfo.packageName;
+-        mCurSysAppOpMode = mAppOps.checkOp(AppOpsManager.OP_SYSTEM_ALERT_WINDOW, uid, pkg);
+-        mCurToastAppOpMode = mAppOps.checkOp(AppOpsManager.OP_TOAST_WINDOW, uid, pkg);
+-        mAppOps.setMode(AppOpsManager.OP_SYSTEM_ALERT_WINDOW, uid, pkg, AppOpsManager.MODE_IGNORED);
+-        mAppOps.setMode(AppOpsManager.OP_TOAST_WINDOW, uid, pkg, AppOpsManager.MODE_IGNORED);
+     }
+ 
+     @Override
+     protected void onPause() {
+         super.onPause();
+-        // As long as we are running, don't let this admin overlay stuff on top of the screen.
+-        final int uid = mDeviceAdmin.getActivityInfo().applicationInfo.uid;
+-        final String pkg = mDeviceAdmin.getActivityInfo().applicationInfo.packageName;
+-        mAppOps.setMode(AppOpsManager.OP_SYSTEM_ALERT_WINDOW, uid, pkg, mCurSysAppOpMode);
+-        mAppOps.setMode(AppOpsManager.OP_TOAST_WINDOW, uid, pkg, mCurToastAppOpMode);
++        mActionButton.setEnabled(false);
+         try {
+             ActivityManagerNative.getDefault().resumeAppSwitches();
+         } catch (RemoteException e) {
+Index: packages/apps/Settings/src/com/android/settings/accessibility/ToggleAccessibilityServicePreferenceFragment.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/accessibility/ToggleAccessibilityServicePreferenceFragment.java	(revision 183240)
++++ packages/apps/Settings/src/com/android/settings/accessibility/ToggleAccessibilityServicePreferenceFragment.java	(revision 183241)
+@@ -38,6 +38,8 @@
+ import android.view.LayoutInflater;
+ import android.view.MotionEvent;
+ import android.view.View;
++import android.view.Window;
++import android.view.WindowManager;
+ import android.view.accessibility.AccessibilityManager;
+ import android.widget.ImageView;
+ import android.widget.LinearLayout;
+@@ -54,6 +56,8 @@
+ 
+ import java.util.List;
+ 
++import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
++
+ public class ToggleAccessibilityServicePreferenceFragment
+         extends ToggleFeaturePreferenceFragment implements DialogInterface.OnClickListener {
+ 
+@@ -192,6 +196,10 @@
+ 
+                 ad.create();
+                 ad.getButton(AlertDialog.BUTTON_POSITIVE).setOnTouchListener(filterTouchListener);
++                Window window = ad.getWindow();
++                WindowManager.LayoutParams params = window.getAttributes();
++                params.privateFlags |= PRIVATE_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
++                window.setAttributes(params);
+                 return ad;
+             }
+             case DIALOG_ID_DISABLE_WARNING: {
+Index: libcore/ojluni/src/main/java/java/io/FileSystem.java
+===================================================================
+--- libcore/ojluni/src/main/java/java/io/FileSystem.java	(revision 183240)
++++ libcore/ojluni/src/main/java/java/io/FileSystem.java	(revision 183241)
+@@ -232,8 +232,11 @@
+ 
+     // Flags for enabling/disabling performance optimizations for file
+     // name canonicalization
+-    static boolean useCanonCaches      = true;
+-    static boolean useCanonPrefixCache = true;
++    // Android-changed: Disabled caches for security reasons (b/62301183)
++    //static boolean useCanonCaches      = true;
++    //static boolean useCanonPrefixCache = true;
++    static boolean useCanonCaches      = false;
++    static boolean useCanonPrefixCache = false;
+ 
+     private static boolean getBooleanProperty(String prop, boolean defaultVal) {
+         String val = System.getProperty(prop);
+Index: libcore/luni/src/test/java/libcore/java/io/FileTest.java
+===================================================================
+--- libcore/luni/src/test/java/libcore/java/io/FileTest.java	(revision 183240)
++++ libcore/luni/src/test/java/libcore/java/io/FileTest.java	(revision 183241)
+@@ -368,4 +368,25 @@
+         assertEquals("/foo/bar", new File("/foo/", "/bar/").getPath());
+         assertEquals("/foo/bar", new File("/foo", "/bar//").getPath());
+     }
++
++    // http://b/62301183
++    public void test_canonicalCachesAreOff() throws Exception {
++        File tempDir = createTemporaryDirectory();
++        File f1 = new File(tempDir, "testCannonCachesOff1");
++        f1.createNewFile();
++        File f2  = new File(tempDir, "testCannonCachesOff2");
++        f2.createNewFile();
++        File symlinkFile = new File(tempDir, "symlink");
++
++        // Create a symlink from symlink to f1 and populate canonical path cache
++        assertEquals(0, Runtime.getRuntime().exec("ln -s " + f1.getAbsolutePath() + " " + symlinkFile.getAbsolutePath()).waitFor());
++        assertEquals(symlinkFile.getCanonicalPath(), f1.getCanonicalPath());
++
++        // Remove it and replace it with a symlink to f2 (using java File/Files would flush caches).
++        assertEquals(0, Runtime.getRuntime().exec("rm " + symlinkFile.getAbsolutePath()).waitFor());
++        assertEquals(0, Runtime.getRuntime().exec("ln -s " + f2.getAbsolutePath() + " " + symlinkFile.getAbsolutePath()).waitFor());
++
++        // Did we cache canonical path results? hope not!
++        assertEquals(symlinkFile.getCanonicalPath(), f2.getCanonicalPath());
++    }
+ }
+Index: libcore/libart/src/main/java/java/lang/AndroidHardcodedSystemProperties.java
+===================================================================
+--- libcore/libart/src/main/java/java/lang/AndroidHardcodedSystemProperties.java	(revision 183240)
++++ libcore/libart/src/main/java/java/lang/AndroidHardcodedSystemProperties.java	(revision 183241)
+@@ -87,7 +87,7 @@
+         // Hardcode MessagePattern apostrophe mode to be default. b/27265238
+         { "android.icu.text.MessagePattern.ApostropheMode", null },
+ 
+-        // Hardcode "sun.io.useCanonCaches" to use the default (on). b/28174137
++        // Hardcode "sun.io.useCanonCaches" to use the default (off). b/28174137, b/62301183
+         { "sun.io.useCanonCaches", null },
+         { "sun.io.useCanonPrefixCache", null },
+ 
+Index: external/libmpeg2/decoder/impeg2d_pnb_pic.c
+===================================================================
+--- external/libmpeg2/decoder/impeg2d_pnb_pic.c	(revision 183240)
++++ external/libmpeg2/decoder/impeg2d_pnb_pic.c	(revision 183241)
+@@ -510,6 +510,12 @@
+ 
+         if(ret)
+             return IMPEG2D_MB_TEX_DECODE_ERR;
++
++        if(0 >= ps_dec->u2_num_mbs_left)
++        {
++            break;
++        }
++
+         IMPEG2D_TRACE_MB_START(ps_dec->u2_mb_x, ps_dec->u2_mb_y);
+ 
+         u4_x_dst_offset = u4_frm_offset + (ps_dec->u2_mb_x << 4);
+Index: external/libhevc/decoder/ihevcd_decode.c
+===================================================================
+--- external/libhevc/decoder/ihevcd_decode.c	(revision 183240)
++++ external/libhevc/decoder/ihevcd_decode.c	(revision 183241)
+@@ -633,7 +633,6 @@
+ 
+         if(IHEVCD_IGNORE_SLICE == ret)
+         {
+-            ps_codec->s_parse.i4_cur_slice_idx = MAX(0, (ps_codec->s_parse.i4_cur_slice_idx - 1));
+             ps_codec->pu1_inp_bitsbuf += (nal_ofst + nal_len);
+             ps_codec->i4_bytes_remaining -= (nal_ofst + nal_len);
+ 
+Index: external/libhevc/decoder/ihevcd_parse_headers.c
+===================================================================
+--- external/libhevc/decoder/ihevcd_parse_headers.c	(revision 183240)
++++ external/libhevc/decoder/ihevcd_parse_headers.c	(revision 183241)
+@@ -1811,6 +1811,19 @@
+     BITS_PARSE("tiles_enabled_flag", value, ps_bitstrm, 1);
+     ps_pps->i1_tiles_enabled_flag = value;
+ 
++    /* When tiles are enabled and width or height is >= 4096,
++     * CTB Size should at least be 32. 16x16 CTBs can result
++     * in tile position greater than 255 for 4096,
++     * which decoder does not support.
++     */
++    if((ps_pps->i1_tiles_enabled_flag) &&
++                    (ps_sps->i1_log2_ctb_size == 4) &&
++                    ((ps_sps->i2_pic_width_in_luma_samples >= 4096) ||
++                    (ps_sps->i2_pic_height_in_luma_samples >= 4096)))
++    {
++        return IHEVCD_INVALID_HEADER;
++    }
++
+     BITS_PARSE("entropy_coding_sync_enabled_flag", value, ps_bitstrm, 1);
+     ps_pps->i1_entropy_coding_sync_enabled_flag = value;
+ 
+Index: external/dnsmasq/src/rfc1035.c
+===================================================================
+--- external/dnsmasq/src/rfc1035.c	(revision 183240)
++++ external/dnsmasq/src/rfc1035.c	(revision 183241)
+@@ -48,7 +48,7 @@
+ 	/* end marker */
+ 	{
+ 	  /* check that there are the correct no of bytes after the name */
+-	  if (!CHECK_LEN(header, p, plen, extrabytes))
++	  if (!CHECK_LEN(header, p1 ? p1 : p, plen, extrabytes))
+ 	    return 0;
+ 	  
+ 	  if (isExtract)
+@@ -1142,6 +1142,9 @@
+   struct crec *crecp;
+   int nxdomain = 0, auth = 1, trunc = 0;
+   struct mx_srv_record *rec;
++
++  // Make sure we do not underflow here too.
++  if (qlen > (size_t)(limit - ((char *)header))) return 0;
+  
+   /* If there is an RFC2671 pseudoheader then it will be overwritten by
+      partial replies, so we have to do a dry run to see if we can answer
+Index: external/tremolo/Tremolo/codebook.c
+===================================================================
+--- external/tremolo/Tremolo/codebook.c	(revision 183240)
++++ external/tremolo/Tremolo/codebook.c	(revision 183241)
+@@ -59,7 +59,7 @@
+ }
+ 
+ static ogg_uint32_t decpack(long entry,long used_entry,long quantvals,
+-			    codebook *b,oggpack_buffer *opb,int maptype){
++                            codebook *b,oggpack_buffer *opb,int maptype){
+   ogg_uint32_t ret=0;
+   int j;
+ 
+@@ -72,13 +72,13 @@
+     if(maptype==1){
+       /* vals are already read into temporary column vector here */
+       for(j=0;j<b->dim;j++){
+-	ogg_uint32_t off=entry%quantvals;
+-	entry/=quantvals;
+-	ret|=((ogg_uint16_t *)(b->q_val))[off]<<(b->q_bits*j);
++        ogg_uint32_t off=entry%quantvals;
++        entry/=quantvals;
++        ret|=((ogg_uint16_t *)(b->q_val))[off]<<(b->q_bits*j);
+       }
+     }else{
+       for(j=0;j<b->dim;j++)
+-	ret|=oggpack_read(opb,b->q_bits)<<(b->q_bits*j);
++        ret|=oggpack_read(opb,b->q_bits)<<(b->q_bits*j);
+     }
+     return ret;
+ 
+@@ -144,7 +144,7 @@
+ /* given a list of word lengths, number of used entries, and byte
+    width of a leaf, generate the decode table */
+ static int _make_words(char *l,long n,ogg_uint32_t *r,long quantvals,
+-		       codebook *b, oggpack_buffer *opb,int maptype){
++                       codebook *b, oggpack_buffer *opb,int maptype){
+   long i,j,count=0;
+   long top=0;
+   ogg_uint32_t marker[MARKER_SIZE];
+@@ -164,54 +164,54 @@
+           ALOGE("b/23881715");
+           return 1;
+         }
+-	ogg_uint32_t entry=marker[length];
+-	long chase=0;
+-	if(count && !entry)return -1; /* overpopulated tree! */
++        ogg_uint32_t entry=marker[length];
++        long chase=0;
++        if(count && !entry)return -1; /* overpopulated tree! */
+ 
+-	/* chase the tree as far as it's already populated, fill in past */
+-	for(j=0;j<length-1;j++){
+-	  int bit=(entry>>(length-j-1))&1;
+-	  if(chase>=top){
+-	    if (chase < 0 || chase >= n) return 1;
+-	    top++;
+-	    r[chase*2]=top;
+-	    r[chase*2+1]=0;
+-	  }else
+-	    if (chase < 0 || chase >= n || chase*2+bit > n*2+1) return 1;
+-	    if(!r[chase*2+bit])
+-	      r[chase*2+bit]=top;
+-	  chase=r[chase*2+bit];
+-	  if (chase < 0 || chase >= n) return 1;
+-	}
+-	{
+-	  int bit=(entry>>(length-j-1))&1;
+-	  if(chase>=top){
+-	    top++;
+-	    r[chase*2+1]=0;
+-	  }
+-	  r[chase*2+bit]= decpack(i,count++,quantvals,b,opb,maptype) |
+-	    0x80000000;
+-	}
++        /* chase the tree as far as it's already populated, fill in past */
++        for(j=0;j<length-1;j++){
++          int bit=(entry>>(length-j-1))&1;
++          if(chase>=top){
++            if (chase < 0 || chase >= n) return 1;
++            top++;
++            r[chase*2]=top;
++            r[chase*2+1]=0;
++          }else
++            if (chase < 0 || chase >= n || chase*2+bit > n*2+1) return 1;
++            if(!r[chase*2+bit])
++              r[chase*2+bit]=top;
++          chase=r[chase*2+bit];
++          if (chase < 0 || chase >= n) return 1;
++        }
++        {
++          int bit=(entry>>(length-j-1))&1;
++          if(chase>=top){
++            top++;
++            r[chase*2+1]=0;
++          }
++          r[chase*2+bit]= decpack(i,count++,quantvals,b,opb,maptype) |
++            0x80000000;
++        }
+ 
+-	/* Look to see if the next shorter marker points to the node
+-	   above. if so, update it and repeat.  */
+-	for(j=length;j>0;j--){
+-	  if(marker[j]&1){
+-	    marker[j]=marker[j-1]<<1;
+-	    break;
+-	  }
+-	  marker[j]++;
+-	}
++        /* Look to see if the next shorter marker points to the node
++           above. if so, update it and repeat.  */
++        for(j=length;j>0;j--){
++          if(marker[j]&1){
++            marker[j]=marker[j-1]<<1;
++            break;
++          }
++          marker[j]++;
++        }
+ 
+-	/* prune the tree; the implicit invariant says all the longer
+-	   markers were dangling from our just-taken node.  Dangle them
+-	   from our *new* node. */
+-	for(j=length+1;j<MARKER_SIZE;j++)
+-	  if((marker[j]>>1) == entry){
+-	    entry=marker[j];
+-	    marker[j]=marker[j-1]<<1;
+-	  }else
+-	    break;
++        /* prune the tree; the implicit invariant says all the longer
++           markers were dangling from our just-taken node.  Dangle them
++           from our *new* node. */
++        for(j=length+1;j<MARKER_SIZE;j++)
++          if((marker[j]>>1) == entry){
++            entry=marker[j];
++            marker[j]=marker[j-1]<<1;
++          }else
++            break;
+       }
+     }
+   }
+@@ -234,7 +234,7 @@
+ }
+ 
+ static int _make_decode_table(codebook *s,char *lengthlist,long quantvals,
+-			      oggpack_buffer *opb,int maptype){
++                              oggpack_buffer *opb,int maptype){
+   int i;
+   ogg_uint32_t *work;
+ 
+@@ -251,7 +251,7 @@
+     /* +1 (rather than -2) is to accommodate 0 and 1 sized books,
+        which are specialcased to nodeb==4 */
+     if(_make_words(lengthlist,s->entries,
+-		   s->dec_table,quantvals,s,opb,maptype))return 1;
++                   s->dec_table,quantvals,s,opb,maptype))return 1;
+ 
+     return 0;
+   }
+@@ -265,7 +265,7 @@
+   if (s->used_entries > INT_MAX/(s->dec_leafw+1)) goto error_out;
+   if (s->dec_nodeb && s->used_entries * (s->dec_leafw+1) > INT_MAX/s->dec_nodeb) goto error_out;
+   s->dec_table=_ogg_malloc((s->used_entries*(s->dec_leafw+1)-2)*
+-			   s->dec_nodeb);
++                           s->dec_nodeb);
+   if (!s->dec_table) goto error_out;
+ 
+   if(s->dec_leafw==1){
+@@ -272,13 +272,13 @@
+     switch(s->dec_nodeb){
+     case 1:
+       for(i=0;i<s->used_entries*2-2;i++)
+-	  ((unsigned char *)s->dec_table)[i]=(unsigned char)
+-	    (((work[i] & 0x80000000UL) >> 24) | work[i]);
++          ((unsigned char *)s->dec_table)[i]=(unsigned char)
++            (((work[i] & 0x80000000UL) >> 24) | work[i]);
+       break;
+     case 2:
+       for(i=0;i<s->used_entries*2-2;i++)
+-	  ((ogg_uint16_t *)s->dec_table)[i]=(ogg_uint16_t)
+-	    (((work[i] & 0x80000000UL) >> 16) | work[i]);
++          ((ogg_uint16_t *)s->dec_table)[i]=(ogg_uint16_t)
++            (((work[i] & 0x80000000UL) >> 16) | work[i]);
+       break;
+     }
+ 
+@@ -290,62 +290,62 @@
+       unsigned char *out=(unsigned char *)s->dec_table;
+ 
+       for(i=s->used_entries*2-4;i>=0;i-=2){
+-	if(work[i]&0x80000000UL){
+-	  if(work[i+1]&0x80000000UL){
+-	    top-=4;
+-	    out[top]=(work[i]>>8 & 0x7f)|0x80;
+-	    out[top+1]=(work[i+1]>>8 & 0x7f)|0x80;
+-	    out[top+2]=work[i] & 0xff;
+-	    out[top+3]=work[i+1] & 0xff;
+-	  }else{
+-	    top-=3;
+-	    out[top]=(work[i]>>8 & 0x7f)|0x80;
+-	    out[top+1]=work[work[i+1]*2];
+-	    out[top+2]=work[i] & 0xff;
+-	  }
+-	}else{
+-	  if(work[i+1]&0x80000000UL){
+-	    top-=3;
+-	    out[top]=work[work[i]*2];
+-	    out[top+1]=(work[i+1]>>8 & 0x7f)|0x80;
+-	    out[top+2]=work[i+1] & 0xff;
+-	  }else{
+-	    top-=2;
+-	    out[top]=work[work[i]*2];
+-	    out[top+1]=work[work[i+1]*2];
+-	  }
+-	}
+-	work[i]=top;
++        if(work[i]&0x80000000UL){
++          if(work[i+1]&0x80000000UL){
++            top-=4;
++            out[top]=(work[i]>>8 & 0x7f)|0x80;
++            out[top+1]=(work[i+1]>>8 & 0x7f)|0x80;
++            out[top+2]=work[i] & 0xff;
++            out[top+3]=work[i+1] & 0xff;
++          }else{
++            top-=3;
++            out[top]=(work[i]>>8 & 0x7f)|0x80;
++            out[top+1]=work[work[i+1]*2];
++            out[top+2]=work[i] & 0xff;
++          }
++        }else{
++          if(work[i+1]&0x80000000UL){
++            top-=3;
++            out[top]=work[work[i]*2];
++            out[top+1]=(work[i+1]>>8 & 0x7f)|0x80;
++            out[top+2]=work[i+1] & 0xff;
++          }else{
++            top-=2;
++            out[top]=work[work[i]*2];
++            out[top+1]=work[work[i+1]*2];
++          }
++        }
++        work[i]=top;
+       }
+     }else{
+       ogg_uint16_t *out=(ogg_uint16_t *)s->dec_table;
+       for(i=s->used_entries*2-4;i>=0;i-=2){
+-	if(work[i]&0x80000000UL){
+-	  if(work[i+1]&0x80000000UL){
+-	    top-=4;
+-	    out[top]=(work[i]>>16 & 0x7fff)|0x8000;
+-	    out[top+1]=(work[i+1]>>16 & 0x7fff)|0x8000;
+-	    out[top+2]=work[i] & 0xffff;
+-	    out[top+3]=work[i+1] & 0xffff;
+-	  }else{
+-	    top-=3;
+-	    out[top]=(work[i]>>16 & 0x7fff)|0x8000;
+-	    out[top+1]=work[work[i+1]*2];
+-	    out[top+2]=work[i] & 0xffff;
+-	  }
+-	}else{
+-	  if(work[i+1]&0x80000000UL){
+-	    top-=3;
+-	    out[top]=work[work[i]*2];
+-	    out[top+1]=(work[i+1]>>16 & 0x7fff)|0x8000;
+-	    out[top+2]=work[i+1] & 0xffff;
+-	  }else{
+-	    top-=2;
+-	    out[top]=work[work[i]*2];
+-	    out[top+1]=work[work[i+1]*2];
+-	  }
+-	}
+-	work[i]=top;
++        if(work[i]&0x80000000UL){
++          if(work[i+1]&0x80000000UL){
++            top-=4;
++            out[top]=(work[i]>>16 & 0x7fff)|0x8000;
++            out[top+1]=(work[i+1]>>16 & 0x7fff)|0x8000;
++            out[top+2]=work[i] & 0xffff;
++            out[top+3]=work[i+1] & 0xffff;
++          }else{
++            top-=3;
++            out[top]=(work[i]>>16 & 0x7fff)|0x8000;
++            out[top+1]=work[work[i+1]*2];
++            out[top+2]=work[i] & 0xffff;
++          }
++        }else{
++          if(work[i+1]&0x80000000UL){
++            top-=3;
++            out[top]=work[work[i]*2];
++            out[top+1]=(work[i+1]>>16 & 0x7fff)|0x8000;
++            out[top+2]=work[i+1] & 0xffff;
++          }else{
++            top-=2;
++            out[top]=work[work[i]*2];
++            out[top+1]=work[work[i+1]*2];
++          }
++        }
++        work[i]=top;
+       }
+     }
+   }
+@@ -436,23 +436,23 @@
+       /* yes, unused entries */
+ 
+       for(i=0;i<s->entries;i++){
+-	if(oggpack_read(opb,1)){
+-	  long num=oggpack_read(opb,5);
+-	  if(num==-1)goto _eofout;
+-	  lengthlist[i]=(char)(num+1);
+-	  s->used_entries++;
+-	  if(num+1>s->dec_maxlength)s->dec_maxlength=num+1;
+-	}else
+-	  lengthlist[i]=0;
++        if(oggpack_read(opb,1)){
++          long num=oggpack_read(opb,5);
++          if(num==-1)goto _eofout;
++          lengthlist[i]=(char)(num+1);
++          s->used_entries++;
++          if(num+1>s->dec_maxlength)s->dec_maxlength=num+1;
++        }else
++          lengthlist[i]=0;
+       }
+     }else{
+       /* all entries used; no tagging */
+       s->used_entries=s->entries;
+       for(i=0;i<s->entries;i++){
+-	long num=oggpack_read(opb,5);
+-	if(num==-1)goto _eofout;
+-	lengthlist[i]=(char)(num+1);
+-	if(num+1>s->dec_maxlength)s->dec_maxlength=num+1;
++        long num=oggpack_read(opb,5);
++        if(num==-1)goto _eofout;
++        lengthlist[i]=(char)(num+1);
++        if(num+1>s->dec_maxlength)s->dec_maxlength=num+1;
+       }
+     }
+ 
+@@ -467,12 +467,12 @@
+       if (!lengthlist) goto _eofout;
+ 
+       for(i=0;i<s->entries;){
+-	long num=oggpack_read(opb,_ilog(s->entries-i));
+-	if(num<0)goto _eofout;
+-	for(j=0;j<num && i<s->entries;j++,i++)
+-	  lengthlist[i]=(char)length;
+-	s->dec_maxlength=length;
+-	length++;
++        long num=oggpack_read(opb,_ilog(s->entries-i));
++        if(num<0)goto _eofout;
++        for(j=0;j<num && i<s->entries;j++,i++)
++          lengthlist[i]=(char)length;
++        s->dec_maxlength=length;
++        length++;
+       }
+     }
+     break;
+@@ -524,55 +524,55 @@
+ 
+ 
+       if(total1<=4 && total1<=total2){
+-	/* use dec_type 1: vector of packed values */
++        /* use dec_type 1: vector of packed values */
+ 
+-	/* need quantized values before  */
+-	s->q_val=calloc(sizeof(ogg_uint16_t), quantvals);
+-	if (!s->q_val) goto _eofout;
+-	for(i=0;i<quantvals;i++)
+-	  ((ogg_uint16_t *)s->q_val)[i]=(ogg_uint16_t)oggpack_read(opb,s->q_bits);
++        /* need quantized values before  */
++        s->q_val=calloc(sizeof(ogg_uint16_t), quantvals);
++        if (!s->q_val) goto _eofout;
++        for(i=0;i<quantvals;i++)
++          ((ogg_uint16_t *)s->q_val)[i]=(ogg_uint16_t)oggpack_read(opb,s->q_bits);
+ 
+-	if(oggpack_eop(opb)){
+-	  goto _eofout;
+-	}
++        if(oggpack_eop(opb)){
++          goto _eofout;
++        }
+ 
+-	s->dec_type=1;
+-	s->dec_nodeb=_determine_node_bytes(s->used_entries,
+-					   (s->q_bits*s->dim+8)/8);
+-	s->dec_leafw=_determine_leaf_words(s->dec_nodeb,
+-					   (s->q_bits*s->dim+8)/8);
+-	if(_make_decode_table(s,lengthlist,quantvals,opb,maptype)){
+-	  goto _errout;
+-	}
++        s->dec_type=1;
++        s->dec_nodeb=_determine_node_bytes(s->used_entries,
++                                           (s->q_bits*s->dim+8)/8);
++        s->dec_leafw=_determine_leaf_words(s->dec_nodeb,
++                                           (s->q_bits*s->dim+8)/8);
++        if(_make_decode_table(s,lengthlist,quantvals,opb,maptype)){
++          goto _errout;
++        }
+ 
+-	free(s->q_val);
+-	s->q_val=0;
++        free(s->q_val);
++        s->q_val=0;
+ 
+       }else{
+-	/* use dec_type 2: packed vector of column offsets */
++        /* use dec_type 2: packed vector of column offsets */
+ 
+-	/* need quantized values before */
+-	if(s->q_bits<=8){
+-	  s->q_val=_ogg_malloc(quantvals);
+-	  if (!s->q_val) goto _eofout;
+-	  for(i=0;i<quantvals;i++)
+-	    ((unsigned char *)s->q_val)[i]=(unsigned char)oggpack_read(opb,s->q_bits);
+-	}else{
+-	  s->q_val=_ogg_malloc(quantvals*2);
+-	  if (!s->q_val) goto _eofout;
+-	  for(i=0;i<quantvals;i++)
+-	    ((ogg_uint16_t *)s->q_val)[i]=(ogg_uint16_t)oggpack_read(opb,s->q_bits);
+-	}
++        /* need quantized values before */
++        if(s->q_bits<=8){
++          s->q_val=_ogg_malloc(quantvals);
++          if (!s->q_val) goto _eofout;
++          for(i=0;i<quantvals;i++)
++            ((unsigned char *)s->q_val)[i]=(unsigned char)oggpack_read(opb,s->q_bits);
++        }else{
++          s->q_val=_ogg_malloc(quantvals*2);
++          if (!s->q_val) goto _eofout;
++          for(i=0;i<quantvals;i++)
++            ((ogg_uint16_t *)s->q_val)[i]=(ogg_uint16_t)oggpack_read(opb,s->q_bits);
++        }
+ 
+-	if(oggpack_eop(opb))goto _eofout;
++        if(oggpack_eop(opb))goto _eofout;
+ 
+-	s->q_pack=_ilog(quantvals-1);
+-	s->dec_type=2;
+-	s->dec_nodeb=_determine_node_bytes(s->used_entries,
+-					   (_ilog(quantvals-1)*s->dim+8)/8);
+-	s->dec_leafw=_determine_leaf_words(s->dec_nodeb,
+-					   (_ilog(quantvals-1)*s->dim+8)/8);
+-	if(_make_decode_table(s,lengthlist,quantvals,opb,maptype))goto _errout;
++        s->q_pack=_ilog(quantvals-1);
++        s->dec_type=2;
++        s->dec_nodeb=_determine_node_bytes(s->used_entries,
++                                           (_ilog(quantvals-1)*s->dim+8)/8);
++        s->dec_leafw=_determine_leaf_words(s->dec_nodeb,
++                                           (_ilog(quantvals-1)*s->dim+8)/8);
++        if(_make_decode_table(s,lengthlist,quantvals,opb,maptype))goto _errout;
+ 
+       }
+     }
+@@ -604,11 +604,11 @@
+       s->q_val=_ogg_malloc(s->q_pack*s->used_entries);
+ 
+       if(s->q_bits<=8){
+-	for(i=0;i<s->used_entries*s->dim;i++)
+-	  ((unsigned char *)(s->q_val))[i]=(unsigned char)oggpack_read(opb,s->q_bits);
++        for(i=0;i<s->used_entries*s->dim;i++)
++          ((unsigned char *)(s->q_val))[i]=(unsigned char)oggpack_read(opb,s->q_bits);
+       }else{
+-	for(i=0;i<s->used_entries*s->dim;i++)
+-	  ((ogg_uint16_t *)(s->q_val))[i]=(ogg_uint16_t)oggpack_read(opb,s->q_bits);
++        for(i=0;i<s->used_entries*s->dim;i++)
++          ((ogg_uint16_t *)(s->q_val))[i]=(ogg_uint16_t)oggpack_read(opb,s->q_bits);
+       }
+     }
+     break;
+@@ -646,7 +646,7 @@
+                                         oggpack_buffer *b);
+ #else
+ static inline ogg_uint32_t decode_packed_entry_number(codebook *book,
+-						      oggpack_buffer *b){
++                                                      oggpack_buffer *b){
+   ogg_uint32_t chase=0;
+   int  read=book->dec_maxlength;
+   long lok = oggpack_look(b,read),i;
+@@ -669,8 +669,8 @@
+       unsigned char *t=(unsigned char *)book->dec_table;
+ 
+       for(i=0;i<read;i++){
+-	chase=t[chase*2+((lok>>i)&1)];
+-	if(chase&0x80UL)break;
++        chase=t[chase*2+((lok>>i)&1)];
++        if(chase&0x80UL)break;
+       }
+       chase&=0x7fUL;
+       break;
+@@ -681,13 +681,13 @@
+       /* 8/16 - Used by infile2 */
+       unsigned char *t=(unsigned char *)book->dec_table;
+       for(i=0;i<read;i++){
+-	int bit=(lok>>i)&1;
+-	int next=t[chase+bit];
+-	if(next&0x80){
+-	  chase= (next<<8) | t[chase+bit+1+(!bit || t[chase]&0x80)];
+-	  break;
+-	}
+-	chase=next;
++        int bit=(lok>>i)&1;
++        int next=t[chase+bit];
++        if(next&0x80){
++          chase= (next<<8) | t[chase+bit+1+(!bit || t[chase]&0x80)];
++          break;
++        }
++        chase=next;
+       }
+       //chase&=0x7fffUL;
+       chase&=~0x8000UL;
+@@ -698,8 +698,8 @@
+       /* book->dec_nodeb==2, book->dec_leafw==1 */
+       /* 16/16 - Used */
+       for(i=0;i<read;i++){
+-	chase=((ogg_uint16_t *)(book->dec_table))[chase*2+((lok>>i)&1)];
+-	if(chase&0x8000UL)break;
++        chase=((ogg_uint16_t *)(book->dec_table))[chase*2+((lok>>i)&1)];
++        if(chase&0x8000UL)break;
+       }
+       //chase&=0x7fffUL;
+       chase&=~0x8000UL;
+@@ -711,13 +711,13 @@
+       /* 16/32 - Used by infile2 */
+       ogg_uint16_t *t=(ogg_uint16_t *)book->dec_table;
+       for(i=0;i<read;i++){
+-	int bit=(lok>>i)&1;
+-	int next=t[chase+bit];
+-	if(next&0x8000){
+-	  chase= (next<<16) | t[chase+bit+1+(!bit || t[chase]&0x8000)];
+-	  break;
+-	}
+-	chase=next;
++        int bit=(lok>>i)&1;
++        int next=t[chase+bit];
++        if(next&0x8000){
++          chase= (next<<16) | t[chase+bit+1+(!bit || t[chase]&0x8000)];
++          break;
++        }
++        chase=next;
+       }
+       //chase&=0x7fffffffUL;
+       chase&=~0x80000000UL;
+@@ -727,8 +727,8 @@
+     {
+       //Output("32/32");
+       for(i=0;i<read;i++){
+-	chase=((ogg_uint32_t *)(book->dec_table))[chase*2+((lok>>i)&1)];
+-	if(chase&0x80000000UL)break;
++        chase=((ogg_uint32_t *)(book->dec_table))[chase*2+((lok>>i)&1)];
++        if(chase&0x80000000UL)break;
+       }
+       //chase&=0x7fffffffUL;
+       chase&=~0x80000000UL;
+@@ -777,9 +777,9 @@
+     int mask=(1<<s->q_pack)-1;
+     for(i=0;i<s->dim;i++){
+       if(s->q_bits<=8)
+-	v[i]=((unsigned char *)(s->q_val))[entry&mask];
++        v[i]=((unsigned char *)(s->q_val))[entry&mask];
+       else
+-	v[i]=((ogg_uint16_t *)(s->q_val))[entry&mask];
++        v[i]=((ogg_uint16_t *)(s->q_val))[entry&mask];
+       entry>>=s->q_pack;
+     }
+     break;
+@@ -790,10 +790,10 @@
+ 
+     if(s->q_bits<=8){
+       for(i=0;i<s->dim;i++)
+-	v[i]=((unsigned char *)ptr)[i];
++        v[i]=((unsigned char *)ptr)[i];
+     }else{
+       for(i=0;i<s->dim;i++)
+-	v[i]=((ogg_uint16_t *)ptr)[i];
++        v[i]=((ogg_uint16_t *)ptr)[i];
+     }
+     break;
+   }
+@@ -823,7 +823,7 @@
+ 
+     if(s->q_seq)
+       for(i=1;i<s->dim;i++)
+-	v[i]+=v[i-1];
++        v[i]+=v[i-1];
+   }
+ 
+   return 0;
+@@ -832,7 +832,7 @@
+ 
+ /* returns 0 on OK or -1 on eof *************************************/
+ long vorbis_book_decodevs_add(codebook *book,ogg_int32_t *a,
+-			      oggpack_buffer *b,int n,int point){
++                              oggpack_buffer *b,int n,int point){
+   if(book->used_entries>0){
+     int step=n/book->dim;
+     ogg_int32_t *v = book->dec_buf;//(ogg_int32_t *)alloca(sizeof(*v)*book->dim);
+@@ -842,7 +842,7 @@
+     for (j=0;j<step;j++){
+       if(decode_map(book,b,v,point))return -1;
+       for(i=0,o=j;i<book->dim;i++,o+=step)
+-	a[o]+=v[i];
++        a[o]+=v[i];
+     }
+   }
+   return 0;
+@@ -849,7 +849,7 @@
+ }
+ 
+ long vorbis_book_decodev_add(codebook *book,ogg_int32_t *a,
+-			     oggpack_buffer *b,int n,int point){
++                             oggpack_buffer *b,int n,int point){
+   if(book->used_entries>0){
+     ogg_int32_t *v = book->dec_buf;//(ogg_int32_t *)alloca(sizeof(*v)*book->dim);
+     int i,j;
+@@ -857,8 +857,8 @@
+     if (!v) return -1;
+     for(i=0;i<n;){
+       if(decode_map(book,b,v,point))return -1;
+-      for (j=0;j<book->dim;j++)
+-	a[i++]+=v[j];
++      for (j=0;j<book->dim && i < n;j++)
++        a[i++]+=v[j];
+     }
+   }
+   return 0;
+@@ -865,7 +865,7 @@
+ }
+ 
+ long vorbis_book_decodev_set(codebook *book,ogg_int32_t *a,
+-			     oggpack_buffer *b,int n,int point){
++                             oggpack_buffer *b,int n,int point){
+   if(book->used_entries>0){
+     ogg_int32_t *v = book->dec_buf;//(ogg_int32_t *)alloca(sizeof(*v)*book->dim);
+     int i,j;
+@@ -873,15 +873,15 @@
+     if (!v) return -1;
+     for(i=0;i<n;){
+       if(decode_map(book,b,v,point))return -1;
+-      for (j=0;j<book->dim;j++)
+-	a[i++]=v[j];
++      for (j=0;j<book->dim && i < n;j++)
++        a[i++]=v[j];
+     }
+   }else{
+     int i,j;
+ 
+     for(i=0;i<n;){
+-      for (j=0;j<book->dim;j++)
+-	a[i++]=0;
++      for (j=0;j<book->dim && i < n;j++)
++        a[i++]=0;
+     }
+   }
+ 
+@@ -890,12 +890,12 @@
+ 
+ #ifndef ONLY_C
+ long vorbis_book_decodevv_add(codebook *book,ogg_int32_t **a,
+-			      long offset,int ch,
+-			      oggpack_buffer *b,int n,int point);
++                              long offset,int ch,
++                              oggpack_buffer *b,int n,int point);
+ #else
+ long vorbis_book_decodevv_add(codebook *book,ogg_int32_t **a,
+-			      long offset,int ch,
+-			      oggpack_buffer *b,int n,int point){
++                              long offset,int ch,
++                              oggpack_buffer *b,int n,int point){
+   if(book->used_entries>0){
+ 
+     ogg_int32_t *v = book->dec_buf;//(ogg_int32_t *)alloca(sizeof(*v)*book->dim);
+@@ -905,12 +905,12 @@
+     if (!v) return -1;
+     for(i=offset;i<offset+n;){
+       if(decode_map(book,b,v,point))return -1;
+-      for (j=0;j<book->dim;j++){
+-	a[chptr++][i]+=v[j];
+-	if(chptr==ch){
+-	  chptr=0;
+-	  i++;
+-	}
++      for (j=0;j<book->dim && i < offset + n;j++){
++        a[chptr++][i]+=v[j];
++        if(chptr==ch){
++          chptr=0;
++          i++;
++        }
+       }
+     }
+   }
+Index: external/tremolo/Tremolo/dpen.s
+===================================================================
+--- external/tremolo/Tremolo/dpen.s	(revision 183240)
++++ external/tremolo/Tremolo/dpen.s	(revision 183241)
+@@ -430,6 +430,8 @@
+ 	LDR	r0, [r9, # 5*4]		@ r0 = book->dim
+ 	LDR	r1, [r9, #14*4]		@ r1 = v = dec_buf
+ vbdvva_loop2:
++	CMP	r5,#0
++	BLE	vbdvva_exit
+ 	LDR	r2, [r10],#4		@ r2 = a[chptr++]
+ 	LDR	r12,[r1], #4		@ r1 = v[j++]
+ 	CMP	r10,r8			@ if (chptr == ch)
+Index: external/tremolo/Tremolo/res012.c
+===================================================================
+--- external/tremolo/Tremolo/res012.c	(revision 183240)
++++ external/tremolo/Tremolo/res012.c	(revision 183241)
+@@ -65,9 +65,9 @@
+   if(info->type>2 || info->type<0)goto errout;
+   info->begin=oggpack_read(opb,24);
+   info->end=oggpack_read(opb,24);
+-  info->grouping=oggpack_read(opb,24)+1;
+-  info->partitions=(char)(oggpack_read(opb,6)+1);
+-  info->groupbook=(unsigned char)oggpack_read(opb,8);
++  info->grouping=oggpack_read(opb,24)+1;              // "partition size" in spec
++  info->partitions=(char)(oggpack_read(opb,6)+1);     // "classification" in spec
++  info->groupbook=(unsigned char)oggpack_read(opb,8); // "classbook" in spec
+   if(info->groupbook>=ci->books)goto errout;
+ 
+   info->stagemasks=_ogg_malloc(info->partitions*sizeof(*info->stagemasks));
+@@ -94,6 +94,15 @@
+ 
+   if(oggpack_eop(opb))goto errout;
+ 
++  // According to the Vorbis spec (paragraph 8.6.2 "packet decode"), residue
++  // begin and end should be limited to the maximum possible vector size in
++  // case they exceed it. However doing that makes the decoder crash further
++  // down, so we return an error instead.
++  int limit = (info->type == 2 ? vi->channels : 1) * ci->blocksizes[1] / 2;
++  if (info->begin > info->end ||
++          info->end > limit) {
++      goto errout;
++  }
+   return 0;
+  errout:
+   res_clear_info(info);
+Index: hardware/ril/libril/ril.cpp
+===================================================================
+--- hardware/ril/libril/ril.cpp	(revision 183240)
++++ hardware/ril/libril/ril.cpp	(revision 183241)
+@@ -4245,12 +4245,12 @@
+     int data;
+     unsigned int qxdm_data[6];
+     const char *deactData[1] = {"1"};
+-    char *actData[1];
+     RIL_Dial dialData;
+     int hangupData[1] = {1};
+     int number;
+     char **args;
+     RIL_SOCKET_ID socket_id = RIL_SOCKET_1;
++    int MAX_DIAL_ADDRESS = 128;
+     int sim_id = 0;
+ 
+     RLOGI("debugCallback for socket %s", rilSocketIdToString(socket_id));
+@@ -4397,12 +4397,6 @@
+             // Set network selection automatic.
+             issueLocalRequest(RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC, NULL, 0, socket_id);
+             break;
+-        case 6:
+-            RLOGI("Debug port: Setup Data Call, Apn :%s\n", args[1]);
+-            actData[0] = args[1];
+-            issueLocalRequest(RIL_REQUEST_SETUP_DATA_CALL, &actData,
+-                              sizeof(actData), socket_id);
+-            break;
+         case 7:
+             RLOGI("Debug port: Deactivate Data Call");
+             issueLocalRequest(RIL_REQUEST_DEACTIVATE_DATA_CALL, &deactData,
+@@ -4411,6 +4405,12 @@
+         case 8:
+             RLOGI("Debug port: Dial Call");
+             dialData.clir = 0;
++            if (strlen(args[1]) > MAX_DIAL_ADDRESS) {
++                RLOGE("Debug port: Error calling Dial");
++                freeDebugCallbackArgs(number, args);
++                close(acceptFD);
++                return;
++            }
+             dialData.address = args[1];
+             issueLocalRequest(RIL_REQUEST_DIAL, &dialData, sizeof(dialData), socket_id);
+             break;
+Index: build/core/version_defaults.mk
+===================================================================
+--- build/core/version_defaults.mk	(revision 183240)
++++ build/core/version_defaults.mk	(revision 183241)
+@@ -114,7 +114,7 @@
+     #  It must be of the form "YYYY-MM-DD" on production devices.
+     #  It must match one of the Android Security Patch Level strings of the Public Security Bulletins.
+     #  If there is no $PLATFORM_SECURITY_PATCH set, keep it empty.
+-    PLATFORM_SECURITY_PATCH := 2017-09-05
++    PLATFORM_SECURITY_PATCH := 2017-10-05
+ endif
+ 
+ ifeq "" "$(PLATFORM_BASE_OS)"

@@ -1,0 +1,21 @@
+Index: frameworks/base/telephony/java/android/telephony/SignalStrength.java
+===================================================================
+--- frameworks/base/telephony/java/android/telephony/SignalStrength.java	(revision 170527)
++++ frameworks/base/telephony/java/android/telephony/SignalStrength.java	(revision 170528)
+@@ -808,11 +808,11 @@
+             threshRsrp = RSRP_THRESH_LENIENT;
+         }
+ 		if(mLteRsrp > -44) rsrpIconLevel = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;
+-        else if (mLteRsrp >= -98) rsrpIconLevel = SIGNAL_STRENGTH_HIGHEST;
+-        else if (mLteRsrp >= -109) rsrpIconLevel = SIGNAL_STRENGTH_GREAT;
+-        else if (mLteRsrp >= -115) rsrpIconLevel = SIGNAL_STRENGTH_GOOD;
+-        else if (mLteRsrp >= -120) rsrpIconLevel = SIGNAL_STRENGTH_MODERATE;
+-        else if (mLteRsrp >= -125) rsrpIconLevel = SIGNAL_STRENGTH_POOR;
++        else if (mLteRsrp >= -97) rsrpIconLevel = SIGNAL_STRENGTH_HIGHEST;
++        else if (mLteRsrp >= -105) rsrpIconLevel = SIGNAL_STRENGTH_GREAT;
++        else if (mLteRsrp >= -110) rsrpIconLevel = SIGNAL_STRENGTH_GOOD;
++        else if (mLteRsrp >= -115) rsrpIconLevel = SIGNAL_STRENGTH_MODERATE;
++        else if (mLteRsrp >= -120) rsrpIconLevel = SIGNAL_STRENGTH_POOR;
+         else rsrpIconLevel = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;
+ 
+         // SPRD Add For Feature Bug 474988:

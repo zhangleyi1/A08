@@ -1,0 +1,93 @@
+Index: packages/apps/Launcher3/res/xml/default_workspace_4x4.xml
+===================================================================
+--- packages/apps/Launcher3/res/xml/default_workspace_4x4.xml	(revision 177877)
++++ packages/apps/Launcher3/res/xml/default_workspace_4x4.xml	(revision 177878)
+@@ -18,7 +18,7 @@
+ 
+     <!-- Hotseat -->
+     <include launcher:workspace="@xml/dw_phone_hotseat" />
+-	<appwidget
++    <!--<appwidget
+         launcher:packageName="com.google.android.googlequicksearchbox"
+         launcher:className="com.google.android.googlequicksearchbox.SearchWidgetProvider"
+         launcher:screen="0"
+@@ -34,7 +34,7 @@
+         launcher:x="0"
+         launcher:y="1"
+         launcher:spanX="4"
+-        launcher:spanY="2" />
++        launcher:spanY="2" />-->
+     <!-- Bottom row -->
+     <resolve
+         launcher:screen="0"
+Index: packages/apps/Launcher3/ext/res/xml/dw_base_customize.xml
+===================================================================
+--- packages/apps/Launcher3/ext/res/xml/dw_base_customize.xml	(revision 177877)
++++ packages/apps/Launcher3/ext/res/xml/dw_base_customize.xml	(revision 177878)
+@@ -15,15 +15,25 @@
+ -->
+ 
+ <favorites xmlns:launcher="http://schemas.android.com/apk/res-auto/com.android.launcher3">
+-
+-    <!--<appwidget
++	
++	
++    <appwidget
++        launcher:packageName="com.google.android.googlequicksearchbox"
++        launcher:className="com.google.android.googlequicksearchbox.SearchWidgetProvider"
+         launcher:screen="0"
+         launcher:x="0"
+         launcher:y="0"
+         launcher:spanX="4"
++        launcher:spanY="1" />
++		
++	<appwidget
++        launcher:screen="0"
++        launcher:x="0"
++        launcher:y="1"
++        launcher:spanX="4"
+         launcher:spanY="2"
+         launcher:packageName="com.android.deskclock"
+-        launcher:className="com.android.alarmclock.DigitalAppWidgetProvider" />-->
++        launcher:className="com.android.alarmclock.DigitalAppWidgetProvider" />
+ 
+     <favorite
+         launcher:screen="0"
+Index: packages/apps/DeskClock/src/com/android/alarmclock/DigitalAppWidgetProvider.java
+===================================================================
+--- packages/apps/DeskClock/src/com/android/alarmclock/DigitalAppWidgetProvider.java	(revision 177877)
++++ packages/apps/DeskClock/src/com/android/alarmclock/DigitalAppWidgetProvider.java	(revision 177878)
+@@ -222,7 +222,7 @@
+         widget.setCharSequence(R.id.date, "setFormat12Hour", timeFormat);
+         widget.setCharSequence(R.id.date, "setFormat24Hour", timeFormat);
+         final float fontSize = context.getResources().getDimension(R.dimen.widget_label_font_size);
+-        widget.setTextViewTextSize(R.id.date, TypedValue.COMPLEX_UNIT_PX, 2*fontSize * ratio);
++        widget.setTextViewTextSize(R.id.date, TypedValue.COMPLEX_UNIT_PX, fontSize * ratio);
+     }
+ 
+     protected void refreshAlarm(Context context, RemoteViews widget, float ratio) {
+Index: packages/apps/DeskClock/res/values-v23/dimens.xml
+===================================================================
+--- packages/apps/DeskClock/res/values-v23/dimens.xml	(revision 177877)
++++ packages/apps/DeskClock/res/values-v23/dimens.xml	(revision 177878)
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+     <!-- Use dp on purpose to ensure consistency across multiple screen sizes. -->
+-    <dimen name="widget_label_font_size">9dp</dimen>
++    <dimen name="widget_label_font_size">16dp</dimen>
+ </resources>
+\ No newline at end of file
+Index: packages/apps/DeskClock/res/values/dimens.xml
+===================================================================
+--- packages/apps/DeskClock/res/values/dimens.xml	(revision 177877)
++++ packages/apps/DeskClock/res/values/dimens.xml	(revision 177878)
+@@ -156,7 +156,7 @@
+     <!-- Digital Widget settings (keyguard|home_screen) -->
+     <!-- Clock and world clock sizes -->
+     <!-- Use dp on purpose to ensure consistency across multiple screen sizes. -->
+-    <dimen name="widget_big_font_size">100dp</dimen>
++    <dimen name="widget_big_font_size">85dp</dimen>
+     <dimen name="widget_medium_font_size">32sp</dimen>
+     <dimen name="widget_24_medium_font_size">40sp</dimen>
+ 

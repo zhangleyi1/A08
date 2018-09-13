@@ -1,0 +1,48 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/fmradio/FMRadio.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/fmradio/FMRadio.java	(revision 166486)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/fmradio/FMRadio.java	(revision 166487)
+@@ -59,13 +59,13 @@
+ 	/*	AudioManager manger = (AudioManager) getSystemService(AUDIO_SERVICE);
+ 		boolean isPlugIn = manger.isWiredHeadsetOn(); 
+ 		
+-		if(HeadSet.getHeadsetState()== 0){*/
++		if(HeadSet.getHeadsetState()== 0){
+ 			//successbutton.setEnabled(false);
+ 			
+-	/*	}else {
++		}else {*/
+ 			successbutton.setEnabled(true);
+ 			
+-		}*/
++		//}
+ 
+ 		Intent intent = new Intent();
+ 		intent.setClassName("com.android.fmradio", "com.android.fmradio.FmMainActivity");
+@@ -84,7 +84,7 @@
+ 	
+ 	@Override
+ 	protected void onDestroy() {
+-		Intent intent = new Intent("com.android.fmradio.FmService.SOUND_POWER_DOWN_MSG");
++		Intent intent = new Intent("com.mediatek.FMRadio.FMRadioService.ACTION_TOFMSERVICE_POWERDOWN");
+ 		sendBroadcast(intent);
+ 		super.onDestroy();
+ 	}
+Index: vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmService.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmService.java	(revision 166486)
++++ vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmService.java	(revision 166487)
+@@ -423,7 +423,12 @@
+                             FmListener.MSGID_AIRPLANE_STATE);
+                     airbundle.putBoolean("airplane", enable);
+                     notifyActivityStateChanged(airbundle);
+-                }
++                } /* Bug 589228 End@} */
++            }else if("com.mediatek.FMRadio.FMRadioService.ACTION_TOFMSERVICE_POWERDOWN".equals(action)) {
++            	Log.d(TAG, "onReceive, stop from FactoryMode");
++            	mFmServiceHandler.removeCallbacksAndMessages(null);
++                exitFm();
++                stopSelf();
+             }
+             /* Bug 589228 End@} */
+         }

@@ -1,0 +1,42 @@
+Index: frameworks/base/core/java/com/android/internal/app/LocalePicker.java
+===================================================================
+--- frameworks/base/core/java/com/android/internal/app/LocalePicker.java	(revision 170554)
++++ frameworks/base/core/java/com/android/internal/app/LocalePicker.java	(revision 170555)
+@@ -105,11 +105,11 @@
+         Collections.addAll(localeList, locales);
+ 
+         // Don't show the pseudolocales unless we're in developer mode. http://b/17190407.
+-        if (!isInDeveloperMode) {
++        //if (!isInDeveloperMode) {
+             for (String locale : pseudoLocales) {
+                 localeList.remove(locale);
+             }
+-        }
++        //}
+ 
+         Collections.sort(localeList);
+         final String[] specialLocaleCodes = resources.getStringArray(R.array.special_locale_codes);
+Index: frameworks/base/core/java/com/android/internal/app/LocaleStore.java
+===================================================================
+--- frameworks/base/core/java/com/android/internal/app/LocaleStore.java	(revision 170554)
++++ frameworks/base/core/java/com/android/internal/app/LocaleStore.java	(revision 170555)
+@@ -277,13 +277,13 @@
+                 Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0) != 0;
+         for (String localeId : LocalePicker.getPseudoLocales()) {
+             LocaleInfo li = getLocaleInfo(Locale.forLanguageTag(localeId));
+-            if (isInDeveloperMode) {
+-                li.setTranslated(true);
+-                li.mIsPseudo = true;
+-                li.mSuggestionFlags |= LocaleInfo.SUGGESTION_TYPE_SIM;
+-            } else {
++           // if (isInDeveloperMode) {
++           //     li.setTranslated(true);
++           //     li.mIsPseudo = true;
++           //     li.mSuggestionFlags |= LocaleInfo.SUGGESTION_TYPE_SIM;
++           // } else {
+                 sLocaleCache.remove(li.getId());
+-            }
++           // }
+         }
+ 
+         // TODO: See if we can reuse what LocaleList.matchScore does

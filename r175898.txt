@@ -1,0 +1,155 @@
+Index: vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable/stat_sys_data_inout_sprd_reliance.xml
+===================================================================
+--- vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable/stat_sys_data_inout_sprd_reliance.xml	(revision 175897)
++++ vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable/stat_sys_data_inout_sprd_reliance.xml	(revision 175898)
+@@ -1,14 +1,14 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="13dp"
+-    android:height="12dp"
+-    android:viewportWidth="13"
+-    android:viewportHeight="12">
++    android:width="18dp"
++    android:height="16dp"
++    android:viewportWidth="18"
++    android:viewportHeight="16">
+ 
+     <path
+         android:fillColor="#FFFFFF"
+-        android:pathData="M 4.316 4.932 L 4.316 11 L 2.158 11 L 2.158 4.932 L 0 4.932 L 3.263 1 L 6.527 4.932 Z" />
++        android:pathData="M 5.976 6.504 L 5.976 15 L 2.988 15 L 2.988 6.504 L 0 6.504 L 4.518 1 L 9.037 6.504 Z" />
+     <path
+         android:fillColor="#FFFFFF"
+-        android:pathData="M 8.684 7.067 L 8.684 1 L 10.842 1 L 10.842 7.067 L 13 7.067 L 9.736 11 L 6.527 7.067 Z" />
++        android:pathData="M 12.023 9.492 L 12.023 1 L 15.012 1 L 15.012 9.492 L 18 9.492 L 13.48 15 L 9.037 9.492 Z" />
+ </vector>
+\ No newline at end of file
+Index: vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable/stat_sys_data_default_sprd_reliance.xml
+===================================================================
+--- vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable/stat_sys_data_default_sprd_reliance.xml	(revision 175897)
++++ vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable/stat_sys_data_default_sprd_reliance.xml	(revision 175898)
+@@ -1,9 +1,9 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="9dp"
+-    android:height="8dp"
+-    android:viewportWidth="9"
+-    android:viewportHeight="8">
++    android:width="18dp"
++    android:height="16dp"
++    android:viewportWidth="18"
++    android:viewportHeight="16">
+ 
+     <path
+         android:fillColor="#FFFFFF"
+@@ -10,11 +10,11 @@
+         android:fillAlpha="0.3"
+         android:strokeAlpha="0.3"
+         android:strokeWidth="1"
+-        android:pathData="M 2.988 3.359 L 2.988 7 L 1.494 7 L 1.494 3.359 L 0 3.359 L 2.259 1 L 4.519 3.359 Z" />
++        android:pathData="M 5.976 6.504 L 5.976 15 L 2.988 15 L 2.988 6.504 L 0 6.504 L 4.518 1 L 9.037 6.504 Z" />
+     <path
+         android:fillColor="#FFFFFF"
+         android:fillAlpha="0.3"
+         android:strokeAlpha="0.3"
+         android:strokeWidth="1"
+-        android:pathData="M 6.012 4.641 L 6.012 1 L 7.506 1 L 7.506 4.641 L 9 4.641 L 6.74 7 L 4.519 4.641 Z" />
++        android:pathData="M 12.023 9.492 L 12.023 1 L 15.012 1 L 15.012 9.492 L 18 9.492 L 13.48 15 L 9.037 9.492 Z" />
+ </vector>
+\ No newline at end of file
+Index: vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable/stat_sys_data_in_sprd_reliance.xml
+===================================================================
+--- vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable/stat_sys_data_in_sprd_reliance.xml	(revision 175897)
++++ vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable/stat_sys_data_in_sprd_reliance.xml	(revision 175898)
+@@ -1,17 +1,17 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="9dp"
+-    android:height="8dp"
+-    android:viewportWidth="9"
+-    android:viewportHeight="8">
++    android:width="18dp"
++    android:height="16dp"
++    android:viewportWidth="18"
++    android:viewportHeight="16">
+ 
+     <path
+         android:fillColor="#FFFFFF"
+-        android:pathData="M 2.988 3.359 L 2.988 7 L 1.494 7 L 1.494 3.359 L 0 3.359 L 2.259 1 L 4.519 3.359 Z" />
++        android:pathData="M 5.976 6.504 L 5.976 15 L 2.988 15 L 2.988 6.504 L 0 6.504 L 4.518 1 L 9.037 6.504 Z" />
+     <path
+         android:fillColor="#FFFFFF"
+         android:fillAlpha="0.3"
+         android:strokeAlpha="0.3"
+         android:strokeWidth="1"
+-        android:pathData="M 6.012 4.641 L 6.012 1 L 7.506 1 L 7.506 4.641 L 9 4.641 L 6.74 7 L 4.519 4.641 Z" />
++        android:pathData="M 12.023 9.492 L 12.023 1 L 15.012 1 L 15.012 9.492 L 18 9.492 L 13.48 15 L 9.037 9.492 Z" />
+ </vector>
+\ No newline at end of file
+Index: vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable/stat_sys_data_out_sprd_reliance.xml
+===================================================================
+--- vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable/stat_sys_data_out_sprd_reliance.xml	(revision 175897)
++++ vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable/stat_sys_data_out_sprd_reliance.xml	(revision 175898)
+@@ -1,9 +1,9 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="9dp"
+-    android:height="8dp"
+-    android:viewportWidth="9"
+-    android:viewportHeight="8">
++    android:width="18dp"
++    android:height="16dp"
++    android:viewportWidth="18"
++    android:viewportHeight="16">
+ 
+     <path
+         android:fillColor="#FFFFFF"
+@@ -10,8 +10,8 @@
+         android:fillAlpha="0.3"
+         android:strokeAlpha="0.3"
+         android:strokeWidth="1"
+-        android:pathData="M 2.988 3.359 L 2.988 7 L 1.494 7 L 1.494 3.359 L 0 3.359 L 2.259 1 L 4.519 3.359 Z" />
++        android:pathData="M 5.976 6.504 L 5.976 15 L 2.988 15 L 2.988 6.504 L 0 6.504 L 4.518 1 L 9.037 6.504 Z" />
+     <path
+         android:fillColor="#FFFFFF"
+-        android:pathData="M 6.012 4.641 L 6.012 1 L 7.506 1 L 7.506 4.641 L 9 4.641 L 6.74 7 L 4.519 4.641 Z" />
++        android:pathData="M 12.023 9.492 L 12.023 1 L 15.012 1 L 15.012 9.492 L 18 9.492 L 13.48 15 L 9.037 9.492 Z" />
+ </vector>
+\ No newline at end of file
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml	(revision 175897)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml	(revision 175898)
+@@ -25,10 +25,9 @@
+                 />
+         <ImageView
+                 android:id="@+id/mobile_type"
+-                android:layout_width="16dp"
++                android:layout_width="10dp"
+                 android:layout_height="10dp"
+-                android:scaleX="1.1"
+-            	android:scaleY="1.1"
++               
+ 				android:layout_marginBottom="3dp"
+ 				
+ 				
+@@ -57,8 +56,8 @@
+ 
+ 		<ImageView
+             android:id="@+id/mobile_type1"
+-            android:layout_width="12dp"
+-            android:layout_height="13dp" 
++            android:layout_width="10dp"
++            android:layout_height="11dp" 
+   	        android:layout_alignParentTop="true"
+   	        android:layout_alignParentLeft="true"/>
+         
+@@ -80,7 +79,7 @@
+             android:alpha="0.0"
+             systemui:hasOverlappingRendering="false"
+ 			android:layout_marginBottom="1.6dp"
+-			android:layout_alignParentRight="true"
++			
+             />
+ 
+         <ImageView

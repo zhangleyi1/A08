@@ -1,0 +1,46 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/StatusBarNotifier.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/StatusBarNotifier.java	(revision 177631)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/StatusBarNotifier.java	(revision 177632)
+@@ -269,7 +269,7 @@
+         final int callState = call.getState();
+         /* SPRD: show main/vice card feature @{ */
+         final String contentInfo = InCallUiUtils.getSlotInfoByPhoneAccountHandle(
+-                mContext, call.getAccountHandle())
++                mContext, call.getAccountHandle())+" "
+                 + InCallUiUtils.getPhoneAccountLabel(call.getAccountHandle());
+         /* @} */
+ 
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardFragment.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardFragment.java	(revision 177631)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardFragment.java	(revision 177632)
+@@ -93,6 +93,9 @@
+         public CharSequence getCallStateLabel() {
+             return mCallStateLabel;
+         }
++		public void setCallStateLabel(CharSequence callStateLabel){
++			mCallStateLabel=callStateLabel;
++		}
+ 
+         /**
+          * Determines if the call state label should auto-dismiss.
+@@ -1001,8 +1004,16 @@
+     }
+ 
+     private void setCallStateLabel(CallStateLabel callStateLabel) {
+-        Log.v(this, "setCallStateLabel : label = " + callStateLabel.getCallStateLabel());
+-
++        Log.v(this, "setCallStateLabel : label1 = " + callStateLabel.getCallStateLabel());
++		String stateLabel=(String)callStateLabel.getCallStateLabel();
++		if(stateLabel!=null){
++			int index=stateLabel.indexOf(":");
++			if(index!=-1){
++				StringBuilder sb = new StringBuilder();
++				sb.append(stateLabel.substring(0, index+1)).append(" ").append(stateLabel.substring(index+1));
++				callStateLabel.setCallStateLabel(sb.toString());
++			}
++		}
+         if (callStateLabel.isAutoDismissing()) {
+             mCallStateLabelResetPending = true;
+             mHandler.postDelayed(new Runnable() {

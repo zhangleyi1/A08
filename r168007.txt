@@ -1,0 +1,13 @@
+Index: packages/apps/Dialer/InCallUI/res/values/strings.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/values/strings.xml	(revision 168006)
++++ packages/apps/Dialer/InCallUI/res/values/strings.xml	(revision 168007)
+@@ -533,7 +533,7 @@
+     <string name="poor_voice_quality">"Poor voice quality"</string>
+     <string name="fair_voice_quality">"Fair voice quality"</string>
+     <string name="good_voice_quality">"Good voice quality"</string>
+-	<string name="notification_action_sms_rejust">"SmsRejust"</string>
++	<string name="notification_action_sms_rejust">"SMS"</string>
+     <!-- SPRD:add for conference videocall -->
+     <string name="hide_preview_video">Hide Preview Video</string>
+     <string name="display_preview_video">Display Preview Video</string>

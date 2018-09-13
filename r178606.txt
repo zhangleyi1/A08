@@ -1,0 +1,13 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/lteinfo/LteInfo.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/lteinfo/LteInfo.java	(revision 178605)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/lteinfo/LteInfo.java	(revision 178606)
+@@ -358,7 +358,7 @@
+ 					}else if(i==4){
+ 						temp = Integer.parseInt(str2[i].replace("+","-").trim())/100;
+ 						values[10]=String.valueOf(temp) + " dBm";
+-						values[12]=(temp==0 ? 0 : Integer.parseInt((values[9].substring(0,values[9].indexOf("d"))).replace("-","+").trim())/temp)+" dBm";
++						values[12]=(temp==0 ? 0 : Integer.parseInt((values[9].substring(0,values[9].indexOf("d"))).replace("-","+").trim())/temp * 4)+" dBm";
+ 						
+ 					}else if(i==6){
+ 						if(Integer.parseInt(str2[i])==0){

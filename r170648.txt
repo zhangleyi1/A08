@@ -1,0 +1,159 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/BaseContainerView.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/BaseContainerView.java	(revision 170647)
++++ packages/apps/Launcher3/src/com/android/launcher3/BaseContainerView.java	(revision 170648)
+@@ -41,8 +41,8 @@
+ 
+     private final Drawable mRevealDrawable;
+ 
+-    private View mRevealView;
+-    private View mContent;
++    protected View mRevealView;
++    protected View mContent;
+ 
+     protected final int mHorizontalPadding;
+ 
+@@ -122,7 +122,7 @@
+         }
+     }
+ 
+-    private void onUpdateBackgroundAndPaddings(Rect padding) {
++    protected void onUpdateBackgroundAndPaddings(Rect padding) {
+         // Apply the top-bottom padding to itself so that the launcher transition is
+         // clipped correctly
+         setPadding(0, padding.top, 0, padding.bottom);
+Index: packages/apps/Launcher3/src/com/android/launcher3/LauncherStateTransitionAnimation.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/LauncherStateTransitionAnimation.java	(revision 170647)
++++ packages/apps/Launcher3/src/com/android/launcher3/LauncherStateTransitionAnimation.java	(revision 170648)
+@@ -433,7 +433,7 @@
+                         // We set the alpha instead of visibility to ensure that the focus does not
+                         // get taken from the all apps view
+                         allAppsButtonView.setVisibility(View.VISIBLE);
+-                        allAppsButtonView.setAlpha(0f);
++                        allAppsButtonView.setAlpha(1f);
+                     }
+                     public void onAnimationEnd(Animator animation) {
+                         // Hide the reveal view
+Index: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 170647)
++++ packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 170648)
+@@ -1127,8 +1127,19 @@
+         }
+     }
+     /* @} */
++    public void onResumeAppsState(){
++        if(mOnResumeState == State.APPS) {
++            // Restore the previous launcher state
++            boolean launchedFromApp = (mWaitingForResume != null);
++            // Don't update the predicted apps if the user is returning to launcher in the apps
++            // view after launching an app, as they may be depending on the UI to be static to
++            // switch to another app, otherwise, if it was
++            showAppsView(false /* animated */, false /* resetListToTop */,
++                    !launchedFromApp /* updatePredictedApps */, false /* focusSearchBar */);
++            mOnResumeState = State.NONE;
++        }
++    }
+ 
+-
+     @Override
+     protected void onResume() {
+         /*  SPRD: add for bug515804 add the selection .@{*/
+@@ -1185,19 +1196,16 @@
+         super.onResume();
+ 
+         // Restore the previous launcher state
+-        if (mOnResumeState == State.WORKSPACE) {
+-            showWorkspace(false);
+-        } else if (mOnResumeState == State.APPS) {
+-            boolean launchedFromApp = (mWaitingForResume != null);
+-            // Don't update the predicted apps if the user is returning to launcher in the apps
+-            // view after launching an app, as they may be depending on the UI to be static to
+-            // switch to another app, otherwise, if it was
+-            showAppsView(false /* animated */, false /* resetListToTop */,
+-                    !launchedFromApp /* updatePredictedApps */, false /* focusSearchBar */);
+-        } else if (mOnResumeState == State.WIDGETS) {
+-            showWidgetsView(false, false);
++        if(mOnResumeState == State.APPS){
++//            onResumeAppsState();
++        }else {
++            if (mOnResumeState == State.WORKSPACE) {
++                showWorkspace(false);
++            } else if (mOnResumeState == State.WIDGETS) {
++                showWidgetsView(false, false);
++            }
++            mOnResumeState = State.NONE;
+         }
+-        mOnResumeState = State.NONE;
+ 
+         // Background was set to gradient in onPause(), restore to transparent if in all apps.
+         setWorkspaceBackground(mState == State.WORKSPACE ? WORKSPACE_BACKGROUND_GRADIENT
+Index: packages/apps/Launcher3/src/com/android/launcher3/allapps/AllAppsContainerView.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/allapps/AllAppsContainerView.java	(revision 170647)
++++ packages/apps/Launcher3/src/com/android/launcher3/allapps/AllAppsContainerView.java	(revision 170648)
+@@ -612,4 +612,21 @@
+     public void updateUnreadInfo() {
+         SprdUnreadInfoManager.getInstance().updateUnreadInfo(mLauncher, mApps, this);
+     }
++
++    protected void onUpdateBackgroundAndPaddings(Rect padding) {
++        // Apply the top-bottom padding to itself so that the launcher transition is
++        // clipped correctly
++        setPadding(0, padding.top, 0, padding.bottom);
++
++        mContent.setBackground(null);
++        mRevealView.setBackground(null);
++
++        // We let the content have a intent background, but still have full width.
++        // This allows the scroll bar to be used responsive outside the background bounds as well.
++        mContent.setPadding(0, 0, 0, 0);
++
++        Rect bgPadding = new Rect();
++
++        onUpdateBgPadding(padding, bgPadding);
++    }
+ }
+Index: packages/apps/Launcher3/src/com/android/launcher3/LauncherModel.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/LauncherModel.java	(revision 170647)
++++ packages/apps/Launcher3/src/com/android/launcher3/LauncherModel.java	(revision 170648)
+@@ -206,6 +206,7 @@
+         public boolean isAllAppsButtonRank(int rank);
+         public void onPageBoundSynchronously(int page);
+         public void dumpLogsToLocalData();
++        public void onResumeAppsState();
+     }
+ 
+     public interface ItemInfoFilter {
+@@ -1577,6 +1578,16 @@
+                 mIsLoaderTaskRunning = false;
+                 mHasLoaderCompletedOnce = true;
+             }
++            // Process onResumeAppsState after workspace loaded
++            final Callbacks callbacks = getCallback();
++            mHandler.post(new Runnable() {
++                public void run() {
++                    Callbacks cb = getCallback();
++                    if (callbacks == cb && cb != null) {
++                        callbacks.onResumeAppsState();
++                    }
++                }
++            });
+         }
+ 
+         public void stopLocked() {
+Index: packages/apps/Launcher3/res/values/colors.xml
+===================================================================
+--- packages/apps/Launcher3/res/values/colors.xml	(revision 170647)
++++ packages/apps/Launcher3/res/values/colors.xml	(revision 170648)
+@@ -32,7 +32,7 @@
+     <color name="workspace_edge_effect_color">#FFFFFFFF</color>
+     <color name="folder_edge_effect_color">#FF757575</color>
+ 
+-    <color name="quantum_panel_text_color">#FF666666</color>
++    <color name="quantum_panel_text_color">#FFFFFFFF</color>
+     <color name="quantum_panel_bg_color">#FFF5F5F5</color>
+     <color name="quantum_panel_bg_color_dark">#FF374248</color>
+ 

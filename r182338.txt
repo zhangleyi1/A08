@@ -1,0 +1,84 @@
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/armeabi-v7a/libsprdfa.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/armeabi-v7a/libsprdfar.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/armeabi-v7a/libsprdfd.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/arm64-v8a/libsprdfa.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/arm64-v8a/libsprdfar.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/arm64-v8a/libsprdfd.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib64/libsprdfd.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib64/libsprdfd.so
+===================================================================
+--- vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib64/libsprdfd.so	(revision 0)
++++ vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib64/libsprdfd.so	(revision 182338)
+
+Property changes on: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib64/libsprdfd.so
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib64/libsprdfd.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib64/libsprdfd.so
+===================================================================
+--- vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib64/libsprdfd.so	(revision 0)
++++ vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib64/libsprdfd.so	(revision 182338)
+
+Property changes on: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib64/libsprdfd.so
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib/libsprdfd.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib/libsprdfd.so
+===================================================================
+--- vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib/libsprdfd.so	(revision 0)
++++ vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib/libsprdfd.so	(revision 182338)
+
+Property changes on: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib/libsprdfd.so
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib/libsprdfd.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib/libsprdfd.so
+===================================================================
+--- vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib/libsprdfd.so	(revision 0)
++++ vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib/libsprdfd.so	(revision 182338)
+
+Property changes on: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib/libsprdfd.so
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property

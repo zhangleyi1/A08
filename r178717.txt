@@ -1,0 +1,15 @@
+Index: packages/apps/Launcher3/ext/res/xml/customize_app_positions.xml
+===================================================================
+--- packages/apps/Launcher3/ext/res/xml/customize_app_positions.xml	(revision 178716)
++++ packages/apps/Launcher3/ext/res/xml/customize_app_positions.xml	(revision 178717)
+@@ -3,7 +3,7 @@
+     <App
+         launcher:pkgName="com.smartfren"
+         launcher:position="0" />
+-    <App
++    <!--<App
+         launcher:pkgName="cn.wps.moffice_eng"
+-        launcher:position="1" />
++        launcher:position="1" />-->
+ </Apps>
+\ No newline at end of file

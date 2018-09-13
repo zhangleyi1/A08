@@ -1,0 +1,162 @@
+Index: u-boot64/common/loader/vbat_check.c
+===================================================================
+--- u-boot64/common/loader/vbat_check.c	(revision 179799)
++++ u-boot64/common/loader/vbat_check.c	(revision 179800)
+@@ -38,7 +38,7 @@
+ 		comp_vbat = LOW_BAT_VOL;
+ 	}
+ 
+-	ADC_Init();
++	//ADC_Init();
+ 
+ 	for (i = 0; i < _BUF_SIZE; i++) {
+ retry_adc:
+Index: u-boot64/drivers/misc/ana_efuse.c
+===================================================================
+--- u-boot64/drivers/misc/ana_efuse.c	(revision 179799)
++++ u-boot64/drivers/misc/ana_efuse.c	(revision 179800)
+@@ -152,7 +152,7 @@
+ {
+ 	u32 val = 0;
+ 
+-	pr_debug("adie efuse read %d\n", blk_index);
++	debugf("adie efuse read %d\n", blk_index);
+ 	adie_efuse_lock();
+ 	__adie_efuse_power_on();
+ 	/* enable adie_efuse module clk and power before */
+@@ -201,7 +201,7 @@
+ 	int i, blk_index = (int)bit_index / EFUSE_BLOCK_WIDTH;
+ 	int blk_max = DIV_ROUND_UP(bit_index + length, EFUSE_BLOCK_WIDTH);
+ 	u32 val = 0;
+-	pr_debug("otp read blk %d - %d\n", blk_index, blk_max);
++	debugf("otp read blk %d - %d\n", blk_index, blk_max);
+ 	/* FIXME: length should not bigger than 8 */
+ 	for (i = blk_index; i < blk_max; i++) {
+ 		val |= __adie_efuse_read(i)
+@@ -210,7 +210,7 @@
+ 	//pr_debug("val=%08x\n", val);
+ 	val >>= (bit_index & (EFUSE_BLOCK_WIDTH - 1));
+ 	val &= BIT(length) - 1;
+-	pr_debug("otp read bits %d ++ %d 0x%08x\n\n", bit_index, length, val);
++	debugf("otp read bits %d ++ %d 0x%08x\n\n", bit_index, length, val);
+ 	return val;
+ }
+ 
+Index: u-boot64/drivers/misc/adc.c
+===================================================================
+--- u-boot64/drivers/misc/adc.c	(revision 179799)
++++ u-boot64/drivers/misc/adc.c	(revision 179800)
+@@ -304,7 +304,7 @@
+ 		small_adc_cal.p1_adc = (efuse_cal_data[1] >> 16) & 0xffff;
+ 		small_adc_cal.cal_type = SPRD_AUXADC_CAL_CHIP;
+ 	}
+-	printk("sprdchg_temp_adc_to_vol %d,%d,%d,%d,cal_type:%d\n",
++	debugf("sprdchg_temp_adc_to_vol %d,%d,%d,%d,cal_type:%d\n",
+ 	       small_adc_cal.p0_vol, small_adc_cal.p0_adc, small_adc_cal.p1_vol,
+ 	       small_adc_cal.p1_adc, small_adc_cal.cal_type);
+ }
+@@ -320,7 +320,7 @@
+ 		big_adc_cal.cal_type = SPRDBIG_AUXADC_CAL_CHIP;
+ 	}
+ 
+-	printk("sprd big adc cal %d,%d,%d,%d,cal_type:%d\n",
++	debugf("sprd big adc cal %d,%d,%d,%d,cal_type:%d\n",
+ 	       big_adc_cal.p0_vol, big_adc_cal.p0_adc, big_adc_cal.p1_vol,
+ 	       big_adc_cal.p1_adc, big_adc_cal.cal_type);
+ }
+Index: u-boot64/drivers/misc/otp_helper.c
+===================================================================
+--- u-boot64/drivers/misc/otp_helper.c	(revision 179799)
++++ u-boot64/drivers/misc/otp_helper.c	(revision 179800)
+@@ -84,7 +84,7 @@
+ 	unsigned int block0,block1;
+ 	block0 = __ddie_efuse_read(BLK_UID_DETA_START);
+ 	block1 = __ddie_efuse_read(BLK_UID_DETA_END);
+-    printf("efuse uid is %08x%08x\n", __func__, block0 ,block1);
++    debugf("efuse uid is %08x%08x\n", __func__, block0 ,block1);
+ }
+ #endif
+ int sci_efuse_calibration_get(unsigned int *p_cal_data)
+@@ -109,7 +109,7 @@
+ 	#warning "AuxADC CAL DETA need fixing"
+ #endif
+ 
+-	printf("%s() get efuse block %u, deta: 0x%08x\n", __func__, BLK_ADC_DETA, deta);
++	debugf("%s() get efuse block %u, deta: 0x%08x\n", __func__, BLK_ADC_DETA, deta);
+ 
+ 	deta &= 0xFFFFFF;
+ 
+@@ -139,7 +139,7 @@
+ 
+ 	*p_cal_data = (data >> 16) & 0x1f;
+ 	ret = !!(data & 1 << 30);
+-	printf("%s: usb phy tune is %s, tfhres: 0x%x\n",
++	debugf("%s: usb phy tune is %s, tfhres: 0x%x\n",
+ 		__func__, ret ? "OK" : "NOT OK", *p_cal_data);
+ 
+ 	return ret;
+@@ -159,15 +159,15 @@
+ 	 if(soc_is_sharklc()){
+ 		data=__ddie_efuse_read(BLK_DHR_DETA_SHARKLC);
+ 		Dhry_binning = (data >> 10) & 0x003F;
+-		printf("sharlc block %u, deta: 0x%08x\n", BLK_DHR_DETA_SHARKLC, Dhry_binning);
++		debugf("sharlc block %u, deta: 0x%08x\n", BLK_DHR_DETA_SHARKLC, Dhry_binning);
+ 	}else if(soc_is_sharkls()){
+ 		data=__ddie_efuse_read(BLK_DHR_DETA_SHARKLS);
+ 		Dhry_binning = (data >> 4) & 0x003F;
+-		printf("sharkls block %u, deta: 0x%08x\n", BLK_DHR_DETA_SHARKLS, Dhry_binning);
++		debugf("sharkls block %u, deta: 0x%08x\n", BLK_DHR_DETA_SHARKLS, Dhry_binning);
+ 	}else{
+ 		data=__ddie_efuse_read(BLK_DHR_DETA);
+ 		Dhry_binning = (data >> 4) & 0x003F;
+-		printf("sharkl block %u, deta: 0x%08x\n", BLK_DHR_DETA, Dhry_binning);
++		debugf("sharkl block %u, deta: 0x%08x\n", BLK_DHR_DETA, Dhry_binning);
+ 	}
+ 	*cal = Dhry_binning;
+ 	return 0;
+@@ -193,7 +193,7 @@
+ 		return 0;
+ 
+ 	deta = __adie_efuse_read_bits(BLK_TEMP_ADC_DETA * BLK_WIDTH_OTP_EMEMORY, 16);
+-	printf("%s() get efuse block %u, deta: 0x%08x\n", __func__, BLK_TEMP_ADC_DETA, deta);
++	debugf("%s() get efuse block %u, deta: 0x%08x\n", __func__, BLK_TEMP_ADC_DETA, deta);
+ 
+ 	deta &= 0xFFFFFF; /* get BIT0 ~ BIT23) in block 7 */
+ 
+@@ -202,12 +202,12 @@
+ 	}
+ 	//adc 0.1V
+ 	adc_temp = ((deta & 0x00FF) + BASE_TEMP_ADC_P1 - ADC_DATA_OFFSET) * 4;
+-	printf("0.1V adc_temp =%d/0x%x\n",adc_temp,adc_temp);
++	debugf("0.1V adc_temp =%d/0x%x\n",adc_temp,adc_temp);
+ 	p_cal_data[1] = (VOL_TEMP_P1) | (adc_temp << 16);
+ 
+ 	//adc 1.0V
+ 	adc_temp =(( (deta >> 8) & 0x00FF) + BASE_TEMP_ADC_P0 - ADC_DATA_OFFSET ) * 4;
+-	printf("1.0V adc_temp =%d/0x%x\n",adc_temp,adc_temp);
++	debugf("1.0V adc_temp =%d/0x%x\n",adc_temp,adc_temp);
+ 	p_cal_data[0] = (VOL_TEMP_P0) | (adc_temp << 16);
+ 
+ 	return 1;
+Index: u-boot64/drivers/misc/efuse.c
+===================================================================
+--- u-boot64/drivers/misc/efuse.c	(revision 179799)
++++ u-boot64/drivers/misc/efuse.c	(revision 179800)
+@@ -225,7 +225,7 @@
+ static u32 efuse_read(int blk_index)
+ {
+ 	u32 val;
+-	pr_debug("efuse read %d\n", blk_index);
++	debugf("efuse read %d\n", blk_index);
+ 	efuse_lock();
+ 
+ 	__efuse_power_on();
+@@ -342,7 +342,7 @@
+ 		cfg0 |= BITS_EFS_TYPE(0x2);
+ 	   }
+ 	__raw_writel(cfg0, (void *)REG_EFUSE_CFG0);
+-	printf("efuse type %08x\n", __raw_readl((void *)REG_EFUSE_CFG0));
++	debugf("efuse type %08x\n", __raw_readl((void *)REG_EFUSE_CFG0));
+ 	sci_glb_clr(REG_AON_APB_APB_EB0, BIT_EFUSE_EB);
+ }
+ 

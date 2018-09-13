@@ -1,0 +1,17 @@
+Index: packages/apps/Messaging/src/com/android/messaging/ui/UIIntentsImpl.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/ui/UIIntentsImpl.java	(revision 176325)
++++ packages/apps/Messaging/src/com/android/messaging/ui/UIIntentsImpl.java	(revision 176326)
+@@ -243,11 +243,7 @@
+         final MessageData messageData = TextUtils.isEmpty(smsBody)
+                 ? null
+                 : MessageData.createDraftSmsMessage(conversationId, null, smsBody);
+-        TaskStackBuilder.create(context)
+-                .addNextIntentWithParentStack(
+-                        getConversationActivityIntent(context, conversationId, messageData,
+-                                false /* withCustomTransition */))
+-                .startActivities();
++        context.startActivity(getConversationActivityIntent(context, conversationId, messageData,false));
+     }
+ 
+     @Override

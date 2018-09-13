@@ -1,0 +1,14 @@
+Index: device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 180955)
++++ device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 180956)
+@@ -222,7 +222,8 @@
+ CFG_TRUSTY_DEFAULT_PROJECT := sp9832-a7-trusty-vmm
+ 
+ PRODUCT_PROPERTY_OVERRIDES += \
+-	ro.hardware.keystore=trusty
++	ro.hardware.keystore=trusty \
++        ro.radio.fixed_slot=true
+ 
+ PRODUCT_PACKAGES += \
+     gatekeeper.trusty \

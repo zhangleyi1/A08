@@ -1,0 +1,196 @@
+Index: packages/apps/Dialer/InCallUI/res/values/config.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/values/config.xml	(revision 178702)
++++ packages/apps/Dialer/InCallUI/res/values/config.xml	(revision 178703)
+@@ -16,7 +16,7 @@
+ <resources>
+     <!-- Determines the maximum number of buttons visible on the call card.  Any buttons over this
+          count are put into the overflow menu. -->
+-    <integer name="call_card_max_buttons">5</integer>
++    <integer name="call_card_max_buttons">7</integer>
+ 
+     <!-- Determines video calls will automatically enter fullscreen mode after the start of the
+          call. -->
+Index: packages/apps/Dialer/InCallUI/res/layout/call_button_fragment.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/layout/call_button_fragment.xml	(revision 178702)
++++ packages/apps/Dialer/InCallUI/res/layout/call_button_fragment.xml	(revision 178703)
+@@ -67,7 +67,8 @@
+         <ToggleButton android:id="@+id/audioButton"
+             style="@style/InCallCompoundButton"
+             android:background="@drawable/btn_compound_audio"
+-            android:contentDescription="@string/audio_mode_speaker" />
++            android:contentDescription="@string/audio_mode_speaker"
++            android:layout_weight="1"/>
+ 
+         <!-- MIDDLE LEFT SLOT ================================================================== -->
+ 
+@@ -76,13 +77,22 @@
+             style="@style/InCallCompoundButton"
+             android:background="@drawable/btn_compound_record_ex"
+             android:contentDescription="@string/onscreenShowRecodText"
+-            android:visibility="gone"/>
++            android:visibility="gone"
++            android:layout_weight="1"/>
++	<!-- "Change to audio call" for video calls. -->
++        <ImageButton android:id="@+id/changeToVoiceButton"
++                     style="@style/InCallButton"
++                     android:background="@drawable/btn_change_to_voice"
++                     android:contentDescription="@string/onscreenChangeToVoiceText"
++                     android:visibility="gone" 
++                     android:layout_weight="1"/>
+ 
+         <!-- "Mute" -->
+         <ToggleButton android:id="@+id/muteButton"
+             style="@style/InCallCompoundButton"
+             android:background="@drawable/btn_compound_mute"
+-            android:contentDescription="@string/onscreenMuteText_unselected" />
++            android:contentDescription="@string/onscreenMuteText_unselected" 
++            android:layout_weight="1"/>
+ 
+         <!-- CENTER SLOT ======================================================================= -->
+ 
+@@ -90,7 +100,8 @@
+         <ToggleButton android:id="@+id/dialpadButton"
+             style="@style/InCallCompoundButton"
+             android:background="@drawable/btn_compound_dialpad"
+-            android:contentDescription="@string/onscreenShowDialpadText_unselected" />
++            android:contentDescription="@string/onscreenShowDialpadText_unselected"
++            android:layout_weight="1"/>
+ 
+         <!-- MIDDLE RIGHT SLOT ================================================================= -->
+ 
+@@ -101,7 +112,8 @@
+         <ToggleButton android:id="@+id/holdButton"
+             style="@style/InCallCompoundButton"
+             android:background="@drawable/btn_compound_hold"
+-            android:contentDescription="@string/onscreenHoldText_unselected" />
++            android:contentDescription="@string/onscreenHoldText_unselected"
++            android:layout_weight="1"/>
+ 
+         <!-- "Swap" (or "Manage calls" in some CDMA states) -->
+         <ImageButton android:id="@+id/swapButton"
+@@ -108,7 +120,8 @@
+             style="@style/InCallButton"
+             android:background="@drawable/btn_swap"
+             android:contentDescription="@string/onscreenSwapCallsText"
+-            android:visibility="gone" />
++            android:visibility="gone" 
++            android:layout_weight="1"/>
+ 
+         <!-- "Change to video call" -->
+         <ImageButton android:id="@+id/changeToVideoButton"
+@@ -115,7 +128,8 @@
+             style="@style/InCallButton"
+             android:background="@drawable/btn_change_to_video"
+             android:contentDescription="@string/onscreenVideoCallText"
+-            android:visibility="gone" />
++            android:visibility="gone" 
++            android:layout_weight="1"/>
+ 
+         <!-- "Switch camera" for video calls. -->
+         <ToggleButton android:id="@+id/switchCameraButton"
+@@ -122,7 +136,8 @@
+             style="@style/InCallCompoundButton"
+             android:background="@drawable/btn_compound_video_switch"
+             android:contentDescription="@string/onscreenSwitchCameraText"
+-            android:visibility="gone" />
++            android:visibility="gone"
++            android:layout_weight="1"/>
+ 
+         <!-- FAR RIGHT SLOT ==================================================================== -->
+ 
+@@ -134,21 +149,16 @@
+             style="@style/InCallCompoundButton"
+             android:background="@drawable/btn_compound_video_off"
+             android:contentDescription="@string/onscreenPauseVideoText"
+-            android:visibility="gone" />
++            android:visibility="gone" 
++            android:layout_weight="1"/>
+ 
+-        <!-- "Change to audio call" for video calls. -->
+-        <ImageButton android:id="@+id/changeToVoiceButton"
+-                     style="@style/InCallButton"
+-                     android:background="@drawable/btn_change_to_voice"
+-                     android:contentDescription="@string/onscreenChangeToVoiceText"
+-                     android:visibility="gone" />
+-
+         <!-- "Add Call" -->
+         <ImageButton android:id="@+id/addButton"
+             style="@style/InCallButton"
+             android:background="@drawable/btn_add"
+             android:contentDescription="@string/onscreenAddCallText"
+-            android:visibility="gone" />
++            android:visibility="gone" 
++            android:layout_weight="1"/>
+ 
+         <!-- "Merge calls". This button is used only on GSM devices, where we know that "Add" and
+              "Merge" are never available at the same time. The "Merge" button for CDMA devices is
+@@ -157,7 +167,8 @@
+             style="@style/InCallButton"
+             android:background="@drawable/btn_merge"
+             android:contentDescription="@string/onscreenMergeCallsText"
+-            android:visibility="gone" />
++            android:visibility="gone" 
++            android:layout_weight="1"/>
+ 
+         <!-- "Overflow" -->
+         <ImageButton android:id="@+id/overflowButton"
+@@ -164,7 +175,8 @@
+             style="@style/InCallButton"
+             android:background="@drawable/btn_overflow"
+             android:contentDescription="@string/onscreenOverflowText"
+-            android:visibility="gone" />
++            android:visibility="gone" 
++            android:layout_weight="1"/>
+ 
+         <!-- "Manage conference button (Video Call) " -->
+         <ImageButton android:id="@+id/manageVideoCallConferenceButton"
+@@ -171,7 +183,8 @@
+             style="@style/InCallButton"
+             android:background="@drawable/ic_group_white_24dp"
+             android:contentDescription="@string/onscreenManageConferenceText"
+-            android:visibility="gone" />
++            android:visibility="gone" 
++            android:layout_weight="1"/>
+ 
+         <!-- SPRD: Add for "send sms" feature. @{ -->
+         <ToggleButton android:id="@+id/sendSmsButton"
+@@ -178,7 +191,8 @@
+             style="@style/InCallCompoundButton"
+             android:background="@drawable/btn_compound_sendsms_ex"
+             android:contentDescription="@string/onscreenSMSText"
+-            android:visibility="gone" />
++            android:visibility="gone" 
++            android:layout_weight="1"/>
+         <!-- @} -->
+ 
+         <!-- SPRD: "Transfer" -->
+@@ -186,7 +200,8 @@
+             style="@style/InCallCompoundButton"
+             android:background="@drawable/btn_compound_transfer_ex"
+             android:contentDescription="@string/onscreenTransferCallText"
+-            android:visibility="gone" />
++            android:visibility="gone" 
++            android:layout_weight="1"/>
+ 
+         <!-- SPRD: Add for "invite call" feature. @{  -->
+         <ImageButton android:id="@+id/inviteButton"
+@@ -193,13 +208,15 @@
+             style="@style/InCallButton"
+             android:background="@drawable/btn_compound_invite"
+             android:contentDescription="@string/invite_call"
+-            android:visibility="gone" />
++            android:visibility="gone" 
++            android:layout_weight="1"/>
+         <!-- @} -->
+         <ImageButton android:id="@+id/hidePreviewVideoButton"
+             style="@style/InCallButton"
+             android:background="@drawable/btn_compound_hide_video_sprd"
+             android:contentDescription="@string/hide_preview_video"
+-            android:visibility="gone" />
++            android:visibility="gone"
++            android:layout_weight="1"/>
+     </LinearLayout>
+ 
+ </LinearLayout>

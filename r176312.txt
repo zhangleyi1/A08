@@ -1,0 +1,63 @@
+Index: packages/apps/Settings/res/values/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values/strings.xml	(revision 176311)
++++ packages/apps/Settings/res/values/strings.xml	(revision 176312)
+@@ -1543,11 +1543,11 @@
+     <!-- Used in the 1st-level settings screen as the turn-on summary -->
+     <string name="wifi_quick_toggle_summary">Turn on WI\u2011FI</string>
+     <!-- Used in the 1st-level settings screen to go to the 2nd-level settings screen  [CHAR LIMIT=20]-->
+-    <string name="wifi_settings">WI\u2011FI</string>
++    <string name="wifi_settings">Wi\u2011Fi</string>
+     <!-- Title of the Wi-fi settings screen -->
+     <string name="wifi_settings_category">WI\u2011FI settings</string>
+     <!-- Title of the Wi-fi settings entry in the left top level menu -->
+-    <string name="wifi_settings_title">WI\u2011FI</string>
++    <string name="wifi_settings_title">Wi\u2011Fi</string>
+     <!-- Summary text of the Wi-fi settings screen -->
+     <string name="wifi_settings_summary">Set up &amp; manage wireless access points</string>
+     <!-- Used in the 1st-level settings screen to turn on Wi-Fi  [CHAR LIMIT=60] -->
+@@ -1619,7 +1619,7 @@
+     <!-- Menu option to do WPS Pin Entry [CHAR LIMIT=25]-->
+     <string name="wifi_menu_wps_pin">WPS Pin Entry</string>
+     <!-- Menu option to launch Wi-Fi Direct settings [CHAR LIMIT=20]-->
+-    <string name="wifi_menu_p2p">WI\u2011FI Direct</string>
++    <string name="wifi_menu_p2p">Wi\u2011Fi Direct</string>
+     <!-- Menu option to scan Wi-Fi networks -->
+     <string name="wifi_menu_scan">Scan</string>
+     <!-- Menu option to Wi-Fi advanced settings -->
+@@ -1810,7 +1810,7 @@
+     <!-- Wi-Fi settings screen, Saved networks, settings section.  This is a header shown above Saved networks wifi settings. [CHAR LIMIT=30] -->
+     <string name="wifi_saved_access_points_titlebar">Saved networks</string>
+     <!-- Wi-Fi settings screen, advanced, settings section.  This is a header shown above advanced wifi settings. [CHAR LIMIT=30] -->
+-    <string name="wifi_advanced_titlebar">Advanced WI\u2011FI</string>
++    <string name="wifi_advanced_titlebar">Advanced Wi\u2011Fi</string>
+     <!-- Wi-Fi settings screen, configure, settings section.  This is a header shown above configure wifi settings. [CHAR LIMIT=30] -->
+     <string name="wifi_configure_titlebar">Configure WI\u2011FI</string>
+     <!-- Wi-Fi settings screen, advanced, title of the item to show the Wi-Fi device's MAC address. -->
+@@ -2992,7 +2992,7 @@
+     <!-- [CHAR LIMIT=30] Wireless background scanning settings screen, screen title -->
+     <string name="location_scanning_screen_title">Scanning</string>
+     <!-- [CHAR LIMIT=130] Preference title for Wi-Fi always scanning -->
+-    <string name="location_scanning_wifi_always_scanning_title">WI\u2011FI scanning</string>
++    <string name="location_scanning_wifi_always_scanning_title">Wi\u2011Fi scanning</string>
+     <!-- Preference description text for Wi-Fi always scanning -->
+     <string name="location_scanning_wifi_always_scanning_description">Improve location by allowing
+       system apps and services to detect WI\u2011FI networks at any time.</string>
+@@ -5187,7 +5187,7 @@
+     <!-- Header for list of mobile networks. [CHAR LIMIT=32] -->
+     <string name="data_usage_metered_mobile">Cellular networks</string>
+     <!-- Header for list of Wi-Fi networks. [CHAR LIMIT=32] -->
+-    <string name="data_usage_metered_wifi">Metered WI\u2011FI networks</string>
++    <string name="data_usage_metered_wifi">Metered Wi\u2011Fi networks</string>
+     <!-- Body text prompting user to enable Wi-Fi to configure metered networks. [CHAR LIMIT=64] -->
+     <string name="data_usage_metered_wifi_disabled">To select metered networks, turn WI\u2011FI on.</string>
+ 
+@@ -7280,7 +7280,7 @@
+     <string name="ethernet_data_usage">Ethernet data usage</string>
+ 
+     <!-- Label for section about wifi in data usage screen [CHAR LIMIT=60] -->
+-    <string name="wifi">WI-FI</string>
++    <string name="wifi">Wi-Fi</string>
+ 
+     <!-- Label for section about ethernet in data usage screen [CHAR LIMIT=60] -->
+     <string name="ethernet">Ethernet</string>

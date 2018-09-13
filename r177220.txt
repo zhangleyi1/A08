@@ -1,0 +1,13 @@
+Index: packages/apps/Launcher3/src/com/android/searchlauncher/SearchLauncherCallbacks.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/searchlauncher/SearchLauncherCallbacks.java	(revision 177219)
++++ packages/apps/Launcher3/src/com/android/searchlauncher/SearchLauncherCallbacks.java	(revision 177220)
+@@ -269,7 +269,7 @@
+ 
+     @Override
+     public boolean shouldMoveToDefaultScreenOnHomeIntent() {
+-        return false;
++        return true;
+     }
+ 
+     @Override

@@ -1,0 +1,426 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 166637)
++++ packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 166638)
+@@ -85,6 +85,7 @@
+ import android.view.ViewGroup;
+ import android.view.ViewStub;
+ import android.view.ViewTreeObserver;
++import android.view.Window;
+ import android.view.WindowManager;
+ import android.view.accessibility.AccessibilityEvent;
+ import android.view.animation.OvershootInterpolator;
+@@ -295,7 +296,7 @@
+     private boolean mRestoring;
+     private boolean mWaitingForResult;
+     private boolean mOnResumeNeedsLoad;
+-
++    public final static boolean SUPPORT_PIFLOW = true;//piflow 
+     // SPRD: bug608160
+     private static boolean mWaitingConfigForWidget = false;
+ 
+@@ -644,8 +645,28 @@
+         if (mLauncherCallbacks != null) {
+             return mLauncherCallbacks.hasCustomContentToLeft();
+         }
+-        return false;
++        //piflow 
++        if(!SUPPORT_PIFLOW){
++            return false;
++        }else{
++            return true;
++        }
+     }
++    void showStatusBar(boolean bShow){
++        Window window = getWindow();
++        WindowManager.LayoutParams lp = window.getAttributes();
++        int flag;
++        if(bShow){
++            flag = lp.flags & ~WindowManager.LayoutParams.FLAG_FULLSCREEN;
++        }else{
++            flag = lp.flags | ~WindowManager.LayoutParams.FLAG_FULLSCREEN;
++        }
++        lp.flags = flag;
++        window.setAttributes(lp);
++    }
++    /**
++     * end piflow
++     */
+ 
+     /**
+      * To be overridden by subclasses to populate the custom content container and call
+
+Property changes on: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Launcher3/src/com/android/launcher3/Launcher.java:r162778
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/src/com/android/launcher3/Launcher.java:r165532
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Launcher3/src/com/android/launcher3/Launcher.java:r163719
+Index: packages/apps/Launcher3/src/com/android/launcher3/RootBootLoader.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/RootBootLoader.java	(revision 166637)
++++ packages/apps/Launcher3/src/com/android/launcher3/RootBootLoader.java	(revision 166638)
+@@ -16,7 +16,6 @@
+     protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+         setContentView(R.layout.rootbootloader);
+-        android.util.Log.d("zly", "zly --> RootBootLoader onCreate.");
+         mTimeTv = (TextView)findViewById(R.id.tv_content_three);
+         mTimeTv.setText(getString(R.string.tv_content_three_text, 5));
+         mHandler.sendEmptyMessageDelayed(FLASH_TIME_MESSAGE, 2000);
+
+Property changes on: packages/apps/Launcher3/src/com/android/launcher3/RootBootLoader.java
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Reverse-merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Launcher3/src/com/android/launcher3/RootBootLoader.java:r162466
+   Reverse-merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Launcher3/src/com/android/launcher3/RootBootLoader.java:r163713
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Launcher3/src/com/android/launcher3/RootBootLoader.java:r162778
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/src/com/android/launcher3/RootBootLoader.java:r165532
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Launcher3/src/com/android/launcher3/RootBootLoader.java:r163719
+Index: packages/apps/Launcher3/src/com/android/launcher3/Workspace.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Workspace.java	(revision 166637)
++++ packages/apps/Launcher3/src/com/android/launcher3/Workspace.java	(revision 166638)
+@@ -51,14 +51,19 @@
+ import android.util.SparseArray;
+ import android.view.Choreographer;
+ import android.view.Display;
++import android.view.LayoutInflater;
+ import android.view.MotionEvent;
+ import android.view.View;
+ import android.view.ViewGroup;
++import android.webkit.WebView;
++import android.view.Gravity;
++import android.widget.FrameLayout;
+ import android.view.accessibility.AccessibilityManager;
+ import android.view.animation.AccelerateInterpolator;
+ import android.view.animation.DecelerateInterpolator;
+ import android.view.animation.Interpolator;
+ import android.widget.TextView;
++import android.webkit.WebViewClient;
+ 
+ import com.android.launcher3.FolderIcon.FolderRingAnimator;
+ import com.android.launcher3.Launcher.CustomContentCallbacks;
+@@ -81,6 +86,7 @@
+ import java.util.HashMap;
+ import java.util.HashSet;
+ import java.util.concurrent.atomic.AtomicInteger;
++import android.webkit.WebView;
+ 
+ /**
+  * The workspace is a wide area with a wallpaper and a finite number of pages.
+@@ -438,6 +444,12 @@
+      * Initializes various states for this workspace.
+      */
+     protected void initWorkspace() {
++        //piflow
++        if(Launcher.SUPPORT_PIFLOW){
++            Context context = getContext();
++            PiflowUntil.saveConfig(context);
++        }
++        //end piflow
+         mCurrentPage = mDefaultPage;
+         LauncherAppState app = LauncherAppState.getInstance();
+         DeviceProfile grid = mLauncher.getDeviceProfile();
+@@ -461,7 +473,75 @@
+ 
+         setEdgeGlowColor(getResources().getColor(R.color.workspace_edge_effect_color));
+     }
++    /**
++     * piflow
++     */
++    private ViewGroup piflow = null;
++    public View getPiflow(){
+ 
++        WebView piflowView = null;
++        try{
++            LayoutInflater inflater = LayoutInflater.from(mLauncher);
++            piflowView = (WebView)inflater.inflate(R.layout.web_view, null);
++            piflowView.loadUrl("https://www.google.com");
++            piflowView.setWebViewClient(new WebViewClient(){
++            @Override
++            public boolean shouldOverrideUrlLoading(WebView view, String url) {
++                view.loadUrl(url);
++                return true;
++            }
++        });
++        } catch(Exception e) {
++            e.printStackTrace();
++        }
++        return piflowView;
++    }
++
++    private void initPiflow(CellLayout cellLayout){
++        Log.d(TAG, "zly --> initPiflow.");
++        try{
++            piflow = (ViewGroup)getPiflow();
++            if(piflow!=null){
++                cellLayout.addPiflowView(piflow);
++                cellLayout.setPiflow(true);
++            }
++        }catch(Exception e){
++            e.printStackTrace();
++        }
++    }
++    private void removePiflow(){
++        try{
++            if(piflow!=null){
++                piflow.removeAllViews();
++            }
++        }catch(Exception e){
++            e.printStackTrace();
++        }
++    }
++    private void changeCurrentPageBottomBar(int whichPage){
++        CellLayout cell = (CellLayout)getChildAt(whichPage);
++        if(cell.isPiflow()){
++            showBotoomBar(false);
++            mLauncher.showStatusBar(false);
++        }else{
++            showBotoomBar(true);
++            mLauncher.showStatusBar(true);
++        }
++    }
++    private void showBotoomBar(boolean flag){
++        if(flag){
++            mLauncher.showWorkspaceSearchAndHotseat();
++            mLauncher.getHotseat().setVisibility(View.VISIBLE);
++        }else{
++            mLauncher.hideWorkspaceSearchAndHotseat();
++            mLauncher.getHotseat().setVisibility(View.GONE);
++        }
++    }
++    /**
++     * end piflow
++     */
++
++
+     private void setupLayoutTransition() {
+         // We want to show layout transitions when pages are deleted, to close the gap.
+         mLayoutTransition = new LayoutTransition();
+@@ -603,6 +683,10 @@
+         } else {
+             setCurrentPage(getCurrentPage() + 1);
+         }
++        //piflow
++        if(Launcher.SUPPORT_PIFLOW) {
++            initPiflow(customScreen);
++        }
+     }
+ 
+     public void removeCustomContentPage() {
+@@ -610,6 +694,10 @@
+         if (customScreen == null) {
+             throw new RuntimeException("Expected custom content screen to exist");
+         }
++        //piflow
++        if(Launcher.SUPPORT_PIFLOW) {
++            removePiflow();
++         }
+ 
+         mWorkspaceScreens.remove(CUSTOM_CONTENT_SCREEN_ID);
+         mScreenOrder.remove(CUSTOM_CONTENT_SCREEN_ID);
+@@ -1443,6 +1531,12 @@
+         }
+         mDelayedSnapToPageRunnable = r;
+         snapToPage(whichPage, duration);
++        //piflow
++        if(Launcher.SUPPORT_PIFLOW){
++            changeCurrentPageBottomBar(whichPage);
++        }
++        //end piflow
++
+     }
+ 
+     public void snapToScreenId(long screenId) {
+@@ -1756,12 +1850,16 @@
+         // We should only update the drag layer background alpha if we are not in all apps or the
+         // widgets tray
+         if (mState == State.NORMAL) {
+-            mLauncher.getDragLayer().setBackgroundAlpha(progress == 1 ? 0 : progress * 0.8f);
++           // mLauncher.getDragLayer().setBackgroundAlpha(progress == 1 ? 0 : progress * 0.8f);//piflow
+         }
+ 
+         if (mLauncher.getHotseat() != null) {
+             mLauncher.getHotseat().setTranslationX(translationX);
+         }
++        //piflow
++        if (mLauncher.getSearchDropTargetBar() != null) {
++            mLauncher.getSearchDropTargetBar().setTranslationX(translationX);
++        }
+ 
+         if (getPageIndicator() != null) {
+             getPageIndicator().setTranslationX(translationX);
+
+Property changes on: packages/apps/Launcher3/src/com/android/launcher3/Workspace.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Launcher3/src/com/android/launcher3/Workspace.java:r162778
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/src/com/android/launcher3/Workspace.java:r165532
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Launcher3/src/com/android/launcher3/Workspace.java:r163719
+Index: packages/apps/Launcher3/src/com/android/launcher3/PagedView.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/PagedView.java	(revision 166637)
++++ packages/apps/Launcher3/src/com/android/launcher3/PagedView.java	(revision 166638)
+@@ -53,6 +53,7 @@
+ import com.android.launcher3.util.Thunk;
+ 
+ import java.util.ArrayList;
++import com.android.launcher3.Workspace.State;
+ 
+ /**
+  * An abstraction of the original Workspace which supports browsing through a
+@@ -810,12 +811,32 @@
+                     } else {
+                         childHeightMode = MeasureSpec.EXACTLY;
+                     }
+-
+-                    childWidth = getViewportWidth() - horizontalPadding
+-                            - mInsets.left - mInsets.right;
+-                    childHeight = getViewportHeight() - verticalPadding
+-                            - mInsets.top - mInsets.bottom;
+-                    mNormalChildHeight = childHeight;
++                    //piflow 
++                    if(!Launcher.SUPPORT_PIFLOW){
++                        childWidth = getViewportWidth() - horizontalPadding
++                                - mInsets.left - mInsets.right;
++                        childHeight = getViewportHeight() - verticalPadding
++                                - mInsets.top - mInsets.bottom;
++                        mNormalChildHeight = childHeight;
++                    }else{
++                        int width = widthSize - horizontalPadding;
++                        int height = heightSize - verticalPadding - mInsets.top - mInsets.bottom;
++                        if(child instanceof CellLayout){
++                            if(((CellLayout)child).isPiflow()&&
++                                    ((CellLayout)child).getState()==State.NORMAL){
++                                childWidth = getViewportWidth();
++                                childHeight = getViewportHeight()- mInsets.top;
++                            }else{
++                                childWidth = width;
++                                childHeight = height;
++                            }
++                        }else{
++                            childWidth = width;
++                            childHeight = height;
++                        }
++                        mNormalChildHeight = height;
++                    }
++                    //end piflow
+                 } else {
+                     childWidthMode = MeasureSpec.EXACTLY;
+                     childHeightMode = MeasureSpec.EXACTLY;
+
+Property changes on: packages/apps/Launcher3/src/com/android/launcher3/PagedView.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Launcher3/src/com/android/launcher3/PagedView.java:r162778
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/src/com/android/launcher3/PagedView.java:r165532
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Launcher3/src/com/android/launcher3/PagedView.java:r163719
+Index: packages/apps/Launcher3/src/com/android/launcher3/CellLayout.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/CellLayout.java	(revision 166637)
++++ packages/apps/Launcher3/src/com/android/launcher3/CellLayout.java	(revision 166638)
+@@ -54,6 +54,7 @@
+ import com.android.launcher3.accessibility.WorkspaceAccessibilityHelper;
+ import com.android.launcher3.util.ParcelableSparseArray;
+ import com.android.launcher3.util.Thunk;
++import com.android.launcher3.Workspace.State;
+ 
+ import java.util.ArrayList;
+ import java.util.Arrays;
+@@ -170,7 +171,30 @@
+     // Related to accessible drag and drop
+     private DragAndDropAccessibilityDelegate mTouchHelper;
+     private boolean mUseTouchHelper = false;
++    
++    /**
++     * piflow 
++     */
++    private boolean isPiflow;
++    private View mPiflowView;
++    public boolean isPiflow(){
++        return isPiflow;
++    }
++    public void setPiflow(boolean isPiflow){
++        this.isPiflow = isPiflow;
++    }
++    public void addPiflowView(View piflowView){
++        this.mPiflowView = piflowView;
++        addView(mPiflowView);
++    }
+ 
++    public State getState(){
++        return mLauncher.getWorkspace().getState();
++    }
++    /**
++     * end piflow
++     */
++    
+     public CellLayout(Context context) {
+         this(context, null);
+     }
+@@ -594,6 +618,9 @@
+             }
+             // Mismatched viewId / viewType preventing restore. Skip restore on production builds.
+             Log.e(TAG, "Ignoring an error while restoring a view instance state", ex);
++        //piflow 
++        }catch(Exception e){
++        	Log.e(TAG, "piflow view error", e);
+         }
+     }
+ 
+@@ -875,7 +902,14 @@
+             mWidthGap = mOriginalWidthGap;
+             mHeightGap = mOriginalHeightGap;
+         }
++        //piflow
++        if(mPiflowView != null){
+ 
++             mPiflowView.measure(
++                    MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY),
++                    MeasureSpec.makeMeasureSpec(newHeight, MeasureSpec.EXACTLY));
++        }
++
+         // Make the feedback view large enough to hold the blur bitmap.
+         mTouchFeedbackView.measure(
+                 MeasureSpec.makeMeasureSpec(mCellWidth + mTouchFeedbackView.getExtraSize(),
+@@ -912,6 +946,12 @@
+         mShortcutsAndWidgets.layout(left, top,
+                 left + r - l,
+                 top + b - t);
++        //piflow
++        if(mPiflowView != null){
++            mPiflowView.layout(left, top,
++                left + r - l,
++                top + b - t);
++        }
+     }
+ 
+     /**
+
+Property changes on: packages/apps/Launcher3/src/com/android/launcher3/CellLayout.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Launcher3/src/com/android/launcher3/CellLayout.java:r162778
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/src/com/android/launcher3/CellLayout.java:r165532
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Launcher3/src/com/android/launcher3/CellLayout.java:r163719
+Index: packages/apps/Launcher3/AndroidManifest.xml
+===================================================================
+--- packages/apps/Launcher3/AndroidManifest.xml	(revision 166637)
++++ packages/apps/Launcher3/AndroidManifest.xml	(revision 166638)
+@@ -48,6 +48,8 @@
+         android:name="com.android.launcher3.permission.RECEIVE_FIRST_LOAD_BROADCAST"
+         android:protectionLevel="signatureOrSystem" />
+ 
++        <uses-permission android:name="android.permission.INTERNET"/>
++
+     <uses-permission android:name="android.permission.CALL_PHONE" />
+     <uses-permission android:name="android.permission.SET_WALLPAPER" />
+     <uses-permission android:name="android.permission.SET_WALLPAPER_HINTS" />
+
+Property changes on: packages/apps/Launcher3/AndroidManifest.xml
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Launcher3/AndroidManifest.xml:r162778
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/AndroidManifest.xml:r165532
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Launcher3/AndroidManifest.xml:r163719

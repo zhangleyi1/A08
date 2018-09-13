@@ -1,0 +1,83 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 170316)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 170317)
+@@ -1158,12 +1158,12 @@
+                             // SPRD: modify for bug596782
+                             && TelephonyManager.getDefault().isVideoCallingEnabled());
+                 }
+-                mPopupMenu.getMenu().add(0, MENU_MAKE_MULTE_CALL, 0,
+-                        R.string.dialpad_multi_call_menu);
+-                mPopupMenu.getMenu().findItem(MENU_MAKE_MULTE_CALL).setVisible(mIsVideoEnable
++//                mPopupMenu.getMenu().add(0, MENU_MAKE_MULTE_CALL, 0,
++//                        R.string.dialpad_multi_call_menu);
++//                mPopupMenu.getMenu().findItem(MENU_MAKE_MULTE_CALL).setVisible(mIsVideoEnable
+                         // SPRD: modify for bug567183
+-                        && !DialerRelianceHelper.getInstance(getActivity())
+-                                .isMultiCallDisabledByOperator());
++//                        && !DialerRelianceHelper.getInstance(getActivity())
++//                                .isMultiCallDisabledByOperator());
+             } else {
+                 // SPRD: modify for bug600829
+                 if (CallUtil.isVideoEnabled(getActivity())) {
+@@ -1945,19 +1945,19 @@
+             /* @} */
+             }
+             return true;
+-        } else if(resId == MENU_MAKE_MULTE_CALL){
+-            if (!isPhoneInUse()) {
+-                Intent intentPick = new Intent(MULTI_PICK_CONTACTS_ACTION).
+-                putExtra("checked_limit_count", MAX_CONTACTS_NUMBER).
+-                putExtra("checked_min_limit_count", MIN_CONTACTS_NUMBER).
+-                putExtra("cascading", new Intent(MULTI_PICK_CONTACTS_ACTION).setType(Phone.CONTENT_ITEM_TYPE)).
+-                putExtra("multi", ADD_MULTI_CALL);
+-                DialerUtils.startActivityWithErrorToast(getActivity(), intentPick);
+-            } else {
++//        } else if(resId == MENU_MAKE_MULTE_CALL){
++//            if (!isPhoneInUse()) {
++//                Intent intentPick = new Intent(MULTI_PICK_CONTACTS_ACTION).
++//                putExtra("checked_limit_count", MAX_CONTACTS_NUMBER).
++//                putExtra("checked_min_limit_count", MIN_CONTACTS_NUMBER).
++//                putExtra("cascading", new Intent(MULTI_PICK_CONTACTS_ACTION).setType(Phone.CONTENT_ITEM_TYPE)).
++//                putExtra("multi", ADD_MULTI_CALL);
++//                DialerUtils.startActivityWithErrorToast(getActivity(), intentPick);
++//            } else {
+                  //add for SPRD:617749
+-                 Toast.makeText(getContext(), R.string.cound_not_make_mutil_call, Toast.LENGTH_SHORT).show();
+-            }
+-             return true;
++//                 Toast.makeText(getContext(), R.string.cound_not_make_mutil_call, Toast.LENGTH_SHORT).show();
++//            }
++//             return true;
+         /* @}*/
+         } else if(resId == MENU_IP_DIAL) {
+             /* SPRD: IP dialing feature for bug474283 @{ */
+@@ -2282,8 +2282,8 @@
+             boolean isRegistered = msg.arg1 == 1;
+             final MenuItem videoCallItem = (mPopupMenu == null) ? null : mPopupMenu.getMenu().
+                     findItem(MENU_MAKE_VIDEO_CALL);
+-            final MenuItem groupCallItem = (mPopupMenu == null) ? null : mPopupMenu.getMenu().
+-                    findItem(MENU_MAKE_MULTE_CALL);
++//            final MenuItem groupCallItem = (mPopupMenu == null) ? null : mPopupMenu.getMenu().
++//                    findItem(MENU_MAKE_MULTE_CALL);
+             if (DEBUG) Log.d(TAG, "imsRegisterStateChange. isRegistered: " + isRegistered +
+                     ", videoCallItem: " + videoCallItem);
+             if (mIsVideoEnable != isRegistered) {
+@@ -2295,12 +2295,12 @@
+                             // SPRD: modify for bug567183
+                             && TelephonyManager.getDefault().isVideoCallingEnabled());
+                 }
+-                if (groupCallItem != null) {
+-                    groupCallItem.setVisible(mIsVideoEnable
++//                if (groupCallItem != null) {
++//                    groupCallItem.setVisible(mIsVideoEnable
+                             // SPRD: modify for bug567183
+-                            && !DialerRelianceHelper.getInstance(getActivity())
+-                            .isMultiCallDisabledByOperator());
+-                }
++//                           && !DialerRelianceHelper.getInstance(getActivity())
++//                            .isMultiCallDisabledByOperator());
++//                }
+             }
+         }
+     };

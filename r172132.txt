@@ -1,0 +1,113 @@
+Index: packages/apps/Dialer/src/com/android/dialer/calllog/PhoneCallDetailsHelper.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/calllog/PhoneCallDetailsHelper.java	(revision 172131)
++++ packages/apps/Dialer/src/com/android/dialer/calllog/PhoneCallDetailsHelper.java	(revision 172132)
+@@ -216,6 +216,13 @@
+             Log.d(TAG, "isVoLTECallEnable: " + (ImsManager.isVolteEnabledByPlatform(mContext)));
+             if (isVolteCall && ImsManager.isVolteEnabledByPlatform(mContext)) {
+                 views.volteIcon.setVisibility(View.VISIBLE);
++				if (isVideoCall) {
++                    views.volteIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_viltecall));
++                } else if (isVolteCall) {
++                    views.volteIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_voltecall));
++                } else {
++                    views.volteIcon.setVisibility(View.GONE);
++                }
+             } else {
+                 views.volteIcon.setVisibility(View.GONE);
+             }
+Index: vendor/sprd/platform/packages/apps/Dialer/res/drawable-mdpi/ic_viltecall.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/Dialer/res/drawable-mdpi/ic_viltecall.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/Dialer/res/drawable-mdpi/ic_viltecall.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/Dialer/res/drawable-mdpi/ic_viltecall.png	(revision 172132)
+
+Property changes on: vendor/sprd/platform/packages/apps/Dialer/res/drawable-mdpi/ic_viltecall.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/Dialer/res/drawable-mdpi/ic_voltecall.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/Dialer/res/drawable-xxxhdpi/ic_voltecall.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/Dialer/res/drawable-xxxhdpi/ic_viltecall.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/Dialer/res/drawable-xxxhdpi/ic_viltecall.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/Dialer/res/drawable-xxxhdpi/ic_viltecall.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/Dialer/res/drawable-xxxhdpi/ic_viltecall.png	(revision 172132)
+
+Property changes on: vendor/sprd/platform/packages/apps/Dialer/res/drawable-xxxhdpi/ic_viltecall.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/Dialer/res/drawable-xxhdpi/ic_voltecall.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/Dialer/res/drawable-xxhdpi/ic_viltecall.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/Dialer/res/drawable-xxhdpi/ic_viltecall.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/Dialer/res/drawable-xxhdpi/ic_viltecall.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/Dialer/res/drawable-xxhdpi/ic_viltecall.png	(revision 172132)
+
+Property changes on: vendor/sprd/platform/packages/apps/Dialer/res/drawable-xxhdpi/ic_viltecall.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/Dialer/res/drawable-xhdpi/ic_viltecall.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/Dialer/res/drawable-xhdpi/ic_viltecall.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/Dialer/res/drawable-xhdpi/ic_viltecall.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/Dialer/res/drawable-xhdpi/ic_viltecall.png	(revision 172132)
+
+Property changes on: vendor/sprd/platform/packages/apps/Dialer/res/drawable-xhdpi/ic_viltecall.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/Dialer/res/drawable-xhdpi/ic_voltecall.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/Dialer/res/drawable-hdpi/ic_viltecall.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/Dialer/res/drawable-hdpi/ic_viltecall.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/Dialer/res/drawable-hdpi/ic_viltecall.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/Dialer/res/drawable-hdpi/ic_viltecall.png	(revision 172132)
+
+Property changes on: vendor/sprd/platform/packages/apps/Dialer/res/drawable-hdpi/ic_viltecall.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/Dialer/res/drawable-hdpi/ic_voltecall.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream

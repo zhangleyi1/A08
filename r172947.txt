@@ -1,0 +1,20 @@
+Index: vendor/sprd/modules/libcamera/hal3/SprdCamera3Setting.cpp
+===================================================================
+--- vendor/sprd/modules/libcamera/hal3/SprdCamera3Setting.cpp	(revision 172946)
++++ vendor/sprd/modules/libcamera/hal3/SprdCamera3Setting.cpp	(revision 172947)
+@@ -135,6 +135,7 @@
+ 	{"s5k3m2xxm3_mipi_raw", {4.731f, 3.512f}, 4.544f},
+ 	{"imx214_mipi_raw",{4.731f, 3.512f}, 4.544f},
+         {"ov8858_mipi_raw",{3.656f, 2.742f},  3.01f},
++        {"ov5695_mipi_raw", {2.9457f, 2.214f}, 2.481f},
+ 	{"", {3.50f, 2.625f}, 3.75f},
+ };
+ 
+@@ -145,6 +146,7 @@
+ 	{"GC0310_MIPI_yuv", {1.44f, 1.08f}, 1.476f},
+ 	{"sr030pc50_yuv", {3.50f, 2.625f}, 3.75f},
+ 	{"ov5648_mipi_raw", {3.6736f, 2.7384f}, 2.481f},
++	{"s5k5e2ya_mipi_raw", {2.9457f, 1.5f}, 2.1f},
+ 	{"", {3.50f, 2.625f}, 3.75f},
+ };
+ 

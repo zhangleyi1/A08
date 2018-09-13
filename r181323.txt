@@ -1,0 +1,330 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/allapps/AlphabeticalAppsList.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/allapps/AlphabeticalAppsList.java	(revision 181322)
++++ packages/apps/Launcher3/src/com/android/launcher3/allapps/AlphabeticalAppsList.java	(revision 181323)
+@@ -16,6 +16,7 @@
+ package com.android.launcher3.allapps;
+ 
+ import android.content.Context;
++import android.content.SharedPreferences;
+ import android.support.v7.widget.RecyclerView;
+ import android.util.Log;
+ import com.android.launcher3.AppInfo;
+@@ -353,11 +354,12 @@
+     /**
+      * Updates internals when the set of apps are updated.
+      */
+-    private void onAppsUpdated() {
++    void onAppsUpdated() {
+         // Sort the list of apps
+         mApps.clear();
+         mApps.addAll(mComponentToAppMap.values());
+-        Collections.sort(mApps, mAppNameComparator.getAppInfoComparator());
++//        Collections.sort(mApps, mAppNameComparator.getAppInfoComparator());
++        SharedPreferences sortSharepreference = mLauncher.getSharedPreferences(Launcher.APPS_SORT_TYPE, Context.MODE_PRIVATE);
+ 
+         // As a special case for some languages (currently only Simplified Chinese), we may need to
+         // coalesce sections
+@@ -389,9 +391,11 @@
+ 
+             mApps.clear();
+             mApps.addAll(allApps);
++            mLauncher.getModel().sortApps(mApps, sortSharepreference.getInt(Launcher.SORT_TYPE_KEY, 0));
+             CustomizeAppSort.getInstance(mLauncher).sortApps(mApps);
+         } else {
+             // Just compute the section headers for use below
++            mLauncher.getModel().sortApps(mApps, sortSharepreference.getInt(Launcher.SORT_TYPE_KEY, 0));
+             CustomizeAppSort.getInstance(mLauncher).sortApps(mApps);
+             for (AppInfo info : mApps) {
+                 // Add the section to the cache
+Index: packages/apps/Launcher3/src/com/android/launcher3/allapps/AllAppsContainerView.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/allapps/AllAppsContainerView.java	(revision 181322)
++++ packages/apps/Launcher3/src/com/android/launcher3/allapps/AllAppsContainerView.java	(revision 181323)
+@@ -222,6 +222,13 @@
+     }
+ 
+     /**
++     * Updates existing apps in the list
++     */
++    public void updateApps() {
++        mApps.onAppsUpdated();
++    }
++
++    /**
+      * Sets the search bar that shows above the a-z list.
+      */
+     public void setSearchBarController(AllAppsSearchBarController searchController) {
+Index: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 181322)
++++ packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 181323)
+@@ -29,6 +29,7 @@
+ import android.app.ActivityManager;
+ import android.app.ActivityOptions;
+ import android.app.AlertDialog;
++import android.app.Dialog;
+ import android.app.SearchManager;
+ import android.appwidget.AppWidgetHostView;
+ import android.appwidget.AppWidgetManager;
+@@ -294,6 +295,8 @@
+ 
+     private View mAllAppsButton;
+     private View mWidgetsButton;
++    private View mSortAppsButton;
++    private AlertDialog mSortAppDialog;
+ 
+     private SearchDropTargetBar mSearchDropTargetBar;
+ 
+@@ -352,6 +355,10 @@
+     @Thunk HashMap<View, AppWidgetProviderInfo> mWidgetsToAdvance =
+         new HashMap<View, AppWidgetProviderInfo>();
+ 
++    static final int DIALOG_SORT_APP = 3;
++    public static final String APPS_SORT_TYPE = "apps_sort_type";
++    public static final String SORT_TYPE_KEY = "sort_type_key";
++
+     // Determines how long to wait after a rotation before restoring the screen orientation to
+     // match the sensor state.
+     private final int mRestoreScreenOrientationDelay = 500;
+@@ -1664,10 +1671,70 @@
+         } else {
+             settingsButton.setVisibility(View.GONE);
+         }
++        mSortAppsButton = (TextView)findViewById(R.id.sort_app_button);
++        mSortAppsButton.setOnClickListener(new OnClickListener() {
++            @Override
++            public void onClick(View arg0) {
++                if (!mWorkspace.isSwitchingState()) {
++                    showDialog(DIALOG_SORT_APP);
++                    showAppsView(false /* animated */, false /* resetListToTop */, true /* updatePredictedApps */, false /* focusSearchBar */);
++                }
++            }
++        });
+ 
+         mOverviewPanel.setAlpha(0f);
+     }
+ 
++    @Override
++    protected Dialog onCreateDialog(int id) {
++        switch (id) {
++            case DIALOG_SORT_APP:
++                return showAppSortDlg();
++        }
++        return super.onCreateDialog(id);
++    }
++
++    public Dialog showAppSortDlg() {
++        AlertDialog.Builder builder = new AlertDialog.Builder(this);
++        builder.setTitle(getResources().getString(R.string.edit_sort));
++        final String[] items = new String[2];
++        items[0] = getResources().getString(R.string.edit_sort_by_name);
++        items[1] = getResources().getString(R.string.edit_sort_by_install_time);
++        SharedPreferences sortPreference = getSharedPreferences(APPS_SORT_TYPE,
++                Context.MODE_PRIVATE);
++        builder.setSingleChoiceItems(items, sortPreference.getInt(SORT_TYPE_KEY, 0),
++                new DialogInterface.OnClickListener() {
++                    @Override
++                    public void onClick(DialogInterface dialog, final int which) {
++                        new Thread(new Runnable() {
++                            @Override
++                            public void run() {
++                                mAppsView.post(new Runnable() {
++                                    public void run() {
++                                        if (mAppsView != null) {
++                                            SharedPreferences.Editor mSharedEditor = getSharedPreferences(
++                                                    APPS_SORT_TYPE, Context.MODE_PRIVATE).edit();
++                                            mSharedEditor.putInt(SORT_TYPE_KEY, which).apply();
++                                            mAppsView.updateApps();
++                                        }
++                                    }
++                                });
++                            }
++                        }).start();
++                        Launcher.this.removeDialog(DIALOG_SORT_APP);
++                    }
++                });
++        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
++            @Override
++            public void onCancel(DialogInterface dialog) {
++                Launcher.this.removeDialog(DIALOG_SORT_APP);
++            }
++        });
++        AlertDialog ad = builder.create();
++        ad.show();
++        return ad;
++    }
++
+     /**
+      * Sets the all apps button. This method is called from {@link Hotseat}.
+      */
+Index: packages/apps/Launcher3/src/com/android/launcher3/LauncherModel.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/LauncherModel.java	(revision 181322)
++++ packages/apps/Launcher3/src/com/android/launcher3/LauncherModel.java	(revision 181323)
+@@ -70,6 +70,7 @@
+ import java.lang.ref.WeakReference;
+ import java.net.URISyntaxException;
+ import java.security.InvalidParameterException;
++import java.text.Collator;
+ import java.util.ArrayList;
+ import java.util.Arrays;
+ import java.util.Collections;
+@@ -91,6 +92,7 @@
+     static final boolean DEBUG_LOADERS = LogUtils.DEBUG_LOADER;
+     private static final boolean DEBUG_RECEIVER = LogUtils.DEBUG_RECEIVER;
+     private static final boolean REMOVE_UNRESTORED_ICONS = true;
++    private static final boolean DEBUG_SORT = true;
+ 
+     static final String TAG = "Launcher.Model";
+ 
+@@ -3766,4 +3768,60 @@
+     public static Looper getWorkerLooper() {
+         return sWorkerThread.getLooper();
+     }
++
++    public static final Comparator<ItemInfo> APP_INSTALL_TIME_COMPARATOR = new Comparator<ItemInfo>() {
++        public final int compare(ItemInfo a, ItemInfo b) {
++            long a_firstInstallTime = 0;
++            long b_firstInstallTime = 0;
++            if(a instanceof AppInfo) {
++                AppInfo atemp = (AppInfo)a;
++                a_firstInstallTime = atemp.firstInstallTime;
++            }
++            if(b instanceof AppInfo) {
++                AppInfo btemp = (AppInfo)b;
++                b_firstInstallTime = btemp.firstInstallTime;
++            }
++            if (a_firstInstallTime < b_firstInstallTime)
++                return 1;
++            if (a_firstInstallTime > b_firstInstallTime)
++                return -1;
++            return 0;
++        }
++    };
++
++    private static final Collator sCollator = Collator.getInstance();
++    public static final Comparator<ItemInfo> APP_NAME_COMPARATOR = new Comparator<ItemInfo>() {
++        public final int compare(ItemInfo a, ItemInfo b) {
++            AppInfo atemp = (AppInfo) a;
++            AppInfo btemp = (AppInfo) b;
++            int result = sCollator.compare(atemp.title.toString(), btemp.title.toString());
++            if (result == 0) {
++                result = atemp.componentName.compareTo(btemp.componentName);
++            }
++            return result;
++        }
++    };
++
++    public  void sortApps(List<AppInfo> apps, int sortType) {
++        if (sortType == 0) {
++            Collections.sort(apps, LauncherModel.APP_NAME_COMPARATOR);
++            if(DEBUG_SORT) {
++                Log.i(TAG,"LauncherModel == sortType == 0 ======APP_NAME_COMPARATOR ");
++                for (int i = 0;i<apps.size();i++){
++                    AppInfo app = (AppInfo) apps.get(i);
++                    Log.i(TAG," apps("+i+").title ="+app.title.toString() +"    component = "+ app.componentName);
++                }
++            }
++        }
++        if (sortType == 1) {
++            Collections.sort(apps, LauncherModel.APP_INSTALL_TIME_COMPARATOR);
++            if(DEBUG_SORT) {
++                Log.i(TAG,"LauncherModel == sortType == 1======APP_INSTALL_TIME_COMPARATOR ");
++                for (int i = 0;i<apps.size();i++){
++                    AppInfo app = (AppInfo) apps.get(i);
++                    Log.i(TAG," apps("+i+").title ="+app.title.toString() +"   app.firstInstallTime = "+ app.firstInstallTime);
++                }
++            }
++        }
++    }
+ }
+Index: packages/apps/Launcher3/src/com/android/launcher3/AppInfo.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/AppInfo.java	(revision 181322)
++++ packages/apps/Launcher3/src/com/android/launcher3/AppInfo.java	(revision 181323)
+@@ -56,6 +56,11 @@
+ 
+     public ComponentName componentName;
+ 
++    /**
++     * The time at which the app was first installed.
++     */
++    long firstInstallTime;
++
+     static final int DOWNLOADED_FLAG = 1;
+     static final int UPDATED_SYSTEM_APP_FLAG = 2;
+ 
+@@ -100,6 +105,7 @@
+             isDisabled |= ShortcutInfo.FLAG_DISABLED_QUIET_USER;
+         }
+ 
++        firstInstallTime = info.getFirstInstallTime();
+         iconCache.getTitleAndIcon(this, info, true /* useLowResIcon */);
+         intent = makeLaunchIntent(context, info, user);
+         this.user = user;
+@@ -126,6 +132,7 @@
+         intent = new Intent(info.intent);
+         flags = info.flags;
+         isDisabled = info.isDisabled;
++        firstInstallTime = info.firstInstallTime;
+         iconBitmap = info.iconBitmap;
+     }
+ 
+Index: packages/apps/Launcher3/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/apps/Launcher3/res/values-zh-rCN/strings.xml	(revision 181322)
++++ packages/apps/Launcher3/res/values-zh-rCN/strings.xml	(revision 181323)
+@@ -71,6 +71,12 @@
+     <string name="widget_button_text" msgid="2880537293434387943">"小部件"</string>
+     <string name="wallpaper_button_text" msgid="8404103075899945851">"壁纸"</string>
+     <string name="settings_button_text" msgid="8119458837558863227">"设置"</string>
++
++    <string name="sort_app_button_text" msgid="8119458837558863227">"排序"</string>
++    <string name="edit_sort">主菜单排序</string>
++    <string name="edit_sort_by_name">按名称</string>
++    <string name="edit_sort_by_install_time">按安装时间</string>
++
+     <string name="msg_disabled_by_admin" msgid="6898038085516271325">"已被您的管理员停用"</string>
+     <string name="allow_rotation_title" msgid="2118706734511831751">"允许旋转"</string>
+     <string name="package_state_unknown" msgid="7592128424511031410">"未知"</string>
+Index: packages/apps/Launcher3/res/values/strings.xml
+===================================================================
+--- packages/apps/Launcher3/res/values/strings.xml	(revision 181322)
++++ packages/apps/Launcher3/res/values/strings.xml	(revision 181323)
+@@ -173,6 +173,12 @@
+     <!-- Message shown when a feature is disabled by the administrator -->
+     <string name="msg_disabled_by_admin">Disabled by your admin</string>
+ 
++    <!-- Text for sort button -->
++    <string name="sort_app_button_text">Sort</string>
++    <string name="edit_sort">AllApps Sort</string>
++    <string name="edit_sort_by_name">Sort by Name</string>
++    <string name="edit_sort_by_install_time">Sort by InstallDate</string>
++
+     <!-- Strings for settings -->
+     <!-- Title for Allow Rotation setting. [CHAR LIMIT=50] -->
+     <string name="allow_rotation_title">Allow rotation</string>
+Index: packages/apps/Launcher3/res/layout/overview_panel.xml
+===================================================================
+--- packages/apps/Launcher3/res/layout/overview_panel.xml	(revision 181322)
++++ packages/apps/Launcher3/res/layout/overview_panel.xml	(revision 181323)
+@@ -63,4 +63,17 @@
+         android:textColor="@android:color/white"
+         android:textSize="12dp" />
+ 
++    <TextView
++        android:id="@+id/sort_app_button"
++        android:layout_width="0dp"
++        android:layout_height="wrap_content"
++        android:layout_weight="1"
++        android:drawablePadding="4dp"
++        android:drawableTop="@drawable/setting_button"
++        android:fontFamily="sans-serif-condensed"
++        android:gravity="center_horizontal"
++        android:text="@string/sort_app_button_text"
++        android:textAllCaps="true"
++        android:textColor="@android:color/white"
++        android:textSize="12dp" />
+ </LinearLayout>
+\ No newline at end of file

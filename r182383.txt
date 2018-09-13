@@ -1,0 +1,150 @@
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib/libsprdfa.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib/libsprdfa.a
+===================================================================
+--- vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib/libsprdfa.a	(revision 0)
++++ vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib/libsprdfa.a	(revision 182383)
+
+Property changes on: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib/libsprdfa.a
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib/libsprdfar.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib/libsprdfar.a
+===================================================================
+--- vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib/libsprdfar.a	(revision 0)
++++ vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib/libsprdfar.a	(revision 182383)
+
+Property changes on: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib/libsprdfar.a
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib64/libsprdfa.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib64/libsprdfa.a
+===================================================================
+--- vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib64/libsprdfa.a	(revision 0)
++++ vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib64/libsprdfa.a	(revision 182383)
+
+Property changes on: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib64/libsprdfa.a
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib64/libsprdfar.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib64/libsprdfar.a
+===================================================================
+--- vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib64/libsprdfar.a	(revision 0)
++++ vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib64/libsprdfar.a	(revision 182383)
+
+Property changes on: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib64/libsprdfar.a
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib64/libsprdfa.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib64/libsprdfa.a
+===================================================================
+--- vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib64/libsprdfa.a	(revision 0)
++++ vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib64/libsprdfa.a	(revision 182383)
+
+Property changes on: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib64/libsprdfa.a
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib64/libsprdfar.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib64/libsprdfar.a
+===================================================================
+--- vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib64/libsprdfar.a	(revision 0)
++++ vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib64/libsprdfar.a	(revision 182383)
+
+Property changes on: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/x86_lib64/libsprdfar.a
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib/libsprdfa.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib/libsprdfa.a
+===================================================================
+--- vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib/libsprdfa.a	(revision 0)
++++ vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib/libsprdfa.a	(revision 182383)
+
+Property changes on: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib/libsprdfa.a
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib/libsprdfar.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib/libsprdfar.a
+===================================================================
+--- vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib/libsprdfar.a	(revision 0)
++++ vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib/libsprdfar.a	(revision 182383)
+
+Property changes on: vendor/sprd/modules/libcamera/arithmetic/sprdface/lib/lib/libsprdfar.a
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/modules/sensors/AfDirection.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/sensors/AfDirection.a
+===================================================================
+--- vendor/sprd/modules/sensors/AfDirection.a	(revision 0)
++++ vendor/sprd/modules/sensors/AfDirection.a	(revision 182383)
+
+Property changes on: vendor/sprd/modules/sensors/AfDirection.a
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/modules/sensors/VTC_SoftGyro.a
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/sensors/VTC_SoftGyro.a
+===================================================================
+--- vendor/sprd/modules/sensors/VTC_SoftGyro.a	(revision 0)
++++ vendor/sprd/modules/sensors/VTC_SoftGyro.a	(revision 182383)
+
+Property changes on: vendor/sprd/modules/sensors/VTC_SoftGyro.a
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property

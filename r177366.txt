@@ -1,0 +1,20 @@
+Index: frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java	(revision 177365)
++++ frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java	(revision 177366)
+@@ -15040,6 +15040,15 @@
+ 			("com.alephzain.framaroot".equals(pkg.packageName)) ||
+ 			("com.kingoapp.link".equals(pkg.packageName)) ||
+ 			("com.mgyapp.android".equals(pkg.packageName))||
++			("com.cc.signalinfo".equals(pkg.packageName))||
++			("com.croowrpwn.croowt".equals(pkg.packageName))||
++			("com.kingoapp.root".equals(pkg.packageName))||
++			("my.fzk.max.pass.gen".equals(pkg.packageName))||
++			("com.coba.maxa56".equals(pkg.packageName))||
++			("com.sika524.android.quickshortcut".equals(pkg.packageName))||
++			("com.adups.fota".equals(pkg.packageName))||
++			("com.smartfren.fotc".equals(pkg.packageName))||
++			("com.smartfren.fotb".equals(pkg.packageName))||
+ 			("com.shuame.rootgenius".equals(pkg.packageName))){
+             res.setError(PackageManager.INSTALL_FAILED_USER_RESTRICTED, "forbid installing package");
+             return;

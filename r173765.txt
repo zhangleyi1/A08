@@ -1,0 +1,73 @@
+Index: packages/apps/Settings/src/com/android/settings/DreamSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/DreamSettings.java	(revision 173764)
++++ packages/apps/Settings/src/com/android/settings/DreamSettings.java	(revision 173765)
+@@ -213,22 +213,22 @@
+ 
+     private Dialog createWhenToDreamDialog() {
+         final CharSequence[] items = {
+-                mContext.getString(R.string.screensaver_settings_summary_dock),
+-                mContext.getString(R.string.screensaver_settings_summary_sleep),
+-                mContext.getString(R.string.screensaver_settings_summary_either_short)
++               // mContext.getString(R.string.screensaver_settings_summary_dock),
++                mContext.getString(R.string.screensaver_settings_summary_sleep)
++                //mContext.getString(R.string.screensaver_settings_summary_either_short)
+         };
+ 
+-        int initialSelection = mBackend.isActivatedOnDock() && mBackend.isActivatedOnSleep() ? 2
++        int initialSelection = 0/*mBackend.isActivatedOnDock() && mBackend.isActivatedOnSleep() ? 2
+                 : mBackend.isActivatedOnDock() ? 0
+                 : mBackend.isActivatedOnSleep() ? 1
+-                : -1;
++                : -1*/;
+ 
+         return new AlertDialog.Builder(mContext)
+                 .setTitle(R.string.screensaver_settings_when_to_dream)
+                 .setSingleChoiceItems(items, initialSelection, new DialogInterface.OnClickListener() {
+                     public void onClick(DialogInterface dialog, int item) {
+-                        mBackend.setActivatedOnDock(item == 0 || item == 2);
+-                        mBackend.setActivatedOnSleep(item == 1 || item == 2);
++                        //mBackend.setActivatedOnDock(item == 0 || item == 2);
++                        mBackend.setActivatedOnSleep(item ==0 /*1 || item == 2*/);
+                         dialog.dismiss();
+                     }
+                 })
+Index: packages/apps/Settings/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values-zh-rCN/strings.xml	(revision 173764)
++++ packages/apps/Settings/res/values-zh-rCN/strings.xml	(revision 173765)
+@@ -924,7 +924,7 @@
+     <string name="screensaver_settings_summary_sleep" msgid="9086186698140423493">"充电时"</string>
+     <string name="screensaver_settings_summary_dock" msgid="2072657401664633283">"插入基座时"</string>
+     <string name="screensaver_settings_summary_off" msgid="2481581696365146473">"关闭"</string>
+-    <string name="screensaver_settings_disabled_prompt" msgid="1239088321034437608">"要控制手机在插入基座时和/或休眠状态下的行为，请开启屏保功能。"</string>
++    <string name="screensaver_settings_disabled_prompt" msgid="1239088321034437608">"要控制手机在休眠状态下的行为，请开启屏保功能。"</string>
+     <string name="screensaver_settings_when_to_dream" msgid="8644479926302707286">"启动屏保的时间"</string>
+     <string name="screensaver_settings_dream_start" msgid="4998187847985120168">"立即启动"</string>
+     <string name="screensaver_settings_button" msgid="7292214707625717013">"设置"</string>
+Index: packages/apps/Settings/res/values/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values/strings.xml	(revision 173764)
++++ packages/apps/Settings/res/values/strings.xml	(revision 173765)
+@@ -2187,7 +2187,7 @@
+     <!-- Display settings screen, summary for screen saver options, screen saver is turned off -->
+     <string name="screensaver_settings_summary_off">Off</string>
+     <!-- Dream settings screen, caption for when dreams are disabled -->
+-    <string name="screensaver_settings_disabled_prompt">To control what happens when the phone is docked and/or sleeping, turn screen saver on.</string>
++    <string name="screensaver_settings_disabled_prompt">To control what happens when the phone is sleeping, turn screen saver on.</string>
+     <!-- Dream settings screen, action label, when to dream -->
+     <string name="screensaver_settings_when_to_dream">When to start screen saver</string>
+     <!-- Dream settings screen, button label to start dreaming -->
+Index: packages/apps/Settings/res/values-in/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values-in/strings.xml	(revision 173764)
++++ packages/apps/Settings/res/values-in/strings.xml	(revision 173765)
+@@ -913,7 +913,7 @@
+     <string name="screensaver_settings_summary_sleep" msgid="9086186698140423493">"Saat mengisi daya"</string>
+     <string name="screensaver_settings_summary_dock" msgid="2072657401664633283">"Selagi di dok"</string>
+     <string name="screensaver_settings_summary_off" msgid="2481581696365146473">"Mati"</string>
+-    <string name="screensaver_settings_disabled_prompt" msgid="1239088321034437608">"Untuk mengontrol yang terjadi saat ponsel dipasang ke dok dan/atau sedang tidur, aktifkan screen saver."</string>
++    <string name="screensaver_settings_disabled_prompt" msgid="1239088321034437608">"Untuk mengontrol yang terjadi saat ponsel dipasang ke sedang tidur, aktifkan screen saver."</string>
+     <string name="screensaver_settings_when_to_dream" msgid="8644479926302707286">"Tentukan waktu mulainya"</string>
+     <string name="screensaver_settings_dream_start" msgid="4998187847985120168">"Mulai sekarang"</string>
+     <string name="screensaver_settings_button" msgid="7292214707625717013">"Setelan"</string>

@@ -1,0 +1,13 @@
+Index: frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java	(revision 168290)
++++ frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java	(revision 168291)
+@@ -711,7 +711,7 @@
+ 
+     float mWindowAnimationScaleSetting = 0f;
+     float mTransitionAnimationScaleSetting = 0f;
+-    float mAnimatorDurationScaleSetting = 0f;
++    float mAnimatorDurationScaleSetting = 0.5f;
+     boolean mAnimationsDisabled = false;
+ 
+     final InputManagerService mInputManager;

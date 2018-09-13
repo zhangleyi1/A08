@@ -1,0 +1,37 @@
+Index: vendor/sprd/telephony-res/apn/apns-conf_8.xml
+===================================================================
+--- vendor/sprd/telephony-res/apn/apns-conf_8.xml	(revision 166765)
++++ vendor/sprd/telephony-res/apn/apns-conf_8.xml	(revision 166766)
+@@ -14286,6 +14286,7 @@
+         type="default,xcap"
+         authtype="3"
+     />
++<!--
+     <apn carrier="Smartfren MMS"
+         mcc="510"
+         mnc="09"
+@@ -14298,6 +14299,8 @@
+         type="mms"
+         authtype="3"
+     />
++-->
++
+     <apn carrier="IMS"
+         mcc="510"
+         mnc="09"
+@@ -14459,6 +14462,7 @@
+         type="default,xcap"
+         authtype="3"
+     />
++<!--
+     <apn carrier="Smartfren MMS"
+         mcc="510"
+         mnc="28"
+@@ -14471,6 +14475,7 @@
+         type="mms"
+         authtype="3"
+     />
++-->
+     <apn carrier="IMS"
+         mcc="510"
+         mnc="28"

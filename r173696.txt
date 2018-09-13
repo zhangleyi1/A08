@@ -1,0 +1,19 @@
+Index: packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java	(revision 173695)
++++ packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java	(revision 173696)
+@@ -573,6 +573,14 @@
+             return;
+               }
+           }
++		  //bug 97057 begin 
++		  if(!phoneUtils.hasSim()){
++					Toast.makeText(getContext(),
++							getContext().getString(R.string.send_message_failure), Toast.LENGTH_LONG).show();
++					return;	  
++				  }
++		   //bug 97057 end
++		  
+         //bug 620043 end
+         if (mBinding.getData().isCheckingDraft()) {
+             // Don't send message if we are currently checking draft for sending.

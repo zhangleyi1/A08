@@ -1,0 +1,18 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/wifi/WiFiTest.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/wifi/WiFiTest.java	(revision 169550)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/wifi/WiFiTest.java	(revision 169551)
+@@ -166,11 +166,11 @@
+ 				  wifiresult.setText(listview +"");
+ // yaoming, If WIFI is tested jumps to next item, 20130426	
+ 				  succesButton.setEnabled(true);
+-				  if(FactoryMode.isAutoTest){
++			//	  if(FactoryMode.isAutoTest){
+ 				  Message msg = new Message();
+ 				  msg.what = 0x1231;
+ 				  handlerWiFi.sendMessage(msg);
+-				  }
++			//	  }
+ 			  }
+ 		}
+ 	}

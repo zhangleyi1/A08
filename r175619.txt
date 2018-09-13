@@ -1,0 +1,60 @@
+Index: vendor/sprd/custom/Android.mk
+===================================================================
+--- vendor/sprd/custom/Android.mk	(revision 175618)
++++ vendor/sprd/custom/Android.mk	(revision 175619)
+@@ -87,4 +87,15 @@
+ LOCAL_SRC_FILES := News_Weather.apk
+ include $(BUILD_PREBUILT)
+ 
++#GoogleMaps
++include $(CLEAR_VARS)
++LOCAL_MODULE_TAGS := optional
++LOCAL_MODULE := GoogleMaps
++LOCAL_MODULE_STEM := GoogleMaps.apk
++LOCAL_MODULE_CLASS := APPS
++LOCAL_CERTIFICATE := PRESIGNED
++LOCAL_MODULE_PATH := $(TARGET_OUT)/app/
++LOCAL_SRC_FILES := GoogleMaps.apk
++include $(BUILD_PREBUILT)
++
+ include $(call all-makefiles-under,$(LOCAL_PATH))
+Index: vendor/sprd/custom/GoogleMaps.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/custom/GoogleMaps.apk
+===================================================================
+--- vendor/sprd/custom/GoogleMaps.apk	(revision 0)
++++ vendor/sprd/custom/GoogleMaps.apk	(revision 175619)
+
+Property changes on: vendor/sprd/custom/GoogleMaps.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/google/products/gms-mandatory.mk
+===================================================================
+--- vendor/google/products/gms-mandatory.mk	(revision 175618)
++++ vendor/google/products/gms-mandatory.mk	(revision 175619)
+@@ -54,7 +54,6 @@
+     talkback \
+     DMAgent \
+     Hangouts \
+-    Maps \
+     Music2 \
+     Photos \
+     Velvet \
+Index: build/target/product/core.mk
+===================================================================
+--- build/target/product/core.mk	(revision 175618)
++++ build/target/product/core.mk	(revision 175619)
+@@ -73,6 +73,7 @@
+     GoogleBooks \
+     GooglePlayNewsstand \
+     GooglePlus \
+-    NewsWeather
++    NewsWeather \
++    GoogleMaps
+ 
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/core_base.mk)

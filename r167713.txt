@@ -1,0 +1,26 @@
+Index: frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java
+===================================================================
+--- frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java	(revision 167712)
++++ frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java	(revision 167713)
+@@ -2411,7 +2411,7 @@
+ 			
+ 			loadStringSetting(stmt, "system_locales",
+                     R.string.def_system_locales);
+-
++			loadStringSetting(stmt, Settings.System.TIME_12_24, R.string.time_12_24);
+             /* For Gesture */
+             loadSetting(stmt, Settings.System.KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_UNLOCK, 0);
+             loadSetting(stmt, Settings.System.KEY_GESTURE_TYPE_DOUBLE_CLICK_SWITCH_LOCK, 0);
+Index: frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+===================================================================
+--- frameworks/base/packages/SettingsProvider/res/values/defaults.xml	(revision 167712)
++++ frameworks/base/packages/SettingsProvider/res/values/defaults.xml	(revision 167713)
+@@ -64,7 +64,7 @@
+ 
+     <bool name="def_backup_enabled">false</bool>
+     <string name="def_backup_transport" translatable="false">android/com.android.internal.backup.LocalTransport</string>
+-
++	<string name="time_12_24" translatable="false">24</string>
+     <!-- Default value for whether or not to pulse the notification LED when there is a
+          pending notification -->
+     <bool name="def_notification_pulse">true</bool>

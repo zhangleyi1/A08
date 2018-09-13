@@ -1,0 +1,101 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/Workspace.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Workspace.java	(revision 173831)
++++ packages/apps/Launcher3/src/com/android/launcher3/Workspace.java	(revision 173832)
+@@ -4773,10 +4773,7 @@
+     }
+     // SPRD add for SPRD_SETTINGS_ACTIVITY_SUPPORT end }
+ 
+-
+-
+-
+-
+-
+-
++    public boolean isCustomContentShowing(){
++        return mCustomContentShowing;
++    }
+ }
+Index: packages/apps/Launcher3/ext/src/com/sprd/ext/LauncherExtCallbacks.java
+===================================================================
+--- packages/apps/Launcher3/ext/src/com/sprd/ext/LauncherExtCallbacks.java	(revision 173831)
++++ packages/apps/Launcher3/ext/src/com/sprd/ext/LauncherExtCallbacks.java	(revision 173832)
+@@ -30,6 +30,7 @@
+  */
+ public class LauncherExtCallbacks implements LauncherCallbacks {
+     private Launcher mLauncher;
++    private WebView mWebView;
+ 
+     public LauncherExtCallbacks(Launcher launcher) {
+         mLauncher = launcher;
+@@ -107,6 +108,12 @@
+ 
+     @Override
+     public boolean handleBackPressed() {
++
++        if(FeatureOption.SPRD_CUSTOM_CONTENT_SUPPORT
++                && mLauncher.getWorkspace().isCustomContentShowing()){
++            updateWebView(true);
++        }
++
+         return false;
+     }
+ 
+@@ -204,6 +211,7 @@
+         // Custom content is completely shown. {@code fromResume} indicates whether this was caused
+         // by a onResume or by scrolling otherwise.
+         public void onShow(boolean fromResume) {
++            updateWebView(false);
+         }
+ 
+         // Custom content is completely hidden
+@@ -234,18 +242,11 @@
+     public void populateCustomContentContainer() {
+         FrameLayout customContent = null;
+         try {
+-            WebView webView;
+             LayoutInflater inflater = LayoutInflater.from(mLauncher);
+             customContent = (FrameLayout) inflater.inflate(R.layout.custom_content, null);
+-            webView = (WebView) customContent.findViewById(R.id.web_view);
+-            webView.loadUrl("https://www.google.com");
+-            webView.setWebViewClient(new WebViewClient() {
+-                @Override
+-                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+-                    view.loadUrl(url);
+-                    return true;
+-                }
+-            });
++            if(customContent == null) return;
++            mWebView = (WebView) customContent.findViewById(R.id.web_view);
++            updateWebView(false);
+         } catch (Exception e) {
+             e.printStackTrace();
+         }
+@@ -334,4 +335,27 @@
+     @Override
+     public void onDetachedFromWindow() {
+     };
++
++    private void updateWebView(boolean isBack){
++        if(mWebView == null) return;
++        if(mWebView.getUrl() != null && !mWebView.getUrl().isEmpty()){
++            if(isBack){
++                if(mWebView.canGoBack()) {
++                    mWebView.goBack();
++                }
++            }else {
++                mWebView.stopLoading();
++                mWebView.reload();
++            }
++        } else {
++            mWebView.loadUrl("https://www.google.com");
++            mWebView.setWebViewClient(new WebViewClient() {
++                @Override
++                public boolean shouldOverrideUrlLoading(WebView view, String url) {
++                    view.loadUrl(url);
++                    return true;
++                }
++            });
++        }
++    }
+ }

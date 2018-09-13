@@ -1,0 +1,74 @@
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactEntryListFragment.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactEntryListFragment.java	(revision 170617)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactEntryListFragment.java	(revision 170618)
+@@ -45,12 +45,16 @@
+ import android.widget.AdapterView.OnItemClickListener;
+ import android.widget.AdapterView.OnItemLongClickListener;
+ import android.widget.ListView;
++import android.widget.ImageView; 
++import android.widget.LinearLayout; 
++import java.util.ArrayList;
+ 
++
+ import com.android.common.widget.CompositeCursorAdapter.Partition;
+ import com.android.contacts.common.ContactPhotoManager;
+ import com.android.contacts.common.preference.ContactsPreferences;
+ import com.android.contacts.common.util.ContactListViewUtils;
+-
++import android.net.Uri;
+ import java.util.Locale;
+ 
+ /**
+@@ -67,6 +71,8 @@
+ import android.accounts.AccountManager;
+ import android.app.AlertDialog;
+ import android.content.ContentResolver;
++import android.database.ContentObserver;
++import android.provider.ContactsContract.RawContacts;
+ import android.content.DialogInterface;
+ import android.database.DatabaseUtils;
+ import android.provider.ContactsContract;
+@@ -276,6 +282,16 @@
+             }
+         }
+     };
++	private final ContentObserver mObserver = new ContentObserver(
++		new Handler()){ 
++		@Override        
++			public void onChange(boolean selfChange, Uri uri){ 
++			if (mAdapter != null) { 
++				Log.d(TAG, "Databases have been changed£¬need reload data£¡"); 
++				reloadData();           
++			}       
++		}    
++	};
+     private int defaultVerticalScrollbarPosition;
+ 
+     protected abstract View inflateView(LayoutInflater inflater, ViewGroup container);
+@@ -404,8 +420,16 @@
+         restoreSavedState(savedState);
+         mAdapter = createListAdapter();
+         mContactsPrefs = new ContactsPreferences(mContext);
++		if(mContext != null){            
++			mContext.getContentResolver().registerContentObserver(RawContacts.CONTENT_URI, true, mObserver);        
++		}
+     }
+-
++	 public void onDestroy() { 
++	 	super.onDestroy();      
++		if (mObserver != null) {
++			mContext.getContentResolver().unregisterContentObserver(mObserver);
++		}   
++	}
+     public void restoreSavedState(Bundle savedState) {
+         if (savedState == null) {
+             return;
+@@ -1686,6 +1710,7 @@
+     public void setContactCacheModel(int mode, String mainIndex, String minorIndex) {
+         this.mContactDataCache.setModel(mode, mainIndex, minorIndex);
+     }
++	
+ 
+     public MultiContactDataCacheUtils getContactCache() {
+         return mContactDataCache;

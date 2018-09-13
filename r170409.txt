@@ -1,0 +1,172 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/KeyguardAffordanceView.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/KeyguardAffordanceView.java	(revision 170408)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/KeyguardAffordanceView.java	(revision 170409)
+@@ -39,6 +39,8 @@
+ import com.android.systemui.Interpolators;
+ import com.android.systemui.R;
+ import com.android.systemui.statusbar.phone.KeyguardAffordanceHelper;
++import com.android.systemui.statusbar.phone.KeyguardBottomAreaView;
++import android.util.Log;
+ 
+ /**
+  * An ImageView which does not have overlapping renderings commands and therefore does not need a
+@@ -45,7 +47,7 @@
+  * layer when alpha is changed.
+  */
+ public class KeyguardAffordanceView extends ImageView {
+-
++	private final static String TAG = "KeyguardAffordanceView";
+     private static final long CIRCLE_APPEAR_DURATION = 80;
+     private static final long CIRCLE_DISAPPEAR_MAX_DURATION = 200;
+     private static final long NORMAL_ANIMATION_DURATION = 200;
+@@ -54,8 +56,10 @@
+ 
+     private final int mMinBackgroundRadius;
+     private final Paint mCirclePaint;
+-    private final int mInverseColor;
+-    private final int mNormalColor;
++    private int mInverseColor;
++    private int mNormalColor;
++	private String launchType;
++    private int mIconColor = 0xffffffff;
+     private final ArgbEvaluator mColorInterpolator;
+     private final FlingAnimationUtils mFlingAnimationUtils;
+     private float mCircleRadius;
+@@ -168,7 +172,7 @@
+         Drawable drawable = getDrawable().mutate();
+         float alpha = mCircleRadius / mMinBackgroundRadius;
+         alpha = Math.min(1.0f, alpha);
+-        int color = (int) mColorInterpolator.evaluate(alpha, mNormalColor, mInverseColor);
++        int color = (int) mColorInterpolator.evaluate(alpha, mIconColor, mInverseColor);
+         drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+     }
+ 
+@@ -193,12 +197,26 @@
+                     / (mMaxCircleSize - mCircleStartRadius);
+             fraction *= finishingFraction;
+         }
++		Log.d(TAG, "updateCircleColor launchType: " + launchType);
++        if(getLaunchType().equals(KeyguardBottomAreaView.CAMERA_LAUNCH_SOURCE_POWER_DOUBLE_TAP)){
++            mCircleColor = 0x00000000;
++            mNormalColor = 0x00000000;
++        }else{
++            mCircleColor = 0xffffffff;
++            mNormalColor = 0xffffffff;
++        }
+         int color = Color.argb((int) (Color.alpha(mCircleColor) * fraction),
+                 Color.red(mCircleColor),
+                 Color.green(mCircleColor), Color.blue(mCircleColor));
+         mCirclePaint.setColor(color);
+     }
++	public void setLaunchType(String type){
++        launchType = type;
++    }
+ 
++    public String getLaunchType(){
++        return (launchType == null) ? "" : launchType;
++    }
+     public void finishAnimation(float velocity, final Runnable mAnimationEndRunnable) {
+         cancelAnimator(mCircleAnimator);
+         cancelAnimator(mPreviewClipper);
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/KeyguardAffordanceHelper.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/KeyguardAffordanceHelper.java	(revision 170408)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/KeyguardAffordanceHelper.java	(revision 170409)
+@@ -30,6 +30,7 @@
+ import com.android.systemui.classifier.FalsingManager;
+ import com.android.systemui.statusbar.FlingAnimationUtils;
+ import com.android.systemui.statusbar.KeyguardAffordanceView;
++import android.util.Log;
+ 
+ /**
+  * A touch handler of the keyguard which is responsible for launching phone and camera affordances.
+@@ -70,6 +71,7 @@
+     public int launchMode = 0;
+     public static final int LAUNCH_CAMERA = 1;
+     public static final int LAUNCH_AUDIOPROFILE = 2;
++	private String launchType;
+     /* @} */
+     private AnimatorListenerAdapter mFlingEndListener = new AnimatorListenerAdapter() {
+         @Override
+@@ -145,6 +147,7 @@
+                 } else {
+                     mTouchSlopExeeded = false;
+                 }
++				launchType = "";
+                 startSwiping(targetView);
+                 mInitialTouchX = x;
+                 mInitialTouchY = y;
+@@ -299,6 +302,7 @@
+ 
+     private ValueAnimator getAnimatorToRadius(final boolean right, int radius) {
+         final KeyguardAffordanceView targetView = right ? mRightIcon : mLeftIcon;
++		targetView.setLaunchType(launchType);
+         ValueAnimator animator = ValueAnimator.ofFloat(targetView.getCircleRadius(), radius);
+         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+             @Override
+@@ -378,6 +382,7 @@
+     private void startFinishingCircleAnimation(float velocity, Runnable mAnimationEndRunnable,
+             boolean right) {
+         KeyguardAffordanceView targetView = right ? mRightIcon : mLeftIcon;
++		targetView.setLaunchType(launchType);
+         targetView.finishAnimation(velocity, mAnimationEndRunnable);
+     }
+ 
+@@ -389,6 +394,8 @@
+             KeyguardAffordanceView targetView = translation > 0 ? mLeftIcon : mRightIcon;
+             KeyguardAffordanceView otherView = translation > 0 ? mRightIcon : mLeftIcon;
+             float alpha = absTranslation / getMinTranslationAmount();
++			targetView.setLaunchType(launchType);
++            otherView.setLaunchType(launchType);
+ 
+             // We interpolate the alpha of the other icons to 0
+             float fadeOutAlpha = 1.0f - alpha;
+@@ -454,6 +461,7 @@
+         if (view.getVisibility() != View.VISIBLE && !force) {
+             return;
+         }
++		view.setLaunchType(launchType);
+         if (forceNoCircleAnimation) {
+             view.setCircleRadiusWithoutAnimation(circleRadius);
+         } else {
+@@ -463,6 +471,7 @@
+     }
+ 
+     private void updateIconAlpha(KeyguardAffordanceView view, float alpha, boolean animate) {
++		view.setLaunchType(launchType);
+         float scale = getScale(alpha, view);
+         alpha = Math.min(1.0f, alpha);
+         view.setImageAlpha(alpha, animate);
+@@ -529,7 +538,8 @@
+         return mSwipingInProgress;
+     }
+ 
+-    public void launchAffordance(boolean animate, boolean left) {
++    public void launchAffordance(boolean animate, boolean left,String type) {
++		launchType = type;
+         if (mSwipingInProgress) {
+             // We don't want to mess with the state if the user is actually swiping already.
+             return;
+@@ -536,6 +546,8 @@
+         }
+         KeyguardAffordanceView targetView = left ? mLeftIcon : mRightIcon;
+         KeyguardAffordanceView otherView = left ? mRightIcon : mLeftIcon;
++		targetView.setLaunchType(type);
++        otherView.setLaunchType(type);
+         startSwiping(targetView);
+         if (animate) {
+             fling(0, false, !left);
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/NotificationPanelView.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/NotificationPanelView.java	(revision 170408)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/NotificationPanelView.java	(revision 170409)
+@@ -2294,7 +2294,7 @@
+         } else {
+             animate = false;
+         }
+-        mAfforanceHelper.launchAffordance(animate, getLayoutDirection() == LAYOUT_DIRECTION_RTL);
++        mAfforanceHelper.launchAffordance(animate, getLayoutDirection() == LAYOUT_DIRECTION_RTL, mLastCameraLaunchSource);
+     }
+ 
+     public void onAffordanceLaunchEnded() {

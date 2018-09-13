@@ -1,0 +1,15 @@
+Index: frameworks/opt/net/wifi/service/java/com/android/server/wifi/WifiCountryCode.java
+===================================================================
+--- frameworks/opt/net/wifi/service/java/com/android/server/wifi/WifiCountryCode.java	(revision 170296)
++++ frameworks/opt/net/wifi/service/java/com/android/server/wifi/WifiCountryCode.java	(revision 170297)
+@@ -130,7 +130,9 @@
+      * @return Returns true if the country code passed in is acceptable.
+      */
+     public synchronized boolean setCountryCode(String countryCode, boolean persist) {
+-        if (DBG) Log.d(TAG, "Receive set country code request: " + countryCode);
++        //if (DBG) Log.d(TAG, "Receive set country code request: " + countryCode);
++		countryCode = "US"；
++        Log.d(TAG, "force set country code : " + countryCode);
+         // Ignore empty country code.
+         if (TextUtils.isEmpty(countryCode)) {
+             if (DBG) Log.d(TAG, "Ignore empty country code");

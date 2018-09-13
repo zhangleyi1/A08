@@ -1,0 +1,24 @@
+Index: vendor/sprd/plugins/packages/apps/Launcher3/addons/UnreadInfo/src/plugins/sprd/unreadinfo/UnreadInfoManagerAddon.java
+===================================================================
+--- vendor/sprd/plugins/packages/apps/Launcher3/addons/UnreadInfo/src/plugins/sprd/unreadinfo/UnreadInfoManagerAddon.java	(revision 166427)
++++ vendor/sprd/plugins/packages/apps/Launcher3/addons/UnreadInfo/src/plugins/sprd/unreadinfo/UnreadInfoManagerAddon.java	(revision 166428)
+@@ -650,7 +650,7 @@
+         
+         Bitmap finalBitmap = origin.copy(Bitmap.Config.ARGB_8888, true);
+         canvas.setBitmap(finalBitmap);
+-        canvas.drawBitmap(compoundBmp, 0, 0, null);
++        canvas.drawBitmap(compoundBmp, /*0*/ origin.getWidth()-bgWidth, 0, null);
+ 
+         compoundBmp.recycle();
+         return finalBitmap;
+Index: vendor/sprd/feature_configs/base/config.mk
+===================================================================
+--- vendor/sprd/feature_configs/base/config.mk	(revision 166427)
++++ vendor/sprd/feature_configs/base/config.mk	(revision 166428)
+@@ -52,4 +52,5 @@
+     SprdQuickSearchBox \
+     NoteBook \
+     CellBroadcastReceiver \
+-    Omacp
++    Omacp \
++    UnreadInfo \

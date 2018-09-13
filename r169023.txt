@@ -1,0 +1,60 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/policy/MobileSignalController.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/policy/MobileSignalController.java	(revision 169022)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/policy/MobileSignalController.java	(revision 169023)
+@@ -347,8 +347,24 @@
+         boolean showDataIcon = mCurrentState.dataConnected
+                 || mCurrentState.iconGroup == TelephonyIcons.ROAMING
+                 || dataDisabled;
++		int signalCurrentIconId = getCurrentIconId();
++        if(mSubscriptionInfo !=null){
++        	int phoneId = mSubscriptionInfo.getSimSlotIndex();
++            if (SubscriptionManager.isValidPhoneId(phoneId)) {
++            	if(mServiceState != null && (ServiceState.STATE_OUT_OF_SERVICE == mServiceState.getVoiceRegState() 
++            		|| ServiceState.STATE_POWER_OFF == mServiceState.getVoiceRegState())) {
++            		if(phoneId == 0) {
++            			signalCurrentIconId = R.drawable.stat_sys_signal_null_sim1;
++            		} else if(phoneId == 1) {
++            			signalCurrentIconId = R.drawable.stat_sys_signal_null_sim2;
++            		}
++            		
++                }
++            }
++        }	
++				
+         IconState statusIcon = new IconState(mCurrentState.enabled && !mCurrentState.airplaneMode,
+-                getCurrentIconId(), contentDescription);
++                signalCurrentIconId, contentDescription);
+ 
+         int qsTypeIcon = 0;
+         IconState qsIcon = null;
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_null_sim1.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_null_sim1.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_null_sim1.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_null_sim1.png	(revision 169023)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_null_sim1.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_null_sim2.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_null_sim2.png
+===================================================================
+--- frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_null_sim2.png	(revision 0)
++++ frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_null_sim2.png	(revision 169023)
+
+Property changes on: frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_null_sim2.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property

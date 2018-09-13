@@ -1,0 +1,66 @@
+Index: frameworks/base/core/java/com/android/internal/app/LocaleStore.java
+===================================================================
+--- frameworks/base/core/java/com/android/internal/app/LocaleStore.java	(revision 166726)
++++ frameworks/base/core/java/com/android/internal/app/LocaleStore.java	(revision 166727)
+@@ -27,7 +27,7 @@
+ import java.util.IllformedLocaleException;
+ import java.util.Locale;
+ import java.util.Set;
+-
++import java.util.List;
+ public class LocaleStore {
+     private static final HashMap<String, LocaleInfo> sLocaleCache = new HashMap<>();
+     private static boolean sFullyInitialized = false;
+@@ -374,4 +374,20 @@
+         }
+         return result;
+     }
++	
++	public static List<LocaleStore.LocaleInfo> getUserDefultLocaleList(Context context) {
++         final List<LocaleStore.LocaleInfo> result = new ArrayList<>();
++
++		for (String localeId : LocalePicker.getSupportedLocales(context)) {
++		   if (localeId.isEmpty()) {
++			   throw new IllformedLocaleException("Bad locale entry in locale_config.xml");
++		   }
++		   LocaleInfo li = new LocaleInfo(localeId);
++		   if(li.toString().equals("zh-Hans-CN")||localeId.equals("en-US")||li.toString().equals("id-ID")){
++			result.add(li);
++		   }
++		}
++         return result;
++    }
++	
+ }
+
+Property changes on: frameworks/base/core/java/com/android/internal/app/LocaleStore.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/frameworks/base/core/java/com/android/internal/app/LocaleStore.java:r165626
+Index: packages/apps/Settings/src/com/android/settings/localepicker/LocaleListEditor.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/localepicker/LocaleListEditor.java	(revision 166726)
++++ packages/apps/Settings/src/com/android/settings/localepicker/LocaleListEditor.java	(revision 166727)
+@@ -220,7 +220,7 @@
+     }
+ 
+     private static List<LocaleStore.LocaleInfo> getUserLocaleList(Context context) {
+-        final List<LocaleStore.LocaleInfo> result = new ArrayList<>();
++    /*    final List<LocaleStore.LocaleInfo> result = new ArrayList<>();
+ 
+         final LocaleList localeList = LocalePicker.getLocales();
+         for (int i = 0; i < localeList.size(); i++) {
+@@ -229,6 +229,8 @@
+         }
+ 
+         return result;
++	*/
++		return LocaleStore.getUserDefultLocaleList(context);
+     }
+ 
+     private void configureDragAndDrop(View view) {
+
+Property changes on: packages/apps/Settings/src/com/android/settings/localepicker/LocaleListEditor.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Settings/src/com/android/settings/localepicker/LocaleListEditor.java:r165626

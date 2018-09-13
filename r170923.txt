@@ -1,0 +1,19 @@
+Index: packages/apps/Settings/res/xml/wireless_settings.xml
+===================================================================
+--- packages/apps/Settings/res/xml/wireless_settings.xml	(revision 170922)
++++ packages/apps/Settings/res/xml/wireless_settings.xml	(revision 170923)
+@@ -65,6 +65,14 @@
+             android:targetPackage="com.android.phone"
+             android:targetClass="com.android.phone.MobileNetworkSettings" />
+     </com.android.settingslib.RestrictedPreference>
++    <PreferenceScreen
++        android:key="call_settings"
++        android:title="@string/Call_Settings" >
++        <intent
++            android:action="android.intent.action.MAIN"
++            android:targetClass="com.android.phone.settings.PhoneAccountSettingsActivity"
++            android:targetPackage="com.android.phone" />
++    </PreferenceScreen>
+ 
+     <com.android.settingslib.RestrictedPreference
+         android:key="manage_mobile_plan"

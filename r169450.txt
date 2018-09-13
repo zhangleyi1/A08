@@ -1,0 +1,58 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoModule.java	(revision 169449)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoModule.java	(revision 169450)
+@@ -107,7 +107,10 @@
+ 
+ import android.os.storage.StorageManager;
+ import android.os.storage.VolumeInfo;
++import android.telephony.PhoneStateListener;
++import android.telephony.TelephonyManager;
+ 
++
+ public class VideoModule extends CameraModule implements
+         FocusOverlayManager.Listener, MediaRecorder.OnErrorListener,
+         MediaRecorder.OnInfoListener, MemoryListener,
+@@ -253,6 +256,18 @@
+         mToast.show();
+     }
+     /* @} */
++	TelephonyManager mTelephonyManager = null;
++    PhoneStateListener mPhoneStateListener = new PhoneStateListener(){
++        @Override
++        public void onCallStateChanged(int state, String incomingNumber) {
++            super.onCallStateChanged(state, incomingNumber);
++            switch (state) {
++                case TelephonyManager.CALL_STATE_RINGING:
++                    stopVideoRecording(true);
++                    break;
++            }
++        }
++    };
+ 
+     private final MediaSaver.OnMediaSavedListener mOnVideoSavedListener = new MediaSaver.OnMediaSavedListener() {
+         @Override
+@@ -487,10 +502,13 @@
+     public void init(CameraActivity activity, boolean isSecureCamera,
+                      boolean isCaptureIntent) {
+         mActivity = activity;
++		mTelephonyManager = TelephonyManager.from(mActivity);
+         // TODO: Need to look at the controller interface to see if we can get
+         // rid of passing in the activity directly.
+         mAppController = mActivity;
+-
++		if (mTelephonyManager != null) {
++            mTelephonyManager.listen(mPhoneStateListener,PhoneStateListener.LISTEN_CALL_STATE);
++        }
+         int cameraId = DataModuleManager
+                 .getInstance(mAppController.getAndroidContext())
+                 .getDataModuleCamera().getInt(Keys.KEY_CAMERA_ID);
+@@ -1802,7 +1820,7 @@
+         mOriginalRingerMode = mAudioManager.getRingerMode();
+         // Make sure no system sounds and vibrations happen during video
+         // recording.
+-        mAudioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
++        //mAudioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+ 
+         return true;
+     }

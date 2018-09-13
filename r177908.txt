@@ -1,0 +1,46 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/gps/GPS.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/gps/GPS.java	(revision 177907)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/gps/GPS.java	(revision 177908)
+@@ -67,8 +67,13 @@
+ 		gps_satellite_id.setText(getString(R.string.GPS_satelliteNum)+0);
+ 		gps_signal_id.setText(getString(R.string.GPS_Signal)+"nosignal");
+         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
++        //Delete all gps infor
++        Bundle extras = new Bundle();
++        extras.putBoolean("all", true);
++        mLocationManager.sendExtraCommand(LocationManager.GPS_PROVIDER,"delete_aiding_data", extras);
++        
+ 		openGPSSettings();
+-		getLocation();
++		//getLocation();
+ 
+ 		succesButton.setOnClickListener(new Button.OnClickListener(){
+ 
+@@ -95,6 +100,13 @@
+ 
+ 	}
+ 
++    @Override
++	protected void onResume() {
++		// TODO Auto-generated method stub
++        getLocation();
++		super.onResume();
++	}
++    
+ 	@Override
+ 	protected void onDestroy() {
+ 		// TODO Auto-generated method stub
+@@ -172,9 +184,9 @@
+ 
+ 		//mLocationManager.requestLocationUpdates(provider, 1000, 0,
+                //         locationListener);
+-        Bundle extras = new Bundle();
+-        extras.putBoolean("all", true);
+-        mLocationManager.sendExtraCommand(LocationManager.GPS_PROVIDER,"delete_aiding_data", extras);
++        //Bundle extras = new Bundle();
++        //extras.putBoolean("all", true);
++        //mLocationManager.sendExtraCommand(LocationManager.GPS_PROVIDER,"delete_aiding_data", extras);
+         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, locationListener);
+ 		mLocationManager.addGpsStatusListener(statusListener);
+ 	}

@@ -1,0 +1,14 @@
+Index: kernel/drivers/platform/sprd/pm-scx35.c
+===================================================================
+--- kernel/drivers/platform/sprd/pm-scx35.c	(revision 170516)
++++ kernel/drivers/platform/sprd/pm-scx35.c	(revision 170517)
+@@ -1474,8 +1474,8 @@
+ 
+ #ifdef CONFIG_ARCH_SCX20
+ 	/* set auto powerdown mode */
+-	sci_glb_set(SPRD_LPDDR2_BASE+0x124, BIT(0)| BIT(1));
+ 	sci_glb_clr(SPRD_LPDDR2_BASE+0x124, BIT(2));
++	sci_glb_set(SPRD_LPDDR2_BASE+0x124, BIT(0)| BIT(1)); 
+ #else
+ #if defined(CONFIG_ARCH_SCX30G) || defined(CONFIG_ARCH_SCX35L64) || defined(CONFIG_ARCH_SCX35LT8)
+ 	/* set auto powerdown mode */

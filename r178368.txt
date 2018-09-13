@@ -1,0 +1,13 @@
+Index: packages/apps/Dialer/src/com/android/dialer/list/SearchFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/list/SearchFragment.java	(revision 178367)
++++ packages/apps/Dialer/src/com/android/dialer/list/SearchFragment.java	(revision 178368)
+@@ -343,7 +343,7 @@
+                     if (!mShowDialpad) {
+                         getSlotState();
+ 
+-                        ContactListItemView view = (ContactListItemView)getListView().getChildAt(position + 1);
++                        ContactListItemView view = (ContactListItemView)getListView().getChildAt(position - getListView().getFirstVisiblePosition() + 1);
+                         if (twoSimState) {
+                             if(view != null && view.getGsmButtonView() != null){
+                                 view.getGsmButtonView().setOnClickListener(new View.OnClickListener() {

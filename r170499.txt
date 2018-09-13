@@ -1,0 +1,60 @@
+Index: frameworks/base/api/current.txt
+===================================================================
+--- frameworks/base/api/current.txt	(revision 170498)
++++ frameworks/base/api/current.txt	(revision 170499)
+@@ -32591,6 +32591,7 @@
+     field public static final deprecated java.lang.String ANIMATOR_DURATION_SCALE = "animator_duration_scale";
+     field public static final deprecated java.lang.String AUTO_TIME = "auto_time";
+     field public static final deprecated java.lang.String AUTO_TIME_ZONE = "auto_time_zone";
++    field public static final java.lang.String BATTERY_PERCENTAGE_ENABLED = "battery_percentage_enabled";
+     field public static final java.lang.String BLUETOOTH_DISCOVERABILITY = "bluetooth_discoverability";
+     field public static final java.lang.String BLUETOOTH_DISCOVERABILITY_TIMEOUT = "bluetooth_discoverability_timeout";
+     field public static final deprecated java.lang.String BLUETOOTH_ON = "bluetooth_on";
+@@ -32626,6 +32627,7 @@
+     field public static final java.lang.String MOTION_SOUND_EFFECT_ENABLED = "motion_sound_effect_enabled";
+     field public static final java.lang.String MUTE_STREAMS_AFFECTED = "mute_streams_affected";
+     field public static final deprecated java.lang.String NETWORK_PREFERENCE = "network_preference";
++    field public static final java.lang.String NEVER_SLEEP_ON = "never_sleep_on";
+     field public static final deprecated java.lang.String NEXT_ALARM_FORMATTED = "next_alarm_formatted";
+     field public static final java.lang.String NOTIFICATION_SOUND = "notification_sound";
+     field public static final deprecated java.lang.String PARENTAL_CONTROL_ENABLED = "parental_control_enabled";
+Index: frameworks/base/api/system-current.txt
+===================================================================
+--- frameworks/base/api/system-current.txt	(revision 170498)
++++ frameworks/base/api/system-current.txt	(revision 170499)
+@@ -35299,6 +35299,7 @@
+     field public static final deprecated java.lang.String ANIMATOR_DURATION_SCALE = "animator_duration_scale";
+     field public static final deprecated java.lang.String AUTO_TIME = "auto_time";
+     field public static final deprecated java.lang.String AUTO_TIME_ZONE = "auto_time_zone";
++    field public static final java.lang.String BATTERY_PERCENTAGE_ENABLED = "battery_percentage_enabled";
+     field public static final java.lang.String BLUETOOTH_DISCOVERABILITY = "bluetooth_discoverability";
+     field public static final java.lang.String BLUETOOTH_DISCOVERABILITY_TIMEOUT = "bluetooth_discoverability_timeout";
+     field public static final deprecated java.lang.String BLUETOOTH_ON = "bluetooth_on";
+@@ -35334,6 +35335,7 @@
+     field public static final java.lang.String MOTION_SOUND_EFFECT_ENABLED = "motion_sound_effect_enabled";
+     field public static final java.lang.String MUTE_STREAMS_AFFECTED = "mute_streams_affected";
+     field public static final deprecated java.lang.String NETWORK_PREFERENCE = "network_preference";
++    field public static final java.lang.String NEVER_SLEEP_ON = "never_sleep_on";
+     field public static final deprecated java.lang.String NEXT_ALARM_FORMATTED = "next_alarm_formatted";
+     field public static final java.lang.String NOTIFICATION_SOUND = "notification_sound";
+     field public static final deprecated java.lang.String PARENTAL_CONTROL_ENABLED = "parental_control_enabled";
+Index: frameworks/base/api/test-current.txt
+===================================================================
+--- frameworks/base/api/test-current.txt	(revision 170498)
++++ frameworks/base/api/test-current.txt	(revision 170499)
+@@ -32666,6 +32666,7 @@
+     field public static final deprecated java.lang.String ANIMATOR_DURATION_SCALE = "animator_duration_scale";
+     field public static final deprecated java.lang.String AUTO_TIME = "auto_time";
+     field public static final deprecated java.lang.String AUTO_TIME_ZONE = "auto_time_zone";
++    field public static final java.lang.String BATTERY_PERCENTAGE_ENABLED = "battery_percentage_enabled";
+     field public static final java.lang.String BLUETOOTH_DISCOVERABILITY = "bluetooth_discoverability";
+     field public static final java.lang.String BLUETOOTH_DISCOVERABILITY_TIMEOUT = "bluetooth_discoverability_timeout";
+     field public static final deprecated java.lang.String BLUETOOTH_ON = "bluetooth_on";
+@@ -32701,6 +32702,7 @@
+     field public static final java.lang.String MOTION_SOUND_EFFECT_ENABLED = "motion_sound_effect_enabled";
+     field public static final java.lang.String MUTE_STREAMS_AFFECTED = "mute_streams_affected";
+     field public static final deprecated java.lang.String NETWORK_PREFERENCE = "network_preference";
++    field public static final java.lang.String NEVER_SLEEP_ON = "never_sleep_on";
+     field public static final deprecated java.lang.String NEXT_ALARM_FORMATTED = "next_alarm_formatted";
+     field public static final java.lang.String NOTIFICATION_SOUND = "notification_sound";
+     field public static final deprecated java.lang.String PARENTAL_CONTROL_ENABLED = "parental_control_enabled";

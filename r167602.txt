@@ -1,0 +1,12 @@
+Index: vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfileSettings.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfileSettings.java	(revision 167601)
++++ vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfileSettings.java	(revision 167602)
+@@ -1337,6 +1337,7 @@
+         setProfileIsSelected(AudioProfile.DEFAULT_GENERAL_PROFILE_ID);
+         mSelectedId = getSelectedId(true);
+         updateSelectedState();
++		Settings.System.putInt(getContentResolver(), Settings.System.MOTION_SOUND_EFFECT_ENABLED, 0);
+     }
+ 
+     private static void syncNormalProfile(){

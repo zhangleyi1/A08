@@ -1,0 +1,85 @@
+Index: kernel/sound/soc/sprd/sprd-asoc-card.c
+===================================================================
+--- kernel/sound/soc/sprd/sprd-asoc-card.c	(revision 166567)
++++ kernel/sound/soc/sprd/sprd-asoc-card.c	(revision 166568)
+@@ -17,10 +17,12 @@
+ 
+ #include <linux/module.h>
+ #include <linux/of.h>
++#include <linux/gpio.h>
+ #include <sound/soc.h>
+ #include <sound/soc-dapm.h>
+ #include <sound/tlv.h>
+ #include <sound/sprd-audio-hook.h>
++#include <linux/delay.h>
+ #if !defined(CONFIG_ARCH_WHALE)
+ #include <soc/sprd/sprd-audio.h>
+ #endif
+@@ -481,9 +483,39 @@
+ 	board.m[BOARD_FUNC_EAR].mute_func = audio_earpiece_enable_inter;
+ }
+ 
++static unsigned int gpio_audio_pa_en = 0;
++static int customer_ext_speaker_ctrl(int id, int on)
++{
++	if ((id != SPRD_AUDIO_ID_SPEAKER) && (id != SPRD_AUDIO_ID_SPEAKER2)) {
++		return HOOK_BPY;
++	}
++
++  /* set speaker amplifier */
++	if (on) {	
++		gpio_set_value(gpio_audio_pa_en, 0);
++		udelay(1);
++		gpio_set_value(gpio_audio_pa_en, 1);
++		udelay(1);
++		gpio_set_value(gpio_audio_pa_en, 0);
++		udelay(1);
++		gpio_set_value(gpio_audio_pa_en, 1);
++		udelay(1);
++#if 0
++		gpio_set_value(gpio_audio_pa_en, 0);
++		udelay(1);
++		gpio_set_value(gpio_audio_pa_en, 1);	
++#endif
++	} else {
++		gpio_set_value(gpio_audio_pa_en, 0);
++	}
++
++	return HOOK_OK;
++}
++
+ static int sprd_asoc_probe(struct platform_device *pdev,
+ 			   struct snd_soc_card *card)
+ {
++	static int is_init = 0;
+ 	struct device_node *node = pdev->dev.of_node;
+ 	card->dev = &pdev->dev;
+ 	if (node) {
+@@ -536,8 +568,27 @@
+ 		}
+ 		of_node_put(pcm_node);
+ 		of_node_put(codec_node);
++
++		of_property_read_u32(node, "gpio_audio_pa_en", &gpio_audio_pa_en);
++		sp_asoc_pr_info("gpio_audio_pa_en = %d\n", gpio_audio_pa_en);
+ 	}
+ 
++	if(gpio_audio_pa_en != 0  && 0 == is_init) {
++		static struct sprd_audio_ext_hook audio_hook = {0};
++		int ret;
++
++		ret = gpio_request(gpio_audio_pa_en, "speaker amplifier");
++		if (ret) {
++			pr_err("%s: request GPIO_%d error\n", __func__,gpio_audio_pa_en);
++			return ret;
++		}
++		is_init = 1;
++		gpio_direction_output(gpio_audio_pa_en, 0);
++
++		audio_hook.ext_speaker_ctrl = customer_ext_speaker_ctrl;
++		sprd_ext_hook_register(&audio_hook);		
++	}
++
+ 	board_mute_init();
+ 	board_inter_pa_init();
+ 	return snd_soc_register_card(card);

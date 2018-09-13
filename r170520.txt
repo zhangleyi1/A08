@@ -1,0 +1,35 @@
+Index: secute_boot.sh
+===================================================================
+--- secute_boot.sh	(revision 0)
++++ secute_boot.sh	(revision 170520)
+@@ -0,0 +1,13 @@
++#!/bin/bash
++
++cp device/sprd/scx35l/sp9832a_2h11/modem/LTE_DSP.bin out/target/product/sp9832a_2h11/
++cp device/sprd/scx35l/sp9832a_2h11/modem/PM_sharkls_arm7.bin out/target/product/sp9832a_2h11/
++cp device/sprd/scx35l/sp9832a_2h11/modem/SC9600_sharkls_3593.dat out/target/product/sp9832a_2h11/
++cp device/sprd/scx35l/sp9832a_2h11/modem/SC9600_sharkl_wphy_5mod_volte_zc.bin out/target/product/sp9832a_2h11/
++cp device/sprd/scx35l/sp9832a_2h11/modem/SHARKL_DM_DSP.bin out/target/product/sp9832a_2h11/
++
++cd vendor/sprd/proprietories-source/sprd_secure_boot_tool/
++. sig_script.sh ../../../../out/target/product/sp9832a_2h11/
++
++cd ../../../../
++
+Index: 编译方法.txt
+===================================================================
+--- 编译方法.txt	(revision 170519)
++++ 编译方法.txt	(revision 170520)
+@@ -7,6 +7,12 @@
+ kheader
+ make -j24 2>&1|tee compile_log.log 
+ 
++. secute_boot.sh
++
++make -j8 otapackage 2>&1|tee combile_log.log
++
++. secute_boot.sh
++
+ 打包方法：
+ 1，source  build/pacenvsetup.sh
+ 2，pac

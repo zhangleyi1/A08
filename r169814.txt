@@ -1,0 +1,1243 @@
+Index: vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/vowifisms/VowifiSMS.java
+===================================================================
+--- vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/vowifisms/VowifiSMS.java	(revision 169813)
++++ vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/vowifisms/VowifiSMS.java	(revision 169814)
+@@ -162,15 +162,14 @@
+      * @param response sent when operation completes
+      * @param text is SMS in string.It may be usefull for RCS in the future.
+      */
+-    public void sendImsVowifiSms(String smscPDU, String pdu, int retry, int messageRef, int serial,
++    public void sendImsVowifiSms(String SimSmsc,String smscPDU, String pdu, int retry, int messageRef, int serial,
+             String text) {
+         if (mIVowifiSMS != null) {
+             try {
+-                String defaultSMSC = "+919442099997";
+                 String numberSMSC;
+ 
+                 if (smscPDU == null)
+-                  numberSMSC = defaultSMSC;
++                  numberSMSC = SimSmsc;
+                 else
+                 {
+                   byte[] smscByte = IccUtils.hexStringToBytes(smscPDU);
+Index: vendor/sprd/platform/frameworks/base/telephony/java/com/android/ims/internal/IImsServiceListenerEx.aidl
+===================================================================
+--- vendor/sprd/platform/frameworks/base/telephony/java/com/android/ims/internal/IImsServiceListenerEx.aidl	(revision 169813)
++++ vendor/sprd/platform/frameworks/base/telephony/java/com/android/ims/internal/IImsServiceListenerEx.aidl	(revision 169814)
+@@ -74,4 +74,9 @@
+      * notify Media changed.
+      */
+     void onMediaQualityChanged(boolean isVideo, int lose, int jitter, int rtt);
++
++   /**
++    * notify SRVCC Faild.
++    */
++     void onSrvccFaild();
+ }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UGallery/src/com/ucamera/ugallery/gallery/ImageLoader.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UGallery/src/com/ucamera/ugallery/gallery/ImageLoader.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UGallery/src/com/ucamera/ugallery/gallery/ImageLoader.java	(revision 169814)
+@@ -273,7 +273,7 @@
+                         return;
+                     }
+                     try {
+-                        while(mChunkList == null || mChunkList.isEmpty()) {
++                        while(!mDone && (mChunkList == null || mChunkList.isEmpty())) {
+                             mSyncList.wait();
+                         }
+                         if(mChunkList != null) {
+@@ -340,6 +340,9 @@
+             mDone = true;
+             mQueue.notifyAll();
+         }
++        synchronized (mSyncList) {
++            mSyncList.notifyAll();
++        }
+         if (mDecodeThread != null) {
+             try {
+                 Thread t = mDecodeThread;
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModulePhoto.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModulePhoto.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModulePhoto.java	(revision 169814)
+@@ -247,10 +247,6 @@
+                         "hdr mutex with zsl");
+             }
+ 
+-            if (getBoolean(Keys.KEY_CAMERA_BEAUTY_ENTERED)) {
+-                continueSetMutex(Keys.KEY_CAMERA_BEAUTY_ENTERED, false, keyList,
+-                        "hdr mutex with beauty");
+-            }
+         }
+         // RESTORE
+         else {
+@@ -260,8 +256,6 @@
+                     "hdr restore color effect");
+             continueSetRestore(Keys.KEY_CAMERA_ZSL_DISPLAY, keyList,
+                     "hdr restore zsl");
+-            continueSetRestore(Keys.KEY_CAMERA_BEAUTY_ENTERED, keyList,
+-                    "hdr restore beauty");
+         }
+ 
+     }
+@@ -516,17 +510,6 @@
+ 
+     private void setMutexBeauty(String key, String entryValue,
+             Set<String> keyList) {
+-        if (getBoolean(Keys.KEY_CAMERA_BEAUTY_ENTERED)) {
+-
+-            // HDR MUTEX
+-            if (getBoolean(Keys.KEY_CAMERA_HDR)) {
+-                continueSetMutex(Keys.KEY_CAMERA_HDR, false, keyList,
+-                        "beauty mutex with hdr");
+-            }
+-        } else {
+-            continueSetRestore(Keys.KEY_CAMERA_HDR, keyList,
+-                    "beauty resotre hdr");
+-        }
+         // MAKEUP --- MUTEX WITH Vgesture
+ //        if (!"0".equals(entryValue)) {
+ //            if (UCamUtill.isVgestureEnnable()
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/scenerydream/DreamSceneryModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/scenerydream/DreamSceneryModule.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/scenerydream/DreamSceneryModule.java	(revision 169814)
+@@ -122,7 +122,11 @@
+             case Keys.KEY_CAMERA_TIME_STAMP:
+                 updateTimeStamp();
+                 break;
+-
++            /* SPRD: fix bug 672977 set antibanding for scenery @{ */
++            case Keys.KEY_CAMER_ANTIBANDING:
++                updateParametersAntibanding();
++                break;
++            /* @} */
+             }
+         }
+         mActivity.getCameraAppUI().initSidePanel();
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/qr/CameraManager.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/qr/CameraManager.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/qr/CameraManager.java	(revision 169814)
+@@ -63,6 +63,7 @@
+     private boolean initialized;
+     private boolean previewing;
+     private final boolean useOneShotPreviewCallback;
++    private boolean mPaused;
+     /**
+      * Preview frames are delivered here, which we pass on to the registered handler. Make sure to
+      * clear the handler so it will only receive one message.
+@@ -120,6 +121,12 @@
+             if (camera == null) {
+                 throw new IOException();
+             }
++            /* SPRD:fix bug 672207 should close camera after paused @{ */
++            if (mPaused) {
++                closeDriver();
++                return;
++            }
++            /* @} */
+             camera.setPreviewDisplay(holder);
+ 
+             if (!initialized) {
+@@ -285,4 +292,9 @@
+         return context;
+     }
+ 
++    /* SPRD:fix bug 672207 should close camera after paused @{ */
++    protected void setPaused(boolean pause) {
++        mPaused = pause;
++    }
++    /* @} */
+ }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/qr/QrCodePhotoModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/qr/QrCodePhotoModule.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/qr/QrCodePhotoModule.java	(revision 169814)
+@@ -338,6 +338,7 @@
+          * SPRD: Fix bug 585415, Close permissions, recent returns to the camera
+          * and stop running. @{
+          */
++        CameraManager.get().setPaused(false);//SPRD:fix bug672207
+         checkPermissions();
+         if (!mHasCriticalPermissions) {
+             return;
+@@ -381,6 +382,7 @@
+     @Override
+     public void pause() {
+         mCameraAvailable = false;
++        CameraManager.get().setPaused(true);//SPRD:fix bug672207
+         if (mDataModuleCurrent != null) {
+             mDataModuleCurrent.removeListener(this);
+         }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/continuephoto/ContinuePhotoModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/continuephoto/ContinuePhotoModule.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/continuephoto/ContinuePhotoModule.java	(revision 169814)
+@@ -106,6 +106,15 @@
+ 
+     @Override
+     protected void handleActionDown(int action) {
++        //SPRD:Fix Bug670446
++        if (mAppController.getCameraAppUI().isThumbnailViewPressed()
++                || !mAppController.getCameraAppUI().isShutterButtonClickable()) {
++            Log.i(TAG, "isThumbnailViewPressed()="
++                    + mAppController.getCameraAppUI().isThumbnailViewPressed() +
++                    " isShutterButtonClickable()="
++                    + mAppController.getCameraAppUI().isShutterButtonClickable());
++            return;
++        }
+         ((ContinuePhotoUI) mUI).changeOtherUIVisible(true, View.INVISIBLE);
+         super.handleActionDown(action);
+     }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/app/CameraAppUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/app/CameraAppUI.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/app/CameraAppUI.java	(revision 169814)
+@@ -4237,4 +4237,11 @@
+         mSwitchPreview.startAnimation(animation);
+     }
+     /* @} */
++    //SPRD:Fix Bug670446
++    public boolean isThumbnailViewPressed(){
++        if (mRoundedThumbnailView != null){
++            return mRoundedThumbnailView.isPressed();
++        }
++        return false;
++    }
+ }
+Index: vendor/sprd/platform/packages/apps/DreamFMRadio/AndroidManifest.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamFMRadio/AndroidManifest.xml	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamFMRadio/AndroidManifest.xml	(revision 169814)
+@@ -39,6 +39,7 @@
+     <uses-permission android:name="android.permission.WAKE_LOCK" />
+     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
++    <uses-permission android:name="android.permission.WRITE_MEDIA_STORAGE"/>
+     <application
+         android:hardwareAccelerated="true"
+         android:icon="@drawable/ic_launcher"
+Index: vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/dialogs/FmSaveDialog.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/dialogs/FmSaveDialog.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/dialogs/FmSaveDialog.java	(revision 169814)
+@@ -22,15 +22,21 @@
+ import android.app.DialogFragment;
+ import android.content.DialogInterface;
+ 
++import android.content.res.Resources;
++import android.graphics.Color;
+ import android.os.Bundle;
+ import android.text.Editable;
++import android.text.TextUtils;
+ import android.text.TextWatcher;
+ import android.util.Log;
++import android.view.Gravity;
+ import android.view.View;
+ import android.view.View.OnClickListener;
+ import android.view.WindowManager;
+ import android.widget.Button;
+ import android.widget.EditText;
++import android.widget.LinearLayout;
++import android.widget.TextView;
+ import android.widget.Toast;
+ 
+ import com.android.fmradio.FmRecorder;
+@@ -87,6 +93,10 @@
+      */
+     private long mRecordingTime;
+ 
++    //Modify for 672231,The save button can't be clicked.
++    private Resources mResource = null;
++    private Toast mToast = null;
++
+     /**
+      * @}
+      */
+@@ -131,6 +141,7 @@
+         super.onAttach(activity);
+         try {
+             mListener = (OnRecordingDialogClickListener) activity;
++            mResource = activity.getResources();
+         } catch (ClassCastException e) {
+             e.printStackTrace();
+         }
+@@ -260,17 +271,18 @@
+                 // Filename changed, so we should check the new filename is
+                 // whether exist.
+                 mIsNeedCheckFilenameExist = true;
+-                String recordName = s.toString().trim();
++
++                //Modify for 672231,The save button can't be clicked.
++                // String recordName = s.toString().trim();
+                 // Characters not allowed by file system
+-                if (recordName.length() <= 0
+-                        || recordName.startsWith(".")
+-                        || recordName.matches(".*[/\\\\:*?\"<>|\t].*")) {
+-                    mButtonSave.setEnabled(false);
+-                } else {
+-                    mButtonSave.setEnabled(true);
+-                }
+-
+-                mRecordingNameToSave = mRecordingNameEditText.getText().toString().trim();
++                // if (recordName.length() <= 0
++                //         || recordName.startsWith(".")
++                //         || recordName.matches(".*[/\\\\:*?\"<>|\t].*")) {
++                //     mButtonSave.setEnabled(false);
++                // } else {
++                //     mButtonSave.setEnabled(true);
++                // }
++                // mRecordingNameToSave = mRecordingNameEditText.getText().toString().trim();
+             }
+         });
+     }
+@@ -397,6 +409,17 @@
+         // Check the recording name whether exist
+         mRecordingNameToSave = mRecordingNameEditText.getText().toString().trim();
+ 
++        //Modify for 672231,The save button can't be clicked.
++        if (TextUtils.isEmpty(mRecordingNameToSave)) {
++            msg = mResource.getString(R.string.recording_name_notnull);
++            Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
++            return;
++        } else if (mRecordingNameToSave.matches(".*[/\\\\:*?\"<>|\t].*")) {
++            msg = mResource.getString(R.string.recording_name_illegal);
++            showToast(msg);
++            return;
++        }
++
+         /**
+          * SPRD: bug474741, recording format selection. Original Android code: File
+          * recordingFileToSave = new File(recordingFolderPath, mRecordingNameToSave +
+@@ -437,4 +460,18 @@
+         }
+     }
+ 
++    //Modify for 672231,The save button can't be clicked.
++    private void showToast(CharSequence text) {
++        if (null == mToast) {
++            mToast = Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT);
++            LinearLayout layout = (LinearLayout) mToast.getView();
++            TextView v = (TextView) mToast.getView().findViewById(android.R.id.message);
++            int px = FmUtils.convertSpToPx(getActivity(), 8);
++            v.setGravity(Gravity.CENTER);
++            v.setTextSize(px);
++        } else {
++            mToast.setText(text);
++        }
++        mToast.show();
++    }
+ }
+Index: vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmRecordListActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmRecordListActivity.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmRecordListActivity.java	(revision 169814)
+@@ -54,6 +54,7 @@
+ import android.widget.AdapterView.OnItemClickListener;
+ import android.widget.AdapterView.OnItemLongClickListener;
+ import android.widget.CheckBox;
++import android.widget.CompoundButton;
+ import android.widget.CursorAdapter;
+ import android.widget.ImageView;
+ import android.widget.LinearLayout;
+@@ -144,8 +145,12 @@
+         mListView = (ListView) findViewById(R.id.fm_record_list);
+         mBatchOperationLay = (LinearLayout) findViewById(R.id.layout_batch_operation);
+         mCheckBoxSelectAll = (CheckBox) findViewById(R.id.ck_selectAll);
+-
+         mContext = getApplicationContext();
++        /* SPRD : Add for bug654684, after select all the recording list,the corresponding
++         *  TextView does not show correctly @{ */
++        TextView textViewCheckSelect=(TextView) findViewById(R.id.tv_check_select);
++        FmUtils.setSelectAllChangedListener(mCheckBoxSelectAll, textViewCheckSelect);
++        /* @} */
+         mContentResolver = getContentResolver();
+         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+         Intent recordIntent = getIntent();
+Index: vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmRecordActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmRecordActivity.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmRecordActivity.java	(revision 169814)
+@@ -1207,71 +1207,20 @@
+                 mSettingDialogs[RECORD_FORMAT_DIALOG].setCanceledOnTouchOutside(false);
+                 return mSettingDialogs[RECORD_FORMAT_DIALOG];
+             case RECORD_FILE_PATH_DIALOG:
+-                if (!Environment.MEDIA_MOUNTED.equals(EnvironmentEx.getExternalStoragePathState())) {
++                //SPRD : Modify for 635580,FM storage can discern OTG device in guest mode.
++                if (Environment.MEDIA_MOUNTED.equals(EnvironmentEx.getInternalStoragePathState())) {
+                     mRecordeFilePathList.add(mRecordInternalStorage);
+-                } else {
+-                    mRecordeFilePathList.add(mRecordInternalStorage);
+-                    if (mUserManager.isSystemUser()) {
++                }
++                if (mUserManager.isSystemUser()) {
++                    Log.i(TAG, "is  SystemUser");
++                    if (Environment.MEDIA_MOUNTED.equals(EnvironmentEx.getExternalStoragePathState())) {
+                         mRecordeFilePathList.add(mRecordExternalStorage);
+-                        Log.i(TAG, "is  SystemUser");
+-                    } else {
+-                        Log.i(TAG, "is not SystemUser");
+                     }
++                    addOtgRecordFilePath();
++                } else {
++                    Log.i(TAG, "is not SystemUser");
+                 }
+-                /* SPRD:add feature for support OTG. @{ */
+-                /* get USB devices list */
+-                StorageManager storageManager = FmRecordActivity.this
+-                        .getSystemService(StorageManager.class);
+-                List<VolumeInfo> volumes = storageManager.getVolumes();
+-                Collections.sort(volumes, VolumeInfo.getDescriptionComparator());
+-                String savedPathName = getSavedRecordPathName();
+-                boolean hasSavedUsbDevice = false;
+-                for (VolumeInfo vol : volumes) {
+-                    File file = vol.getPath();
+-                    /* SPRD: fix bug 591500 device cann't detecte OTG storage when SD card is not inserted in device. @{ */
+-                    if (file != null && Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState(file))) {
+-                        String usbDeviceName ="";
+-                        if (vol.disk != null && vol.disk.isUsb()) {
+-                            usbDeviceName = storageManager.getBestVolumeDescription(vol);
+-                            mRecordeFilePathList.add(usbDeviceName);
+-                        }
+-                   /* SPRD:bug 591500 end */
+-                        if (usbDeviceName.equals(savedPathName)) {
+-                            hasSavedUsbDevice = true;
+-                            FmUtils.FM_RECORD_STORAGE_PATH = mRecordeFilePathList.size() - 1;
+-                            FmUtils.FM_RECORD_STORAGE_PATH_NAME = usbDeviceName;
+-                            saveRecordDefaultPath();
+-                        }
+-                    }
+-                }
+ 
+-                if (!hasSavedUsbDevice) {
+-                    if (!Environment.MEDIA_MOUNTED.equals(EnvironmentEx
+-                            .getExternalStoragePathState())) {
+-                        FmUtils.FM_RECORD_STORAGE_PATH = FmUtils.STORAGE_PATH_INTERNAL_CATEGORY;
+-                        FmUtils.FM_RECORD_STORAGE_PATH_NAME = mRecordInternalStorage;
+-                        saveRecordDefaultPath();
+-                    } else {
+-                        if (!mUserManager.isSystemUser()) {
+-                            FmUtils.FM_RECORD_STORAGE_PATH = FmUtils.STORAGE_PATH_INTERNAL_CATEGORY;
+-                            FmUtils.FM_RECORD_STORAGE_PATH_NAME = mRecordInternalStorage;
+-                            saveRecordDefaultPath();
+-                            Log.i(TAG, "is not SystemUser..");
+-                        } else {
+-                            int path = getSavedRecordPath();
+-                            /*
+-                             * last time save USB as default storage,but this time can not find that
+-                             * USB device
+-                             */
+-                            if (path == FmUtils.STORAGE_PATH_USB_CATEGORY) {
+-                                FmUtils.FM_RECORD_STORAGE_PATH = FmUtils.STORAGE_PATH_EXTERNAL_CATEGORY;
+-                                FmUtils.FM_RECORD_STORAGE_PATH_NAME = mRecordExternalStorage;
+-                                saveRecordDefaultPath();
+-                            }
+-                        }
+-                    }
+-                }
+-                /* @} */
+                 final ArrayList<String> list = new ArrayList<String>(mRecordeFilePathList);
+                 mSettingDialogs[RECORD_FILE_PATH_DIALOG] = new AlertDialog.Builder(this)
+                         .setTitle(setSpString(getResources().getString(R.string.select_file_path)))
+@@ -1305,6 +1254,63 @@
+         }
+     }
+ 
++    private void addOtgRecordFilePath() {
++        /* SPRD:add feature for support OTG. @{ */
++        /* get USB devices list */
++        StorageManager storageManager = FmRecordActivity.this
++                .getSystemService(StorageManager.class);
++        List<VolumeInfo> volumes = storageManager.getVolumes();
++        Collections.sort(volumes, VolumeInfo.getDescriptionComparator());
++        String savedPathName = getSavedRecordPathName();
++        boolean hasSavedUsbDevice = false;
++        for (VolumeInfo vol : volumes) {
++            File file = vol.getPath();
++            /* SPRD: fix bug 591500 device cann't detecte OTG storage when SD card is not inserted in device. @{ */
++            if (file != null && Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState(file))) {
++                String usbDeviceName ="";
++                if (vol.disk != null && vol.disk.isUsb()) {
++                    usbDeviceName = storageManager.getBestVolumeDescription(vol);
++                    mRecordeFilePathList.add(usbDeviceName);
++                }
++                /* SPRD:bug 591500 end */
++                if (usbDeviceName.equals(savedPathName)) {
++                    hasSavedUsbDevice = true;
++                    FmUtils.FM_RECORD_STORAGE_PATH = mRecordeFilePathList.size() - 1;
++                    FmUtils.FM_RECORD_STORAGE_PATH_NAME = usbDeviceName;
++                    saveRecordDefaultPath();
++                }
++            }
++        }
++
++        if (!hasSavedUsbDevice) {
++            if (!Environment.MEDIA_MOUNTED.equals(EnvironmentEx
++                    .getExternalStoragePathState())) {
++                FmUtils.FM_RECORD_STORAGE_PATH = FmUtils.STORAGE_PATH_INTERNAL_CATEGORY;
++                FmUtils.FM_RECORD_STORAGE_PATH_NAME = mRecordInternalStorage;
++                saveRecordDefaultPath();
++            } else {
++                if (!mUserManager.isSystemUser()) {
++                    FmUtils.FM_RECORD_STORAGE_PATH = FmUtils.STORAGE_PATH_INTERNAL_CATEGORY;
++                    FmUtils.FM_RECORD_STORAGE_PATH_NAME = mRecordInternalStorage;
++                    saveRecordDefaultPath();
++                    Log.i(TAG, "is not SystemUser..");
++                } else {
++                    int path = getSavedRecordPath();
++                    /*
++                     * last time save USB as default storage,but this time can not find that
++                     * USB device
++                     */
++                    if (path == FmUtils.STORAGE_PATH_USB_CATEGORY) {
++                        FmUtils.FM_RECORD_STORAGE_PATH = FmUtils.STORAGE_PATH_EXTERNAL_CATEGORY;
++                        FmUtils.FM_RECORD_STORAGE_PATH_NAME = mRecordExternalStorage;
++                        saveRecordDefaultPath();
++                    }
++                }
++            }
++        }
++        /* @} */
++    }
++
+     private void showListenToast(boolean recordFileExist, String recordName, String resultString) {
+         Uri uri = null;
+         if (recordName != null) {
+Index: vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmFavoriteActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmFavoriteActivity.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmFavoriteActivity.java	(revision 169814)
+@@ -188,6 +188,11 @@
+         mMyAdapter.swipResult(c);
+         query(c);
+         /* @} */
++        /* SPRD : Add for bug654684, after select all the radio station list,the corresponding
++         *  TextView does not show correctly @{ */
++        TextView textViewCheckSelect = (TextView) findViewById(R.id.tv_check_select);
++        FmUtils.setSelectAllChangedListener(mCheckBoxSelectAll, textViewCheckSelect);
++        /* @} */
+         mLvFavorites.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+             /**
+              * Click list item will finish activity and pass value to other activity
+Index: vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmService.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmService.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmService.java	(revision 169814)
+@@ -295,6 +295,7 @@
+                  * here exitFm, system will send broadcast, system will shut down, so fm does not
+                  * need call back to activity
+                  */
++                unregisterSdcardListener();
+                 mFmServiceHandler.removeCallbacksAndMessages(null);
+                 exitFm();
+                 // screen on, if FM play, open rds
+Index: vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmUtils.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmUtils.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmUtils.java	(revision 169814)
+@@ -30,6 +30,7 @@
+ import android.util.Log;
+ import android.util.TypedValue;
+ import android.view.View.MeasureSpec;
++import android.widget.CompoundButton;
+ import android.widget.LinearLayout;
+ import android.widget.TextView;
+ 
+@@ -647,4 +648,36 @@
+         return;
+     }
+     /* Bug 596494 End@} */
++
++    /* SPRD : Add for bug654684, after select all the recording or radio station list,the corresponding
++     *  TextView does not show correctly */
++    public static void setSelectAllChangedListener(CompoundButton toggle,final TextView promptTextView,
++            final int selectAllTextRes, final int removeAllTextRes) {
++        if (toggle == null || promptTextView == null) {
++            Log.e(TAG,"In function setSelectAllChangedListener,toggle = " + toggle + " ,promptTextView = "
++                    + promptTextView);
++            return;
++        }
++        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
++
++            @Override
++            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
++                if (isChecked) {
++                    promptTextView.setText(removeAllTextRes);
++                } else {
++                    promptTextView.setText(selectAllTextRes);
++                }
++            }
++        });
++    }
++
++    public static void setSelectAllChangedListener(CompoundButton toggle, final TextView promptTextView) {
++        setSelectAllChangedListener(toggle, promptTextView, R.string.select_all, R.string.cancel_select_all);
++    }
++
++    //Modify for 672231,The save button can't be clicked.
++    public static int convertSpToPx(Context context, float spValue) {
++        final float fontScale = context.getResources().getDisplayMetrics().scaledDensity;
++        return (int) (spValue * fontScale + 0.5f);
++    }
+ }
+Index: vendor/sprd/platform/packages/apps/DreamFMRadio/res/layout/favorite.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamFMRadio/res/layout/favorite.xml	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamFMRadio/res/layout/favorite.xml	(revision 169814)
+@@ -58,6 +58,7 @@
+                 android:gravity="end|center_vertical" >
+ 
+                 <TextView
++                    android:id="@+id/tv_check_select"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:alpha="0.54"
+Index: vendor/sprd/platform/packages/apps/DreamFMRadio/res/layout/fm_record_list_layout.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamFMRadio/res/layout/fm_record_list_layout.xml	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamFMRadio/res/layout/fm_record_list_layout.xml	(revision 169814)
+@@ -29,7 +29,8 @@
+             android:gravity="center_vertical"
+             android:text="@string/fm_record_list"
+             android:textColor="@color/black_color"
+-            android:textSize="@dimen/fm_primary_text_size" />
++            android:textSize="@dimen/fm_primary_text_size" 
++            android:visibility="gone"/>
+ 
+         <LinearLayout
+             android:id="@+id/ck_selectAll_container"
+@@ -38,6 +39,7 @@
+             android:gravity="end|center_vertical" >
+ 
+             <TextView
++                android:id="@+id/tv_check_select"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:alpha="0.54"
+@@ -66,4 +68,4 @@
+         android:divider="@null" >
+     </ListView>
+ 
+-</LinearLayout>
+\ No newline at end of file
++</LinearLayout>
+Index: vendor/sprd/platform/packages/apps/DreamFMRadio/res/values-zh-rCN/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamFMRadio/res/values-zh-rCN/strings.xml	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamFMRadio/res/values-zh-rCN/strings.xml	(revision 169814)
+@@ -131,4 +131,7 @@
+ 
+     <string name="station_name_exists">此电台名称已存在</string>
+     <string name="station_name_notnull">电台名称不能为空</string>
++
++    <string name="recording_name_notnull">文件名不能为空</string>
++    <string name="recording_name_illegal">文件名包含非法字符\n\\&#058;&#042;&#063;&#034;&#060;&#062;&#124;&#047;</string>
+ </resources>
+Index: vendor/sprd/platform/packages/apps/DreamFMRadio/res/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamFMRadio/res/values/strings.xml	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamFMRadio/res/values/strings.xml	(revision 169814)
+@@ -186,4 +186,7 @@
+ 
+     <string name="station_name_exists">The station name already exists</string>
+     <string name="station_name_notnull">Station name can\'t be null</string>
++
++    <string name="recording_name_notnull">File\'s name can\'t be null</string>
++    <string name="recording_name_illegal">File\'s name contains illegal characters\n\\&#058;&#042;&#063;&#034;&#060;&#062;&#124;&#047;</string>
+ </resources>
+Index: vendor/sprd/platform/packages/apps/DreamFMRadio/res/values-zh-rTW/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamFMRadio/res/values-zh-rTW/strings.xml	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamFMRadio/res/values-zh-rTW/strings.xml	(revision 169814)
+@@ -130,4 +130,7 @@
+ 
+     <string name="station_name_exists">此電台名稱已存在</string>
+     <string name="station_name_notnull">電台名稱不能爲空</string>
++
++    <string name="recording_name_notnull">文件名不能爲空</string>
++    <string name="recording_name_illegal">文件名包含非法字符\n\\&#058;&#042;&#063;&#034;&#060;&#062;&#124;&#047;</string>
+ </resources>
+Index: vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_51009.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_51009.xml	(revision 169813)
++++ vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_51009.xml	(revision 169814)
+@@ -4,6 +4,7 @@
+     <carrier_config network_preferred="true">
+         <string name="ecclist_nocard">110@1,112,113@4,118@2</string>
+         <string name="ecclist_withcard">110@1,112,113@4,118@2</string>
++        <int name="networkRATPrefer" value="1" />
+     </carrier_config>
+ 	<carrier_config>
+         <string name="vmnumber">*88</string>
+Index: vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_51028.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_51028.xml	(revision 169813)
++++ vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_51028.xml	(revision 169814)
+@@ -4,6 +4,7 @@
+     <carrier_config network_preferred="true">
+         <string name="ecclist_nocard">110@1,112,113@4,118@2</string>
+         <string name="ecclist_withcard">110@1,112,113@4,118@2</string>
++        <int name="networkRATPrefer" value="1" />
+     </carrier_config>
+ 	<carrier_config>
+         <string name="vmnumber">*88</string>
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/AndroidManifest.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/AndroidManifest.xml	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/AndroidManifest.xml	(revision 169814)
+@@ -698,7 +698,6 @@
+         </activity>
+         <!-- @} -->
+ 
+-
+         <!-- SPRD: add for mutex for float window and camera -->
+         <service android:name="com.sprd.gallery3d.app.FloatWindowAIDLService" >
+             <intent-filter>
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/app/MovieActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/app/MovieActivity.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/app/MovieActivity.java	(revision 169814)
+@@ -240,6 +240,10 @@
+     @Override
+     public void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
++        if (GalleryUtils.isAlnormalIntent(getIntent())) {
++            finish();
++            return;
++        }
+         // SPRD: add for mutex between float window and camera
+         mMovieActivity = this;
+         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+@@ -1180,7 +1184,9 @@
+         /** @} */
+         unRegisterShutReceiver();//SPRD:Bug537666 add
+         //unRegisterExternalMountedReceiver();SPRD:Bug538278 add
+-        mStorageManager.unregisterListener(mStorageListener);
++        if (mStorageManager != null) {
++            mStorageManager.unregisterListener(mStorageListener);
++        }
+         /** SPRD:Bug 474641 add reciver MMS&SMS Control @{ */
+         VideoCmccUtils.getInstance().destoryMessagingDialog();
+         /** @} */
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/app/DialogPicker.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/app/DialogPicker.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/app/DialogPicker.java	(revision 169814)
+@@ -31,7 +31,10 @@
+     @Override
+     public void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+-
++        if (GalleryUtils.isAlnormalIntent(getIntent())) {
++            finish();
++            return;
++        }
+         /* SPRD: bug 620318 ,check permissions for DialogPicker @{ */
+         checkPermissions();
+         if (!mHasCriticalPermissions) {
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/app/AlbumPicker.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/app/AlbumPicker.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/app/AlbumPicker.java	(revision 169814)
+@@ -21,6 +21,7 @@
+ 
+ import com.android.gallery3d.R;
+ import com.android.gallery3d.data.DataManager;
++import com.android.gallery3d.util.GalleryUtils;
+ 
+ public class AlbumPicker extends PickerActivity {
+ 
+@@ -27,6 +28,10 @@
+     @Override
+     public void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
++        if (GalleryUtils.isAlnormalIntent(getIntent())) {
++            finish();
++            return;
++        }
+         setTitle(R.string.select_album);
+         Intent intent = getIntent();
+         Bundle extras = intent.getExtras();
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/app/AbstractGalleryActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/app/AbstractGalleryActivity.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/app/AbstractGalleryActivity.java	(revision 169814)
+@@ -267,11 +267,15 @@
+         super.onDestroy();
+         // SPRD: Add for bug623901, use HandlerThread to avoid ANR
+         mHandlerThread.quitSafely();
+-        mGLRootView.lockRenderThread();
++        if (mGLRootView != null) {
++            mGLRootView.lockRenderThread();
++        }
+         try {
+             getStateManager().destroy();
+         } finally {
+-            mGLRootView.unlockRenderThread();
++            if (mGLRootView != null) {
++                mGLRootView.unlockRenderThread();
++            }
+         }
+         doUnbindBatchService();
+     }
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/app/TrimVideo.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/app/TrimVideo.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/app/TrimVideo.java	(revision 169814)
+@@ -95,7 +95,10 @@
+     public void onCreate(Bundle savedInstanceState) {
+         mContext = getApplicationContext();
+         super.onCreate(savedInstanceState);
+-
++        if (GalleryUtils.isAlnormalIntent(getIntent())) {
++            finish();
++            return;
++        }
+         requestWindowFeature(Window.FEATURE_ACTION_BAR);
+         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+ 
+@@ -214,9 +217,13 @@
+ 
+     @Override
+     public void onDestroy() {
+-        mVideoView.stopPlayback();
++        if (mVideoView != null) {
++            mVideoView.stopPlayback();
++        }
+         /** SPRD:Bug 474631 add headset Control @{ */
+-        mAudioBecomingNoisyReceiver.unregister();
++        if (mAudioBecomingNoisyReceiver != null) {
++            mAudioBecomingNoisyReceiver.unregister();
++        }
+         /** @} */
+         super.onDestroy();
+     }
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/app/GalleryActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/app/GalleryActivity.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/app/GalleryActivity.java	(revision 169814)
+@@ -77,6 +77,10 @@
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
++        if (GalleryUtils.isAlnormalIntent(getIntent())) {
++            finish();
++            return;
++        }
+         /* SPRD: Modify 20150609 Spreadst of bug444059, avoid ANR in monkey test cause by too many threads run @{ */
+         if (GalleryUtils.isMonkey()) {
+             if (sLastActivity != null) {
+@@ -444,7 +448,7 @@
+                 intent.putExtras(getIntent().getExtras());
+             }
+             intent.putExtra(PermissionsActivity.UI_START_BY, PermissionsActivity.START_FROM_GALLERY);
+-            if (!(sLastActivity != null && sLastActivity.isFinishing()) || !isFinishing()) {
++            if (!(sLastActivity != null && sLastActivity.isFinishing()) && !isFinishing()) {
+                 startActivity(intent);
+                 finish();
+             }
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/filtershow/FilterShowActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/filtershow/FilterShowActivity.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/filtershow/FilterShowActivity.java	(revision 169814)
+@@ -289,7 +289,10 @@
+     @Override
+     public void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+-
++        if (GalleryUtils.isAlnormalIntent(getIntent())) {
++            finish();
++            return;
++        }
+         boolean onlyUsePortrait = getResources().getBoolean(R.bool.only_use_portrait);
+         if (onlyUsePortrait) {
+             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/filtershow/crop/CropActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/filtershow/crop/CropActivity.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/filtershow/crop/CropActivity.java	(revision 169814)
+@@ -111,6 +111,10 @@
+     public void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+         Intent intent = getIntent();
++        if (GalleryUtils.isAlnormalIntent(getIntent())) {
++            finish();
++            return;
++        }
+         setResult(RESULT_CANCELED, new Intent());
+         mCropExtras = getExtrasFromIntent(intent);
+         if (mCropExtras != null && mCropExtras.getShowWhenLocked()) {
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/ingest/IngestActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/ingest/IngestActivity.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/ingest/IngestActivity.java	(revision 169814)
+@@ -16,19 +16,6 @@
+ 
+ package com.android.gallery3d.ingest;
+ 
+-import com.android.gallery3d.R;
+-import com.android.gallery3d.ingest.adapter.CheckBroker;
+-import com.android.gallery3d.ingest.adapter.MtpAdapter;
+-import com.android.gallery3d.ingest.adapter.MtpPagerAdapter;
+-import com.android.gallery3d.ingest.data.ImportTask;
+-import com.android.gallery3d.ingest.data.IngestObjectInfo;
+-import com.android.gallery3d.ingest.data.MtpBitmapFetch;
+-import com.android.gallery3d.ingest.data.MtpDeviceIndex;
+-import com.android.gallery3d.ingest.ui.DateTileView;
+-import com.android.gallery3d.ingest.ui.IngestGridView;
+-import com.android.gallery3d.ingest.ui.IngestGridView.OnClearChoicesListener;
+-import com.android.gallery3d.util.GalleryUtils;
+-
+ import android.annotation.TargetApi;
+ import android.app.Activity;
+ import android.app.ProgressDialog;
+@@ -56,6 +43,19 @@
+ import android.widget.TextView;
+ import android.widget.Toast;
+ 
++import com.android.gallery3d.R;
++import com.android.gallery3d.ingest.adapter.CheckBroker;
++import com.android.gallery3d.ingest.adapter.MtpAdapter;
++import com.android.gallery3d.ingest.adapter.MtpPagerAdapter;
++import com.android.gallery3d.ingest.data.ImportTask;
++import com.android.gallery3d.ingest.data.IngestObjectInfo;
++import com.android.gallery3d.ingest.data.MtpBitmapFetch;
++import com.android.gallery3d.ingest.data.MtpDeviceIndex;
++import com.android.gallery3d.ingest.ui.DateTileView;
++import com.android.gallery3d.ingest.ui.IngestGridView;
++import com.android.gallery3d.ingest.ui.IngestGridView.OnClearChoicesListener;
++import com.android.gallery3d.util.GalleryUtils;
++
+ import java.lang.ref.WeakReference;
+ import java.util.Collection;
+ 
+@@ -97,6 +97,10 @@
+   @Override
+   protected void onCreate(Bundle savedInstanceState) {
+     super.onCreate(savedInstanceState);
++    if (GalleryUtils.isAlnormalIntent(getIntent())) {
++        finish();
++        return;
++    }
+     doBindHelperService();
+ 
+     setContentView(R.layout.ingest_activity_item_list);
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/gadget/WidgetConfigure.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/gadget/WidgetConfigure.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/gadget/WidgetConfigure.java	(revision 169814)
+@@ -27,7 +27,6 @@
+ import android.net.Uri;
+ import android.os.Bundle;
+ import android.util.Log;
+-import android.view.View;
+ import android.view.Window;
+ import android.view.WindowManager;
+ import android.widget.RemoteViews;
+@@ -44,6 +43,7 @@
+ import com.android.gallery3d.data.Path;
+ import com.android.gallery3d.filtershow.crop.CropActivity;
+ import com.android.gallery3d.filtershow.crop.CropExtras;
++import com.android.gallery3d.util.GalleryUtils;
+ 
+ public class WidgetConfigure extends Activity {
+     @SuppressWarnings("unused")
+@@ -73,6 +73,10 @@
+     @Override
+     protected void onCreate(Bundle savedState) {
+         super.onCreate(savedState);
++        if (GalleryUtils.isAlnormalIntent(getIntent())) {
++            finish();
++            return;
++        }
+         /* SPRD: bug 617985,set widget activity statusbar black to transparent @{ */
+         Window window = getWindow();
+         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/util/GalleryUtils.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/util/GalleryUtils.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/util/GalleryUtils.java	(revision 169814)
+@@ -80,6 +80,7 @@
+ 
+     private static final String KEY_CAMERA_UPDATE = "camera-update";
+     private static final String KEY_HAS_CAMERA = "has-camera";
++    private static final String TEST_INTENT_KEY = "test_key";
+ 
+     private static float sPixelDensity = -1f;
+     private static boolean sCameraAvailableInitialized = false;
+@@ -580,5 +581,15 @@
+         }
+     }
+     /* @} */
+-
++    // SPRD:  Fix bug 659304, there is a general denial of service vulnerability  for intent with some malformed extras.
++    public static boolean isAlnormalIntent(Intent intent) {
++        boolean isAlnormalIntent = false;
++        try {
++            intent.getIntExtra(TEST_INTENT_KEY, -1);
++        } catch (RuntimeException e) {
++            Log.e(TAG, "alnormal intent is:" + intent, e);
++            isAlnormalIntent = true;
++        }
++        return isAlnormalIntent;
++    }
+ }
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/src/com/sprd/gallery3d/app/Video.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/src/com/sprd/gallery3d/app/Video.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/src/com/sprd/gallery3d/app/Video.java	(revision 169814)
+@@ -20,6 +20,7 @@
+ import android.os.Bundle;
+ 
+ import com.android.gallery3d.app.MovieActivity;
++import com.android.gallery3d.util.GalleryUtils;
+ 
+ /** Trampoline activity that launches the Gallery activity defined in IntentHelper. */
+ public class Video extends Activity {
+@@ -28,6 +29,10 @@
+     public void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+         Intent in = getIntent();
++        if (GalleryUtils.isAlnormalIntent(getIntent())) {
++            finish();
++            return;
++        }
+         Intent intent = new Intent(Video.this , MovieActivity.class);
+         // Since this is being launched from a homescreen shortcut,
+         // it's already in a new task. Start Movie activity and
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/src/com/sprd/gallery3d/app/EditBookmark.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/src/com/sprd/gallery3d/app/EditBookmark.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/src/com/sprd/gallery3d/app/EditBookmark.java	(revision 169814)
+@@ -34,6 +34,10 @@
+     @Override
+     public void onCreate(Bundle icicle) {
+         super.onCreate(icicle);
++        if (GalleryUtils.isAlnormalIntent(getIntent())) {
++            finish();
++            return;
++        }
+         requestWindowFeature(Window.FEATURE_NO_TITLE);
+         setContentView(R.layout.edit_bookmark);
+         Bundle bundle = getIntent().getExtras();
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/src/com/sprd/gallery3d/app/VideoActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/src/com/sprd/gallery3d/app/VideoActivity.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/src/com/sprd/gallery3d/app/VideoActivity.java	(revision 169814)
+@@ -53,6 +53,10 @@
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
++        if (GalleryUtils.isAlnormalIntent(getIntent())) {
++            finish();
++            return;
++        }
+         /* SPRD: Modify 20150609 Spreadst of bug444059, avoid ANR in monkey test cause by too many threads run @{ */
+         if (GalleryUtils.isMonkey()) {
+             if (sLastActivity != null) {
+@@ -261,11 +265,15 @@
+     public void onDestroy() {
+         super.onDestroy();
+         GLRoot root = getGLRoot();
+-        root.lockRenderThread();
++        if (root != null) {
++            root.lockRenderThread();
++        }
+         try {
+             getStateManager().destroy();
+         } finally {
+-            root.unlockRenderThread();
++            if (root != null) {
++                root.unlockRenderThread();
++            }
+         }
+     }
+ 
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/src/com/sprd/gallery3d/app/MovieViewProxySet.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/src/com/sprd/gallery3d/app/MovieViewProxySet.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/src/com/sprd/gallery3d/app/MovieViewProxySet.java	(revision 169814)
+@@ -96,6 +96,10 @@
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
++        if (GalleryUtils.isAlnormalIntent(getIntent())) {
++            finish();
++            return;
++        }
+         // Load the preferences from an XML resource
+         addPreferencesFromResource(R.layout.movie_view_proxy_set);
+         boolean isVodafone = getResources().getBoolean(R.bool.is_vodafone_operator);
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/src/com/sprd/gallery3d/app/NewVideoActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/src/com/sprd/gallery3d/app/NewVideoActivity.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/src/com/sprd/gallery3d/app/NewVideoActivity.java	(revision 169814)
+@@ -91,6 +91,10 @@
+     protected void onCreate(Bundle savedInstanceState) {
+         // TODO Auto-generated method stub
+         super.onCreate(savedInstanceState);
++        if (GalleryUtils.isAlnormalIntent(getIntent())) {
++            finish();
++            return;
++        }
+         /* SPRD: Fix bug619765 avoid ANR in monkey test cause by create too many NewVideoActivity @{ */
+         if (GalleryUtils.isMonkey() && mNewVideoActivity != null) {
+             Log.e(TAG, "NewVideoActivity in monkey test -> last activity is not finished");
+@@ -316,7 +320,9 @@
+ 
+     @Override
+     protected void onDestroy() {
+-        mStorageManager.unregisterListener(mStorageListener);
++        if (mStorageManager != null) {
++            mStorageManager.unregisterListener(mStorageListener);
++        }
+         super.onDestroy();
+     }
+ 
+Index: vendor/sprd/platform/packages/apps/Settings/src/com/android/settings/sim/SimFragmentDialog.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/Settings/src/com/android/settings/sim/SimFragmentDialog.java	(revision 169813)
++++ vendor/sprd/platform/packages/apps/Settings/src/com/android/settings/sim/SimFragmentDialog.java	(revision 169814)
+@@ -36,6 +36,8 @@
+ import android.widget.LinearLayout;
+ import android.widget.Spinner;
+ import android.widget.TextView;
++
++import com.android.internal.telephony.TeleUtils;
+ import com.android.settings.sim.*;
+ import com.android.internal.telephony.PhoneConstants;
+ 
+@@ -291,12 +293,13 @@
+         /* @} */
+         final TelephonyManagerEx tmex = (TelephonyManagerEx) mContext.getSystemService(
+                 "phone_ex");
+-        String simCarrierName = tmex.getSimOperatorNameForSubscription(mSubInfoRecord
+-                .getSubscriptionId());
++        /*@{ Modified for bug 649134*/
++        String carrierName = TeleUtils.updateOperator(
++                tmex.getSimOperatorNameForSubscription(mSubInfoRecord.getSubscriptionId()),"spn");
+         TextView carrierView = (TextView)mDialogLayout.findViewById(R.id.carrier);
+-        carrierView.setText(!TextUtils.isEmpty(simCarrierName) ? simCarrierName :
++        carrierView.setText(!TextUtils.isEmpty(carrierName) ? carrierName :
+                 mContext.getString(com.android.internal.R.string.unknownName));
+-
++        /* }@ */
+         mBuilder.setTitle(String.format(res.getString(R.string.sim_editor_title),
+                 (mSubInfoRecord.getSimSlotIndex() + 1)));
+ 
+Index: vendor/sprd/platform/packages/apps/Settings/res/values-zh-rCN/strings_ex.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Settings/res/values-zh-rCN/strings_ex.xml	(revision 169813)
++++ vendor/sprd/platform/packages/apps/Settings/res/values-zh-rCN/strings_ex.xml	(revision 169814)
+@@ -53,4 +53,5 @@
+     <string name="agps_config_help_text">如果设置了在所有网络中使用 AGPS，在国际漫游网络中，AGPS 将因数据连接产生国际漫游资费。</string>
+     <string name="settings_other">其他</string>
+     <!-- support AGPS settings END -->
++    <string name="sim_slot_not_enabled">未启用</string>
+ </resources>
+Index: vendor/sprd/platform/packages/apps/Settings/res/values/strings_ex.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Settings/res/values/strings_ex.xml	(revision 169813)
++++ vendor/sprd/platform/packages/apps/Settings/res/values/strings_ex.xml	(revision 169814)
+@@ -55,5 +55,6 @@
+     <string name="agps_config_help_text">Using AGPS will generate international roaming fees if you selected All networks in AGPS enable option, when your phone is international roaming.</string>
+     <string name="settings_other">Other</string>
+     <!-- support AGPS settings END -->
++    <string name="sim_slot_not_enabled">Not Enabled</string>
+ 
+ </resources>
+Index: vendor/sprd/platform/packages/apps/Settings/res/values-zh-rTW/strings_ex.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Settings/res/values-zh-rTW/strings_ex.xml	(revision 169813)
++++ vendor/sprd/platform/packages/apps/Settings/res/values-zh-rTW/strings_ex.xml	(revision 169814)
+@@ -53,4 +53,5 @@
+     <string name="settings_other">其他</string>
+     <!-- support AGPS settings END -->
+     <string name="calls_title" msgid="3544471959217176768">"通話"</string>
++    <string name="sim_slot_not_enabled">未啟用</string>
+ </resources>
+Index: vendor/sprd/operator/cmcc/configs/spec_common.mk
+===================================================================
+--- vendor/sprd/operator/cmcc/configs/spec_common.mk	(revision 169813)
++++ vendor/sprd/operator/cmcc/configs/spec_common.mk	(revision 169814)
+@@ -1,7 +1,22 @@
+ #here is some commmon things for all spec*.mk
++
++# DM statement start
++DM_SUPPORT_ONLY_FOR_USERDEBUG := true
++
++#Dont modify below for DM
++DM_SUPPORT := true
++ifeq ($(TARGET_BUILD_VARIANT),user)
++ifeq ($(strip $(DM_SUPPORT_ONLY_FOR_USERDEBUG)), true)
++DM_SUPPORT := false
++endif
++endif
++
++ifeq ($(strip $(DM_SUPPORT)), true)
+ PRODUCT_PACKAGES += \
+     OpManager \
+     Provision2
++endif
++# DM statement end
+ 
+ PRODUCT_PROPERTY_OVERRIDES += \
+ 	ro.usb.support_cta=true \
+Index: vendor/sprd/operator/cmcc/packages/apps/OpManager/AndroidManifest.xml
+===================================================================
+--- vendor/sprd/operator/cmcc/packages/apps/OpManager/AndroidManifest.xml	(revision 169813)
++++ vendor/sprd/operator/cmcc/packages/apps/OpManager/AndroidManifest.xml	(revision 169814)
+@@ -7,6 +7,19 @@
+ 
+     <uses-sdk android:targetSdkVersion="21"/>
+ 
++    <protected-broadcast android:name="com.dmyk.android.telephony.action.SIM_STATE_CHANGED"/>
++    <protected-broadcast android:name="android.dmyk.net.conn.CONNECTIVITY_CHANGE" />
++    <protected-broadcast android:name="cn.richinfo.dmyk.action.APPINFO" />
++    <protected-broadcast android:name="cn.richinfo.dmyk.action.APPINFO_RETRY" />
++    <protected-broadcast android:name="cn.richinfo.dmyk.action.REGISITER" />
++    <protected-broadcast android:name="cn.richinfo.dmyk.action.REGISITER_RETRY" />
++    <protected-broadcast android:name="cn.richinfo.dmyk.action.HEARTBEAT" />
++    <protected-broadcast android:name="cn.richinfo.dmyk.action.HEARTBEAT_RETRY" />
++    <protected-broadcast android:name="cn.richinfo.dmyk.action.APN" />
++    <protected-broadcast android:name="cn.richinfo.dmyk.action.APN_RETRY" />
++    <protected-broadcast android:name="com.dmyk.android.telephony.action.VOLTE_STATE_CHANGE" />
++    <protected-broadcast android:name="com.dmyk.android.telephony.action.APN_STATE_CHANGE" />
++
+     <uses-permission android:name="android.permission.INTERNET" />
+     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+Index: vendor/sprd/operator/telcel/plugins/TelcelCarrierPlugin/AndroidManifest.xml
+===================================================================
+--- vendor/sprd/operator/telcel/plugins/TelcelCarrierPlugin/AndroidManifest.xml	(revision 169813)
++++ vendor/sprd/operator/telcel/plugins/TelcelCarrierPlugin/AndroidManifest.xml	(revision 169814)
+@@ -17,6 +17,9 @@
+         <meta-data
+             android:name="targetPackages_TelcelVoicemail"
+             android:value="com.android.dialer" />
++        <meta-data
++            android:name="targetPackages_CallWaitingTonePlugin"
++            android:value="com.android.server.telecom" />
+ 
+         <meta-data
+             android:name="featureClassNames_StkTelcelOperator"
+Index: vendor/sprd/telephony-res/operatorname_overlay/frameworks/base/core/res/res/values/numeric_operator.xml
+===================================================================
+--- vendor/sprd/telephony-res/operatorname_overlay/frameworks/base/core/res/res/values/numeric_operator.xml	(revision 169813)
++++ vendor/sprd/telephony-res/operatorname_overlay/frameworks/base/core/res/res/values/numeric_operator.xml	(revision 169814)
+@@ -1269,11 +1269,11 @@
+         <item>356110=LIME</item>
+         <item>35670=Chippie</item>
+         <item>35850=Digicel[citation needed]</item>
+-        <item>358110=LIME</item>
++        <item>358110=FLOW</item>
+         <item>3081=Ameris</item>
+         <item>36070=Digicel</item>
+         <item>360100=Cingular Wireless</item>
+-        <item>360110=Cable &amp; Wireless</item>
++        <item>360110=FLOW</item>
+         <item>5491=Digicel</item>
+         <item>54927=SamoaTel</item>
+         <item>2921=PRIMA</item>

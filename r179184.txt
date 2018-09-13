@@ -1,0 +1,61 @@
+Index: bootable/recovery/recovery.cpp
+===================================================================
+--- bootable/recovery/recovery.cpp	(revision 179183)
++++ bootable/recovery/recovery.cpp	(revision 179184)
+@@ -134,7 +134,9 @@
+ static const char *TEMPORARY_INSTALL_FILE = "/tmp/last_install";
+ static const char *LAST_KMSG_FILE = "/cache/recovery/last_kmsg";
+ static const char *LAST_LOG_FILE = "/cache/recovery/last_log";
+-static const char *SD_LAST_LOG_FILE = "/storage/sdcard0/last_log";
++static const char *SDCARD_LOG_DIR = "/storage/sdcard0/recovery_log";
++static const char *LAST_SDCARD_KMSG_FILE = "/storage/sdcard0/recovery_log/last_kmsg";
++static const char *LAST_SDCARD_LOG_FILE = "/storage/sdcard0/recovery_log/last_log";
+ static const int KEEP_LOG_COUNT = 10;
+ // We will try to apply the update package 5 times at most in case of an I/O error.
+ static const int EIO_RETRY_COUNT = 4;
+@@ -510,6 +512,37 @@
+     copy_log_file_to_pmsg(TEMPORARY_LOG_FILE, LAST_LOG_FILE);
+     copy_log_file_to_pmsg(TEMPORARY_INSTALL_FILE, LAST_INSTALL_FILE);
+ 
++	struct stat sb;
++	if (stat("/dev/block/mmcblk1p1", &sb) == 0) {
++		if(0 == ensure_path_mounted(SDCARD_ROOT)){
++			if (stat(SDCARD_LOG_DIR, &sb) != 0) {
++				if (mkdir(SDCARD_LOG_DIR, 0700) != 0){
++					PLOG(ERROR) << "Failed to mkdir " << SDCARD_LOG_DIR;
++				} else {
++					rotate_logs(KEEP_LOG_COUNT);
++
++					// Copy logs to cache so the system can find out what happened.
++					copy_log_file(TEMPORARY_LOG_FILE, LAST_SDCARD_LOG_FILE, false);
++					save_kernel_log(LAST_SDCARD_KMSG_FILE);
++					chmod(LAST_SDCARD_KMSG_FILE, 0600);
++					chown(LAST_SDCARD_KMSG_FILE, 1000, 1000);
++					chmod(LAST_SDCARD_LOG_FILE, 0640);
++					sync();
++				}
++			} else {
++				rotate_logs(KEEP_LOG_COUNT);
++
++				// Copy logs to cache so the system can find out what happened.
++				copy_log_file(TEMPORARY_LOG_FILE, LAST_SDCARD_LOG_FILE, false);
++				save_kernel_log(LAST_SDCARD_KMSG_FILE);
++				chmod(LAST_SDCARD_KMSG_FILE, 0600);
++				chown(LAST_SDCARD_KMSG_FILE, 1000, 1000);
++				chmod(LAST_SDCARD_LOG_FILE, 0640);
++				sync();
++			}
++		}
++	}
++	
+     // We can do nothing for now if there's no /cache partition.
+     if (!has_cache) {
+         return;
+@@ -523,7 +556,6 @@
+ 
+     // Copy logs to cache so the system can find out what happened.
+     copy_log_file(TEMPORARY_LOG_FILE, LOG_FILE, true);
+-    copy_log_file(TEMPORARY_LOG_FILE, SD_LAST_LOG_FILE, false);
+     copy_log_file(TEMPORARY_LOG_FILE, LAST_LOG_FILE, false);
+     copy_log_file(TEMPORARY_INSTALL_FILE, LAST_INSTALL_FILE, false);
+     save_kernel_log(LAST_KMSG_FILE);

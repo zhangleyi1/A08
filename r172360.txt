@@ -1,0 +1,32 @@
+Index: packages/apps/Dialer/res/drawable-hdpi/ic_gsm_call.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/res/drawable-hdpi/ic_lte_call.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/res/drawable-hdpi/ic_video_call.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/res/drawable-hdpi/ic_switch_lte_gsm.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/values/dimens.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/res/values/dimens.xml	(revision 172359)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/res/values/dimens.xml	(revision 172360)
+@@ -96,9 +96,9 @@
+     <item name="letter_to_tile_ratio" type="dimen">67%</item>
+ 
+     <!-- Height of the floating action button ex -->
+-    <dimen name="floating_action_button_height_ex">60dp</dimen>
++    <dimen name="floating_action_button_height_ex">48dp</dimen>
+     <!-- Width of the floating action button ex -->
+-    <dimen name="floating_action_button_width_ex">60dp</dimen>
++    <dimen name="floating_action_button_width_ex">48dp</dimen>
+ 
+     <!-- Height of the floating action button -->
+     <dimen name="floating_action_button_height">56dp</dimen>

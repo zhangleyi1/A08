@@ -1,0 +1,260 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/widget/FilmstripView.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/widget/FilmstripView.java	(revision 182404)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/widget/FilmstripView.java	(revision 182405)
+@@ -32,6 +32,7 @@
+ import android.util.AttributeSet;
+ import android.util.DisplayMetrics;
+ import android.util.SparseArray;
++import android.view.KeyEvent;
+ import android.view.MotionEvent;
+ import android.view.View;
+ import android.view.ViewGroup;
+@@ -2806,9 +2807,13 @@
+             }
+             if (inFilmstrip()) {
+                 // Disambiguate horizontal/vertical first.
+-                if (mScrollingDirection == SCROLL_DIR_NONE) {
+-                    mScrollingDirection = (Math.abs(dx) > Math.abs(dy)) ? SCROLL_DIR_HORIZONTAL :
+-                            SCROLL_DIR_VERTICAL;
++                if (!mActivity.isShowEdit()) {
++                    if (mScrollingDirection == SCROLL_DIR_NONE) {
++                        mScrollingDirection = (Math.abs(dx) > Math.abs(dy)) ? SCROLL_DIR_HORIZONTAL :
++                                SCROLL_DIR_VERTICAL;
++                    }
++                } else {
++                    mController.stopScrolling(true);
+                 }
+                 if (mScrollingDirection == SCROLL_DIR_HORIZONTAL) {
+                     if (mCenterX == currItem.getCenterX() && currItem.getAdapterIndex() == 0 &&
+@@ -2853,10 +2858,17 @@
+             } else if (inFullScreen()) {
+                 if (mViewItems[BUFFER_CENTER] == null || (deltaX < 0 && mCenterX <=
+                         currItem.getCenterX() && currItem.getAdapterIndex() == 0)) {
+-                    return false;
++                    Log.d(TAG,"chencl_ inFullScreen " );
++                    if (mActivity.isShowEdit()) {
++                        mController.stopScrolling(true);
++                    } else {
++                        return false;
++                    }
+                 }
+                 // Multiplied by 1.2 to make it more easy to swipe.
+-                mController.scroll((int) (deltaX * 1.2));
++                if (!mActivity.isShowEdit()) {
++                    mController.scroll((int) (deltaX * 1.2));
++                }
+             }
+             invalidate();
+ 
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res/drawable-hdpi/ic_photo_editor.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res/drawable-hdpi/ic_photo_editor.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res/drawable-hdpi/ic_photo_editor.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res/drawable-hdpi/ic_photo_editor.png	(revision 182405)
+
+Property changes on: vendor/sprd/platform/packages/apps/DreamCamera2/res/drawable-hdpi/ic_photo_editor.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java	(revision 182404)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java	(revision 182405)
+@@ -369,6 +369,7 @@
+     };
+     private MemoryManager mMemoryManager;
+     private MotionManager mMotionManager;
++    protected boolean isShowEdit  = false;
+ 
+     /* SPRD: Fix bug 605818, wait for background camera closed @{ */
+     private static final int MSG_CAMERA_REQUEST_PENDING = 3;
+@@ -1809,12 +1810,17 @@
+         if (mDataAdapter.getTotalNumber() >= 1) {
+             showUndoDeletionBar();
+         } else {
+-            // If camera preview is the only view left in filmstrip,
+-            // no need to show undo bar.
+-            mPendingDeletion = true;
+-            performDeletion();
+-            if (mFilmstripVisible) {
+-                mCameraAppUI.getFilmstripContentPanel().animateHide();
++            if (!isShowEdit) {
++                // If camera preview is the only view left in filmstrip,
++                // no need to show undo bar.
++                mPendingDeletion = true;
++                performDeletion();
++                if (mFilmstripVisible) {
++                    mCameraAppUI.getFilmstripContentPanel().animateHide();
++                }
++            } else {
++             mDataAdapter.executeDeletion();
++             finish();
+             }
+         }
+     }
+@@ -2990,8 +2996,10 @@
+             }
+         }).start();
+         /* @} */
++        if (!isShowEdit) {
++            showCameraWelcome();
++        }
+ 
+-        showCameraWelcome();
+         if (CameraUtil.getLowBatteryNoFlashLevel() > 0) {
+             mBatteryReceiver = new BatteryBroadcastReciver();
+             IntentFilter batteryIntentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+@@ -3000,6 +3008,12 @@
+ 
+         // SPRD: Fix bug 572631, optimize camera launch time
+         mStorageCheckNeeded = true;
++
++        if (isShowEdit) {
++            mCameraAppUI.hardHideModeCover();
++            mCameraAppUI.showFilmstrip();
++        }
++
+         Log.i(TAG, "onResume end!");
+     }
+ 
+@@ -3073,10 +3087,12 @@
+         }
+ 
+         /* SPRD:fix bug 611957 check gps permission should not continue to do task @ */
+-        if (isSupportGps
+-                && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+-                !DataModuleManager.getInstance(this).getDataModuleCamera().getBoolean(Keys.KEY_HAS_SEEN_PERMISSIONS_DIALOGS)) {
+-            mHasCriticalPermissions = false;
++        if (!isShowEdit) {
++            if (isSupportGps
++                    && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
++                    !DataModuleManager.getInstance(this).getDataModuleCamera().getBoolean(Keys.KEY_HAS_SEEN_PERMISSIONS_DIALOGS)) {
++                mHasCriticalPermissions = false;
++            }
+         }
+         /* @ */
+ 
+@@ -5436,4 +5452,8 @@
+         mCameraAppUI.setSurfaceHolderListener(surfaceHolderListener);
+     }
+     /* @} */
++
++    public boolean isShowEdit() {
++       return isShowEdit;
++    }
+ }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/MyFilmStrim.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/MyFilmStrim.java	(revision 0)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/MyFilmStrim.java	(revision 182405)
+@@ -0,0 +1,41 @@
++package com.android.camera;
++
++import android.os.Bundle;
++
++import com.android.camera.CameraActivity;
++import com.android.camera.debug.Log;
++import com.android.camera.ui.MainActivityLayout;
++import com.android.camera.widget.FilmstripLayout;
++import com.android.camera.widget.FilmstripView;
++import com.android.camera2.R;
++
++/**
++ * Created by ccl on 17-09-20.
++ */
++
++
++public class MyFilmStrim  extends CameraActivity {
++    private static final Log.Tag TAG = new Log.Tag("MyFilmStrim");
++    MainActivityLayout appRootView;
++    FilmstripLayout mFilmstripLayout;
++     FilmstripView mFilmstripView;
++
++
++   public void onCreateTasks(Bundle state) {
++       isShowEdit = true;
++     super.onCreateTasks(state);
++
++       mFilmstripLayout = (FilmstripLayout) findViewById(R.id.filmstrip_layout);
++       mFilmstripView = (FilmstripView)findViewById(R.id.filmstrip_view);
++    }
++
++    public void onResumeTasks() {
++     super.onResumeTasks();
++
++    }
++
++    public void onBackPressed() {
++         super.finish();
++    }
++}
++
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rCN/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rCN/strings.xml	(revision 182404)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rCN/strings.xml	(revision 182405)
+@@ -75,4 +75,5 @@
+ 	<string name="edit_reset">重置</string>
+ 	<string name="ugif_save">保存</string>
+     <!-- }@ -->
++    <string name="my_filmStrim_text">图片编辑</string>
+ </resources>
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml	(revision 182404)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml	(revision 182405)
+@@ -78,4 +78,5 @@
+     <string name="camcorder_app_name">Camcorder</string>
+ 	<string name="edit_reset">Reset</string>
+ 	<string name="ugif_save">Save</string>
++    <string name="my_filmStrim_text">Photo Editor</string>
+ </resources>
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rHK/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rHK/strings.xml	(revision 182404)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rHK/strings.xml	(revision 182405)
+@@ -52,4 +52,5 @@
+ <string name="scan_result">"掃描結果"</string>
+ <string name="qrcode_result">"未讀取到任何資料，請重新掃描"</string>
+ <string name="qrcode_can_not_resolve">"無法打開連結"</string>
++<string name="my_filmStrim_text">畫廊入口</string>
+ </resources>
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rTW/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rTW/strings.xml	(revision 182404)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rTW/strings.xml	(revision 182405)
+@@ -73,4 +73,5 @@
+     <string name="warn_location_title">警示</string>
+     <string name="warn_location_message">是否允許開啟定位服務？</string>
+     <!-- }@ -->
++    <string name="my_filmStrim_text">圖片編輯</string>
+ </resources>
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/AndroidManifest.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/AndroidManifest.xml	(revision 182404)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/AndroidManifest.xml	(revision 182405)
+@@ -135,6 +135,18 @@
+         </activity-alias>
+ 
+         <activity
++            android:name="com.android.camera.MyFilmStrim"
++            android:label="@string/my_filmStrim_text"
++            android:process=":process.sub"
++            android:launchMode ="singleInstance"
++            android:icon="@drawable/ic_photo_editor" >
++            <intent-filter>
++                <action android:name="android.intent.action.MAIN" />
++                <category android:name="android.intent.category.LAUNCHER" />
++            </intent-filter>
++        </activity>
++
++        <activity
+             android:name="com.android.camera.CaptureActivity"
+             android:label="@string/app_name"
+             android:theme="@style/Theme.Camera"

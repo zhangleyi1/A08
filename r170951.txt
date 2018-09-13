@@ -1,0 +1,25 @@
+Index: 编译方法.txt
+===================================================================
+--- 编译方法.txt	(revision 170950)
++++ 编译方法.txt	(revision 170951)
+@@ -16,5 +16,4 @@
+ 打包方法：
+ 1，source  build/pacenvsetup.sh
+ 2，pac
+-   选择sp9832a_2h11
+ 3，makepac
+\ No newline at end of file
+Index: build/pacenvsetup.sh
+===================================================================
+--- build/pacenvsetup.sh	(revision 170950)
++++ build/pacenvsetup.sh	(revision 170951)
+@@ -154,7 +154,8 @@
+   while [ -z "$TARGET_PROJECT" ];do
+ 	echo  -n "which board would you like ? [$default_value]"
+ 	if [ -z  "$BUILD_PROJECT" ];then
+-		read  ANSWER
++#		read  ANSWER
++                ANSWER="sp9832a_2h11"
+ 		BUILD_PROJECT=$ANSWER
+ 	else
+  		ANSWER=$BUILD_PROJECT

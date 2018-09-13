@@ -1,0 +1,138 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/KeyCode.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/KeyCode.java	(revision 178459)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/KeyCode.java	(revision 178460)
+@@ -16,46 +16,48 @@
+ import android.widget.GridView;
+ import android.widget.SimpleAdapter;
+ 
++
+ public class KeyCode extends Activity {
+ 
+-	public static final int KEY_START = 0;
+-	public static final int KEY_MENU = 0;
+-	public static final int KEY_HOME = 1;
+-	public static final int KEY_BACK = 2;
+-	public static final int KEY_SEARCH = 3;
+-	public static final int KEY_VOLUME_DOWN = 4;
+-	public static final int KEY_VOLUME_UP = 5;
+-	public static final int KEY_MAX = 6;
++    public static final int KEY_START = 0;
++    public static final int KEY_MENU = 0;
++    public static final int KEY_HOME = 1;
++    public static final int KEY_BACK = 2;
++    public static final int KEY_SEARCH = 3;
++    public static final int KEY_VOLUME_DOWN = 4;
++    public static final int KEY_VOLUME_UP = 5;
++    public static final int KEY_MAX = 6;
+ 
+-	private GridView gridview;
+-	ArrayList<HashMap<String, Object>> lstImageItem;
+-	SimpleAdapter saImageItems;
+-	Button succesButton ;
+-	Button failButton ;
++    private GridView gridview;
++    ArrayList<HashMap<String, Object>> lstImageItem;
++    SimpleAdapter saImageItems;
++    Button succesButton ;
++    Button failButton ;
+ 
+-	private boolean keymenutested = false;
+-	private boolean keyhometested = false;
+-	private boolean keybacktested = false;
+-	private boolean keysearchtested = false;
+-	private boolean keyvldtested = false;
+-	private boolean keyvlutested = false;
+-	private boolean keypowertest=false;
+-	private int keymenupressedcount = 0;
+-	private int keybackpressedcount = 0;
++    private boolean keymenutested = false;
++    private boolean keyhometested = false;
++    private boolean keybacktested = false;
++    private boolean keysearchtested = false;
++    private boolean keyvldtested = false;
++    private boolean keyvlutested = false;
++    private boolean keypowertest=false;
++    private int keymenupressedcount = 0;
++    private int keybackpressedcount = 0;
+ 
+-	private boolean keymenuFlag = false;
+-	private boolean keyhomeFlag = false;
+-	private boolean keybackFlag = false;
+-	private boolean keyupFlag = false;
+-	private boolean keydownFlag = false;
+-	private boolean keypowerFlag=false;
+-	HashMap<String, Object> map_menu = new HashMap<String, Object>();
+-	HashMap<String, Object> map_home = new HashMap<String, Object>();
+-	HashMap<String, Object> map_back = new HashMap<String, Object>();
+-//	HashMap<String, Object> map_search = new HashMap<String, Object>();
+-	HashMap<String, Object> map_vldown = new HashMap<String, Object>();
+-	HashMap<String, Object> map_vlup = new HashMap<String, Object>();
+-	HashMap<String, Object> map_power = new HashMap<String, Object>();
++    private boolean keymenuFlag = false;
++    private boolean keyhomeFlag = false;
++    private boolean keybackFlag = false;
++    private boolean keyupFlag = false;
++    private boolean keydownFlag = false;
++    private boolean keypowerFlag=false;
++    HashMap<String, Object> map_menu = new HashMap<String, Object>();
++    HashMap<String, Object> map_home = new HashMap<String, Object>();
++    HashMap<String, Object> map_back = new HashMap<String, Object>();
++    //	HashMap<String, Object> map_search = new HashMap<String, Object>();
++    HashMap<String, Object> map_vldown = new HashMap<String, Object>();
++    HashMap<String, Object> map_vlup = new HashMap<String, Object>();
++    HashMap<String, Object> map_power = new HashMap<String, Object>();
++
+ 	@Override
+ 	protected void onCreate(Bundle savedInstanceState) {
+ 		// TODO Auto-generated method stub
+@@ -99,7 +101,7 @@
+ 				setResult(FactoryMode.TEST_OK,intent);
+ 				finish();
+ 			}
+-			
++
+ 		});
+ 		failButton.setOnClickListener(new Button.OnClickListener(){
+ 
+@@ -110,17 +112,17 @@
+ 				setResult(FactoryMode.TEST_FAIL,intent);
+ 				finish();
+ 			}
+-			
++
+ 		});
+-		// gridview.setOnItemClickListener(new ItemClickListener());
+-	}
+-	
++        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
++    }
++
+ 	@Override
+ 	public boolean onKeyDown(int keyCode, KeyEvent event) {
+ 		// int selectkey = 0;
+ 		// TODO Auto-generated method stub
+ 		boolean isVolumeKey = false;
+-		
++
+ 		switch (keyCode) {
+ 		case KeyEvent.KEYCODE_APP_SWITCH:
+ 		case KeyEvent.KEYCODE_MENU:
+@@ -130,7 +132,7 @@
+ 				lstImageItem.remove(map_menu);
+ 				keymenutested = true;
+ 				keymenuFlag = true;
+-			
++
+ 			}
+ 			break;
+ 		case KeyEvent.KEYCODE_HOME:
+@@ -139,7 +141,7 @@
+ 				lstImageItem.remove(map_home);
+ 				keyhometested = true;
+ 				keyhomeFlag = true;
+-			
++
+ 			}
+ 			break;
+ 		case KeyEvent.KEYCODE_BACK:

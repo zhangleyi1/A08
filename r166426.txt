@@ -1,0 +1,14 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 166425)
++++ packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 166426)
+@@ -1450,7 +1450,8 @@
+                 if (mState == State.WORKSPACE && !mWorkspace.isInOverviewMode() &&
+                         !mWorkspace.isSwitchingState()) {
+                     mOverviewPanel.requestFocus();
+-                    showOverviewMode(true, true /* requestButtonFocus */);
++					//fix bug for 89803
++                    showOverviewMode(true, false /* requestButtonFocus */);
+                 } else {
+                     showWorkspace(true);
+                 }

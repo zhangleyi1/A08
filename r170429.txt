@@ -1,0 +1,39 @@
+Index: packages/apps/Messaging/MmsFolderView/src/com/android/mmsfolderview/data/SortMsgListData.java
+===================================================================
+--- packages/apps/Messaging/MmsFolderView/src/com/android/mmsfolderview/data/SortMsgListData.java	(revision 170428)
++++ packages/apps/Messaging/MmsFolderView/src/com/android/mmsfolderview/data/SortMsgListData.java	(revision 170429)
+@@ -119,7 +119,7 @@
+                         Log.d(TAG, "initEnv is true");
+ //                        mContext.getContentResolver().delete(SortMsgDataCollector.CLEAR_SIM_MESSAGES_URI, null, null);
+                     }
+-                    mContext.getContentResolver().delete(SortMsgDataCollector.CLEAR_SIM_MESSAGES_URI, null, null);
++                   // mContext.getContentResolver().delete(SortMsgDataCollector.CLEAR_SIM_MESSAGES_URI, null, null);
+                 }
+                 //   Bug_app providers implements ,
+                 // Notes  Delete all simmessage , init from telephony.Provider ,  query View;
+Index: packages/providers/TelephonyProvider/src/com/android/providers/telephony/ext/simmessage/ICCMessageManager.java
+===================================================================
+--- packages/providers/TelephonyProvider/src/com/android/providers/telephony/ext/simmessage/ICCMessageManager.java	(revision 170428)
++++ packages/providers/TelephonyProvider/src/com/android/providers/telephony/ext/simmessage/ICCMessageManager.java	(revision 170429)
+@@ -196,7 +196,7 @@
+             case LOAD_ICC_TO_TEL:
+                 if (Status.GetInstance().IsFirstInit()) {
+                     Log.e(TAG, "SIM messages  Start Loader!");
+-                    delayReadIccThread.removeMessages(DoSomeworkThread.READ_MSG_FROM_ICC);
++                    //delayReadIccThread.removeMessages(DoSomeworkThread.READ_MSG_FROM_ICC);
+                     delayReadIccThread.sendEmptyMessageDelayed(DoSomeworkThread.READ_MSG_FROM_ICC, 0);
+                     return ret;
+                 }
+Index: packages/providers/TelephonyProvider/src/com/android/providers/telephony/ext/simmessage/LoadSimMessageRunnable.java
+===================================================================
+--- packages/providers/TelephonyProvider/src/com/android/providers/telephony/ext/simmessage/LoadSimMessageRunnable.java	(revision 170428)
++++ packages/providers/TelephonyProvider/src/com/android/providers/telephony/ext/simmessage/LoadSimMessageRunnable.java	(revision 170429)
+@@ -8,7 +8,7 @@
+         Log.d(TAG, "Enter LoadSimMessageRunnable ");
+         ICCMessageManager.getInstance().InitEnv();
+         //Status.GetInstance().SetSimLoadStatus(Status.STATUS_FINISH);
+-//        Status.GetInstance().SetFirstInit(false);
++        Status.GetInstance().SetFirstInit(false);
+ //        Status.GetInstance().SendMessage();
+         Log.d(TAG, "Leave   LoadSimMessageRunnable ");
+     }

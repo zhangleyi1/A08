@@ -1,0 +1,13 @@
+Index: packages/apps/Launcher3/AndroidManifest.xml
+===================================================================
+--- packages/apps/Launcher3/AndroidManifest.xml	(revision 173957)
++++ packages/apps/Launcher3/AndroidManifest.xml	(revision 173958)
+@@ -94,7 +94,7 @@
+             android:theme="@style/Theme"
+             android:windowSoftInputMode="adjustPan"
+             android:screenOrientation="nosensor"
+-            android:configChanges="keyboard|keyboardHidden|navigation"
++            android:configChanges="keyboard|keyboardHidden|navigation|screenSize|mcc|mnc"
+             android:resumeWhilePausing="true"
+             android:taskAffinity=""
+             android:enabled="true"

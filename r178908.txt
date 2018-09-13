@@ -1,0 +1,14 @@
+Index: vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_52505.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_52505.xml	(revision 0)
++++ vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_52505.xml	(revision 178908)
+@@ -0,0 +1,9 @@
++<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
++
++<carrier_config_list>
++    <carrier_config spn="Smartfren+">
++        <boolean name="mvno" value="true"/>
++        <string name="carrier_name_string">Smartfren</string>
++		<boolean name="carrier_name_override_bool" value="true"/>
++    </carrier_config>
++</carrier_config_list>

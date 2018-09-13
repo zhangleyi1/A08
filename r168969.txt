@@ -1,0 +1,53 @@
+Index: device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinTosVmmAndroid5.1.xml
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinTosVmmAndroid5.1.xml	(revision 168968)
++++ device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinTosVmmAndroid5.1.xml	(revision 168969)
+@@ -216,48 +216,6 @@
+ 						<NVFlag name="Continue" check="1"></NVFlag>
+ 					</BackupFlag>
+ 				</NVItem>
+-				<NVItem name="SIMLOCK_SIGN" backup="1">
+-          <ID>0x1A3</ID>
+-          <BackupFlag use="1">
+-            <NVFlag name="Continue" check="1"></NVFlag>
+-          </BackupFlag>
+-        </NVItem>
+-        <NVItem name="SIMLOCK_PK" backup="1">
+-          <ID>0x1A4</ID>
+-          <BackupFlag use="1">
+-             <NVFlag name="Continue" check="1"></NVFlag>
+-          </BackupFlag>
+-        </NVItem>
+-        <NVItem name="SIMLOCK_CUSTOMIZE_DATA" backup="1">
+-          <ID>0x1F0</ID>
+-          <BackupFlag use="1">
+-             <NVFlag name="Continue" check="1"></NVFlag>
+-          </BackupFlag>
+-        </NVItem>
+-        <NVItem name="SIMLOCK_USER_DATA" backup="1">
+-           <ID>0x1F1</ID>
+-           <BackupFlag use="1">
+-              <NVFlag name="Continue" check="1"></NVFlag>
+-           </BackupFlag>
+-        </NVItem>
+-        <NVItem name="SIMLOCK_NVCONTROL_KEY" backup="1">
+-           <ID>0x1F2</ID>
+-           <BackupFlag use="1">
+-             <NVFlag name="Continue" check="1"></NVFlag>
+-           </BackupFlag>
+-        </NVItem>
+-        <NVItem name="SIMLOCK_KEY" backup="1">
+-          <ID>0x1F4</ID>
+-          <BackupFlag use="1">
+-            <NVFlag name="Continue" check="1"></NVFlag>
+-          </BackupFlag>
+-        </NVItem>
+-        <NVItem name="SIMLOCK_CFG" backup="1">
+-           <ID>0x7E4</ID>
+-           <BackupFlag use="1">
+-              <NVFlag name="Continue" check="1"></NVFlag>
+-           </BackupFlag>
+-        </NVItem>
+ 			</NVBackup>
+ 			<Partitions>
+ 				<!-- size unit is MBytes -->

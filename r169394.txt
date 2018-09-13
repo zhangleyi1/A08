@@ -1,0 +1,16 @@
+Index: frameworks/av/media/mtp/MtpStorage.cpp
+===================================================================
+--- frameworks/av/media/mtp/MtpStorage.cpp	(revision 169393)
++++ frameworks/av/media/mtp/MtpStorage.cpp	(revision 169394)
+@@ -69,9 +69,9 @@
+         mMaxCapacity = (uint64_t)stat.f_blocks * (uint64_t)stat.f_bsize;
+     }
+ 	
+-	if (getType() == MTP_STORAGE_FIXED_RAM) {
++	/*if (getType() == MTP_STORAGE_FIXED_RAM) {
+ 		mMaxCapacity = (uint64_t)8 * (uint64_t)1024 * (uint64_t)1024 * (uint64_t)1024;//8589934592;
+-	 }
++	 }*/
+     return mMaxCapacity;
+ }
+ 

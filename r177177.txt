@@ -1,0 +1,26 @@
+Index: packages/apps/Messaging/res/values/strings_ex.xml
+===================================================================
+--- packages/apps/Messaging/res/values/strings_ex.xml	(revision 177176)
++++ packages/apps/Messaging/res/values/strings_ex.xml	(revision 177177)
+@@ -370,7 +370,7 @@
+     <string name="show_save_attachment_info">"save it?"</string>
+     <string name="attachment_save_success">"save success"</string>
+ 
+-    <string name="unread_message_count">"message"</string>
++    <string name="unread_message_count">"unread SMS"</string>
+     <!-- Add by SPRD for bug 585286 2016.08.08 Start -->
+     <string name="mms_convert_to_smil_title">"Convert to slides"</string>
+     <string name="mms_convert_to_smil_message">"The Mms will be converted to slides, which could drop some attachments that unsupported in slide mode, sure?"</string>
+Index: vendor/sprd/platform/packages/apps/Messaging/res/values-in/strings_ex.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Messaging/res/values-in/strings_ex.xml	(revision 177176)
++++ vendor/sprd/platform/packages/apps/Messaging/res/values-in/strings_ex.xml	(revision 177177)
+@@ -245,7 +245,7 @@
+ <string name="smil_caption_edit_hint">"(Klik untuk mengedit)"</string>
+ <string name="show_save_attachment_info">"Menyimpan?"</string>
+ <string name="attachment_save_success">"Menyimpan Berhasil"</string>
+-<string name="unread_message_count">"Tidak membaca informasi"</string>
++<string name="unread_message_count">" pesan baru"</string>
+ <string name="mms_convert_to_smil_title">"Mengkonver ke slide"</string>
+ <string name="mms_convert_to_smil_message">"MMS akan dikonversi ke slide, yang akan menurunkan beberapa lampiran yang tidak mendukung mode slide, yakin?"</string>
+ <string name="confirm_convert">"OK"</string>

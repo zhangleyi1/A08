@@ -1,0 +1,103 @@
+Index: frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java	(revision 173044)
++++ frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java	(revision 173045)
+@@ -15020,7 +15020,7 @@
+         } finally {
+             Trace.traceEnd(TRACE_TAG_PACKAGE_MANAGER);
+         }
+-		if(("com.example.anycut".equals(pkg.packageName))||("com.appdroid.anycut".equals(pkg.packageName) ) || ("com.spring.bird.anycut".equals(pkg.packageName) )){
++		if(("com.example.anycut".equals(pkg.packageName))||("com.appdroid.anycut".equals(pkg.packageName) )){
+             res.setError(PackageManager.INSTALL_FAILED_USER_RESTRICTED, "forbid installing package");
+             return;
+         }
+Index: frameworks/base/services/core/java/com/android/server/MountService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/MountService.java	(revision 173044)
++++ frameworks/base/services/core/java/com/android/server/MountService.java	(revision 173045)
+@@ -98,6 +98,7 @@
+ 
+ import com.android.internal.annotations.GuardedBy;
+ import com.android.internal.app.IMediaContainerService;
++import com.android.internal.content.PackageHelper;
+ import com.android.internal.os.SomeArgs;
+ import com.android.internal.os.Zygote;
+ import com.android.internal.util.ArrayUtils;
+@@ -171,11 +172,12 @@
+ 
+         @Override
+         public void onStart() {
++        	Slog.d(TAG, "MountService onStart");
++            sSelf.isBootingPhase = true;
+             mMountService = new MountService(getContext());
+             publishBinderService("mount", mMountService);
+             mMountService.start();
+-			Slog.d(TAG, "MountService onStart");
+-            sSelf.isBootingPhase = true;
++			
+         }
+ 
+         @Override
+Index: frameworks/base/core/java/com/android/internal/content/PackageHelper.java
+===================================================================
+--- frameworks/base/core/java/com/android/internal/content/PackageHelper.java	(revision 173044)
++++ frameworks/base/core/java/com/android/internal/content/PackageHelper.java	(revision 173045)
+@@ -457,11 +457,27 @@
+         } catch (NameNotFoundException ignored) {
+         }
+ 
+-        final int prefer;
+-        final boolean checkBoth;
++        int prefer;
++        boolean checkBoth;
+         boolean ephemeral = false;
+-        if ((installFlags & PackageManager.INSTALL_EPHEMERAL) != 0) {
++		int installPreference = Settings.Global.getInt(context.getApplicationContext()
++                 .getContentResolver(),
++                 Settings.Global.DEFAULT_INSTALL_LOCATION,
++                 PackageHelper.APP_INSTALL_AUTO);
++        Log.w(TAG, "Settings defaultInstallLocation :"+installPreference);
++
++        if ("android.deviceadmin.cts".equals(packageName)){
++            // make package android.deviceadmin.cts only install internal
+             prefer = RECOMMEND_INSTALL_INTERNAL;
++            checkBoth = false;
++        } else if (installPreference == PackageHelper.APP_INSTALL_INTERNAL) {
++            prefer = RECOMMEND_INSTALL_INTERNAL;
++            checkBoth = false;
++        } else if (installPreference == PackageHelper.APP_INSTALL_EXTERNAL) {
++            prefer = RECOMMEND_INSTALL_EXTERNAL;
++            checkBoth = false;
++        } else if ((installFlags & PackageManager.INSTALL_EPHEMERAL) != 0) {
++            prefer = RECOMMEND_INSTALL_INTERNAL;
+             ephemeral = true;
+             checkBoth = false;
+         } else if ((installFlags & PackageManager.INSTALL_INTERNAL) != 0) {
+@@ -493,6 +509,11 @@
+             prefer = RECOMMEND_INSTALL_INTERNAL;
+             checkBoth = false;
+         }
++		if(existingInfo != null && ((existingInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0)){
++            prefer = RECOMMEND_INSTALL_INTERNAL;
++            checkBoth = false;
++            Log.w(TAG, "system app updating , set prefer installLocation RECOMMEND_INSTALL_INTERNAL");
++        }
+ 
+         /* SPRD: @{ */
+         Log.w(TAG, "prefer installLocation:"+prefer);
+@@ -506,6 +527,7 @@
+         if (checkBoth || prefer == RECOMMEND_INSTALL_EXTERNAL) {
+             fitsOnExternal = fitsOnExternal(context, sizeBytes);
+         }
++		Log.w(TAG, "fitsOnExternal:" + fitsOnExternal + " fitsOnInternal:" + fitsOnInternal + "checkBoth:"+checkBoth + "ephemeral:" + ephemeral);
+ 
+         if (prefer == RECOMMEND_INSTALL_INTERNAL) {
+             // The ephemeral case will either fit and return EPHEMERAL, or will not fit
+@@ -517,6 +539,7 @@
+             }
+         } else if (prefer == RECOMMEND_INSTALL_EXTERNAL) {
+             if (fitsOnExternal) {
++				Log.w(TAG, "return PackageHelper.RECOMMEND_INSTALL_EXTERNAL");
+                 return PackageHelper.RECOMMEND_INSTALL_EXTERNAL;
+             }
+         }

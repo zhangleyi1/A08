@@ -1,0 +1,134 @@
+Index: vendor/sprd/modules/libcamera/libs/isp2.0/lib/libae_v1.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/modules/libcamera/isp2.0/ae/ae1/inc/ae_log.h
+===================================================================
+--- vendor/sprd/modules/libcamera/isp2.0/ae/ae1/inc/ae_log.h	(revision 179986)
++++ vendor/sprd/modules/libcamera/isp2.0/ae/ae1/inc/ae_log.h	(revision 179987)
+@@ -44,17 +44,22 @@
+ #include <sys/ioctl.h>
+ #include <errno.h>
+ 
+-#define AE_DEBUG_STR      "ISP_AE: %05d line, %s : "
+-#define AE_DEBUG_ARGS    __LINE__,__FUNCTION__
+-#define AE_DEBUG_STRX      "AEX: %05d line, %s : "
++enum {
++	AE_LOG_LEVEL_OVER_LOGE = 1,
++	AE_LOG_LEVEL_OVER_LOGW = 2,
++	AE_LOG_LEVEL_OVER_LOGI = 3,
++	AE_LOG_LEVEL_OVER_LOGD = 4,
++	AE_LOG_LEVEL_OVER_LOGV = 5
++};
+ 
+ /*android*/
+-#define AE_LOG(format,...) ALOGE(AE_DEBUG_STR format, AE_DEBUG_ARGS, ##__VA_ARGS__)
+-#define AE_LOGI(format,...) ALOGI(AE_DEBUG_STR format, AE_DEBUG_ARGS, ##__VA_ARGS__)
+-#define AE_LOGE(format,...) ALOGE(AE_DEBUG_STR format, AE_DEBUG_ARGS, ##__VA_ARGS__)
+-#define AE_LOGV(format,...) ALOGV(AE_DEBUG_STR format, AE_DEBUG_ARGS, ##__VA_ARGS__)
+-#define AE_LOGD(format,...) ALOGD(AE_DEBUG_STR format, AE_DEBUG_ARGS, ##__VA_ARGS__)
+-#define AE_LOGX(format,...) ALOGI(AE_DEBUG_STRX format, AE_DEBUG_ARGS, ##__VA_ARGS__)
++extern volatile uint32_t gAELogLevel;
++#define AE_LOG(fmt, args...) ALOGE("%d, %s: " fmt, __LINE__, __FUNCTION__, ##args)
++#define AE_LOGE(fmt, args...)  ALOGE("%d, %s: " fmt, __LINE__, __FUNCTION__, ##args)
++#define AE_LOGW(fmt, args...) ALOGW_IF(gAELogLevel >= AE_LOG_LEVEL_OVER_LOGW, "%d, %s: " fmt, __LINE__, __FUNCTION__, ##args)
++#define AE_LOGI(fmt, args...) ALOGI_IF(gAELogLevel >= AE_LOG_LEVEL_OVER_LOGI, "%d, %s: " fmt, __LINE__, __FUNCTION__, ##args)
++#define AE_LOGD(fmt, args...) ALOGD_IF(gAELogLevel >= AE_LOG_LEVEL_OVER_LOGD, "%d, %s: " fmt, __LINE__, __FUNCTION__, ##args)
++#define AE_LOGV(fmt, args...) ALOGV_IF(gAELogLevel >= AE_LOG_LEVEL_OVER_LOGV, "%d, %s: " fmt, __LINE__, __FUNCTION__, ##args)
+ #else
+ #define AE_LOG printf
+ #define AE_LOGI printf
+Index: vendor/sprd/modules/libcamera/isp2.0/ae/ae1/inc/ae_debug.h
+===================================================================
+--- vendor/sprd/modules/libcamera/isp2.0/ae/ae1/inc/ae_debug.h	(revision 179986)
++++ vendor/sprd/modules/libcamera/isp2.0/ae/ae1/inc/ae_debug.h	(revision 179987)
+@@ -63,6 +63,7 @@
+ *				Functions					*
+ *-------------------------------------------------------------------------------*/
+ /*new interface*/
++	uint32_t debug_print_enable(void);
+ 	debug_handle_t debug_file_init(const char file_name[], const char open_mode[]);
+ 
+ 	void debug_file_deinit(debug_handle_t handle);
+Index: vendor/sprd/modules/libcamera/isp2.0/ae/ae1/inc/ae_com.h
+===================================================================
+--- vendor/sprd/modules/libcamera/isp2.0/ae/ae1/inc/ae_com.h	(revision 179986)
++++ vendor/sprd/modules/libcamera/isp2.0/ae/ae1/inc/ae_com.h	(revision 179987)
+@@ -97,6 +97,8 @@
+ 	int8_t work_mode;/* DC DV */
+ 	int8_t scene_mode;/* pano sports night */
+ 	int16_t intelligent_module;/* pano sports night */
++	int8_t af_info;				/*AF trigger info*/
++	uint32_t iso_special_mode;/*0: normal; 1: restrict the max gain*/
+ 	int8_t reserve_case;
+ 	uint8_t * reserve_info;/* reserve for future */
+ 	int16_t reserve_len;/*len for reserve */
+Index: vendor/sprd/modules/libcamera/isp2.0/ae/ae1/ae_sprd_ctrl.c
+===================================================================
+--- vendor/sprd/modules/libcamera/isp2.0/ae/ae1/ae_sprd_ctrl.c	(revision 179986)
++++ vendor/sprd/modules/libcamera/isp2.0/ae/ae1/ae_sprd_ctrl.c	(revision 179987)
+@@ -334,6 +334,16 @@
+ /**---------------------------------------------------------------------------*
+ ** 				Local Function Prototypes				*
+ **---------------------------------------------------------------------------*/
++void ae_getLogLevel()
++{
++	char prop[PROPERTY_VALUE_MAX];
++	int val = 0;
++	property_get("persist.sys.isp.ae.log.level", prop, "0");
++	val = atoi(prop);
++	if (0 < val) {
++		gAELogLevel = (uint32_t)val;
++	}
++}
+ static int32_t isp_gain_buffer_init(struct ae_ctrl_cxt *cxt)
+ {
+ 	int32_t rtn = AE_SUCCESS;
+@@ -372,21 +382,23 @@
+ static int32_t ae_info_print(struct ae_ctrl_cxt *cxt)
+ {
+ 	int32_t rtn = AE_SUCCESS;
+-	AE_LOGD("dydl_camera_id %d\r\n", cxt->camera_id);
++	if (debug_print_enable()) {
++		AE_LOGV("cam_id %d, alg id: %\n", cxt->camera_id, cxt->cur_status.alg_id);
+ 
+-	AE_LOGD("dydl_alg_id %d   frame_id %d\r\n", cxt->cur_status.alg_id, cxt->cur_status.frame_id);
++		AE_LOGV("frame id %d\r\n", , cxt->cur_status.frame_id);
+ 
+-	AE_LOGD("dydl_stidx %d   linetime %d\r\n", cxt->cur_status.start_index, cxt->cur_status.line_time);
++		AE_LOGV("start idx %d   linetime %d\r\n", cxt->cur_status.start_index, cxt->cur_status.line_time);
+ 
+-	AE_LOGD("dydl_mxidx %d   mnidx %d\r\n", cxt->cur_status.ae_table->max_index, cxt->cur_status.ae_table->min_index);
++		AE_LOGV("mxidx %d   mnidx %d\r\n", cxt->cur_status.ae_table->max_index, cxt->cur_status.ae_table->min_index);
+ 
+-	AE_LOGD("dydl_target %d   target_zone %d\r\n", cxt->cur_status.target_lum, cxt->cur_status.target_lum_zone);
++		AE_LOGV("tar %d   tar_zone %d\r\n", cxt->cur_status.target_lum, cxt->cur_status.target_lum_zone);
+ 
+-	AE_LOGD("dydl_flicker %d   ISO %d\r\n", cxt->cur_status.settings.flicker, cxt->cur_status.settings.iso);
++		AE_LOGV("flicker %d   ISO %d\r\n", cxt->cur_status.settings.flicker, cxt->cur_status.settings.iso);
+ 
+-	AE_LOGD("dydl_wmode %d   smode %d\r\n", cxt->cur_status.settings.work_mode, cxt->cur_status.settings.scene_mode);
++		AE_LOGV("work mod %d   scene mod %d\r\n", cxt->cur_status.settings.work_mode, cxt->cur_status.settings.scene_mode);
+ 
+-	AE_LOGD("dydl_metering mode %d\r\n", cxt->cur_status.settings.metering_mode);
++		AE_LOGV("metering:%d\r\n", cxt->cur_status.settings.metering_mode);
++	}
+ 	return rtn;
+ }
+ 
+@@ -1752,6 +1764,7 @@
+ 	{
+ 		cxt->cur_status.lv_cali_lv = log(cxt->cur_param->lv_cali.lux_value * 2.17) * 1.45;//  (1 / ln2) = 1.45;
+ 	}
++	cxt->cur_status.settings.iso_special_mode = 1;
+ 	// refer to convergence
+ 	cxt->cur_status.ae_start_delay = cxt->cur_param->enter_skip_num;
+ 	cxt->cur_status.stride_config[0] = cxt->cnvg_stride_ev[ev_table->default_level * 2];
+@@ -2521,6 +2534,7 @@
+ 	struct seq_init_in init_in = { 0 };
+ 	struct ae_set_work_param work_param = { 0x00 };
+ 
++	ae_getLogLevel();/*get ae debug log level*/
+ 	AE_LOGD("V2_INIT ST\r\n");
+ 	cxt = (struct ae_ctrl_cxt *)malloc(sizeof(struct ae_ctrl_cxt));
+ 

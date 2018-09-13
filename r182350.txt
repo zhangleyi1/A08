@@ -1,0 +1,12 @@
+Index: kernel/security/rootrecorder/root_recorder.c
+===================================================================
+--- kernel/security/rootrecorder/root_recorder.c	(revision 182349)
++++ kernel/security/rootrecorder/root_recorder.c	(revision 182350)
+@@ -124,6 +124,7 @@
+     {"autotest", "init", 1, 0, 0, 0},
+     {"zygote", "zygote", 0, 0, 0, 0},
+     {"ju_ipsec_server", "init", 1, 0, 0, 0},
++    {"system_server", "main", 0, 1000, 1000, 0},
+ 	{"debuggerd", "init", 1, 0, 0, 0},
+ 	{"debuggerd", "debuggerd", 0, 0, 0, 0},
+ 	{"query_task_fd", "sh", 0, 0, 0, 0},

@@ -1,0 +1,415 @@
+Index: packages/apps/Dialer/src/com/android/dialer/DialtactsActivity.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/DialtactsActivity.java	(revision 166639)
++++ packages/apps/Dialer/src/com/android/dialer/DialtactsActivity.java	(revision 166640)
+@@ -863,6 +863,7 @@
+         mActionBarController.onDialpadUp();
+ 
+         mIsDialpadShown = true;
++        mSmartDialSearchFragment.mShowDialpad = mIsDialpadShown;
+ 
+         mListsFragment.setUserVisibleHint(false);
+ 
+@@ -929,6 +930,9 @@
+             return;
+         }
+         mIsDialpadShown = false;
++
++        mSmartDialSearchFragment.mShowDialpad = mIsDialpadShown;
++
+         mDialpadFragment.setAnimate(animate);
+         mListsFragment.setUserVisibleHint(true);
+         mListsFragment.sendScreenViewForCurrentPosition();
+
+Property changes on: packages/apps/Dialer/src/com/android/dialer/DialtactsActivity.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Dialer/src/com/android/dialer/DialtactsActivity.java:r162844
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Dialer/src/com/android/dialer/DialtactsActivity.java:r165538
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Dialer/src/com/android/dialer/DialtactsActivity.java:r163722
+Index: packages/apps/Dialer/src/com/android/dialer/list/SearchFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/list/SearchFragment.java	(revision 166639)
++++ packages/apps/Dialer/src/com/android/dialer/list/SearchFragment.java	(revision 166640)
+@@ -49,6 +49,15 @@
+ import com.android.dialer.util.IntentUtil;
+ import com.android.dialer.widget.EmptyContentView;
+ import com.android.phone.common.animation.AnimUtils;
++import android.content.Context;
++import android.telephony.PhoneNumberUtils;
++import android.net.Uri;
++import android.telephony.TelephonyManager;
++import android.telecom.PhoneAccountHandle;
++import android.telecom.TelecomManager;
++import java.util.List;
++import com.android.dialer.util.IntentUtil.CallIntentBuilder;
++import com.android.contacts.common.CallUtil;
+ 
+ import static android.Manifest.permission.READ_CALL_LOG;
+ 
+@@ -57,6 +66,9 @@
+ 
+     private OnListFragmentScrolledListener mActivityScrollListener;
+     private View.OnTouchListener mActivityOnTouchListener;
++    private boolean oneSimState = false;
++    private boolean twoSimState = false;
++    public static boolean mShowDialpad;
+ 
+     /*
+      * Stores the untouched user-entered string that is used to populate the add to contacts
+@@ -252,6 +264,48 @@
+         return adapter;
+     }
+ 
++    //Added by zhangeleyi for 2017323 begin
++    private void sendSms(Context context, String phoneNumber, String message) {
++        if(PhoneNumberUtils.isGlobalPhoneNumber(phoneNumber)){
++            Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + phoneNumber));
++            intent.putExtra("sms_body", message);
++            context.startActivity(intent);
++        }
++    }
++
++    private void getSlotState() {
++        TelephonyManager tm = (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
++        for (int i = 0; i < 2; i++) {
++            if (TelephonyManager.SIM_STATE_READY == tm.getSimState(i)) {
++                if (0 == i) {
++                    oneSimState = true;
++                } else {
++                    twoSimState = true;
++                }
++            } else {
++                if (0 == i) {
++                    oneSimState = false;
++                } else {
++                    twoSimState = false;
++                }
++            }
++        }
++    }
++
++    public void call(Context context, int id, String telNum){
++        TelecomManager telecomManager = (TelecomManager) context.getSystemService(Context.TELECOM_SERVICE);
++
++        if(telecomManager != null){
++            List<PhoneAccountHandle> phoneAccountHandleList = telecomManager.getCallCapablePhoneAccounts();
++            Intent intent = new Intent();
++            intent.setAction(Intent.ACTION_CALL);
++            intent.setData(Uri.parse("tel:" + telNum));
++            intent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, phoneAccountHandleList.get(id));
++            context.startActivity(intent);
++        }
++    }
++    //Added by zhangeleyi for 2017323 end
++
+     @Override
+     protected void onItemClick(int position, long id) {
+         final DialerPhoneNumberListAdapter adapter = (DialerPhoneNumberListAdapter) getAdapter();
+@@ -282,6 +336,60 @@
+                     super.onItemClick(position, id);
+                 } else {
+                     String callNumber = item.getString(3);
++
++                    //Added by zhangleyi for 20170323 begin
++                    if (!mShowDialpad) {
++                        getSlotState();
++
++                        ContactListItemView view = (ContactListItemView)getListView().getChildAt(position + 1);
++
++                        if (twoSimState) {
++                            view.getGsmButtonView().setOnClickListener(new View.OnClickListener() {
++                                @Override
++                                public void onClick(View v) {
++                                    if (!oneSimState && twoSimState) {
++                                        call(mContext, 0, callNumber);
++                                    } else {
++                                        call(mContext, 1, callNumber);
++                                    }
++                                }
++                            });
++                        }
++
++                        if (oneSimState || twoSimState) {
++                            view.getSmSButtonView().setOnClickListener(new View.OnClickListener() {
++                                @Override
++                                public void onClick(View v) {
++                                    sendSms(mContext, view.getNumber(), "");
++                                }
++                            });
++                        }
++
++                        if (oneSimState && CallUtil.isVideoEnabled(mContext)) {
++                            view.getVideoCallButtonView().setOnClickListener(new View.OnClickListener() {
++                                @Override
++                                public void onClick(View v) {
++                                    final Intent intent = new CallIntentBuilder(callNumber).setIsVideoCall(true).build();
++                                    if (mContext != null) {
++                                        DialerUtils.startActivityWithErrorToast(mContext, intent);
++                                    }
++                                }
++                            });
++                        }
++
++                        if (!oneSimState || twoSimState) {
++                            view.getLteButtonView().setOnClickListener(new View.OnClickListener() {
++                                @Override
++                                public void onClick(View v) {
++                                    call(mContext, 0, view.getNumber());
++                                }
++                            });
++                        }
++
++                        adapter.notifyDataSetChanged();
++                        return;
++                    }
++                    //Added by zhangleyi for 20170323 end
+                     listener = getOnPhoneNumberPickerListener();
+                     if (listener != null) {
+                         listener.onPickPhoneNumber(callNumber, false /* isVideoCall */,
+
+Property changes on: packages/apps/Dialer/src/com/android/dialer/list/SearchFragment.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Dialer/src/com/android/dialer/list/SearchFragment.java:r165538
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactListItemView.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactListItemView.java	(revision 166639)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactListItemView.java	(revision 166640)
+@@ -211,10 +211,10 @@
+     private ImageView mVideoCallIcon;
+     private ImageView mWorkProfileIcon;
+     private ImageButton mChooseMode;
+-    private Button mGsmButton;
+-    private Button mSmsButton;
+-    private Button mVideoCallButton;
+-    private Button mLteButton;
++    private ImageButton mGsmButton;
++    private ImageButton mSmsButton;
++    private ImageButton mVideoCallButton;
++    private ImageButton mLteButton;
+     private final int mChooseModeButtonWidth = 50;
+     private final int mButtonWidth = 100;
+     private final int mButtonHeight = 40;
+@@ -719,8 +719,8 @@
+                 mLabelAndDataViewMaxHeight +
+                 mSnippetTextViewHeight + mStatusTextViewHeight);
+ 
+-        if (isVisible(mGsmButton)) {
+-            height += (mGsmButtonHeight + mButtonHeight);
++        if (isVisible(mGsmButton) || isVisible(mSmsButton) || isVisible(mVideoCallButton) || isVisible(mLteButton)) {
++            height += (mButtonHeight + mButtonHeight);
+         }
+ 
+         // Make sure the height is at least as high as the photo
+@@ -742,8 +742,8 @@
+     @Override
+     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+         int height = bottom - top;
+-        if (isVisible(mGsmButton)) {
+-            height = bottom - top - mGsmButtonHeight;
++        if (isVisible(mGsmButton) || isVisible(mSmsButton) || isVisible(mVideoCallButton) || isVisible(mLteButton)) {
++            height = bottom - top - mButtonHeight;
+         }
+ 
+         final int width = right - left;
+@@ -827,6 +827,7 @@
+             }
+         }
+ 
++/*
+         if (isVisible(mChooseMode)) {
+             if (mPhotoPosition == PhotoPosition.LEFT) {
+                 final int photoTop = topBound + (bottomBound - topBound - mPhotoViewHeight) / 2;
+@@ -838,14 +839,17 @@
+             } else {
+             }
+         }
++*/
+ 
++        int margin = 0;
+         if (isVisible(mGsmButton)) {
+             if (mPhotoPosition == PhotoPosition.LEFT) {
+                 mGsmButton.layout(leftBound,
+-                        topBound + getPaddingTop() + mPhotoViewHeight,
++                        topBound + getPaddingTop() + mPhotoViewHeight + margin,
+                         leftBound + mGsmButtonWidth,
+                         //getPaddingTop() + topBound + mPhotoViewHeight + mGsmButtonHeight);
+                         topBound + getPaddingTop() + mPhotoViewHeight + mGsmButtonHeight);
++                margin += 50;
+             } else {
+             }
+         }
+@@ -852,10 +856,11 @@
+ 
+         if (isVisible(mSmsButton)) {
+             if (mPhotoPosition == PhotoPosition.LEFT) {
+-                mSmsButton.layout(leftBound + mGsmButtonWidth,
++                mSmsButton.layout(leftBound + mGsmButtonWidth + margin,
+                         topBound + getPaddingTop() + mPhotoViewHeight,
+-                        leftBound + mGsmButtonWidth + mSmsButtonWidth,
+-                        topBound + getPaddingTop() + mPhotoViewHeight + mGsmButtonHeight);
++                        leftBound + mGsmButtonWidth + mSmsButtonWidth + margin,
++                        topBound + getPaddingTop() + mPhotoViewHeight + mSmsButtonHeight);
++                margin += 50;
+             } else {
+ 
+             }
+@@ -863,10 +868,11 @@
+ 
+         if (isVisible(mVideoCallButton)) {
+             if (mPhotoPosition == PhotoPosition.LEFT) {
+-                mVideoCallButton.layout(leftBound + mGsmButtonWidth + mSmsButtonWidth,
++                mVideoCallButton.layout(leftBound + mGsmButtonWidth + mSmsButtonWidth + margin,
+                         topBound + getPaddingTop() + mPhotoViewHeight,
+-                        leftBound + mGsmButtonWidth + mSmsButtonWidth + mVideoCallButtonWidth,
+-                        topBound + getPaddingTop() + mPhotoViewHeight + mGsmButtonHeight);
++                        leftBound + mGsmButtonWidth + mSmsButtonWidth + mVideoCallButtonWidth + margin,
++                        topBound + getPaddingTop() + mPhotoViewHeight + mVideoCallButtonHeight);
++                margin += 50;
+             } else {
+ 
+             }
+@@ -874,10 +880,10 @@
+ 
+         if (isVisible(mLteButton)) {
+             if (mPhotoPosition == PhotoPosition.LEFT) {
+-                mLteButton.layout(leftBound + mGsmButtonWidth + mSmsButtonWidth + mVideoCallButtonWidth,
++                mLteButton.layout(leftBound + mGsmButtonWidth + mSmsButtonWidth + mVideoCallButtonWidth + margin,
+                         topBound + getPaddingTop() + mPhotoViewHeight,
+-                        leftBound + mGsmButtonWidth + mSmsButtonWidth + mVideoCallButtonWidth + mLteButtonWidth,
+-                        topBound + getPaddingTop() + mPhotoViewHeight + mGsmButtonHeight);
++                        leftBound + mGsmButtonWidth + mSmsButtonWidth + mVideoCallButtonWidth + mLteButtonWidth + margin,
++                        topBound + getPaddingTop() + mPhotoViewHeight + mLteButtonHeight);
+             } else {
+ 
+             }
+@@ -1573,7 +1579,7 @@
+         if (mChooseMode == null) {
+             mChooseMode = new ImageButton(getContext());
+             mChooseMode.setId(R.id.cliv_button_view);
+-            mChooseMode.setBackgroundColor(0xFFFFFFFF);
++            mChooseMode.setBackgroundColor(0x00FFFFFF);
+             mChooseMode.setImageResource(R.drawable.choose_mode);
+             addView(mChooseMode);
+         }
+@@ -1581,41 +1587,45 @@
+     }
+     //Added by zhangleyi for 20170306 end
+ 
+-    public Button getGsmButtonView() {
++    public ImageButton getGsmButtonView() {
+         if (mGsmButton == null) {
+-            mGsmButton = new Button(getContext());
++            mGsmButton = new ImageButton(getContext());
+             mGsmButton.setId(R.id.cliv_gsm_button_view);
+-            mGsmButton.setBackgroundResource(R.drawable.gsm_button);
++            mGsmButton.setBackgroundColor(0x00FFFFFF);
++            mGsmButton.setImageResource(R.drawable.gsm_button);
+             addView(mGsmButton);
+         }
+         return mGsmButton;
+     }
+ 
+-    public Button getSmSButtonView() {
++    public ImageButton getSmSButtonView() {
+         if (mSmsButton == null) {
+-            mSmsButton = new Button(getContext());
++            mSmsButton = new ImageButton(getContext());
+             mSmsButton.setId(R.id.cliv_sms_button_view);
+-            mSmsButton.setBackgroundResource(R.drawable.sms_button);
++            mSmsButton.setBackgroundColor(0x00FFFFFF);
++            mSmsButton.setImageResource(R.drawable.sms_button);
+             addView(mSmsButton);
+         }
+         return mSmsButton;
+     }
+ 
+-    public Button getVideoCallButtonView() {
++    public ImageButton getVideoCallButtonView() {
+         if (mVideoCallButton == null) {
+-            mVideoCallButton = new Button(getContext());
++            mVideoCallButton = new ImageButton(getContext());
+             mVideoCallButton.setId(R.id.cliv_video_call_button_view);
+-            mVideoCallButton.setBackgroundResource(R.drawable.video_call_button);
++            mVideoCallButton.setBackgroundColor(0x00FFFFFF);
++            mVideoCallButton.setImageResource(R.drawable.video_call_button);
+             addView(mVideoCallButton);
+         }
+         return mVideoCallButton;
+     }
+ 
+-    public Button getLteButtonView() {
++    public ImageButton getLteButtonView() {
+         if (mLteButton == null) {
+-            mLteButton = new Button(getContext());
++            mLteButton = new ImageButton(getContext());
+             mLteButton.setId(R.id.cliv_lte_button_view);
+-            mLteButton.setBackgroundResource(R.drawable.lte_button);
++            mLteButton.setBackgroundColor(0x00FFFFFF);
++            mLteButton.setImageResource(R.drawable.lte_button);
+             addView(mLteButton);
+         }
+         return mLteButton;
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/PhoneNumberListAdapter.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/PhoneNumberListAdapter.java	(revision 166639)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/PhoneNumberListAdapter.java	(revision 166640)
+@@ -697,41 +697,6 @@
+         final DirectoryPartition directory = (DirectoryPartition) getPartition(partition);
+         bindPhoneNumber(view, cursor, directory.isDisplayNumber(), position);
+ 
+-        view.getChooseButtonView().setOnClickListener(new View.OnClickListener() {
+-            @Override
+-            public void onClick(View v) {
+-                view.getGsmButtonView().setOnClickListener(new View.OnClickListener() {
+-                    @Override
+-                    public void onClick(View v) {
+-                        call(mContext, 1, view.getNumber());
+-                    }
+-                });
+-
+-                view.getSmSButtonView().setOnClickListener(new View.OnClickListener() {
+-                    @Override
+-                    public void onClick(View v) {
+-                        sendSms(mContext, view.getNumber(), "");
+-                    }
+-                });
+-
+-                view.getVideoCallButtonView().setOnClickListener(new View.OnClickListener() {
+-                    @Override
+-                    public void onClick(View v) {
+-
+-                    }
+-                });
+-
+-                view.getLteButtonView().setOnClickListener(new View.OnClickListener() {
+-                    @Override
+-                    public void onClick(View v) {
+-                        call(mContext, 0, view.getNumber());
+-                    }
+-                });
+-
+-                notifyDataSetChanged();
+-            }
+-        });
+-
+         Log.d("PerformanceTest", new SimpleDateFormat("yyyyMMdd-HH:mm:ss:SSS") .format(new Date()) + " PhoneNumberListAdapter bindView end");
+     }
+ 
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/gsm_button.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/sms_button.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/lte_button.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/video_call_button.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream

@@ -1,0 +1,62 @@
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-xhdpi/ic_qs_vowifi_off_sprd.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-xhdpi/ic_qs_vowifi_off_sprd.png
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-xhdpi/ic_qs_vowifi_off_sprd.png	(revision 0)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-xhdpi/ic_qs_vowifi_off_sprd.png	(revision 168202)
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-xhdpi/ic_qs_vowifi_off_sprd.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-xhdpi/ic_qs_vowifi_on_sprd.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-xhdpi/ic_qs_vowifi_on_sprd.png
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-xhdpi/ic_qs_vowifi_on_sprd.png	(revision 0)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-xhdpi/ic_qs_vowifi_on_sprd.png	(revision 168202)
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable-xhdpi/ic_qs_vowifi_on_sprd.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/ic_qs_vowifi_off_sprd.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/ic_qs_vowifi_on_sprd.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/ic_qs_vowifi_on_sprd.xml	(revision 168201)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/ic_qs_vowifi_on_sprd.xml	(revision 168202)
+@@ -1,22 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:viewportWidth="300"
+-    android:viewportHeight="105.554"
+-    android:width="300dp"
+-    android:height="105.554dp">
+-    <path
+-        android:pathData="M6.87172 -0.0828412l286.257 0c3.77953 0 6.87172 3.09219 6.87172 6.87172l0 91.9767002c0 3.779531 -3.09219 6.871721 -6.87172 6.871721l-286.257 0C3.09219 105.6373 0 102.54511 0 98.765579L0 6.7888788c0 -3.77953 3.09219 -6.87172 6.87172 -6.87172z"
+-        android:fillColor="#000000" />
+-    <path
+-        android:pathData="M6.87172 1.30577l286.257 0c3.01591 0 5.4831 2.46719 5.4831 5.4831l0 91.9767c0 3.01591 -2.46719 5.4831 -5.4831 5.4831l-286.257 0c-3.01591 0 -5.4831 -2.46719 -5.4831 -5.4831l0 -91.9767c0 -3.01591 2.46719 -5.4831 5.4831 -5.4831z"
+-        android:fillColor="#ffffff" />
+-    <path
+-        android:pathData="M106.404 8.26608l185.247 0 0 89.0223 -150.094 0c-19.3611 0 -35.1534 -15.7915 -35.1534 -35.1526l0 -53.8698z"
+-        android:fillColor="#000000" />
+-    <path
+-        android:pathData="M6.30413 26.7667l15.6718 0 10.9178 34.8991 10.7489 -34.8991 15.219 0 -17.997 48.4933 -16.2361 0 -18.3243 -48.4933zm52.3302 31.0269c0 -5.35187 1.80692 -9.77854 5.41995 -13.2439 3.62369 -3.47769 8.50148 -5.21654 14.6547 -5.21654 7.03412 0 12.354 2.04232 15.9424 6.11959 2.89124 3.28412 4.33563 7.33842 4.33563 12.1481 0 5.39698 -1.79298 9.82612 -5.37402 13.2784 -3.57694 3.4457 -8.53593 5.1706 -14.8704 5.1706 -5.64469 0 -10.2124 -1.42635 -13.695 -4.30118 -4.28478 -3.53757 -6.41322 -8.19718 -6.41322 -13.9551zm13.4925 -0.03445c0 3.13894 0.638123 5.44865 1.90781 6.9439 1.27051 1.49606 2.85679 2.25804 4.77608 2.25804 1.94226 0 3.531 -0.748031 4.77608 -2.22441 1.24918 -1.4813 1.87418 -3.83858 1.87418 -7.11286 0 -3.03724 -0.629921 -5.3084 -1.88566 -6.79708 -1.25 -1.48048 -2.81168 -2.22441 -4.66289 -2.22441 -1.9644 0 -3.59334 0.754593 -4.86631 2.25886 -1.27871 1.51001 -1.91929 3.81562 -1.91929 6.89797z"
+-        android:fillColor="#000000" />
+-    <path
+-        android:pathData="M112.115 26.7667l14.2257 0 5.12631 27.0858 7.47457 -27.0858 14.1921 0 7.5082 27.0858 5.12549 -27.0858 14.1585 0 -10.6808 48.4933 -14.6891 0 -8.50148 -30.5299 -8.46785 30.5299 -14.6891 0 -10.7825 -48.4933zm79.1035 0l13.4695 0 0 9.16831 -13.4695 0 0 -9.16831zm0 13.3678l13.4695 0 0 35.1255 -13.4695 0 0 -35.1255zm27.5402 -13.3678l37.0554 0 0 10.4216 -22.0054 0 0 8.46785 18.7877 0 0 9.78839 -18.7877 0 0 19.8155 -15.05 0 0 -48.4933zm49.2397 0l13.4695 0 0 9.16831 -13.4695 0 0 -9.16831zm0 13.3678l13.4695 0 0 35.1255 -13.4695 0 0 -35.1255z"
+-        android:fillColor="#ffffff" />
+-</vector>
+\ No newline at end of file

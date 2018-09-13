@@ -1,0 +1,30 @@
+Index: vendor/sprd/platform/packages/apps/FotaUpdate/fotaupdateinfo.sh
+===================================================================
+--- vendor/sprd/platform/packages/apps/FotaUpdate/fotaupdateinfo.sh	(revision 171631)
++++ vendor/sprd/platform/packages/apps/FotaUpdate/fotaupdateinfo.sh	(revision 171632)
+@@ -15,9 +15,9 @@
+ #version number, Settings->About phone->Build number
+ #echo "ro.fota.version=`date +%Y%m%d-%H%M`"
+ #echo "ro.fota.version=$(grep "ro.product.model=" "$1"|awk -F "=" '{print $NF}' )`date +%Y%m%d-%H%M`"
+-FotaVersiondis=$(grep "ro.build.display.id=" "$1"|awk -F "=" '{print $NF}' )
+-echo "ro.fota.version.display=$FotaVersiondis" | sed 's/\$//' | sed 's/\///' | sed 's/\\//' | sed 's/\&//'
+-FotaVersion=$(grep "ro.build.display.intid=" "$1"|awk -F "=" '{print $NF}' )
++#FotaVersiondis=$(grep "ro.build.display.id=" "$1"|awk -F "=" '{print $NF}' )
++#echo "ro.fota.version.display=$FotaVersiondis" | sed 's/\$//' | sed 's/\///' | sed 's/\\//' | sed 's/\&//'
++FotaVersion=$(grep "ro.build.display.id=" "$1"|awk -F "=" '{print $NF}' )
+ echo "ro.fota.version=$FotaVersion" | sed 's/\$//' | sed 's/\///' | sed 's/\\//' | sed 's/\&//'
+ echo "# end fota properties"
+ #********Do not modify this file. If you want modify this file, pls contact our FAE*******
+Index: build/tools/releasetools/ota_from_target_files.py
+===================================================================
+--- build/tools/releasetools/ota_from_target_files.py	(revision 171631)
++++ build/tools/releasetools/ota_from_target_files.py	(revision 171632)
+@@ -149,7 +149,7 @@
+ OPTIONS.two_step = False
+ OPTIONS.no_signing = False
+ #adups fota
+-OPTIONS.block_based = False
++OPTIONS.block_based = True
+ OPTIONS.updater_binary = None
+ OPTIONS.oem_source = None
+ OPTIONS.oem_no_mount = False

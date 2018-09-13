@@ -1,0 +1,536 @@
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactListItemView.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactListItemView.java	(revision 166441)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactListItemView.java	(revision 166442)
+@@ -75,6 +75,10 @@
+ import com.android.contacts.common.list.ContactListAdapter.ContactQuery;
+ import com.android.ims.ImsManager;
+ import com.android.contacts.common.CallUtil;
++import android.widget.Button;
++import android.widget.ImageButton;
++
++
+ /**
+  * A custom view for an item in the contact list.
+  * The view contains the contact's photo, a set of text views (for name, status, etc...) and
+@@ -206,7 +210,15 @@
+     private CheckBox mCheckBox;
+     private ImageView mVideoCallIcon;
+     private ImageView mWorkProfileIcon;
+-
++    private ImageButton mChooseMode;
++    private Button mGsmButton;
++    private Button mSmsButton;
++    private Button mVideoCallButton;
++    private Button mLteButton;
++    private final int mChooseModeButtonWidth = 50;
++    private final int mButtonWidth = 100;
++    private final int mButtonHeight = 40;
++    private final int mButtonPaddingRight = 50;
+     private ColorStateList mSecondaryTextColor;
+ 
+     private int mDefaultPhotoViewSize = 0;
+@@ -246,6 +258,16 @@
+     private int mStatusTextViewHeight;
+     private int mCheckBoxHeight;
+     private int mCheckBoxWidth;
++    private int mChooseModeHeight;
++    private int mChooseModeWidth;
++    private int mGsmButtonHeight;
++    private int mGsmButtonWidth;
++    private int mSmsButtonHeight;
++    private int mSmsButtonWidth;
++    private int mVideoCallButtonHeight;
++    private int mVideoCallButtonWidth;
++    private int mLteButtonHeight;
++    private int mLteButtonWidth;
+ 
+     // Holds Math.max(mLabelTextViewHeight, mDataViewHeight), assuming Label and Data share the
+     // same row.
+@@ -446,6 +468,16 @@
+         mStatusTextViewHeight = 0;
+         mCheckBoxWidth = 0;
+         mCheckBoxHeight = 0;
++        mChooseModeHeight = 0;
++        mChooseModeWidth = 0;
++        mGsmButtonWidth = 0;
++        mGsmButtonHeight = 0;
++        mSmsButtonHeight = 0;
++        mSmsButtonWidth = 0;
++        mVideoCallButtonHeight = 0;
++        mVideoCallButtonWidth = 0;
++        mLteButtonHeight = 0;
++        mLteButtonWidth = 0;
+ 
+         ensurePhotoViewSize();
+ 
+@@ -505,11 +537,48 @@
+              * @{
+              */
+             mCheckBoxHeight = mCheckBox.getMeasuredHeight();
+-            /**
+-             * @}
+-             */
+         }
+ 
++        if (isVisible(mChooseMode)) {
++            mChooseMode.measure(
++                    MeasureSpec.makeMeasureSpec(mChooseModeButtonWidth, MeasureSpec.AT_MOST),
++                    MeasureSpec.makeMeasureSpec(mButtonHeight, MeasureSpec.AT_MOST));
++            mChooseModeHeight = mChooseMode.getMeasuredHeight();
++            mChooseModeWidth = mChooseMode.getMeasuredWidth();
++        }
++
++        if (isVisible(mGsmButton)) {
++            mGsmButton.measure(
++                    MeasureSpec.makeMeasureSpec(mButtonWidth, MeasureSpec.AT_MOST),
++                    MeasureSpec.makeMeasureSpec(mButtonHeight, MeasureSpec.AT_MOST));
++            mGsmButtonHeight = mGsmButton.getMeasuredHeight();
++            mGsmButtonWidth = mGsmButton.getMeasuredWidth();
++        }
++
++        if (isVisible(mSmsButton)) {
++            mSmsButton.measure(
++                    MeasureSpec.makeMeasureSpec(mButtonWidth, MeasureSpec.AT_MOST),
++                    MeasureSpec.makeMeasureSpec(mButtonHeight, MeasureSpec.AT_MOST));
++            mSmsButtonHeight = mSmsButton.getMeasuredHeight();
++            mSmsButtonWidth = mSmsButton.getMeasuredWidth();
++        }
++
++        if (isVisible(mVideoCallButton)) {
++            mVideoCallButton.measure(
++                    MeasureSpec.makeMeasureSpec(mButtonWidth, MeasureSpec.AT_MOST),
++                    MeasureSpec.makeMeasureSpec(mButtonHeight, MeasureSpec.AT_MOST));
++            mVideoCallButtonHeight = mVideoCallButton.getMeasuredHeight();
++            mVideoCallButtonWidth = mVideoCallButton.getMeasuredWidth();
++        }
++
++        if (isVisible(mLteButton)) {
++            mLteButton.measure(
++                    MeasureSpec.makeMeasureSpec(mButtonWidth, MeasureSpec.AT_MOST),
++                    MeasureSpec.makeMeasureSpec(mButtonHeight, MeasureSpec.AT_MOST));
++            mLteButtonHeight = mLteButton.getMeasuredHeight();
++            mLteButtonWidth = mLteButton.getMeasuredWidth();
++        }
++
+         if (isVisible(mNameTextView)) {
+             // Calculate width for name text - this parallels similar measurement in onLayout.
+             int nameTextWidth = effectiveWidth;
+@@ -531,6 +600,11 @@
+             if (isVisible(mCheckBox)) {
+                 nameTextWidth -= mCheckBox.getMeasuredWidth();
+             }
++
++            if (isVisible(mChooseMode)) {
++                nameTextWidth -= mChooseMode.getMeasuredWidth() - mChooseModeWidth;
++            }
++
+             if (isVisible(mAccountView)) {
+                 nameTextWidth -= mAccountView.getMeasuredWidth();
+             }
+@@ -544,6 +618,10 @@
+             mNameTextViewHeight = mNameTextView.getMeasuredHeight();
+         }
+ 
++        if (isVisible(mChooseMode)) {
++                effectiveWidth -= (mChooseMode.getMeasuredWidth() + mChooseModeWidth) ;
++        }
++
+         if (isVisible(mPhoneticNameTextView)) {
+             mPhoneticNameTextView.measure(
+                     MeasureSpec.makeMeasureSpec(effectiveWidth, MeasureSpec.EXACTLY),
+@@ -641,6 +719,10 @@
+                 mLabelAndDataViewMaxHeight +
+                 mSnippetTextViewHeight + mStatusTextViewHeight);
+ 
++        if (isVisible(mGsmButton)) {
++            height += (mGsmButtonHeight + mButtonHeight);
++        }
++
+         // Make sure the height is at least as high as the photo
+         height = Math.max(height, mPhotoViewHeight + getPaddingBottom() + getPaddingTop());
+ 
+@@ -659,7 +741,11 @@
+ 
+     @Override
+     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+-        final int height = bottom - top;
++        int height = bottom - top;
++        if (isVisible(mGsmButton)) {
++            height = bottom - top - mGsmButtonHeight;
++        }
++
+         final int width = right - left;
+ 
+         // Determine the vertical bounds by laying out the header first.
+@@ -740,6 +826,63 @@
+                 leftBound += (mCheckBox.getMeasuredWidth() + mBodyIndent);
+             }
+         }
++
++        if (isVisible(mChooseMode)) {
++            if (mPhotoPosition == PhotoPosition.LEFT) {
++                final int photoTop = topBound + (bottomBound - topBound - mPhotoViewHeight) / 2;
++                mChooseMode.layout(rightBound - mChooseMode.getMeasuredWidth() - mBodyIndent - mChooseModeWidth,
++                        photoTop,
++                        rightBound - mBodyIndent - mChooseModeWidth,
++                        topBound + (bottomBound - topBound - mChooseModeHeight) / 2
++                                + mChooseMode.getMeasuredHeight());
++            } else {
++            }
++        }
++
++        if (isVisible(mGsmButton)) {
++            if (mPhotoPosition == PhotoPosition.LEFT) {
++                mGsmButton.layout(leftBound,
++                        topBound + getPaddingTop() + mPhotoViewHeight,
++                        leftBound + mGsmButtonWidth,
++                        //getPaddingTop() + topBound + mPhotoViewHeight + mGsmButtonHeight);
++                        topBound + getPaddingTop() + mPhotoViewHeight + mGsmButtonHeight);
++            } else {
++            }
++        }
++
++        if (isVisible(mSmsButton)) {
++            if (mPhotoPosition == PhotoPosition.LEFT) {
++                mSmsButton.layout(leftBound + mGsmButtonWidth,
++                        topBound + getPaddingTop() + mPhotoViewHeight,
++                        leftBound + mGsmButtonWidth + mSmsButtonWidth,
++                        topBound + getPaddingTop() + mPhotoViewHeight + mGsmButtonHeight);
++            } else {
++
++            }
++        }
++
++        if (isVisible(mVideoCallButton)) {
++            if (mPhotoPosition == PhotoPosition.LEFT) {
++                mVideoCallButton.layout(leftBound + mGsmButtonWidth + mSmsButtonWidth,
++                        topBound + getPaddingTop() + mPhotoViewHeight,
++                        leftBound + mGsmButtonWidth + mSmsButtonWidth + mVideoCallButtonWidth,
++                        topBound + getPaddingTop() + mPhotoViewHeight + mGsmButtonHeight);
++            } else {
++
++            }
++        }
++
++        if (isVisible(mLteButton)) {
++            if (mPhotoPosition == PhotoPosition.LEFT) {
++                mLteButton.layout(leftBound + mGsmButtonWidth + mSmsButtonWidth + mVideoCallButtonWidth,
++                        topBound + getPaddingTop() + mPhotoViewHeight,
++                        leftBound + mGsmButtonWidth + mSmsButtonWidth + mVideoCallButtonWidth + mLteButtonWidth,
++                        topBound + getPaddingTop() + mPhotoViewHeight + mGsmButtonHeight);
++            } else {
++
++            }
++        }
++
+         /**
+         * @}
+         */
+@@ -752,9 +895,9 @@
+                 final int photoTop = topBound + (bottomBound - topBound - mPhotoViewHeight) / 2;
+                 photoView.layout(
+                         leftBound,
+-                        photoTop,
++                        topBound + getPaddingTop(),
+                         leftBound + mPhotoViewWidth,
+-                        photoTop + mPhotoViewHeight);
++                        topBound + mPhotoViewHeight + getPaddingTop());
+                 leftBound += mPhotoViewWidth + mGapBetweenImageAndText;
+             } else if (mKeepHorizontalPaddingForPhotoView) {
+                 // Draw nothing but keep the padding.
+@@ -1227,6 +1370,14 @@
+         return mNameTextView;
+     }
+ 
++    public String getNumber() {
++        if (mDataView != null) {
++            return mDataView.getText().toString();
++        } else {
++            return null;
++        }
++    }
++
+     /**
+      * Adds or updates a text view for the phonetic name.
+      */
+@@ -1417,6 +1568,59 @@
+         return mDataView;
+     }
+ 
++    //Added by zhangleyi for 20170306 begin
++    public ImageButton getChooseButtonView() {
++        if (mChooseMode == null) {
++            mChooseMode = new ImageButton(getContext());
++            mChooseMode.setId(R.id.cliv_button_view);
++            mChooseMode.setBackgroundColor(0xFFFFFFFF);
++            mChooseMode.setImageResource(R.drawable.choose_mode);
++            addView(mChooseMode);
++        }
++        return mChooseMode;
++    }
++    //Added by zhangleyi for 20170306 end
++
++    public Button getGsmButtonView() {
++        if (mGsmButton == null) {
++            mGsmButton = new Button(getContext());
++            mGsmButton.setId(R.id.cliv_gsm_button_view);
++            mGsmButton.setBackgroundResource(R.drawable.gsm_button);
++            addView(mGsmButton);
++        }
++        return mGsmButton;
++    }
++
++    public Button getSmSButtonView() {
++        if (mSmsButton == null) {
++            mSmsButton = new Button(getContext());
++            mSmsButton.setId(R.id.cliv_sms_button_view);
++            mSmsButton.setBackgroundResource(R.drawable.sms_button);
++            addView(mSmsButton);
++        }
++        return mSmsButton;
++    }
++
++    public Button getVideoCallButtonView() {
++        if (mVideoCallButton == null) {
++            mVideoCallButton = new Button(getContext());
++            mVideoCallButton.setId(R.id.cliv_video_call_button_view);
++            mVideoCallButton.setBackgroundResource(R.drawable.video_call_button);
++            addView(mVideoCallButton);
++        }
++        return mVideoCallButton;
++    }
++
++    public Button getLteButtonView() {
++        if (mLteButton == null) {
++            mLteButton = new Button(getContext());
++            mLteButton.setId(R.id.cliv_lte_button_view);
++            mLteButton.setBackgroundResource(R.drawable.lte_button);
++            addView(mLteButton);
++        }
++        return mLteButton;
++    }
++
+     /**
+      * Adds or updates a text view for the search snippet.
+      */
+@@ -1584,6 +1788,13 @@
+         }
+     }
+ 
++    public void hideChooseModeButton() {
++        if (mChooseMode != null) {
++            removeView(mChooseMode);
++            mChooseMode = null;
++        }
++    }
++
+     public void hideDisplayName() {
+         if (mNameTextView != null) {
+             removeView(mNameTextView);
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/PhoneNumberListAdapter.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/PhoneNumberListAdapter.java	(revision 166441)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/PhoneNumberListAdapter.java	(revision 166442)
+@@ -69,6 +69,16 @@
+ import com.android.contacts.common.model.AccountTypeManager;
+ import android.widget.CompoundButton;
+ import android.widget.CompoundButton.OnCheckedChangeListener;
++import android.telecom.PhoneAccountHandle;
++import android.telecom.TelecomManager;
++import android.content.Context;
++import android.content.Intent;
++import java.util.List;
++import android.support.v4.app.ActivityCompat;
++import android.content.pm.PackageManager;
++import android.Manifest;
++
++
+ /**
+  * @}
+  */
+@@ -463,11 +473,11 @@
+             case ContactListFilter.FILTER_TYPE_ACCOUNTS:
+                 ArrayList<AccountWithDataSet> accounts = filter.accounts;
+                 if (accounts != null) {
+-    
++
+                     selection.append(RawContacts.ACCOUNT_TYPE + " in (");
+                     for (int i = 0; i < accounts.size(); i++) {
+                         AccountWithDataSet account = accounts.get(i);
+-    
++
+                         if (i == accounts.size() - 1) {
+                             selection.append("'" + account.type + "'");
+                         } else {
+@@ -474,7 +484,7 @@
+                             selection.append("'" + account.type + "'" + ",");
+                         }
+                     }
+-    
++
+                     selection.append(" ) ");
+                 }
+                 break;
+@@ -686,9 +696,68 @@
+         */
+         final DirectoryPartition directory = (DirectoryPartition) getPartition(partition);
+         bindPhoneNumber(view, cursor, directory.isDisplayNumber(), position);
++
++        view.getChooseButtonView().setOnClickListener(new View.OnClickListener() {
++            @Override
++            public void onClick(View v) {
++                view.getGsmButtonView().setOnClickListener(new View.OnClickListener() {
++                    @Override
++                    public void onClick(View v) {
++                        call(mContext, 1, view.getNumber());
++                    }
++                });
++
++                view.getSmSButtonView().setOnClickListener(new View.OnClickListener() {
++                    @Override
++                    public void onClick(View v) {
++                        sendSms(mContext, view.getNumber(), "");
++                    }
++                });
++
++                view.getVideoCallButtonView().setOnClickListener(new View.OnClickListener() {
++                    @Override
++                    public void onClick(View v) {
++
++                    }
++                });
++
++                view.getLteButtonView().setOnClickListener(new View.OnClickListener() {
++                    @Override
++                    public void onClick(View v) {
++                        call(mContext, 0, view.getNumber());
++                    }
++                });
++
++                notifyDataSetChanged();
++            }
++        });
++
+         Log.d("PerformanceTest", new SimpleDateFormat("yyyyMMdd-HH:mm:ss:SSS") .format(new Date()) + " PhoneNumberListAdapter bindView end");
+     }
+ 
++    public void call(Context context, int id, String telNum) {
++        if (telNum == null) return;
++        TelecomManager telecomManager = (TelecomManager) context.getSystemService(Context.TELECOM_SERVICE);
++
++        if (telecomManager != null) {
++            List<PhoneAccountHandle> phoneAccountHandleList = telecomManager.getCallCapablePhoneAccounts();
++            if (id > (phoneAccountHandleList.size()-1)) return;
++            Intent intent = new Intent();
++            intent.setAction(Intent.ACTION_CALL);
++            intent.setData(Uri.parse("tel:" + telNum));
++            intent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, phoneAccountHandleList.get(id));
++            context.startActivity(intent);
++        }
++    }
++
++    private void sendSms(Context context, String phoneNumber, String message) {
++        if(PhoneNumberUtils.isGlobalPhoneNumber(phoneNumber)){
++            Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + phoneNumber));
++            intent.putExtra("sms_body", message);
++            context.startActivity(intent);
++        }
++    }
++
+     protected void bindPhoneNumber(ContactListItemView view, Cursor cursor, boolean displayNumber,
+             int position) {
+         CharSequence label = null;
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/values/ids.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/res/values/ids.xml	(revision 166441)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/res/values/ids.xml	(revision 166442)
+@@ -32,7 +32,12 @@
+     <item type="id" name="cliv_phoneticname_textview"/>
+     <item type="id" name="cliv_label_textview"/>
+     <item type="id" name="cliv_data_view"/>
+-    
++    <item type="id" name="cliv_button_view"/>
++    <item type="id" name="cliv_gsm_button_view"/>
++    <item type="id" name="cliv_sms_button_view"/>
++    <item type="id" name="cliv_video_call_button_view"/>
++    <item type="id" name="cliv_lte_button_view"/>
++
+     <!-- For tag ids used by ContactPhotoManager to tag views with contact details -->
+     <item type="id" name="tag_display_name"/>
+     <item type="id" name="tag_identifier"/>
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/gsm_button.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/gsm_button.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/gsm_button.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/gsm_button.png	(revision 166442)
+
+Property changes on: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/gsm_button.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/choose_mode.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/choose_mode.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/choose_mode.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/choose_mode.png	(revision 166442)
+
+Property changes on: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/choose_mode.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/video_call_button.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/video_call_button.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/video_call_button.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/video_call_button.png	(revision 166442)
+
+Property changes on: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/video_call_button.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/sms_button.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/sms_button.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/sms_button.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/sms_button.png	(revision 166442)
+
+Property changes on: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/sms_button.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/lte_button.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/lte_button.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/lte_button.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/lte_button.png	(revision 166442)
+
+Property changes on: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/lte_button.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property

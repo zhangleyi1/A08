@@ -1,0 +1,124 @@
+Index: packages/apps/Dialer/src/com/android/dialer/calllog/PhoneCallDetailsHelper.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/calllog/PhoneCallDetailsHelper.java	(revision 175549)
++++ packages/apps/Dialer/src/com/android/dialer/calllog/PhoneCallDetailsHelper.java	(revision 175550)
+@@ -110,7 +110,6 @@
+ 
+         // Show the video icon if the call had video enabled.
+         /* SPRD: Support For Reliance CallLog Icon Display in bug645018. @{*/
+-		//remove Video icon for 98619
+ 		/*
+         if (!mShowCallLogEx) {
+             views.callTypeIcons.setShowVideo(
+@@ -117,8 +116,7 @@
+                     (details.features & Calls.FEATURES_VIDEO) == Calls.FEATURES_VIDEO);
+             views.callTypeIcons.requestLayout();
+             views.callTypeIcons.setVisibility(View.VISIBLE);
+-        }
+-		*/
++        }*/
+         /* @} */
+ 
+         // Show the total call count only if there are more than the maximum number of icons.
+@@ -219,16 +217,15 @@
+             Log.d(TAG, "isVoLTECallEnable: " + (ImsManager.isVolteEnabledByPlatform(mContext)));
+             if (isVolteCall && ImsManager.isVolteEnabledByPlatform(mContext)) {
+                 views.volteIcon.setVisibility(View.VISIBLE);
+-				if (isVideoCall) {
+-                    views.volteIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_viltecall));
+-                } else if (isVolteCall) {
+-                    views.volteIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_voltecall));
+-                } else {
+-                    views.volteIcon.setVisibility(View.GONE);
+-                }
+             } else {
+                 views.volteIcon.setVisibility(View.GONE);
+             }
++			if (isVideoCall && ImsManager.isVolteEnabledByPlatform(mContext)) {
++                views.volteIcon.setVisibility(View.GONE);
++                views.videoIcon.setVisibility(View.VISIBLE);
++            } else {
++                views.videoIcon.setVisibility(View.GONE);
++            }
+ 
+             Log.d(TAG, "isWifiCallEnable: " + (ImsManager.isWfcEnabledByPlatform(mContext)));
+             if (isVoWifiCall && ImsManager.isWfcEnabledByPlatform(mContext)) {
+Index: packages/apps/Dialer/src/com/android/dialer/calllog/CallLogAdapter.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/calllog/CallLogAdapter.java	(revision 175549)
++++ packages/apps/Dialer/src/com/android/dialer/calllog/CallLogAdapter.java	(revision 175550)
+@@ -569,7 +569,7 @@
+         details.countryIso = countryIso;
+         details.date = c.getLong(CallLogQuery.DATE);
+         details.duration = c.getLong(CallLogQuery.DURATION);
+-        details.features = getCallFeatures(c, count);
++        details.features = c.getInt(CallLogQuery.FEATURES);
+         details.geocode = c.getString(CallLogQuery.GEOCODED_LOCATION);
+         details.transcription = c.getString(CallLogQuery.TRANSCRIPTION);
+         details.callTypes = getCallTypes(c, count);
+Index: packages/apps/Dialer/src/com/android/dialer/calllog/PhoneCallDetailsViews.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/calllog/PhoneCallDetailsViews.java	(revision 175549)
++++ packages/apps/Dialer/src/com/android/dialer/calllog/PhoneCallDetailsViews.java	(revision 175550)
+@@ -34,6 +34,7 @@
+     public final ImageView callTypeExIcon;
+     /* SPRD: Add for volte and vowifi icon for Bug645018. @{*/
+     public final ImageView volteIcon;
++    public final ImageView videoIcon;
+     public final ImageView voWifiIcon;
+     /* @} */
+     public final TextView callLocationAndDate;
+@@ -44,7 +45,7 @@
+     /* SPRD: Support For Reliance CallLog Icon Display in bug645018. @{*/
+     private PhoneCallDetailsViews(TextView nameView, View callTypeView,
+             CallTypeIconsView callTypeIcons, ImageView callTypeExIcon,
+-            ImageView volteIcon, ImageView voWifiIcon, TextView callLocationAndDate,
++            ImageView volteIcon, ImageView videoIcon,ImageView voWifiIcon, TextView callLocationAndDate,
+             TextView voicemailTranscriptionView, TextView callAccountLabel) {
+         this.nameView = nameView;
+         this.callTypeView = callTypeView;
+@@ -54,6 +55,7 @@
+         this.callAccountLabel = callAccountLabel;
+         this.callTypeExIcon = callTypeExIcon;
+         this.volteIcon = volteIcon;
++        this.videoIcon = videoIcon;
+         this.voWifiIcon = voWifiIcon;
+     }
+     /* @} */
+@@ -74,6 +76,7 @@
+                 (CallTypeIconsView) view.findViewById(R.id.call_type_icons),
+                 (ImageView) view.findViewById(R.id.call_type_ex_icon),
+                 (ImageView) view.findViewById(R.id.volte_call_icons),
++                (ImageView) view.findViewById(R.id.video_call_icons),
+                 (ImageView) view.findViewById(R.id.vowifi_call_icons),
+                 (TextView) view.findViewById(R.id.call_location_and_date),
+                 (TextView) view.findViewById(R.id.voicemail_transcription),
+@@ -92,6 +95,7 @@
+                 new ImageView(context),
+                 new ImageView(context),
+                 new ImageView(context),
++                new ImageView(context),
+                 new TextView(context),
+                 new TextView(context),
+                 new TextView(context));
+Index: packages/apps/Dialer/res/layout/call_log_list_item.xml
+===================================================================
+--- packages/apps/Dialer/res/layout/call_log_list_item.xml	(revision 175549)
++++ packages/apps/Dialer/res/layout/call_log_list_item.xml	(revision 175550)
+@@ -122,6 +122,16 @@
+                         </ImageView>
+ 
+                         <ImageView
++                            android:id="@+id/video_call_icons"
++                            android:layout_width="wrap_content"
++                            android:layout_height="wrap_content"
++                            android:layout_marginEnd="@dimen/call_log_icon_margin"
++                            android:layout_gravity="center_vertical"
++                            android:src="@drawable/ic_viltecall"
++                            android:visibility="gone" >
++                        </ImageView>
++
++                        <ImageView
+                             android:id="@+id/vowifi_call_icons"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"

@@ -1,0 +1,12 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java	(revision 173102)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java	(revision 173103)
+@@ -217,6 +217,7 @@
+ import com.android.camera.SecurityAccessLocation;
+ import com.sprd.camera.plugin.AddCameraForCMCC;
+ import com.dream.camera.settings.DataModulePhoto;
++import android.view.ViewStub;
+ 
+ public class CameraActivity extends QuickActivity implements AppController,
+         CameraAgent.CameraOpenCallback,

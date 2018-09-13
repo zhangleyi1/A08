@@ -1,0 +1,10 @@
+Index: vendor/sprd/platform/packages/apps/Settings/res/values-in/strings_wifi.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Settings/res/values-in/strings_wifi.xml	(revision 173223)
++++ vendor/sprd/platform/packages/apps/Settings/res/values-in/strings_wifi.xml	(revision 173224)
+@@ -93,4 +93,5 @@
+ <string name="wifi_saved_passpoint_config">"Passpoint Config"</string>
+ <string name="passpoint_empty_list_wifi_on">"Mencari jaringan Passpoint\u2026"</string>
+ <string name="passpoint_empty_list_user_restricted">"Anda tidak memiliki izin untuk mengubah jaringan Passpoint."</string>
++<string name="wifi_off_generic">Nonaktif</string>
+ </resources>

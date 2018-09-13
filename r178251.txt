@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/res/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/res/values/strings.xml	(revision 178250)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/res/values/strings.xml	(revision 178251)
+@@ -1246,7 +1246,7 @@
+     <string name="loud_speaker">"Loud speaker"</string>
+     <!-- @} -->
+     <!-- SPRD: Bug 474635 exit the video player interface @{ -->
+-    <string name="back_exit">Exit when press again</string>
++    <string name="back_exit">press back button to exit</string>
+     <!-- @} -->
+     <!-- SPRD: bug 533817, crop 9000*9000 wbmp image oom  @{ -->
+     <string name="cannot_load_crop_image">"Application runtime memory is not enough, loading image failed."</string>

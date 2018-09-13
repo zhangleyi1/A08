@@ -1,0 +1,12 @@
+Index: kernel/drivers/video/sprdfb/sprdfb_dispc.c
+===================================================================
+--- kernel/drivers/video/sprdfb/sprdfb_dispc.c	(revision 167740)
++++ kernel/drivers/video/sprdfb/sprdfb_dispc.c	(revision 167741)
+@@ -1484,6 +1484,7 @@
+ 
+ static int32_t sprdfb_dispc_shutdown(struct sprdfb_device *dev)
+ {
++	dispc_stop(dev);
+ 	sprdfb_panel_shutdown(dev);
+ 	return 0;
+ }

@@ -1,0 +1,13 @@
+Index: packages/apps/Dialer/src/com/android/dialer/list/ListsFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/list/ListsFragment.java	(revision 166760)
++++ packages/apps/Dialer/src/com/android/dialer/list/ListsFragment.java	(revision 166761)
+@@ -232,7 +232,7 @@
+         mViewPager.setAdapter(mViewPagerAdapter);
+         mViewPager.setOffscreenPageLimit(TAB_COUNT_WITH_VOICEMAIL - 1);
+         mViewPager.setOnPageChangeListener(this);
+-        showTab(TAB_INDEX_SPEED_DIAL);
++        showTab(TAB_INDEX_HISTORY);
+ 
+         mTabTitles = new String[TAB_COUNT_WITH_VOICEMAIL];
+         mTabTitles[TAB_INDEX_SPEED_DIAL] = getResources().getString(R.string.tab_speed_dial);

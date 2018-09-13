@@ -1,0 +1,230 @@
+Index: packages/apps/Settings/src/com/android/settings/Utils.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/Utils.java	(revision 166649)
++++ packages/apps/Settings/src/com/android/settings/Utils.java	(revision 166650)
+@@ -99,11 +99,10 @@
+ import com.android.settings.Settings.SprdSubSettings;
+ import com.android.settings.wifi.AdvancedWifiSettings;
+ import com.android.settings.wifi.SavedAccessPointsWifiSettings;
+-//bug for 91262 start
++
+ import java.io.BufferedReader;
+ import java.io.FileNotFoundException;
+ import java.io.FileReader;
+-//bug for 91262 start
+ import java.io.IOException;
+ import java.io.InputStream;
+ import java.net.InetAddress;
+Index: packages/apps/Settings/src/com/android/settings/deviceinfo/PrivateVolumeSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/deviceinfo/PrivateVolumeSettings.java	(revision 166649)
++++ packages/apps/Settings/src/com/android/settings/deviceinfo/PrivateVolumeSettings.java	(revision 166650)
+@@ -91,6 +91,9 @@
+     };
+ 
+     private static final int[] ITEMS_SHOW_SHARED = new int[] {
++	        R.string.storage_detail_total,
++			R.string.storage_detail_system,
++			R.string.storage_detail_free,
+             R.string.storage_detail_apps,
+             R.string.storage_detail_images,
+             R.string.storage_detail_videos,
+@@ -114,7 +117,10 @@
+     private List<PreferenceCategory> mHeaderPreferencePool = Lists.newArrayList();
+     private int mHeaderPoolIndex;
+     private int mItemPoolIndex;
+-
++    private long mTotalSpace;
++    private long mSystemSpace;
++    private long mFreeSpace;
++    private long mUsedSpace;
+     private Preference mExplore;
+ 
+     private boolean mNeedsUpdate;
+@@ -230,21 +236,23 @@
+         }
+ 
+         final File file = mVolume.getPath();
+-        long totalBytes = file.getTotalSpace();//bug for 91262
++        final long totalBytes = file.getTotalSpace();
+         final long freeBytes = file.getFreeSpace();
+         final long usedBytes = totalBytes - freeBytes;
++        mTotalSpace = totalBytes;
++        if (VolumeInfo.ID_PRIVATE_INTERNAL.equals(mVolume.getId())) {
++            mTotalSpace = Utils.getTotalRomSize();
++        }
++        mFreeSpace = freeBytes;
++        mSystemSpace = mTotalSpace - totalBytes;
++        mUsedSpace = mTotalSpace - mFreeSpace;
+ 
+-        final BytesResult result = Formatter.formatBytes(getResources(), usedBytes, 0);
++        final BytesResult result = Formatter.formatBytes(getResources(), mUsedSpace, 0);
+         mSummary.setTitle(TextUtils.expandTemplate(getText(R.string.storage_size_large),
+                 result.value, result.units));
+-		//bug for 91262 start
+-        if (VolumeInfo.ID_PRIVATE_INTERNAL.equals(mVolume.getId())) {
+-            totalBytes = Utils.getTotalRomSize();
+-        }
+-		//bug for 91262 end
+         mSummary.setSummary(getString(R.string.storage_volume_used,
+-                Formatter.formatFileSize(context, totalBytes)));
+-        mSummary.setPercent((int) ((usedBytes * 100) / totalBytes));
++            Formatter.formatFileSize(context, mTotalSpace)));
++        mSummary.setPercent((int) ((mUsedSpace * 100) / mTotalSpace));
+ 
+         mMeasure.forceMeasure();
+         mNeedsUpdate = false;
+@@ -540,6 +548,15 @@
+                 case R.string.storage_detail_cached: {
+                     updatePreference(item, details.cacheSize);
+                 } break;
++				case R.string.storage_detail_total: {
++                    updatePreference(item, mTotalSpace);
++                } break;
++                case R.string.storage_detail_system: {
++                    updatePreference(item, mSystemSpace);
++                } break;
++                case R.string.storage_detail_free: {
++                    updatePreference(item, mFreeSpace);
++                } break;
+                 case 0: {
+                     final long userSize = details.usersSize.get(userId);
+                     updatePreference(item, userSize);
+Index: packages/apps/Settings/src/com/android/settings/deviceinfo/StorageSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/deviceinfo/StorageSettings.java	(revision 166649)
++++ packages/apps/Settings/src/com/android/settings/deviceinfo/StorageSettings.java	(revision 166650)
+@@ -125,6 +125,7 @@
+         mInternalCategory = (PreferenceCategory) findPreference("storage_internal");
+         mExternalCategory = (PreferenceCategory) findPreference("storage_external");
+ 
++
+         mInternalSummary = new StorageSummaryPreference(getPrefContext());
+ 
+         setHasOptionsMenu(true);
+@@ -207,14 +208,15 @@
+                         new StorageVolumePreference(context, vol, color));
+                 if (vol.isMountedReadable()) {
+                     final File path = vol.getPath();
+-                    privateUsedBytes += path.getTotalSpace() - path.getFreeSpace();
+-					//bug for 91262 start
++                    
+                     if (VolumeInfo.ID_PRIVATE_INTERNAL.equals(vol.getId())) {
+                         privateTotalBytes += Utils.getTotalRomSize();
++						privateUsedBytes += Utils.getTotalRomSize() - path.getFreeSpace();
+                     } else {
+-                        privateTotalBytes += path.getTotalSpace();                        
++                        privateTotalBytes += path.getTotalSpace();
++						privateUsedBytes += path.getTotalSpace() - path.getFreeSpace();                    
+                     }
+-					//bug for 91262 end
++					
+                 }
+             } else if (vol.getType() == VolumeInfo.TYPE_PUBLIC) {
+                 mExternalCategory.addPreference(
+@@ -358,19 +360,15 @@
+                 return true;
+ 
+             } else if (vol.getType() == VolumeInfo.TYPE_PUBLIC) {
+-                  //add bug 645023
+-                   if ( UserHandle.myUserId() != UserHandle.USER_OWNER ) {
+-                         Toast.makeText(getActivity(),getActivity().getString(R.string.public_volumes_permission),Toast.LENGTH_LONG).show();
+-                         return true;
+-                   } else if (vol.isMountedReadable()) {
+-                         startActivity(vol.buildBrowseIntent());
+-                         return true;
+-                    } else {
+-                         final Bundle args = new Bundle();
+-                         args.putString(VolumeInfo.EXTRA_VOLUME_ID, vol.getId());
+-                         startFragment(this, PublicVolumeSettings.class.getCanonicalName(),
++                if (vol.isMountedReadable()) {
++                    startActivity(vol.buildBrowseIntent());
++                    return true;
++                } else {
++                    final Bundle args = new Bundle();
++                    args.putString(VolumeInfo.EXTRA_VOLUME_ID, vol.getId());
++                    startFragment(this, PublicVolumeSettings.class.getCanonicalName(),
+                             -1, 0, args);
+-                         return true;
++                    return true;
+                 }
+             }
+ 
+@@ -602,14 +600,15 @@
+                 if (path == null) {
+                     continue;
+                 }
+-                privateUsedBytes += path.getTotalSpace() - path.getFreeSpace();
+-				//bug for 91262 start
++                
+                 if (info.getType() == VolumeInfo.TYPE_PRIVATE && VolumeInfo.ID_PRIVATE_INTERNAL.equals(info.getId())) {
+                     privateTotalBytes += Utils.getTotalRomSize();
++					privateUsedBytes += Utils.getTotalRomSize() - path.getFreeSpace();
+                 } else {
+                     privateTotalBytes += path.getTotalSpace();
++					privateUsedBytes += path.getTotalSpace() - path.getFreeSpace();
+                 }
+-				//bug for 91262 end
++				
+             }
+             mLoader.setSummary(this, mContext.getString(R.string.storage_summary,
+                     Formatter.formatFileSize(mContext, privateUsedBytes),
+Index: packages/apps/Settings/src/com/android/settings/deviceinfo/StorageVolumePreference.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/deviceinfo/StorageVolumePreference.java	(revision 166649)
++++ packages/apps/Settings/src/com/android/settings/deviceinfo/StorageVolumePreference.java	(revision 166650)
+@@ -32,7 +32,7 @@
+ 
+ import com.android.settings.R;
+ import com.android.settings.deviceinfo.StorageSettings.UnmountTask;
+-import com.android.settings.Utils;//bug for 91262
++import com.android.settings.Utils;
+ import java.io.File;
+ 
+ /**
+@@ -69,15 +69,16 @@
+             // TODO: move statfs() to background thread
+             final File path = volume.getPath();
+             final long freeBytes = path.getFreeSpace();
+-            long totalBytes = path.getTotalSpace();//bug for 91262
+-            final long usedBytes = totalBytes - freeBytes;
++            long totalBytes = path.getTotalSpace();
+ 
+-            final String used = Formatter.formatFileSize(context, usedBytes);
+-			//bug for 91262 start
++
+             if (volume.getType() == VolumeInfo.TYPE_PRIVATE && VolumeInfo.ID_PRIVATE_INTERNAL.equals(volume.getId())) {
+                 totalBytes = Utils.getTotalRomSize();
+             } 
+-            //bug for 91262 end
++            
++			final long usedBytes = totalBytes - freeBytes;
++
++            final String used = Formatter.formatFileSize(context, usedBytes);
+             final String total = Formatter.formatFileSize(context, totalBytes);
+             setSummary(context.getString(R.string.storage_volume_summary, used, total));
+             if (totalBytes > 0) {
+Index: packages/apps/Settings/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values-zh-rCN/strings.xml	(revision 166649)
++++ packages/apps/Settings/res/values-zh-rCN/strings.xml	(revision 166650)
+@@ -3246,4 +3246,7 @@
+ 
+     <!-- SPRD:645023-->
+     <string name="public_volumes_permission">访客或新用户无权限访问</string>
++	<string name="storage_detail_total">总共</string>
++    <string name="storage_detail_system">系统</string>
++    <string name="storage_detail_free">可用</string>
+ </resources>
+Index: packages/apps/Settings/res/values/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values/strings.xml	(revision 166649)
++++ packages/apps/Settings/res/values/strings.xml	(revision 166650)
+@@ -7671,4 +7671,7 @@
+     <string name="memoryInfoText"><![CDATA[Free/Total Memory: [%1$s]/[%2$s]]]></string>
+     <string name="clear_btn_text">Stop</string>
+     <string name="app_title">Task Manager</string>
++    <string name="storage_detail_total">Total</string>
++    <string name="storage_detail_system">System</string>
++    <string name="storage_detail_free">Free</string>
+ </resources>

@@ -1,0 +1,187 @@
+Index: frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java	(revision 174613)
++++ frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java	(revision 174614)
+@@ -120,6 +120,7 @@
+ import android.content.IntentSender;
+ import android.content.IntentSender.SendIntentException;
+ import android.content.ServiceConnection;
++import android.content.pm.AppCloneUserInfo;
+ import android.content.pm.ActivityInfo;
+ import android.content.pm.ApplicationInfo;
+ import android.content.pm.AppsQueryHelper;
+@@ -13014,12 +13015,17 @@
+                     }
+                 }
+             }
+-			if (pkgLite.recommendedInstallLocation == 2) {
+-				onSd = true;
+-				onInt = false;
+-			    installFlags = PackageManager.INSTALL_EXTERNAL;
+-		   }
+ 
++            //SPRD add for default install settings start{
++            if((installFlags & PackageManager.INSTALL_MOVE_PKG) ==0){
++                if (pkgLite.recommendedInstallLocation == 2) {
++                    onSd = true;
++                    onInt = false;
++                    installFlags = PackageManager.INSTALL_EXTERNAL;
++                 }
++            }
++            //end}
++
+             if (ret == PackageManager.INSTALL_SUCCEEDED) {
+                 int loc = pkgLite.recommendedInstallLocation;
+                 if (loc == PackageHelper.RECOMMEND_FAILED_INVALID_LOCATION) {
+@@ -20433,6 +20439,7 @@
+         }
+ 
+         installFlags |= PackageManager.INSTALL_REPLACE_EXISTING;
++	    installFlags |= PackageManager.INSTALL_MOVE_PKG;
+ 
+         final Message msg = mHandler.obtainMessage(INIT_COPY);
+         final OriginInfo origin = OriginInfo.fromExistingFile(codeFile);
+Index: frameworks/base/core/java/android/content/pm/PackageManager.java
+===================================================================
+--- frameworks/base/core/java/android/content/pm/PackageManager.java	(revision 174613)
++++ frameworks/base/core/java/android/content/pm/PackageManager.java	(revision 174614)
+@@ -691,6 +691,14 @@
+      */
+     public static final int INSTALL_FORCE_SDK = 0x00002000;
+ 
++     /**
++     * Flag parameter for {@link #installPackage} to indicate that this package is moved
++     * by an installation location
++     *
++     * @hide
++     */
++    public static final int INSTALL_MOVE_PKG = 0x00004000;
++
+     /**
+      * Flag parameter for
+      * {@link #setComponentEnabledSetting(android.content.ComponentName, int, int)} to indicate
+Index: frameworks/base/core/java/com/android/internal/content/PackageHelper.java
+===================================================================
+--- frameworks/base/core/java/com/android/internal/content/PackageHelper.java	(revision 174613)
++++ frameworks/base/core/java/com/android/internal/content/PackageHelper.java	(revision 174614)
+@@ -457,61 +457,75 @@
+         } catch (NameNotFoundException ignored) {
+         }
+ 
+-        int prefer;
+-        boolean checkBoth;
++        int prefer = 0;
++        boolean checkBoth = false;
+         boolean ephemeral = false;
+-		int installPreference = Settings.Global.getInt(context.getApplicationContext()
+-                 .getContentResolver(),
+-                 Settings.Global.DEFAULT_INSTALL_LOCATION,
+-                 PackageHelper.APP_INSTALL_AUTO);
+-        Log.w(TAG, "Settings defaultInstallLocation :"+installPreference);
++	    if((installFlags & PackageManager.INSTALL_MOVE_PKG) != 0){
+ 
+-        if ("android.deviceadmin.cts".equals(packageName)){
+-            // make package android.deviceadmin.cts only install internal
+-            prefer = RECOMMEND_INSTALL_INTERNAL;
+-            checkBoth = false;
+-        } else if (installPreference == PackageHelper.APP_INSTALL_INTERNAL) {
+-            prefer = RECOMMEND_INSTALL_INTERNAL;
+-            checkBoth = false;
+-        } else if (installPreference == PackageHelper.APP_INSTALL_EXTERNAL) {
+-            prefer = RECOMMEND_INSTALL_EXTERNAL;
+-            checkBoth = false;
+-        } else if ((installFlags & PackageManager.INSTALL_EPHEMERAL) != 0) {
+-            prefer = RECOMMEND_INSTALL_INTERNAL;
+-            ephemeral = true;
+-            checkBoth = false;
+-        } else if ((installFlags & PackageManager.INSTALL_INTERNAL) != 0) {
+-            prefer = RECOMMEND_INSTALL_INTERNAL;
+-            checkBoth = false;
+-        } else if ((installFlags & PackageManager.INSTALL_EXTERNAL) != 0) {
+-            prefer = RECOMMEND_INSTALL_EXTERNAL;
+-            checkBoth = false;
+-        } else if (installLocation == PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY) {
+-            prefer = RECOMMEND_INSTALL_INTERNAL;
+-            checkBoth = false;
+-        } else if (installLocation == PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL) {
+-            prefer = RECOMMEND_INSTALL_EXTERNAL;
+-            checkBoth = true;
+-        } else if (installLocation == PackageInfo.INSTALL_LOCATION_AUTO) {
+-            // When app is already installed, prefer same medium
+-            if (existingInfo != null) {
+-                // TODO: distinguish if this is external ASEC
+-                if ((existingInfo.flags & ApplicationInfo.FLAG_EXTERNAL_STORAGE) != 0) {
+-                    prefer = RECOMMEND_INSTALL_EXTERNAL;
++	        Log.w(TAG, "PackageManager.INSTALL_MOVE_PKG"+installFlags);
++
++            if ((installFlags & PackageManager.INSTALL_EPHEMERAL) != 0) {
++                prefer = RECOMMEND_INSTALL_INTERNAL;
++                ephemeral = true;
++                checkBoth = false;
++            } else if ((installFlags & PackageManager.INSTALL_INTERNAL) != 0) {
++                prefer = RECOMMEND_INSTALL_INTERNAL;
++                checkBoth = false;
++            } else if ((installFlags & PackageManager.INSTALL_EXTERNAL) != 0) {
++                prefer = RECOMMEND_INSTALL_EXTERNAL;
++                checkBoth = false;
++            } else if (installLocation == PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY) {
++                prefer = RECOMMEND_INSTALL_INTERNAL;
++                checkBoth = false;
++            } else if (installLocation == PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL) {
++                prefer = RECOMMEND_INSTALL_EXTERNAL;
++                checkBoth = true;
++            } else if (installLocation == PackageInfo.INSTALL_LOCATION_AUTO) {
++                // When app is already installed, prefer same medium
++                if (existingInfo != null) {
++                    // TODO: distinguish if this is external ASEC
++                    if ((existingInfo.flags & ApplicationInfo.FLAG_EXTERNAL_STORAGE) != 0) {
++                        prefer = RECOMMEND_INSTALL_EXTERNAL;
++                    } else {
++                        prefer = RECOMMEND_INSTALL_INTERNAL;
++                    }
+                 } else {
+                     prefer = RECOMMEND_INSTALL_INTERNAL;
+                 }
++                checkBoth = true;
+             } else {
+                 prefer = RECOMMEND_INSTALL_INTERNAL;
++                checkBoth = false;
+             }
+-            checkBoth = true;
+-        } else {
++	    } else {
++
++	        //SPRD add for default install settings start{
++            int installPreference = Settings.Global.getInt(context.getApplicationContext()
++                 .getContentResolver(),
++                 Settings.Global.DEFAULT_INSTALL_LOCATION,
++                 PackageHelper.APP_INSTALL_AUTO);
++            Log.w(TAG, "Settings defaultInstallLocation :"+installPreference);
++
++            if ("android.deviceadmin.cts".equals(packageName)){
++                // make package android.deviceadmin.cts only install internal
++                prefer = RECOMMEND_INSTALL_INTERNAL;
++                checkBoth = false;
++            } else if (installPreference == PackageHelper.APP_INSTALL_INTERNAL) {
++                prefer = RECOMMEND_INSTALL_INTERNAL;
++                checkBoth = false;
++            } else if (installPreference == PackageHelper.APP_INSTALL_EXTERNAL) {
++                prefer = RECOMMEND_INSTALL_EXTERNAL;
++                checkBoth = false;
++            }else {
++                prefer = RECOMMEND_INSTALL_INTERNAL;
++                checkBoth = false;
++             }
++	    }
++
++        //GMS app install to SD fail
++        if(existingInfo != null && ((existingInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0)){
+             prefer = RECOMMEND_INSTALL_INTERNAL;
+             checkBoth = false;
+-        }
+-		if(existingInfo != null && ((existingInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0)){
+-            prefer = RECOMMEND_INSTALL_INTERNAL;
+-            checkBoth = false;
+             Log.w(TAG, "system app updating , set prefer installLocation RECOMMEND_INSTALL_INTERNAL");
+         }
+ 

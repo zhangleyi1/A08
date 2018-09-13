@@ -1,0 +1,39 @@
+Index: packages/apps/Settings/res/values/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values/strings.xml	(revision 172275)
++++ packages/apps/Settings/res/values/strings.xml	(revision 172276)
+@@ -7672,7 +7672,7 @@
+     <string name="clear_btn_text">Stop</string>
+     <!-- SPRD:645023-->
+     <string name="public_volumes_permission">The guest or new user has no permission to access</string>
+-    <string name="smartfren_roaming">Yours device is in roaming, additional charges may applied!</string>
++    <string name="smartfren_roaming">Are you sure want to allow data roaming?Data accesss roaming charges may incur!</string>
+ 
+     <string name="app_title">Task Manager</string>
+     <!-- for custom requirements: gesture s -->
+Index: packages/services/Telephony/res/values/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values/strings.xml	(revision 172275)
++++ packages/services/Telephony/res/values/strings.xml	(revision 172276)
+@@ -450,7 +450,7 @@
+          "data roaming" feature turned off. -->
+     <string name="roaming_reenable_message">You\'ve lost data connectivity because you left your home network with data roaming turned off.</string>
+     <!-- Mobile network settings screen, dialog message when user selects the Data roaming check box -->
+-    <string name="roaming_warning">You may incur significant charges.</string>
++    <string name="roaming_warning">Are you sure want to allow data roaming?Data accesss roaming charges may incur!</string>
+     <!-- Mobile network settings screen, dialog message title when user selects the Data roaming check box -->
+     <string name="roaming_alert_title">Allow data roaming?</string>
+ 
+Index: packages/services/Telephony/res/values-en-rIN/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values-en-rIN/strings.xml	(revision 172275)
++++ packages/services/Telephony/res/values-en-rIN/strings.xml	(revision 172276)
+@@ -206,7 +206,7 @@
+     <string name="roaming_enable" msgid="7331106985174381987">"Connect to data services when roaming"</string>
+     <string name="roaming_disable" msgid="1843417228755568110">"Connect to data services when roaming"</string>
+     <string name="roaming_reenable_message" msgid="8913735676127858115">"You have lost data connectivity because you left your home network with data roaming turned off."</string>
+-    <string name="roaming_warning" msgid="1603164667540144353">"You may incur significant charges."</string>
++    <string name="roaming_warning" msgid="1603164667540144353">"Are you sure want to allow data roaming?Data accesss roaming charges may incur!"</string>
+     <string name="roaming_alert_title" msgid="3654815360303826008">"Allow data roaming?"</string>
+     <string name="gsm_umts_options" msgid="6538311689850981686">"GSM/UMTS Options"</string>
+     <string name="cdma_options" msgid="4016822858172249884">"CDMA Options"</string>

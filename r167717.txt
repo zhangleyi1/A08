@@ -1,0 +1,13 @@
+Index: packages/inputmethods/LatinIME/java/res/xml/prefs_screen_correction.xml
+===================================================================
+--- packages/inputmethods/LatinIME/java/res/xml/prefs_screen_correction.xml	(revision 167716)
++++ packages/inputmethods/LatinIME/java/res/xml/prefs_screen_correction.xml	(revision 167717)
+@@ -45,7 +45,7 @@
+         android:key="pref_key_auto_correction"
+         android:title="@string/auto_correction"
+         android:summary="@string/auto_correction_summary"
+-        android:defaultValue="true"
++        android:defaultValue="false"
+         android:persistent="true" />
+     <CheckBoxPreference
+         android:key="show_suggestions"

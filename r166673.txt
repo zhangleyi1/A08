@@ -1,0 +1,238 @@
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 166672)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 166673)
+@@ -186,6 +186,10 @@
+ 
+     // SPRD: FEATURE_NATIONAL_DATA_ROAMING
+     private boolean mShowNationalDataRoam;
++    private static final int DATA_ROAM_THIS_TRIP = 0;
++    private static final int DATA_ROAM_DISABLE = 1;
++    private static final int DATA_ROAM_ALL_TRIP = 2;
++    private static final String COUNTRY_CODE_MCC = "country_code_mcc";
+ 
+     /* SPRD: modify by BUG 612017 @{ */
+     private int mCurrentTab = 0;
+@@ -968,8 +972,9 @@
+         }
+ 
+         /* SPRD: FEATURE_NATIONAL_DATA_ROAMING @{ */
+-        mShowNationalDataRoam = carrierConfig
+-                .getBoolean("national_data_roaming_bool");
++        /*mShowNationalDataRoam = carrierConfig
++                .getBoolean("national_data_roaming_bool");*/
++        mShowNationalDataRoam = true;
+         if (mShowNationalDataRoam) {
+             prefSet.removePreference(mButtonDataRoam);
+             prefSet.addPreference(mButtonPreferredDataRoam);
+@@ -999,7 +1004,7 @@
+         if (mShowNationalDataRoam) {
+             int roamType = android.provider.Settings.Global.getInt(mPhone.getContext().
+                     getContentResolver(),
+-                    android.provider.Settings.Global.DATA_ROAMING + phoneSubId, 0);
++                    android.provider.Settings.Global.DATA_ROAMING + phoneSubId, 2);
+             updatePreferredDataRoamValueAndSummary(roamType);
+         } else {
+             mButtonDataRoam.setChecked(mPhone.getDataRoamingEnabled());
+@@ -1248,16 +1253,64 @@
+         /* SPRD: FEATURE_NATIONAL_DATA_ROAMING @{ */
+         } else if (preference == mButtonPreferredDataRoam) {
+             if(DBG) log("onPreferenceChange: preference == mButtonPreferredDataRoam.");
+-            int buttonDataRoam;
++            final int buttonDataRoam;
+             buttonDataRoam = Integer.valueOf((String) objValue).intValue();
+             if (DBG) log("buttonDataRoam: " + buttonDataRoam);
+ 
+-            updatePreferredDataRoamValueAndSummary(buttonDataRoam);
++            /*updatePreferredDataRoamValueAndSummary(buttonDataRoam);
+             android.provider.Settings.Global.putInt(
+                     mPhone.getContext().getContentResolver(),
+                     android.provider.Settings.Global.DATA_ROAMING + phoneSubId,
+-                    buttonDataRoam);
++                    buttonDataRoam);*/
+             /* @} */
++            final int currentRoamingType = Integer.valueOf(mButtonPreferredDataRoam.getValue()).intValue();
++            if (buttonDataRoam != currentRoamingType) {
++                if (buttonDataRoam != DATA_ROAM_DISABLE) {
++                    new AlertDialog.Builder(this).setMessage(
++                            getResources().getString(R.string.roaming_warning))
++                            .setTitle(R.string.roaming_alert_title)
++                            .setIconAttribute(android.R.attr.alertDialogIcon)
++                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
++                                @Override
++                                public void onClick(DialogInterface dialog, int which) {
++                                    updatePreferredDataRoamValueAndSummary(buttonDataRoam);
++                                    android.provider.Settings.Global.putInt(
++                                            mPhone.getContext().getContentResolver(),
++                                            android.provider.Settings.Global.DATA_ROAMING + phoneSubId,
++                                            buttonDataRoam);
++                                    if (DATA_ROAM_THIS_TRIP == buttonDataRoam) {
++                                        TelephonyManager tm = (TelephonyManager) getSystemService(
++                                                Context.TELEPHONY_SERVICE);
++                                        String mcc = tm.getNetworkOperator(phoneSubId);
++                                        if (!TextUtils.isEmpty(mcc)) {
++                                            android.provider.Settings.Global.putString(mPhone.getContext().getContentResolver(),
++                                                    COUNTRY_CODE_MCC + phoneSubId, mcc.substring(0, 3));
++                                            android.util.Log.i("zhangheng" , "mcc = " + mcc.substring(0, 3));
++                                        }
++                                    }
++                                }
++                            })
++                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
++                                @Override
++                                public void onClick(DialogInterface dialog, int which) {
++                                    updatePreferredDataRoamValueAndSummary(currentRoamingType);
++                                }
++                            })
++                            .setOnCancelListener(new DialogInterface.OnCancelListener() {
++                                @Override
++                                public void onCancel(DialogInterface dialog) {
++                                    updatePreferredDataRoamValueAndSummary(currentRoamingType);
++                                }
++                            })
++                            .show();
++                } else {
++                    updatePreferredDataRoamValueAndSummary(buttonDataRoam);
++                    android.provider.Settings.Global.putInt(
++                            mPhone.getContext().getContentResolver(),
++                            android.provider.Settings.Global.DATA_ROAMING + phoneSubId,
++                            buttonDataRoam);
++                }
++            }
+ 
+             /* SPRD: FEATURE_RESOLUTION_SETTING @{ */
+         } else if (preference == mPreferredSetResolution) {
+
+Property changes on: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java:r163441
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java:r165586
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java:r163739
+Index: vendor/sprd/feature_configs/base/overlay/packages/services/Telephony/res/values/strings.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/packages/services/Telephony/res/values/strings.xml	(revision 166672)
++++ vendor/sprd/feature_configs/base/overlay/packages/services/Telephony/res/values/strings.xml	(revision 166673)
+@@ -27,6 +27,27 @@
+         <item>"2"</item>
+     </string-array>
+     <!-- @} -->
++
++    <!-- SPRD: FEATURE_DATA_ROAMING_FOR_SMARTFREN @{ -->
++    <string name="preferred_data_roaming_title_smartfren">Data roaming</string>
++    <string name="preferred_data_roaming_summary_smartfren">Deny data roaming access</string>
++    <string name="preferred_data_roaming_dialogtitle_smartfren">Data roaming</string>
++    <string name="preferred_data_roaming_this_trip_smartfren">Allow data access only for this trip</string>
++    <string name="preferred_data_roaming_all_trip_smartfren">Allow data access for all trips</string>
++    <string name="preferred_data_roaming_disable_smartfren">Deny data roaming access</string>
++
++    <string-array name="enabled_data_roaming_choices_smartfren">
++        <item>@string/preferred_data_roaming_this_trip_smartfren</item>
++        <item>@string/preferred_data_roaming_all_trip_smartfren</item>
++        <item>@string/preferred_data_roaming_disable_smartfren</item>
++    </string-array>
++    <string-array name="enabled_data_roaming_values_smartfren">
++        <item>"0"</item>
++        <item>"2"</item>
++        <item>"1"</item>
++    </string-array>
++    <!-- @} -->
++
+     <!-- SPRD: FEATURE_MANUAL_SEARCH_NETWORK @{ -->
+     <string name="dialog_network_selection_title">Attention</string>
+     <string name="dialog_network_selection_message">The mobile phone will not select other operators for you in manual selection mode. Sometimes you have to do manual selection again or change back to automatic selection mode when you lost the service of the selected operator. We recommend that you use the "Select automatically". Do you want to select network manually?</string>
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/packages/services/Telephony/res/values/strings.xml
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/vendor/sprd/feature_configs/base/overlay/packages/services/Telephony/res/values/strings.xml:r163441
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/feature_configs/base/overlay/packages/services/Telephony/res/values/strings.xml:r165586
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/vendor/sprd/feature_configs/base/overlay/packages/services/Telephony/res/values/strings.xml:r163739
+Index: vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/dataconnection/DcTrackerEx.java
+===================================================================
+--- vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/dataconnection/DcTrackerEx.java	(revision 166672)
++++ vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/dataconnection/DcTrackerEx.java	(revision 166673)
+@@ -53,9 +53,13 @@
+     protected static final int DATA_KEEP_ALIVE_DURATION = 30 * 60 * 1000; // 30 min
+     private static final String DATA_ALWAYS_ONLINE = "data_always_online";
+ 
+-    private static final int DATA_ROAM_DISABLE = 0;
++    /*private static final int DATA_ROAM_DISABLE = 0;
+     private static final int DATA_ROAM_NATIONAL = 1;
+-    private static final int DATA_ROAM_ALL = 2;
++    private static final int DATA_ROAM_ALL = 2;*/
++    private static final int DATA_ROAM_THIS_TRIP = 0;
++    private static final int DATA_ROAM_DISABLE = 1;
++    private static final int DATA_ROAM_ALL_TRIP = 2;
++    private static final String COUNTRY_CODE_MCC = "country_code_mcc";
+ 
+     private static final String INTENT_RETRY_CLEAR_CODE =
+             "com.sprd.internal.telephony.data-retry-clear-code";
+@@ -456,17 +460,25 @@
+ 
+         if (DBG) log("getDataOnRoamingEnabled, settingValue: " + dataRoamingSetting);
+         switch (dataRoamingSetting) {
+-            case DATA_ROAM_ALL:
++            case DATA_ROAM_ALL_TRIP:
+                 isDataRoamingEnabled = true;
+                 break;
+ 
+-            case DATA_ROAM_NATIONAL:
+-                if (mConfig != null && mConfig.isNationalDataRoamingEnabled()) {
+-                    if (mPhone.getServiceState().getDataRoamingType()
+-                            != ServiceState.ROAMING_TYPE_DOMESTIC) {
+-                        isDataRoamingEnabled = false;
+-                    }
++            case DATA_ROAM_THIS_TRIP:
++                String allowedRoamimgMCC = android.provider.Settings.Global.getString(
++                        mPhone.getContext().getContentResolver(), COUNTRY_CODE_MCC + phoneSubId);
++                String currentNetworkOperator = TelephonyManager.getDefault().getNetworkOperator(phoneSubId);
++                String currentCountryMCC = null;
++                if (!TextUtils.isEmpty(currentNetworkOperator)) {
++                    currentCountryMCC = currentNetworkOperator.substring(0, 3);
+                 }
++                if (DBG) log("getDataOnRoamingEnabled, allowedRoamimgMCC: " + allowedRoamimgMCC
++                        + ", currentCountryMCC: " + currentCountryMCC);
++                if (TextUtils.equals(allowedRoamimgMCC, currentCountryMCC)) {
++                    isDataRoamingEnabled = true;
++                } else {
++                    isDataRoamingEnabled = false;
++                }
+                 break;
+ 
+             default:
+
+Property changes on: vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/dataconnection/DcTrackerEx.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/dataconnection/DcTrackerEx.java:r163441
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/dataconnection/DcTrackerEx.java:r165586
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/dataconnection/DcTrackerEx.java:r163739
+Index: vendor/sprd/platform/packages/services/Telephony/res/xml/network_setting_volte.xml
+===================================================================
+--- vendor/sprd/platform/packages/services/Telephony/res/xml/network_setting_volte.xml	(revision 166672)
++++ vendor/sprd/platform/packages/services/Telephony/res/xml/network_setting_volte.xml	(revision 166673)
+@@ -37,11 +37,11 @@
+     <!-- SPRD: FEATURE_NATIONAL_DATA_ROAMING @{ -->
+     <ListPreference
+         android:key="preferred_data_roaming_key"
+-        android:title="@string/preferred_data_roaming_title"
+-        android:summary="@string/preferred_data_roaming_summary"
+-        android:entries="@array/enabled_data_roaming_choices"
+-        android:entryValues="@array/enabled_data_roaming_values"
+-        android:dialogTitle="@string/preferred_data_roaming_dialogtitle" />
++        android:title="@string/preferred_data_roaming_title_smartfren"
++        android:summary="@string/preferred_data_roaming_summary_smartfren"
++        android:entries="@array/enabled_data_roaming_choices_smartfren"
++        android:entryValues="@array/enabled_data_roaming_values_smartfren"
++        android:dialogTitle="@string/preferred_data_roaming_dialogtitle_smartfren" />
+     <!-- @} -->
+ 
+     <!-- SPRD: FEATURE_MOBILE_DATA_ALWAYS_ONLINE @{ -->
+
+Property changes on: vendor/sprd/platform/packages/services/Telephony/res/xml/network_setting_volte.xml
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/vendor/sprd/platform/packages/services/Telephony/res/xml/network_setting_volte.xml:r163441
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/platform/packages/services/Telephony/res/xml/network_setting_volte.xml:r165586
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/vendor/sprd/platform/packages/services/Telephony/res/xml/network_setting_volte.xml:r163739

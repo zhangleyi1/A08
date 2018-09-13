@@ -1,0 +1,13 @@
+Index: packages/services/Telephony/res/values-in-rID/string.xml
+===================================================================
+--- packages/services/Telephony/res/values-in-rID/string.xml	(revision 177226)
++++ packages/services/Telephony/res/values-in-rID/string.xml	(revision 177227)
+@@ -9,5 +9,8 @@
+ 	<string name="police">Polisi</string>
+ 	<string name="emergency">Darurat</string>
+ 	<string name="emergency_call_list">Daftar Panggilan Darurat</string>
++	
++	<string name="gsm_roaming_mode_summary">mode jelajah internasional</string>
++	<string name="headset_auto_answer_summary">Headset otomatis jawab,membutuhkan headset</string>
+ </resources>
+ 

@@ -1,0 +1,230 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/SearchDropTargetBar.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/SearchDropTargetBar.java	(revision 176481)
++++ packages/apps/Launcher3/src/com/android/launcher3/SearchDropTargetBar.java	(revision 176482)
+@@ -33,17 +33,22 @@
+ import android.widget.FrameLayout;
+ 
+ import com.android.launcher3.util.Thunk;
++import com.sprd.ext.FeatureOption;
++import com.sprd.ext.UtilitiesExt;
+ 
+ /*
+  * Ths bar will manage the transition between the QSB search bar and the delete drop
+  * targets so that each of the individual IconDropTargets don't have to.
+  */
+-public class SearchDropTargetBar extends FrameLayout implements DragController.DragListener {
++public class SearchDropTargetBar extends FrameLayout implements DragController.DragListener , Insettable{
+ 
+     private static final TimeInterpolator MOVE_DOWN_INTERPOLATOR = new DecelerateInterpolator(0.6f);
+     private static final TimeInterpolator MOVE_UP_INTERPOLATOR = new DecelerateInterpolator(1.5f);
+     private static final TimeInterpolator DEFAULT_INTERPOLATOR = new AccelerateInterpolator();
+ 
++    private Launcher mLauncher;
++    private boolean isFullScreenMode;
++
+     /** The different states that the search bar space can be in. */
+     public enum State {
+         INVISIBLE             (0f, 0f, 0f),
+@@ -101,6 +106,7 @@
+         mInfoDropTarget.setLauncher(launcher);
+         mDeleteDropTarget.setLauncher(launcher);
+         mUninstallDropTarget.setLauncher(launcher);
++        mLauncher = launcher;
+     }
+ 
+     @Override
+@@ -208,6 +214,10 @@
+      */
+     @Override
+     public void onDragStart(DragSource source, Object info, int dragAction) {
++        if(FeatureOption.SPRD_HIDESEARCHBAR_SUPPORT) {
++            UtilitiesExt.enableFullScreenMode(mLauncher,true);
++            isFullScreenMode = true;
++        }
+         animateToState(State.DROP_TARGET, DEFAULT_DRAG_FADE_DURATION);
+     }
+ 
+@@ -226,6 +236,11 @@
+         } else {
+             mDeferOnDragEnd = false;
+         }
++
++        if(isFullScreenMode) {
++            UtilitiesExt.enableFullScreenMode(mLauncher, false);
++            isFullScreenMode = false;
++        }
+     }
+ 
+     /**
+@@ -275,4 +290,21 @@
+         }
+ 
+     }
++
++    @Override
++    public void setInsets(Rect insets) {
++        if(FeatureOption.SPRD_HIDESEARCHBAR_SUPPORT){
++            final FrameLayout.LayoutParams flp = (FrameLayout.LayoutParams) getLayoutParams();
++            flp.topMargin = 0;
++            flp.leftMargin = insets.left;
++            flp.rightMargin = insets.right;
++            flp.bottomMargin = 0;
++        }else{
++            final FrameLayout.LayoutParams flp = (FrameLayout.LayoutParams) getLayoutParams();
++            flp.topMargin = insets.top;
++            flp.leftMargin = insets.left;
++            flp.rightMargin = insets.right;
++            flp.bottomMargin = insets.bottom;
++        }
++    }
+ }
+Index: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 176481)
++++ packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 176482)
+@@ -3968,6 +3968,9 @@
+     }
+ 
+     public View getOrCreateQsbBar() {
++        if(FeatureOption.SPRD_HIDESEARCHBAR_SUPPORT) {
++            return null;
++        }
+         if (launcherCallbacksProvidesSearch()) {
+             return mLauncherCallbacks.getQsbBar();
+         }
+@@ -4675,6 +4678,9 @@
+     }
+ 
+     public void bindSearchProviderChanged() {
++        if(FeatureOption.SPRD_HIDESEARCHBAR_SUPPORT) {
++            return;
++        }
+         if (mSearchDropTargetBar == null) {
+             return;
+         }
+Index: packages/apps/Launcher3/src/com/android/launcher3/Workspace.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Workspace.java	(revision 176481)
++++ packages/apps/Launcher3/src/com/android/launcher3/Workspace.java	(revision 176482)
+@@ -350,7 +350,9 @@
+     @Override
+     public void setInsets(Rect insets) {
+         mInsets.set(insets);
+-
++        if(FeatureOption.SPRD_HIDESEARCHBAR_SUPPORT){
++            mInsets.top = 0;
++        }
+         CellLayout customScreen = getScreenWithId(CUSTOM_CONTENT_SCREEN_ID);
+         if (customScreen != null) {
+             View customContent = customScreen.getShortcutsAndWidgets().getChildAt(0);
+Index: packages/apps/Launcher3/src/com/android/launcher3/DeviceProfile.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/DeviceProfile.java	(revision 176481)
++++ packages/apps/Launcher3/src/com/android/launcher3/DeviceProfile.java	(revision 176482)
+@@ -34,6 +34,8 @@
+ import android.widget.LinearLayout;
+ import android.util.Log;
+ 
++import com.sprd.ext.FeatureOption;
++
+ public class DeviceProfile {
+ 
+     private static final String TAG = "DeviceProfile";
+@@ -216,7 +218,9 @@
+ 
+         // Search Bar
+         normalSearchBarSpaceHeightPx = res.getDimensionPixelSize(
+-                R.dimen.dynamic_grid_search_bar_height);
++                FeatureOption.SPRD_HIDESEARCHBAR_SUPPORT ?
++                        R.dimen.dynamic_grid_hide_search_bar_height:
++                        R.dimen.dynamic_grid_search_bar_height);
+         tallSearchBarSpaceHeightPx = res.getDimensionPixelSize(
+                 R.dimen.dynamic_grid_search_bar_height_tall);
+         searchBarWidgetInternalPaddingTop = res.getDimensionPixelSize(
+Index: packages/apps/Launcher3/res/values/dimens.xml
+===================================================================
+--- packages/apps/Launcher3/res/values/dimens.xml	(revision 176481)
++++ packages/apps/Launcher3/res/values/dimens.xml	(revision 176482)
+@@ -20,6 +20,7 @@
+ <!-- Dynamic Grid -->
+     <dimen name="dynamic_grid_edge_margin">6dp</dimen>
+     <dimen name="dynamic_grid_search_bar_height">48dp</dimen>
++    <dimen name="dynamic_grid_hide_search_bar_height">10dp</dimen>
+     <!-- We want 46dp extra for the tall search bar. -->
+     <dimen name="dynamic_grid_search_bar_height_tall">94dp</dimen>
+     <dimen name="qsb_internal_padding_top">8dp</dimen>
+Index: packages/apps/Launcher3/res/xml/default_workspace_4x4.xml
+===================================================================
+--- packages/apps/Launcher3/res/xml/default_workspace_4x4.xml	(revision 176481)
++++ packages/apps/Launcher3/res/xml/default_workspace_4x4.xml	(revision 176482)
+@@ -18,12 +18,21 @@
+ 
+     <!-- Hotseat -->
+     <include launcher:workspace="@xml/dw_phone_hotseat" />
++	<appwidget
++        launcher:packageName="com.google.android.googlequicksearchbox"
++        launcher:className="com.google.android.googlequicksearchbox.SearchWidgetProvider"
++        launcher:screen="0"
++        launcher:x="0"
++        launcher:y="0"
++        launcher:spanX="4"
++        launcher:spanY="1" />
++
+     <appwidget
+         launcher:packageName="com.android.deskclock"
+         launcher:className="com.android.alarmclock.AnalogAppWidgetProvider"
+         launcher:screen="0"
+         launcher:x="1"
+-        launcher:y="0"
++        launcher:y="1"
+         launcher:spanX="2"
+         launcher:spanY="2" />
+     <!-- Bottom row -->
+Index: packages/apps/Launcher3/ext/src/com/sprd/ext/FeatureOption.java
+===================================================================
+--- packages/apps/Launcher3/ext/src/com/sprd/ext/FeatureOption.java	(revision 176481)
++++ packages/apps/Launcher3/ext/src/com/sprd/ext/FeatureOption.java	(revision 176482)
+@@ -41,6 +41,8 @@
+ 
+     public static final boolean SPRD_BGTRANSPARENT_SUPPORT = getProp( "ro.launcher.bgtransparent", true);
+ 
++    public static final boolean SPRD_HIDESEARCHBAR_SUPPORT = getProp( "ro.launcher.hidesearchbar", true);
++
+     private static boolean getProp(String prop, boolean devalues) {
+         boolean ret = false;
+ 
+Index: packages/apps/Launcher3/ext/src/com/sprd/ext/UtilitiesExt.java
+===================================================================
+--- packages/apps/Launcher3/ext/src/com/sprd/ext/UtilitiesExt.java	(revision 176481)
++++ packages/apps/Launcher3/ext/src/com/sprd/ext/UtilitiesExt.java	(revision 176482)
+@@ -1,5 +1,6 @@
+ package com.sprd.ext;
+ 
++import android.app.Activity;
+ import android.content.ComponentName;
+ import android.content.Context;
+ import android.content.pm.ApplicationInfo;
+@@ -12,6 +13,8 @@
+ import android.os.Bundle;
+ import android.os.SystemProperties;
+ import android.text.TextUtils;
++import android.view.Window;
++import android.view.WindowManager;
+ 
+ import com.android.launcher3.LauncherModel;
+ import com.android.launcher3.LauncherSettings;
+@@ -114,5 +117,12 @@
+             canvas.drawRect(rect, paint);
+         }
+     }
+-
++    public static void enableFullScreenMode(Activity activity, boolean enable) {
++        Window win = activity.getWindow();
++        if (enable) {
++            win.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
++        } else {
++            win.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
++        }
++    }
+ }

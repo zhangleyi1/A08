@@ -1,0 +1,33 @@
+Index: packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java	(revision 166430)
++++ packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java	(revision 166431)
+@@ -386,7 +386,7 @@
+                     gotoSmilView();
+                 } else {
+                 // Showing the media picker is treated as starting to compose the message.
+-                mInputManager.showHideMediaPicker(true /* show */, true /* animate */);
++                mInputManager.showHideMediaPicker(false /* show */, false /* animate */);
+             }
+             }
+         });
+Index: packages/apps/Messaging/res/layout/compose_message_view.xml
+===================================================================
+--- packages/apps/Messaging/res/layout/compose_message_view.xml	(revision 166430)
++++ packages/apps/Messaging/res/layout/compose_message_view.xml	(revision 166431)
+@@ -110,6 +110,7 @@
+                         android:layout_height="wrap_content"
+                         android:layout_gravity="center_vertical"
+                         android:src="@drawable/ic_attachment_dark"
++                        android:visibility="gone"
+                         android:paddingTop="@dimen/compose_message_attachment_padding_topBottom"
+                         android:paddingBottom="@dimen/compose_message_attachment_padding_topBottom"
+                         android:contentDescription="@string/attachMediaButtonContentDescription" />
+@@ -119,6 +120,7 @@
+                         android:layout_width="match_parent"
+                         android:layout_gravity="center"
+                         android:background="@drawable/msg_bubble_input"
++                        android:layout_marginStart="8dp"
+                         android:orientation="vertical">
+ 
+                         <com.android.messaging.ui.PlainTextEditText

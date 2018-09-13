@@ -1,0 +1,31 @@
+Index: frameworks/av/services/audiopolicy/service/AudioPolicyService.cpp
+===================================================================
+--- frameworks/av/services/audiopolicy/service/AudioPolicyService.cpp	(revision 169100)
++++ frameworks/av/services/audiopolicy/service/AudioPolicyService.cpp	(revision 169101)
+@@ -817,6 +817,12 @@
+     command->mParam = data;
+     command->mWaitStatus = true;
+     ALOGV("AudioCommandThread() adding create patch delay %d", delayMs);
++    if(delayMs &&  (*handle != AUDIO_PATCH_HANDLE_NONE)){
++        command->mWaitStatus = false;
++    }else{
++        command->mWaitStatus = true;
++    }
++
+     status = sendCommand(command, delayMs);
+     if (status == NO_ERROR) {
+         *handle = data->mHandle;
+Index: frameworks/av/services/audioflinger/PatchPanel.cpp
+===================================================================
+--- frameworks/av/services/audioflinger/PatchPanel.cpp	(revision 169100)
++++ frameworks/av/services/audioflinger/PatchPanel.cpp	(revision 169101)
+@@ -368,7 +368,8 @@
+ exit:
+     ALOGV("createAudioPatch() status %d", status);
+     if (status == NO_ERROR) {
+-        *handle = (audio_patch_handle_t) audioflinger->nextUniqueId(AUDIO_UNIQUE_ID_USE_PATCH);
++        if(*handle == AUDIO_PATCH_HANDLE_NONE)
++            *handle = (audio_patch_handle_t) audioflinger->nextUniqueId(AUDIO_UNIQUE_ID_USE_PATCH);
+         newPatch->mHandle = *handle;
+         newPatch->mHalHandle = halHandle;
+         mPatches.add(newPatch);

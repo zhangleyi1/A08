@@ -1,0 +1,314 @@
+Index: kernel/drivers/input/misc/stk3x1x.c
+===================================================================
+--- kernel/drivers/input/misc/stk3x1x.c	(revision 169293)
++++ kernel/drivers/input/misc/stk3x1x.c	(revision 169294)
+@@ -36,8 +36,13 @@
+ #include "stk3x1x.h"
+ 
+ #define DRIVER_VERSION  "3.10.1 20160628"
++#if 0
+ #define PRINT_WARN(x...)  printk(KERN_INFO "[STK3x1x_WARN] " x)
+ #define PRINT_ERR(format,x...)  printk(KERN_ERR "[STK3x1x] func: %s  line: %04d  info: " format, __func__, __LINE__, ## x) 
++#else
++#define PRINT_WARN(x...)  
++#define PRINT_ERR(format,x...)  
++#endif
+ 
+ #define STK_FLG_ALSDR_MASK            0x80
+ #define STK_FLG_PSDR_MASK             0x40
+@@ -104,8 +109,8 @@
+   .alsctrl_reg = 0x39,  /* als_persistance=1, als_gain = 64X, ALS_IT = 100ms */
+   .ledctrl_reg = 0xFF,   /* 100mA IRDR, 64/64 LED duty */
+   .wait_reg = 0xF,    /* 100 ms */
+-  .ps_thd_h = 102, //
+-  .ps_thd_l = 67, //
++  .ps_thd_h = 315, //
++  .ps_thd_l = 155, //
+   .int_pin = STK3X1X_IRQ_GPIO_NUMBER,//GPIO_PROX_INT//sprd_3rdparty_gpio_pls_irq
+   .transmittance = 500,     //500 . raw data trans to lux para,   report lux value
+ };
+@@ -238,7 +243,7 @@
+ 		pstk_data->ps_thd_h = ps_hthr;
+ 		pstk_data->ps_thd_l = ps_lthr;
+ 
+-		printk("[stk3x1x %s] high:%d low:%d\n", __func__, pstk_data->ps_thd_h, pstk_data->ps_thd_l);
++		//printk("[stk3x1x %s] high:%d low:%d\n", __func__, pstk_data->ps_thd_h, pstk_data->ps_thd_l);
+ 	}
+ 	return 0;
+ }
+@@ -415,11 +420,11 @@
+ 
+     ps_data->wait_reg = plat_data->wait_reg;
+     if (ps_data->wait_reg < 2) {
+-        printk(KERN_WARNING "%s: wait_reg should be larger than 2, force to write 2\n", __func__);
++        //printk(KERN_WARNING "%s: wait_reg should be larger than 2, force to write 2\n", __func__);
+         ps_data->wait_reg = 2;
+     }
+     else if (ps_data->wait_reg > 0xFF) {
+-        printk(KERN_WARNING "%s: wait_reg should be less than 0xFF, force to write 0xFF\n", __func__);
++        //printk(KERN_WARNING "%s: wait_reg should be less than 0xFF, force to write 0xFF\n", __func__);
+         ps_data->wait_reg = 0xFF;
+     }
+     
+@@ -530,7 +535,7 @@
+         return err;
+     }
+ 
+-    printk("%s: PID=0x%x, RID=0x%x\n", __func__, value[0], value[1]);
++    //printk("%s: PID=0x%x, RID=0x%x\n", __func__, value[0], value[1]);
+     ps_data->pid = value[0];
+ 
+     if (value[0] == STK3311WV_PID)
+@@ -544,7 +549,7 @@
+     PRINT_WARN( "%s: p_wv_r_bd_with_co = 0x%x\n", __func__, ps_data->p_wv_r_bd_with_co);
+ 
+     if (value[0] == 0) {
+-        printk("PID=0x0, please make sure the chip is stk3x1x!\n");
++        //printk("PID=0x0, please make sure the chip is stk3x1x!\n");
+         return -2;
+     }
+ 
+@@ -555,7 +560,7 @@
+     case 0x30:
+         return 0;
+     default:
+-        printk("%s: invalid PID(%#x)\n", __func__, value[0]);
++        //printk("%s: invalid PID(%#x)\n", __func__, value[0]);
+         return -1;
+     }
+     return 0;
+@@ -1403,14 +1408,14 @@
+         printk( KERN_ERR "%s fail, ret=%d", __func__, ps_reg[cnt]);
+         return -EINVAL;
+     }
+-    printk( KERN_INFO "reg[0x%x]=0x%2X\n", STK_PDT_ID_REG, ps_reg[cnt]);
++    //printk( KERN_INFO "reg[0x%x]=0x%2X\n", STK_PDT_ID_REG, ps_reg[cnt]);
+     cnt++;
+     ps_reg[cnt] = stk3x1x_i2c_smbus_read_byte_data(ps_data->client, STK_RSRVD_REG);
+     if(ps_reg[cnt] < 0) {
+-        printk( KERN_ERR "%s fail, ret=%d", __func__, ps_reg[cnt]);
++        //printk( KERN_ERR "%s fail, ret=%d", __func__, ps_reg[cnt]);
+         return -EINVAL;
+     }
+-    printk( KERN_INFO "reg[0x%x]=0x%2X\n", STK_RSRVD_REG, ps_reg[cnt]);
++    //printk( KERN_INFO "reg[0x%x]=0x%2X\n", STK_RSRVD_REG, ps_reg[cnt]);
+     len += scnprintf(buf+len, PAGE_SIZE-len, "[%2X]%2X,[%2X]%2X\n", cnt-1, ps_reg[cnt-1], cnt, ps_reg[cnt]);
+     return len;
+ /*
+@@ -1527,7 +1532,7 @@
+     int err = -1;
+     struct device *dev = &(client->dev);
+ 
+-    printk("%s \n", __func__);
++    //printk("%s \n", __func__);
+     err = device_create_file(dev, &dev_attr_distance);
+     err |= device_create_file(dev, &dev_attr_dumpreg);
+     err |= device_create_file(dev, &dev_attr_enable);
+@@ -1545,7 +1550,7 @@
+     uint32_t reading;
+     //unsigned int count=0;
+     reading = stk3x1x_get_ps_reading(ps_data);
+-    printk("stk3x1x ps_nosie= %d\n", reading);
++    //printk("stk3x1x ps_nosie= %d\n", reading);
+     if( reading > MAX_PS_NOISE)
+         return sprintf(buff,"device_name:STK3X1X @FAIL@PS_noise=%d\n", reading);
+     else
+@@ -1563,13 +1568,13 @@
+     psensor_kobj = kobject_create_and_add("psensor", kernel_kobj);
+     if (psensor_kobj == NULL) {
+         ret = -ENOMEM;
+-        printk("register sysfs failed. ret = %d\n", ret);
++        //printk("register sysfs failed. ret = %d\n", ret);
+         return ret;
+     }
+ 
+     ret = sysfs_create_file(psensor_kobj, &psensor_noise.attr);
+     if (ret) {
+-        printk("create sysfs failed. ret = %d\n", ret);
++        //printk("create sysfs failed. ret = %d\n", ret);
+         return ret;
+     }
+     return 0;
+@@ -1602,7 +1607,7 @@
+         return;
+ 
+ #ifdef STK_DEBUG_PRINTF
+-     printk("%s:  als_data=%d\n", __func__, reading);
++     //printk("%s:  als_data=%d\n", __func__, reading);
+ #endif
+ 
+     reading_lux = stk_alscode2lux(ps_data, reading);
+@@ -1652,7 +1657,7 @@
+      org_flag_reg = stk3x1x_get_flag(ps_data);
+     PRINT_ERR( " stk_irq_work_func  org_flag_reg:%x\n",  org_flag_reg);
+ #ifdef HQ_PSENSOR_CALIBRATION
+-    printk("zqq int:init=%d,noise=%d,low=%d,high=%d\n",ps_data->init_noise,\
++    //printk("zqq int:init=%d,noise=%d,low=%d,high=%d\n",ps_data->init_noise,\
+      ps_data->current_xtalk,ps_data->ps_thd_l,ps_data->ps_thd_h);
+ #endif
+ 
+@@ -1734,7 +1739,7 @@
+     struct stk3x1x_data *pData = data;
+     disable_irq_nosync(irq);
+     //printk("%s   %d\n",__func__,__LINE__);
+-    printk("%s \n",__func__);
++    //printk("%s \n",__func__);
+     queue_work(pData->stk_wq,&pData->stk_work);
+     return IRQ_HANDLED;
+ }
+@@ -1836,7 +1841,7 @@
+     err = request_any_context_irq(irq, stk_oss_irq_handler, IRQF_TRIGGER_FALLING|IRQF_NO_SUSPEND|IRQF_ONESHOT, STK3X1X_DEV_NAME, ps_data);
+ #endif
+     if (err < 0) {
+-        printk(KERN_WARNING "%s: request_any_context_irq(%d) failed for (%d)\n", __func__, irq, err);
++        //printk(KERN_WARNING "%s: request_any_context_irq(%d) failed for (%d)\n", __func__, irq, err);
+         goto err_request_any_context_irq;
+     }
+  //   enable_irq(irq);//xiexie
+@@ -1927,7 +1932,7 @@
+         }
+ 
+ 	sprintf(buf, "STK3X1X");
+-       printk("[stk3x1x] stk3x1x_read_chip_info %s\n",buf);
++       //printk("[stk3x1x] stk3x1x_read_chip_info %s\n",buf);
+         return 0;
+ }
+ 
+@@ -1938,7 +1943,7 @@
+     char strbuf[256];
+     struct stk3x1x_data *ps_data =  i2c_get_clientdata(this_client);
+ 
+-    printk("stk3x1x_ioctl cmd = %d, %d\n", _IOC_NR(cmd), cmd);
++    //printk("stk3x1x_ioctl cmd = %d, %d\n", _IOC_NR(cmd), cmd);
+     switch (cmd) {
+     case STK_IOCTL_SET_PFLAG: //enable/disable ps
+         {
+@@ -2044,8 +2049,7 @@
+     ps_data->ps_thd_h = stk3x1x_pfdata.ps_thd_h + ps_data->current_xtalk;
+     ps_data->ps_thd_l = stk3x1x_pfdata.ps_thd_l + ps_data->current_xtalk;
+ 
+-    printk("zqq calibrate:noise=%ld,low=%d ,high=%d\n",\
+-        sum,ps_data->ps_thd_l,ps_data->ps_thd_h);
++    //printk("zqq calibrate:noise=%ld,low=%d ,high=%d\n",sum,ps_data->ps_thd_l,ps_data->ps_thd_h);
+ 
+     stk3x1x_set_ps_thd_h(ps_data, ps_data->ps_thd_h);
+     stk3x1x_set_ps_thd_l(ps_data, ps_data->ps_thd_l);
+@@ -2108,7 +2112,7 @@
+         goto err;
+ 
+     enable_irq(ps_data->irq);
+-    printk("zqq init_noise %d\n",ps_data->init_noise);
++    //printk("zqq init_noise %d\n",ps_data->init_noise);
+ 
+     return 0;
+     err:
+@@ -2136,7 +2140,7 @@
+ 	int ps_lthr = 0;
+ 	int ps_len = 0;
+  
+-	printk("%s: start...\r\n", __func__);
++	//printk("%s: start...\r\n", __func__);
+ 
+ 
+ 	ret = stk3x1x_get_state(obj);
+@@ -2147,7 +2151,7 @@
+ 
+ 	if(ret & STK_STATE_EN_PS_MASK)
+ 	{
+-		printk( "%s: force disable PS\n", __func__);
++		//printk( "%s: force disable PS\n", __func__);
+ 		stk3x1x_enable_ps(obj, 0);
+ 		re_en_ps = 1;
+ 	}
+@@ -2154,7 +2158,7 @@
+ 
+ 	if(ret & STK_STATE_EN_ALS_MASK)
+ 	{
+-		printk( "%s: force disable ALS\n", __func__);
++		//printk( "%s: force disable ALS\n", __func__);
+ 		stk3x1x_enable_als(obj, 0);
+ 		re_en_als = 1;
+ 	}
+@@ -2171,7 +2175,7 @@
+ 		if(ret < 0)
+ 			goto err_out;
+ //#ifdef STK_PS_POLLING_LOG
+-		printk( "%s: ps=%d\n", __func__, ret);
++		//printk( "%s: ps=%d\n", __func__, ret);
+ //#endif
+ 		ps_sum += ret;
+ 		counter++;
+@@ -2203,7 +2207,7 @@
+ 	stk3x1x_set_ps_thd_h(obj, obj->ps_thd_h);
+ 	stk3x1x_set_ps_thd_l(obj, obj->ps_thd_l);
+ 
+-	printk("%s ok: rst:%d, high:%d, low:%d\n", __func__, rst, obj->ps_thd_h, obj->ps_thd_l); 
++	//printk("%s ok: rst:%d, high:%d, low:%d\n", __func__, rst, obj->ps_thd_h, obj->ps_thd_l); 
+ 
+ err_out:
+ /*
+@@ -2217,18 +2221,18 @@
+ */
+ 	if(re_en_als) 
+ 	{
+-		printk( "%s: re-enable ALS\n", __func__);
++		//printk( "%s: re-enable ALS\n", __func__);
+ 		stk3x1x_enable_als(obj, 1);
+ 	}
+ 		
+ 	if(re_en_ps)
+ 	{
+-		printk( "%s: re-enable PS\n", __func__);
++		//printk( "%s: re-enable PS\n", __func__);
+ 		stk3x1x_enable_ps(obj, 1);
+ 	}
+ 
+ 
+-	printk("%s: end\r\n", __func__);
++	//printk("%s: end\r\n", __func__);
+ 
+ 	if(ret < 0)
+ 		return ret;
+@@ -2243,13 +2247,13 @@
+ 
+ 	if((ret=stk_run_calibration(i2c_get_clientdata(this_client))) < 0)
+ 	{
+-		printk("%s: stk_run_calibration fail! ret = %d\r\n", __func__, ret);
++		//printk("%s: stk_run_calibration fail! ret = %d\r\n", __func__, ret);
+ 		return -EFAULT;
+ 	}
+ 	else
+ 	{
+ 		cal_finished = 1;
+-		printk("%s: stk_run_calibration ok! ret = %d\r\n", __func__, ret);
++		//printk("%s: stk_run_calibration ok! ret = %d\r\n", __func__, ret);
+ 		return count;
+ 	}
+ }
+@@ -2274,7 +2278,7 @@
+ 	data_buf[0] = ps_value;
+ 	data_buf[1] = ps_value + stk3x1x_pfdata.ps_thd_h;//stk3x1x_i2c_data->ps_thd_h;
+ 	data_buf[2] = ps_value + stk3x1x_pfdata.ps_thd_l;//stk3x1x_i2c_data->ps_thd_l;
+-	printk("%s: data_buf = %d, %d, %d\r\n", __func__, data_buf[0], data_buf[1], data_buf[2]);
++	//printk("%s: data_buf = %d, %d, %d\r\n", __func__, data_buf[0], data_buf[1], data_buf[2]);
+ 	if(copy_to_user(buf, data_buf, sizeof(data_buf)))
+ 	{
+ 		return -EFAULT;
+@@ -2315,7 +2319,7 @@
+     struct stk3x1x_data *ps_data;
+     struct stk3x1x_platform_data *plat_data;
+ 
+-    printk("%s: driver version = %s\n", __func__, DRIVER_VERSION);
++    //printk("%s: driver version = %s\n", __func__, DRIVER_VERSION);
+ 
+     if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+         PRINT_ERR( "%s: No Support for I2C_FUNC_I2C\n", __func__);
+@@ -2418,7 +2422,7 @@
+ 
+ //    stk3x1x_enable_ps(ps_data, 1);
+ //    stk3x1x_enable_als(ps_data, 1);
+-    printk("%s: probe successfully\n", __func__);
++    //printk("%s: probe successfully\n", __func__);
+     return 0;
+ 
+     err_stk3x1x_setup_irq:

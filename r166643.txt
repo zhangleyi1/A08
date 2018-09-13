@@ -1,0 +1,200 @@
+Index: frameworks/base/packages/SystemUI/AndroidManifest.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/AndroidManifest.xml	(revision 166642)
++++ frameworks/base/packages/SystemUI/AndroidManifest.xml	(revision 166643)
+@@ -522,5 +522,17 @@
+                 <action android:name="android.intent.action.SHOW_KEYBOARD_SHORTCUTS" />
+             </intent-filter>
+         </receiver>
++
++        <activity
++            android:name=".VoWifiInfoActivity"
++            android:theme="@android:style/Theme.Holo.Dialog.NoActionBar"
++            android:excludeFromRecents="true"
++            android:exported="true">
++            <intent-filter>
++                <action android:name="android.intent.action.MAIN" />
++                <category android:name="android.intent.category.DEFAULT" />
++            </intent-filter>
++        </activity>
++
+     </application>
+ </manifest>
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/VoWifiInfoActivity.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/VoWifiInfoActivity.java	(revision 0)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/VoWifiInfoActivity.java	(revision 166643)
+@@ -0,0 +1,56 @@
++package com.android.systemui;
++
++import android.app.Activity;
++import android.os.Bundle;
++import android.provider.Settings;
++import android.view.View;
++import android.widget.Button;
++import android.widget.CheckBox;
++import android.widget.CompoundButton;
++import com.android.systemui.R;
++
++public class VoWifiInfoActivity extends Activity implements View.OnClickListener {
++
++    private CheckBox cb;
++    private Button cancelBtn;
++    private Button okBtn;
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setContentView(R.layout.vowifi_info);
++        initView();
++    }
++
++    private void initView() {
++        cb = (CheckBox)findViewById(R.id.cb);
++        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
++            @Override
++            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
++                if (isChecked) {
++                    Settings.System.putInt(getContentResolver(), "vowifi_status_check", 1);
++                } else {
++                    Settings.System.putInt(getContentResolver(), "vowifi_status_check", 0);
++                }
++            }
++        });
++        cancelBtn = (Button)findViewById(R.id.cancel);
++        cancelBtn.setOnClickListener((View.OnClickListener) this);
++        okBtn = (Button)findViewById(R.id.ok);
++        okBtn.setOnClickListener((View.OnClickListener) this);
++    }
++
++    @Override
++    public void onClick(View v) {
++        switch(v.getId()) {
++            case R.id.cancel:
++                //Settings.System.putInt(getContentResolver(), "vowifi_status_check", 0);
++                finish();
++                break;
++            case R.id.ok:
++                //Settings.System.putInt(getContentResolver(), "vowifi_status_check", 1);
++                finish();
++                break;
++        }
++    }
++}
+Index: frameworks/base/packages/SystemUI/res/values-in-rID/string.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values-in-rID/string.xml	(revision 0)
++++ frameworks/base/packages/SystemUI/res/values-in-rID/string.xml	(revision 166643)
+@@ -0,0 +1,3 @@
++<resources>
++    <string name="content">VoWiFi akan dihidupkan. Panggilan telepon dan video akan berjalan melalui koneksi WiFi. Biaya akan dikenakan berdasarkan tarif Smartfren. Kualitas layanan bergantung pada jaringan WiFi. </string>
++</resources>
+Index: frameworks/base/packages/SystemUI/res/layout/vowifi_info.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/layout/vowifi_info.xml	(revision 0)
++++ frameworks/base/packages/SystemUI/res/layout/vowifi_info.xml	(revision 166643)
+@@ -0,0 +1,53 @@
++<?xml version="1.0" encoding="utf-8"?>
++<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:paddingBottom="@dimen/activity_vertical_margin"
++    android:paddingLeft="@dimen/activity_horizontal_margin"
++    android:paddingRight="@dimen/activity_horizontal_margin"
++    android:paddingTop="@dimen/activity_vertical_margin"
++    tools:context="activity.techainsh.com.vowifiinfo.MainActivity">
++
++    <TextView
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:id="@+id/content_tv"
++        android:text="@string/content" />
++
++    <CheckBox
++        android:layout_width="wrap_content"
++        android:layout_height="20dp"
++        android:layout_below="@id/content_tv"
++        android:id="@+id/cb"/>
++
++    <TextView
++        android:layout_width="wrap_content"
++        android:layout_height="20dp"
++        android:gravity="center_vertical"
++        android:layout_below="@id/content_tv"
++        android:layout_toRightOf="@id/cb"
++        android:text="@string/cb_text"/>
++    <LinearLayout
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:layout_below="@id/cb">
++
++        <Button
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content"
++            android:layout_weight="1.0"
++            android:text="@string/cancel_text"
++            android:id="@+id/cancel"/>
++
++        <Button
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content"
++            android:layout_weight="1.0"
++            android:text="@string/ok_text"
++            android:id="@+id/ok"/>
++    </LinearLayout>
++
++
++</RelativeLayout>
++
+Index: frameworks/base/packages/SystemUI/res/values/dimens.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 166642)
++++ frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 166643)
+@@ -660,4 +660,6 @@
+ 
+     <!-- bug 621129 -->
+     <dimen name="notification_clock_area_margintop">30dp</dimen>
++    <dimen name="activity_horizontal_margin">16dp</dimen>
++    <dimen name="activity_vertical_margin">16dp</dimen>
+ </resources>
+Index: frameworks/base/packages/SystemUI/res/values/strings.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 166642)
++++ frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 166643)
+@@ -1723,4 +1723,9 @@
+     <string name="accessibility_pull">Pull</string>
+ 
+     <string name="recent_app_clean_finished_toast">Release <xliff:g id="count">%1$s</xliff:g> memory,<xliff:g id="count">%2$s</xliff:g> available now.</string>
++    <string name="wowifi">VoWifi</string>
++    <string name="content">VoWiFi will be enabled. Voice and video calls will go through WiFi connectivity. Charges apply (as per Smartfren tariff). Quality of service will be dependent on available WiFi condition.</string>
++    <string name="cb_text">No longer remind</string>
++    <string name="cancel_text">Cancel</string>
++    <string name="ok_text">OK</string>
+ </resources>
+Index: vendor/sprd/plugins/frameworks/base/packages/SystemUI/addons/SystemUITelephonyAddon/src/plugin/sprd/systemuifeatures/qstile/VoWifiTile.java
+===================================================================
+--- vendor/sprd/plugins/frameworks/base/packages/SystemUI/addons/SystemUITelephonyAddon/src/plugin/sprd/systemuifeatures/qstile/VoWifiTile.java	(revision 166642)
++++ vendor/sprd/plugins/frameworks/base/packages/SystemUI/addons/SystemUITelephonyAddon/src/plugin/sprd/systemuifeatures/qstile/VoWifiTile.java	(revision 166643)
+@@ -50,6 +50,7 @@
+ import com.android.systemui.qs.QSTile;
+ import com.android.systemui.qs.QSTileView;
+ import com.android.systemui.qs.QSTile.ResourceIcon;
++import android.provider.Settings;
+ 
+ /** Quick settings tile: Vowifi **/
+ public class VoWifiTile extends QSTile<QSTile.BooleanState> {
+@@ -120,6 +121,13 @@
+         if (DBG) Log.d(TAG, "setVoWifiEnabled: " + !mState.value);
+         mVoWifiEnabled = !mState.value;
+         ImsManager.setWfcSetting(mContext, mVoWifiEnabled);
++        boolean show = Settings.System.getInt(mContext.getContentResolver(), "vowifi_status_check", 0) == 0;
++        if (mVoWifiEnabled && show) {
++            Intent intent = new Intent();
++            intent.setClassName("com.android.systemui", "com.android.systemui.VoWifiInfoActivity");
++            mContext.startActivity(intent);
++            mHost.startActivityDismissingKeyguard(new Intent()); 
++        }
+     }
+ 
+     @Override

@@ -1,0 +1,13 @@
+Index: packages/services/Telephony/res/values/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values/strings.xml	(revision 177112)
++++ packages/services/Telephony/res/values/strings.xml	(revision 177113)
+@@ -429,7 +429,7 @@
+         <item>"0"</item>
+     </string-array>
+     <!-- Cellular network 4G title [CHAR LIMIT=30] -->
+-    <string name="enhanced_4g_lte_mode_title">VoLTE enable</string>
++    <string name="enhanced_4g_lte_mode_title">VoLTE enabled</string>
+     <!-- Cellular network 4G summary [CHAR LIMIT=80] -->
+     <string name="enhanced_4g_lte_mode_summary">Use VoLTE to experience better voice call and video call</string>
+ 

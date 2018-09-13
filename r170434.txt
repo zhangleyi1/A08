@@ -1,0 +1,13 @@
+Index: kernel/arch/arm/boot/dts/sprd-battery.dtsi
+===================================================================
+--- kernel/arch/arm/boot/dts/sprd-battery.dtsi	(revision 170433)
++++ kernel/arch/arm/boot/dts/sprd-battery.dtsi	(revision 170434)
+@@ -57,7 +57,7 @@
+ 				1050 1100 1150 1200 1250 1300
+ 				1350 1400 1450 1500 1550 1600 1650>;
+ 		jeita-tab-size = <6>;
+-		jeita-temp-tab = <900 1000 1100 1450 1500 3000>;
++		jeita-temp-tab = <-100 0 200 450 550 1000>;
+ 		jeita-temp-recovery-tab = <870 970 1070 1420 1470 3000>;
+ 		jeita-cur-tab = <0 100 500 1000 700 0>;
+ 		jeita-cccv-tab = <4200 4200 4350 4350 4350 4350>;

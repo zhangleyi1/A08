@@ -1,0 +1,13 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/QSTileHost.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/QSTileHost.java	(revision 167904)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/QSTileHost.java	(revision 167905)
+@@ -456,7 +456,7 @@
+         else if (tileSpec.equals("location") && !WCN_DISABLED) return new LocationTile(this);
+         //NOTE: Bug#474450 Support the cutting function of  WifiDisplay module BEG -->
+         else if (tileSpec.equals("cast") && !WCN_DISABLED && mContext.getResources().getBoolean(
+-                com.android.internal.R.bool.config_enableWifiDisplay)) return new CastTile(this);
++                com.android.internal.R.bool.config_enableWifiDisplay)) return null/*new CastTile(this)*/;
+         //<-- Support the cutting function of  WifiDisplay module END
+         else if (tileSpec.equals("hotspot") && !WCN_DISABLED) return new HotspotTile(this);
+         //<-- Support the cutting function of WCN(WLAN,BT,GPS) END

@@ -1,0 +1,26 @@
+Index: vendor/sprd/platform/packages/apps/SprdEmail/UnifiedEmail/res/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdEmail/UnifiedEmail/res/values/strings.xml	(revision 171978)
++++ vendor/sprd/platform/packages/apps/SprdEmail/UnifiedEmail/res/values/strings.xml	(revision 171979)
+@@ -1199,7 +1199,7 @@
+     <string name="permission_change_redo">Since the permissions change, please redo.</string>
+     <!-- SPRD: support default signature feature @{ -->
+     <string name="preference_default_signature_title">Signature</string>
+-    <string name="signature_default">Sent from my phone</string>
++    <string name="signature_default">Sent from Andromax A36C5H</string>
+     <string name="signature_flag" translatable="false">!$#@abc</string>
+     <!-- SPRD: Mail priority @{ -->
+     <string name="set_priority_high">Set priority high</string>
+Index: vendor/sprd/platform/packages/apps/SprdEmail/UnifiedEmail/res/values-zh-rCN/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdEmail/UnifiedEmail/res/values-zh-rCN/strings.xml	(revision 171978)
++++ vendor/sprd/platform/packages/apps/SprdEmail/UnifiedEmail/res/values-zh-rCN/strings.xml	(revision 171979)
+@@ -513,7 +513,7 @@
+     <string name="permission_change_redo">由于权限变更，请重新操作</string>
+     <!-- SPRD: support default signature feature @{ -->
+     <string name="preference_default_signature_title">签名</string>
+-    <string name="signature_default">发自我的手机</string>
++    <string name="signature_default">发自Andromax A36C5H</string>
+     <!-- @} -->
+     <!-- SPRD: Mail priority @{ -->
+     <string name="set_priority_high">设置优先级：高</string>

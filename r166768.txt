@@ -1,0 +1,31 @@
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 166767)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 166768)
+@@ -745,7 +745,7 @@
+             prefSet.removeAll();
+             prefSet.addPreference(mButtonDataRoam);
+             /* SPRD: FEATURE_DATA_ALWAYS_ONLINE @{ */
+-            if (enableDataAlwaysOnline() && mButtonDataAol != null) {
++            if (enableDataAlwaysOnline() && mButtonDataAol != null && phoneSubId != 2) {
+                 prefSet.addPreference(mButtonDataAol);
+             }
+             /* @} */
+@@ -975,6 +975,12 @@
+         /*mShowNationalDataRoam = carrierConfig
+                 .getBoolean("national_data_roaming_bool");*/
+         mShowNationalDataRoam = true;
++        if (phoneSubId == 2) {
++            mShowNationalDataRoam = false;
++            prefSet.removePreference(mButtonDataRoam);
++            prefSet.removePreference(mButtonPreferredDataRoam);
++        }
++
+         if (mShowNationalDataRoam) {
+             prefSet.removePreference(mButtonDataRoam);
+             prefSet.addPreference(mButtonPreferredDataRoam);
+
+Property changes on: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java:r166307

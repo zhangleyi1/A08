@@ -1,0 +1,135 @@
+Index: packages/apps/Fotaplus/Android.mk
+===================================================================
+--- packages/apps/Fotaplus/Android.mk	(revision 0)
++++ packages/apps/Fotaplus/Android.mk	(revision 170654)
+@@ -0,0 +1,27 @@
++LOCAL_PATH:= $(call my-dir)
++
++include $(CLEAR_VARS)
++LOCAL_MODULE := fotaplusDaemon
++LOCAL_MODULE_CLASS := APPS
++LOCAL_MODULE_TAGS := optional
++LOCAL_BUILT_MODULE_STEM := package.apk
++LOCAL_MODULE_SUFFIX := $(COMMON_ANDROID_PACKAGE_SUFFIX)
++LOCAL_MODULE_PATH := $(TARGET_OUT)/priv-app
++LOCAL_PRIVILEGED_MODULE := true
++LOCAL_CERTIFICATE := platform
++LOCAL_SRC_FILES := app/fotaplusDaemon.apk
++LOCAL_MODULE_TARGET_ARCH := $(my_src_arch)
++include $(BUILD_PREBUILT)
++
++include $(CLEAR_VARS)
++LOCAL_MODULE := fotaplus
++LOCAL_MODULE_CLASS := APPS
++LOCAL_MODULE_TAGS := optional
++LOCAL_BUILT_MODULE_STEM := package.apk
++LOCAL_MODULE_SUFFIX := $(COMMON_ANDROID_PACKAGE_SUFFIX)
++LOCAL_MODULE_PATH := $(TARGET_OUT)/priv-app
++LOCAL_PRIVILEGED_MODULE := true
++LOCAL_CERTIFICATE := PRESIGNED
++LOCAL_SRC_FILES := app/fotaplus.apk
++LOCAL_MODULE_TARGET_ARCH := $(my_src_arch)
++include $(BUILD_PREBUILT)
+\ No newline at end of file
+Index: packages/apps/Fotaplus/app/fotaplus.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Fotaplus/app/fotaplus.apk
+===================================================================
+--- packages/apps/Fotaplus/app/fotaplus.apk	(revision 0)
++++ packages/apps/Fotaplus/app/fotaplus.apk	(revision 170654)
+
+Property changes on: packages/apps/Fotaplus/app/fotaplus.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Fotaplus/app/fotaplusDaemon.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Fotaplus/app/fotaplusDaemon.apk
+===================================================================
+--- packages/apps/Fotaplus/app/fotaplusDaemon.apk	(revision 0)
++++ packages/apps/Fotaplus/app/fotaplusDaemon.apk	(revision 170654)
+
+Property changes on: packages/apps/Fotaplus/app/fotaplusDaemon.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Fotaplus/app/fotaplus_noIcon.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Fotaplus/app/fotaplus_noIcon.apk
+===================================================================
+--- packages/apps/Fotaplus/app/fotaplus_noIcon.apk	(revision 0)
++++ packages/apps/Fotaplus/app/fotaplus_noIcon.apk	(revision 170654)
+
+Property changes on: packages/apps/Fotaplus/app/fotaplus_noIcon.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Fotaplus/device-fotaplus.mk
+===================================================================
+--- packages/apps/Fotaplus/device-fotaplus.mk	(revision 0)
++++ packages/apps/Fotaplus/device-fotaplus.mk	(revision 170654)
+@@ -0,0 +1,2 @@
++PRODUCT_PACKAGES += fotaplus \
++	fotaplusDaemon
+Index: packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java	(revision 170653)
++++ packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java	(revision 170654)
+@@ -566,12 +566,14 @@
+             return false;
+         }
+ 
++        /*
+         if (versionName != null) {
+             String[] names = versionName.split("\\.");
+             if (names.length >= 4 && ("9".equals(names[3]) || "9".equals(names[2]))) {
+                 return false;
+             }
+-        }
++        }*/
++        
+         Log.i("FotaUpdate", "isApkExist = true");
+         return true;
+     }
+Index: build/target/product/base.mk
+===================================================================
+--- build/target/product/base.mk	(revision 170653)
++++ build/target/product/base.mk	(revision 170654)
+@@ -140,4 +140,8 @@
+ 
+ 
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/embedded.mk)
+-$(call inherit-product, vendor/sprd/tools/ota/device-fotaupdate.mk)
+\ No newline at end of file
++$(call inherit-product, vendor/sprd/tools/ota/device-fotaupdate.mk)
++
++# SPRD: add fota support {
++$(call inherit-product, packages/apps/Fotaplus/device-fotaplus.mk)
++# }
+\ No newline at end of file
+Index: build/target/product/core.mk
+===================================================================
+--- build/target/product/core.mk	(revision 170653)
++++ build/target/product/core.mk	(revision 170654)
+@@ -65,6 +65,8 @@
+     Camcorder \
+     KeyGen_signd \
+     RunIn \
+-	dummysuw
++    dummysuw \
++    fotaplusDaemon \
++    fotaplus
+ 
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/core_base.mk)

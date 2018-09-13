@@ -1,0 +1,26 @@
+Index: device/sprd/scx35l/common/TelephonyCommon.mk
+===================================================================
+--- device/sprd/scx35l/common/TelephonyCommon.mk	(revision 168292)
++++ device/sprd/scx35l/common/TelephonyCommon.mk	(revision 168293)
+@@ -18,7 +18,7 @@
+     ro.telephony.default_network = 9\
+     keyguard.no_require_sim=true \
+     ro.com.android.dataroaming=true \
+-    ro.simlock.unlock.autoshow=1 \
++    ro.simlock.unlock.autoshow=0 \
+     ro.simlock.unlock.bynv=0 \
+     ro.simlock.onekey.lock=0
+ 
+Index: vendor/sprd/plugins/packages/services/Telephony/addons/SimLockSupport/res/values/config.xml
+===================================================================
+--- vendor/sprd/plugins/packages/services/Telephony/addons/SimLockSupport/res/values/config.xml	(revision 168292)
++++ vendor/sprd/plugins/packages/services/Telephony/addons/SimLockSupport/res/values/config.xml	(revision 168293)
+@@ -21,7 +21,7 @@
+          EVENT_SIM_NETWORK_LOCKED events from the Sim.  If true, this will
+          prevent the IccNetworkDepersonalizationPanel from being shown,
+          and effectively disable the "Sim network lock" feature. -->
+-    <bool name="ignore_sim_network_locked_events">false</bool>
++    <bool name="ignore_sim_network_locked_events">true</bool>
+ 
+     <!-- Flag indicating whether the Phone app should provide
+          a "Dismiss" button on the SIM network unlock screen.

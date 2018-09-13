@@ -1,0 +1,129 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 169617)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 169618)
+@@ -120,6 +120,9 @@
+ import java.util.List;
+ import com.sprd.dialer.plugins.DialerRelianceHelper;
+ import android.text.InputFilter;
++import android.content.BroadcastReceiver;
++import android.content.IntentFilter;
++
+ /**
+  * Fragment that displays a twelve-key phone dialpad.
+  */
+@@ -406,6 +409,7 @@
+             mCallStateReceiver = new CallStateReceiver();
+             ((Context) getActivity()).registerReceiver(mCallStateReceiver, callStateIntentFilter);
+         }
++        registerBoradcastReceiver();
+         Trace.endSection();
+     }
+ 
+@@ -481,9 +485,14 @@
+         }
+         getSlotState();
+         if (ImsManager.isVolteEnabledByPlatform(getActivity())) {
+-            if (CallUtil.isVideoEnabled(getActivity())) {
+-                mVideoCallBtn.setVisibility(View.VISIBLE);
+-            }
++            //if (CallUtil.isVideoEnabled(getActivity())) {
++               boolean ret = Settings.System.getInt(getActivity().getContentResolver(), "volte_status", 0) != 0;
++                if (ret) {
++                    mVideoCallBtn.setVisibility(View.VISIBLE);
++                } else {
++                    mVideoCallBtn.setVisibility(View.GONE);
++                }
++            //}
+         }
+ 
+         mSwitchBtn = (ImageButton)fragmentView.findViewById(R.id.switchBtn);
+@@ -542,15 +551,39 @@
+         }
+     }
+ 
++    public void registerBoradcastReceiver(){
++        IntentFilter myIntentFilter = new IntentFilter();
++        myIntentFilter.addAction("video_call_action");
++        ((Context) getActivity()).registerReceiver(mBroadcastReceiver, myIntentFilter);
++    }
++
++    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver(){
++        @Override
++        public void onReceive(Context context, Intent intent) {
++            String action = intent.getAction();
++            boolean ret = Settings.System.getInt(context.getContentResolver(), "volte_status", 0) != 0;
++            if (1 == defaultSimSlot) {
++                mVideoCallBtn.setVisibility(ret?View.VISIBLE:View.GONE);
++            }
++        }
++          
++    };
++
+     private void showLteButton(boolean flag) {
+         mFloatingActionButtonController.setVisible(flag);
+         mGsmCallBtn.setVisibility(flag ? View.GONE:View.VISIBLE);
+ 
+         if (ImsManager.isVolteEnabledByPlatform(getActivity()) && flag) {
+-            if (CallUtil.isVideoEnabled(getActivity())) {
+-                mVideoCallBtn.setVisibility(flag ? View.VISIBLE:View.GONE);
++            boolean ret = Settings.System.getInt(getActivity().getContentResolver(), "volte_status", 0) != 0;
++            if (ret) {
++            //if (CallUtil.isVideoEnabled(getActivity())) {
++                mVideoCallBtn.setVisibility(View.VISIBLE);
++            //}
+             }
+         }
++        if (!flag) {
++            mVideoCallBtn.setVisibility(View.GONE);
++        }
+ 
+         defaultSimSlot = flag ? 1:2;
+     }
+@@ -936,6 +969,7 @@
+             mPseudoEmergencyAnimator = null;
+         }
+         ((Context) getActivity()).unregisterReceiver(mCallStateReceiver);
++        ((Context) getActivity()).unregisterReceiver(mBroadcastReceiver);
+     }
+ 
+     private void keyPressed(int keyCode) {
+Index: vendor/sprd/platform/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/SignalClusterViewEx.java
+===================================================================
+--- vendor/sprd/platform/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/SignalClusterViewEx.java	(revision 169617)
++++ vendor/sprd/platform/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/SignalClusterViewEx.java	(revision 169618)
+@@ -53,6 +53,9 @@
+ import java.util.ArrayList;
+ import java.util.HashMap;
+ import java.util.List;
++import android.provider.Settings;
++import android.content.BroadcastReceiver;
++import android.content.Intent;
+ 
+ // Intimately tied to the design of res/layout/signal_cluster_view.xml
+ public class SignalClusterViewEx
+@@ -434,6 +437,11 @@
+         if (!isImsRegistSubIdValid && mVolteVisible) {
+             Log.d(TAG, "refresh Volte Icon if SIM InValid");
+             mVolteVisible = false;
++
++            Settings.System.putInt(mContext.getContentResolver(), "volte_status", mVolteVisible ? 1:0);
++            Intent mIntent = new Intent("video_call_action");
++            mContext.sendBroadcast(mIntent);
++
+             mVolteIconId = 0;
+             apply();
+         }
+@@ -515,6 +523,12 @@
+ 
+     @Override
+     public void setMobileVolteIndicators(boolean show, int subId, int resId) {
++        if (mVolteVisible != show) {
++            Settings.System.putInt(mContext.getContentResolver(), "volte_status", show ? 1:0);
++            Intent mIntent = new Intent("video_call_action");
++            mContext.sendBroadcast(mIntent);
++        }
++
+         mVolteVisible = show;
+         mVolteIconId = resId;
+         /* SPRD: modify by BUG 606106 @{ */

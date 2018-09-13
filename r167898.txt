@@ -1,0 +1,13 @@
+Index: device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 167897)
++++ device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 167898)
+@@ -91,7 +91,7 @@
+         persist.modem.l.rsim=1 \
+         persist.support.oplpnn=true \
+         persist.support.cphsfirst=false \
+-        persist.sys.cam.hascamkey=true \
++        persist.sys.cam.hascamkey=false \
+         use_brcm_fm_chip=true \
+         ro.wcn.gpschip=ge2 \
+         persist.sys.csvt=false

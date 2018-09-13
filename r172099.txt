@@ -1,0 +1,34 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/qs/tiles/HotspotTile.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/qs/tiles/HotspotTile.java	(revision 172098)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/qs/tiles/HotspotTile.java	(revision 172099)
+@@ -34,7 +34,9 @@
+ import com.android.systemui.qs.GlobalSetting;
+ import com.android.systemui.qs.QSTile;
+ import com.android.systemui.statusbar.policy.HotspotController;
++import android.content.ComponentName;
+ 
++
+ /** Quick settings tile: Hotspot **/
+ public class HotspotTile extends QSTile<QSTile.AirplaneBooleanState> {
+     private final AnimationIcon mEnable =
+@@ -50,7 +52,9 @@
+     private final Callback mCallback = new Callback();
+     private final GlobalSetting mAirplaneMode;
+     private boolean mListening;
+-
++	private static final Intent TETHER_SETTINGS = new Intent().setComponent(new ComponentName(
++            "com.android.settings", "com.android.settings.Settings$TetherSettingsActivity"));
++	
+     public HotspotTile(Host host) {
+         super(host);
+         mController = host.getHotspotController();
+@@ -94,7 +98,7 @@
+ 
+     @Override
+     public Intent getLongClickIntent() {
+-        return new Intent(Settings.ACTION_WIRELESS_SETTINGS);
++        return TETHER_SETTINGS;
+     }
+ 
+     @Override

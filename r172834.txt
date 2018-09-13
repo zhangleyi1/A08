@@ -1,0 +1,45 @@
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml	(revision 172833)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml	(revision 172834)
+@@ -18,18 +18,18 @@
+             android:id="@+id/mobile_linear_two"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+-            android:orientation="vertical"
++            android:orientation="vertical"			
+             android:gravity="center_horizontal">
+  	    <ImageView
+                 android:id="@+id/mobile_data_in_out"
+                 android:layout_width="wrap_content"
+-                android:layout_height="4dp" />
+-            <ImageView
++                android:layout_height="4.5dp" />
++        <ImageView
+                 android:id="@+id/mobile_type"
+                 android:layout_width="wrap_content"
+-                android:layout_height="9dp"
++                android:layout_height="10dp"
+ 		 />
+-        </LinearLayout>
++    </LinearLayout>
+     <View
+         android:id="@+id/mobile_type_spacer"
+         android:layout_width="0dp"
+@@ -39,7 +39,7 @@
+ 
+     <RelativeLayout
+         android:id="@+id/mobile_signal_type"
+-        android:layout_width="24dp"
++        android:layout_width="18dp"
+         android:layout_height="wrap_content" >
+ 	<ImageView
+            android:id="@+id/mobile_type1"
+@@ -54,6 +54,7 @@
+             android:layout_height="18.5dp"
+             android:layout_width="32dp"
+             systemui:hasOverlappingRendering="false"
++			android:layout_marginBottom="2dp"
+             android:scaleX="1.5"
+             android:scaleY="1.3"
+             />

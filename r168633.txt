@@ -1,0 +1,14 @@
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/CallUtil.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/CallUtil.java	(revision 168632)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/CallUtil.java	(revision 168633)
+@@ -198,7 +198,8 @@
+      *      {@code false} otherwise.
+      */
+     public static boolean isVideoEnabled(Context context) {
+-        return (getVideoCallingAvailability(context) & VIDEO_CALLING_ENABLED) != 0;
++        //return (getVideoCallingAvailability(context) & VIDEO_CALLING_ENABLED) != 0;
++		return false;
+     }
+ 
+     /**

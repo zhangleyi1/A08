@@ -1,0 +1,13 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/sensor/LSensor.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/sensor/LSensor.java	(revision 169339)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/sensor/LSensor.java	(revision 169340)
+@@ -103,7 +103,7 @@
+ 				}
+ 				
+ 				value_0.setText(" "+values[0]);
+-				if(sensorValue != values[0] && values[0]<=18.0 && sensorValue != 0){
++				if(sensorValue != values[0] && values[0]<=180 && sensorValue != 0){
+ 				succesButton.setEnabled(true);
+ 				if(FactoryMode.isAutoTest){
+ 				Intent intent = new Intent(LSensor.this, FactoryMode.class);

@@ -1,0 +1,46 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/settings/BrightnessController.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/settings/BrightnessController.java	(revision 178541)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/settings/BrightnessController.java	(revision 178542)
+@@ -34,6 +34,7 @@
+ import com.android.internal.logging.MetricsProto.MetricsEvent;
+ 
+ import java.util.ArrayList;
++import android.util.Log;
+ import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE;
+ import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC;
+ import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL;
+@@ -68,6 +69,7 @@
+     private boolean mAutomatic;
+     private boolean mListening;
+     private boolean mExternalChange;
++    private float mCurrentBrightnessAdj = 0.0f;
+ 
+     public interface BrightnessStateChangeCallback {
+         public void onBrightnessLevelChanged();
+@@ -103,6 +105,9 @@
+                 } else if (BRIGHTNESS_URI.equals(uri) && !mAutomatic) {
+                     updateSlider();
+                 } else if (BRIGHTNESS_ADJ_URI.equals(uri) && mAutomatic) {
++                	 //ssp
++                    mCurrentBrightnessAdj = Settings.System.getFloatForUser(mContext.getContentResolver(),
++                    Settings.System.SCREEN_AUTO_BRIGHTNESS_ADJ, 0, UserHandle.USER_CURRENT);                	
+                     updateSlider();
+                 } else {
+                     updateMode();
+@@ -250,11 +255,14 @@
+                     });
+             }
+         } else {
+-            final float adj = value / (BRIGHTNESS_ADJ_RESOLUTION / 2f) - 1;
++        	  //ssp
++            final float adj = mCurrentBrightnessAdj;
+             if (stopTracking) {
+                 MetricsLogger.action(mContext, MetricsEvent.ACTION_BRIGHTNESS_AUTO, value);
+             }
+             setBrightnessAdj(adj);
++            //ssp
++            mControl.setValue((int) ((mCurrentBrightnessAdj + 1) * BRIGHTNESS_ADJ_RESOLUTION / 2f));            
+             if (!tracking) {
+                 AsyncTask.execute(new Runnable() {
+                     public void run() {

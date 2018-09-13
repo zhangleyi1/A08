@@ -1,0 +1,99 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/src/com/ucamera/ucam/modules/ugif/edit/GifEditActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/src/com/ucamera/ucam/modules/ugif/edit/GifEditActivity.java	(revision 179193)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/src/com/ucamera/ucam/modules/ugif/edit/GifEditActivity.java	(revision 179194)
+@@ -47,7 +47,9 @@
+ import android.widget.LinearLayout.LayoutParams;
+ import android.widget.RelativeLayout;
+ import android.widget.Toast;
++import android.widget.TextView;
+ 
++
+ import com.android.camera.OnScreenHint;
+ import com.android.camera.app.CameraApp;
+ import com.android.camera.util.ToastUtil;
+@@ -131,8 +133,8 @@
+ 
+     private GifView mGifView;
+     private ImageView mGifPlayIcon;
+-    private ImageButton mSaveBtn;
+-    private ImageButton mClearBtn;
++    private TextView mSaveBtn;
++    private TextView mClearBtn;
+     private GridView mTypeGridView;
+     private GridView mCateGridView;
+     private GifEditCateAdapter mCateAdapter;
+@@ -465,11 +467,11 @@
+         mGifPlayIcon = (ImageView) findViewById(R.id.gif_play_icon);
+         mMyGallery = (MyGallery) findViewById(R.id.ugif_mygallery_id);
+         mMyGallery.setGalleryCallback(new MyGalleryCallback());
+-        mSaveBtn = (ImageButton) findViewById(R.id.ugif_topbar_btn_save);
++        mSaveBtn = (TextView) findViewById(R.id.ugif_topbar_btn_save);
+ /*        if(!ShareUtils.SNS_SHARE_IS_ON) {
+             findViewById(R.id.ugif_topbar_btn_share).setVisibility(View.INVISIBLE);
+         }*/
+-        mClearBtn = (ImageButton) findViewById(R.id.ugif_topbar_btn_clear);
++        mClearBtn = (TextView) findViewById(R.id.ugif_topbar_btn_clear);
+         mClearBtn.setEnabled(false);
+         if( !UiUtils.highMemo() ) {
+            mClearBtn.setVisibility(View.INVISIBLE);
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/res_gif/layout-hdpi/gif_mode_edit_image.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/res_gif/layout-hdpi/gif_mode_edit_image.xml	(revision 179193)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/res_gif/layout-hdpi/gif_mode_edit_image.xml	(revision 179194)
+@@ -101,15 +101,17 @@
+                 android:onClick="onClick2ShareGIF"
+                 android:src="@drawable/btn_review_share" /> -->
+ 
+-            <ImageButton
++            <TextView
+                 android:id="@+id/ugif_topbar_btn_save"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+-                android:layout_weight="1.0"
+                 android:background="#00FFFFFF"
++                android:textSize="17sp"
++                android:layout_marginEnd="25dp"
+                 android:clickable="true"
++                android:textColor="@android:color/white"
+                 android:onClick="onClickSave2GIF"
+-                android:src="@drawable/ugif_edit_btn_save_selector" />
++                android:text="@string/ugif_save" />
+         </LinearLayout>
+ 
+         <LinearLayout
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-in/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-in/strings.xml	(revision 179193)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-in/strings.xml	(revision 179194)
+@@ -52,4 +52,7 @@
+ <string name="scan_result">"hasil Memindai"</string>
+ <string name="qrcode_result">"Tidak dapat mengatur dapat, Memindai lagi"</string>
+ <string name="qrcode_can_not_resolve">""Tidak dapat menyelesaikan lagi url" "</string>
++<string name="edit_reset">Setel ulang</string>
++<string name="ugif_save">Simpan</string>
++
+ </resources>
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rCN/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rCN/strings.xml	(revision 179193)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-zh-rCN/strings.xml	(revision 179194)
+@@ -72,5 +72,7 @@
+     <!-- fix bug fix Bug 616294 add warn location express when enter into Camera @{ -->
+     <string name="warn_location_title">警示</string>
+     <string name="warn_location_message">是否允许开启定位服务？</string>
++	<string name="edit_reset">重置</string>
++	<string name="ugif_save">保存</string>
+     <!-- }@ -->
+ </resources>
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml	(revision 179193)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml	(revision 179194)
+@@ -76,4 +76,6 @@
+     <string name="warn_location_message">Do you need to turn on the location service？</string>
+     <!-- }@ -->
+     <string name="camcorder_app_name">Camcorder</string>
++	<string name="edit_reset">Reset</string>
++	<string name="ugif_save">Save</string>
+ </resources>

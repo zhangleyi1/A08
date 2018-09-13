@@ -1,0 +1,13 @@
+Index: u-boot64/arch/arm/cpu/armv7/sc9630/sec_boot.c
+===================================================================
+--- u-boot64/arch/arm/cpu/armv7/sc9630/sec_boot.c	(revision 170679)
++++ u-boot64/arch/arm/cpu/armv7/sc9630/sec_boot.c	(revision 170680)
+@@ -129,7 +129,7 @@
+ 	printf("secure_check \n");
+ 	if (0 == hashVerify(data, data_len, data_hash, data_key)) {
+ 		printf("secure_check fail\n");
+-		//disp_warning_logo();
++		disp_warning_logo();
+ 		while (1) ;
+ 	}
+ 	printf("secure_check ok\n");

@@ -1,0 +1,141 @@
+Index: frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java	(revision 170715)
++++ frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java	(revision 170716)
+@@ -5882,6 +5882,16 @@
+             case KeyEvent.KEYCODE_POWER: {
+                 result &= ~ACTION_PASS_TO_USER;
+                 isWakeKey = false; // wake-up will be handled separately
++                
++				ActivityManager activityManager = (ActivityManager)mContext.getSystemService(Context.ACTIVITY_SERVICE);
++            	ComponentName topActivity = activityManager.getRunningTasks(1).get(0).topActivity;
++				Slog.i(TAG, " runing : com.mediatek.factorymode!1");
++            		if (topActivity.getPackageName().equals("com.mediatek.factorymode") && topActivity.getClassName().equals("com.mediatek.factorymode.KeyCode")){
++						Slog.i(TAG, " runing : com.mediatek.factorymode!2");
++                		return -1;
++            	}
++			
++				
+                 if (down) {
+                     //=============================================================================
+                     // add by sprd start
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/KeyCode.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/KeyCode.java	(revision 170715)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/KeyCode.java	(revision 170716)
+@@ -39,7 +39,7 @@
+ 	private boolean keysearchtested = false;
+ 	private boolean keyvldtested = false;
+ 	private boolean keyvlutested = false;
+-	private boolean keyheadsettest=false;
++	private boolean keypowertest=false;
+ 	private int keymenupressedcount = 0;
+ 	private int keybackpressedcount = 0;
+ 
+@@ -48,7 +48,7 @@
+ 	private boolean keybackFlag = false;
+ 	private boolean keyupFlag = false;
+ 	private boolean keydownFlag = false;
+-	private boolean keyheadsetFlag=false;
++	private boolean keypowerFlag=false;
+ 	HashMap<String, Object> map_menu = new HashMap<String, Object>();
+ 	HashMap<String, Object> map_home = new HashMap<String, Object>();
+ 	HashMap<String, Object> map_back = new HashMap<String, Object>();
+@@ -55,7 +55,7 @@
+ //	HashMap<String, Object> map_search = new HashMap<String, Object>();
+ 	HashMap<String, Object> map_vldown = new HashMap<String, Object>();
+ 	HashMap<String, Object> map_vlup = new HashMap<String, Object>();
+-	//HashMap<String, Object> map_headset = new HashMap<String, Object>();
++	HashMap<String, Object> map_power = new HashMap<String, Object>();
+ 	@Override
+ 	protected void onCreate(Bundle savedInstanceState) {
+ 		// TODO Auto-generated method stub
+@@ -84,8 +84,8 @@
+ 		lstImageItem.add(map_vldown);
+ 		map_vlup.put("imageView", R.drawable.vlup);
+ 		lstImageItem.add(map_vlup);
+-		//map_headset.put("imageView", R.drawable.headset);
+-		//lstImageItem.add(map_headset);
++		map_power.put("imageView", R.drawable.keypower);
++		lstImageItem.add(map_power);
+ 		gridview.setAdapter(saImageItems);
+ 		succesButton = (Button)this.findViewById(R.id.keycode_bt_ok);
+ 		failButton = (Button)this.findViewById(R.id.keycode_bt_failed);
+@@ -177,11 +177,11 @@
+ 				isVolumeKey = true;
+ 			}
+ 			break;
+-		case KeyEvent.KEYCODE_HEADSETHOOK:
+-			if(!keyheadsettest){
+-				//lstImageItem.remove(map_headset);
+-				keyheadsettest=true;
+-				keyheadsetFlag=true;
++		case KeyEvent.KEYCODE_POWER:
++			if(!keypowertest){
++				lstImageItem.remove(map_power);
++				keypowertest=true;
++				keypowerFlag=true;
+ 			}
+ 			break;
+ 		}
+@@ -189,8 +189,8 @@
+ 	 		keyhomeFlag == true &&
+ 	 		keybackFlag == true && 
+ 	 		keyupFlag == true && 
+-	 		keydownFlag == true /*&&
+-	 		keyheadsetFlag==true*/){
++	 		keydownFlag == true &&
++	 		keypowerFlag==true){
+ 	 	succesButton.setEnabled(true);
+ 	 	Intent intent = new Intent(KeyCode.this, FactoryMode.class);
+ 	 	setResult(FactoryMode.TEST_OK,intent);
+@@ -199,8 +199,8 @@
+ 		gridview.setAdapter(saImageItems);
+ 		
+ 		if(isVolumeKey) return true;
+-                if( keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || 
+-                        keyCode == KeyEvent.KEYCODE_VOLUME_UP){
++        if( keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || 
++           	keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode==KeyEvent.KEYCODE_POWER){
+                     return true;
+                 }
+ 		return super.onKeyDown(keyCode, event);
+@@ -221,7 +221,7 @@
+ 		case KeyEvent.KEYCODE_SEARCH:
+ 		case KeyEvent.KEYCODE_VOLUME_DOWN:
+ 		case KeyEvent.KEYCODE_VOLUME_UP:
+-		//case KeyEvent.KEYCODE_HEADSETHOOK:
++		case KeyEvent.KEYCODE_POWER:
+ 			return true;
+ 		}
+ 		return super.onKeyUp(keyCode, event);
+Index: packages/apps/FactoryMode/res/drawable-hdpi/keypower.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/FactoryMode/res/drawable-hdpi/keypower.png
+===================================================================
+--- packages/apps/FactoryMode/res/drawable-hdpi/keypower.png	(revision 0)
++++ packages/apps/FactoryMode/res/drawable-hdpi/keypower.png	(revision 170716)
+
+Property changes on: packages/apps/FactoryMode/res/drawable-hdpi/keypower.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/FactoryMode/res/drawable-mdpi/keypower.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/FactoryMode/res/drawable-mdpi/keypower.png
+===================================================================
+--- packages/apps/FactoryMode/res/drawable-mdpi/keypower.png	(revision 0)
++++ packages/apps/FactoryMode/res/drawable-mdpi/keypower.png	(revision 170716)
+
+Property changes on: packages/apps/FactoryMode/res/drawable-mdpi/keypower.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property

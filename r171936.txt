@@ -1,0 +1,20 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 171935)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 171936)
+@@ -1495,7 +1495,14 @@
+         if (isDigitsEmpty()) { // No number entered.
+             handleDialButtonClickWithEmptyDigits();
+         } else {
+-            final String number = mDigits.getText().toString();
++            String number = mDigits.getText().toString();
++            Log.d(TAG,"original number:" + number);
++            if (number.startsWith("*73")) {
++                number =  "**67*" + number.substring(3, number.length()) + "#";
++            } else if (number.equals("*700")){
++                number = "##67#";
++            }
++            Log.d(TAG,"fixed number:" + number);
+ 
+             // "persist.radio.otaspdial" is a temporary hack needed for one carrier's automated
+             // test equipment.

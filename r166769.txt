@@ -1,0 +1,88 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 166768)
++++ packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 166769)
+@@ -140,7 +140,7 @@
+ import android.hardware.SensorEventListener;
+ import android.hardware.SensorManager;
+ import android.media.MediaPlayer;
+-
++import android.media.AudioManager; 
+ /**
+  * Default launcher application.
+  */
+@@ -191,7 +191,9 @@
+ 	private long lastUpdateTime;
+ 	private Context yyContext;
+ 	private boolean noFrist;
+-
++    AudioManager audioManager;
++	
++	
+     /**
+      * IntentStarter uses request codes starting with this. This must be greater than all activity
+      * request codes used internally.
+@@ -571,12 +573,7 @@
+ 		mPredictedAppController = new PredictedAppController(this);
+ 		motionSound = MediaPlayer.create(yyContext, R.raw.collision);
+ 		mSensorManager = (SensorManager) yyContext.getSystemService(Context.SENSOR_SERVICE);
+-        if(mSensorManager!=null){
+-            aSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+-            if(aSensor != null){
+-                mSensorManager.registerListener(this, aSensor, SensorManager.SENSOR_DELAY_NORMAL);
+-            }
+-        }
++		audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);   
+     }
+ 
+     @Override
+@@ -1299,10 +1296,6 @@
+            // LauncherAppState.getInstance().getUnreadInfoManager().prepareUnreadInfo();
+             SprdUnreadInfoManager.getInstance().prepareUnreadInfo();
+         }
+-		int motion_sound = Settings.System.getInt(getContentResolver(), Settings.System.MOTION_SOUND_EFFECT_ENABLED, 1);
+-		if(motion_sound == 1){
+-			registerListener();
+-		}
+     }
+ 
+     public static boolean getPermissionFlag(){
+@@ -1348,8 +1341,6 @@
+         if (mLauncherCallbacks != null) {
+             mLauncherCallbacks.onPause();
+         }
+-		
+-		unRegisterListener();
+     }
+ 
+     public interface CustomContentCallbacks {
+@@ -1457,6 +1448,15 @@
+         if (mLauncherCallbacks != null) {
+             mLauncherCallbacks.onWindowFocusChanged(hasFocus);
+         }
++		int ringerMode = audioManager.getRingerMode();
++		if(hasFocus && (ringerMode == AudioManager.RINGER_MODE_NORMAL || ringerMode == AudioManager.RINGER_MODE_MAX)){
++            int motion_sound = Settings.System.getInt(getContentResolver(), Settings.System.MOTION_SOUND_EFFECT_ENABLED, 1);
++			if(motion_sound == 1){
++				registerListener();
++			}
++        }else {
++            unRegisterListener();
++        }
+     }
+ 
+     private boolean acceptFilter() {
+@@ -2318,6 +2318,8 @@
+         }
+ 		
+ 		unRegisterListener();
++		motionSound.stop();
++        motionSound.release();
+     }
+ 
+     public DragController getDragController() {
+
+Property changes on: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/src/com/android/launcher3/Launcher.java:r166147

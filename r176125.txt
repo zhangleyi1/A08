@@ -1,0 +1,17 @@
+Index: packages/services/Telecomm/src/com/sprd/server/telecom/settings/FlipToSilenceCallSettingsFragment.java
+===================================================================
+--- packages/services/Telecomm/src/com/sprd/server/telecom/settings/FlipToSilenceCallSettingsFragment.java	(revision 176124)
++++ packages/services/Telecomm/src/com/sprd/server/telecom/settings/FlipToSilenceCallSettingsFragment.java	(revision 176125)
+@@ -21,6 +21,12 @@
+ 
+         mFlippingToSilence = (CheckBoxPreference) findPreference(
+                 TelecommCallSettings.KEY_FLIP_TO_SLIENCE_CALL);
++		try{
++			mFlippingToSilence.setChecked(Settings.Global.getInt(getActivity().getApplicationContext().getContentResolver(),
++                    	TelecommCallSettings.FLIPPING_SILENCE_DATA)==1);
++		}catch (Exception e) {
++			e.printStackTrace();
++        }
+     }
+ 
+     @Override

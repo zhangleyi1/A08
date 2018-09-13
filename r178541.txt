@@ -1,0 +1,228 @@
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_08_small.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_08_small.png
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_08_small.png	(revision 0)
++++ packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_08_small.png	(revision 178541)
+
+Property changes on: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_08_small.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_09_small.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_09_small.png
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_09_small.png	(revision 0)
++++ packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_09_small.png	(revision 178541)
+
+Property changes on: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_09_small.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_08.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_08.png
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_08.png	(revision 0)
++++ packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_08.png	(revision 178541)
+
+Property changes on: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_08.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_09.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_09.png
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_09.png	(revision 0)
++++ packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_09.png	(revision 178541)
+
+Property changes on: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_09.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_10_small.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_10_small.png
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_10_small.png	(revision 0)
++++ packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_10_small.png	(revision 178541)
+
+Property changes on: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_10_small.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_11_small.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_11_small.png
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_11_small.png	(revision 0)
++++ packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_11_small.png	(revision 178541)
+
+Property changes on: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_11_small.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_12_small.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_12_small.png
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_12_small.png	(revision 0)
++++ packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_12_small.png	(revision 178541)
+
+Property changes on: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_12_small.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_13_small.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_13_small.png
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_13_small.png	(revision 0)
++++ packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_13_small.png	(revision 178541)
+
+Property changes on: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_13_small.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_14_small.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_14_small.png
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_14_small.png	(revision 0)
++++ packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_14_small.png	(revision 178541)
+
+Property changes on: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_14_small.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_10.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_10.png
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_10.png	(revision 0)
++++ packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_10.png	(revision 178541)
+
+Property changes on: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_10.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_11.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_11.png
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_11.png	(revision 0)
++++ packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_11.png	(revision 178541)
+
+Property changes on: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_11.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_12.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_12.png
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_12.png	(revision 0)
++++ packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_12.png	(revision 178541)
+
+Property changes on: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_12.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_13.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_13.png
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_13.png	(revision 0)
++++ packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_13.png	(revision 178541)
+
+Property changes on: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_13.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_14.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_14.png
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_14.png	(revision 0)
++++ packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_14.png	(revision 178541)
+
+Property changes on: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_14.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Launcher3/WallpaperPicker/res/values-nodpi/wallpapers.xml
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/res/values-nodpi/wallpapers.xml	(revision 178540)
++++ packages/apps/Launcher3/WallpaperPicker/res/values-nodpi/wallpapers.xml	(revision 178541)
+@@ -24,5 +24,13 @@
+     <item>wallpaper_05</item>
+     <item>wallpaper_06</item>
+     <item>wallpaper_07</item>
++    <item>wallpaper_08</item>
++    <item>wallpaper_09</item>
++    <item>wallpaper_10</item>
++    <item>wallpaper_11</item>
++    <item>wallpaper_12</item>
++    <item>wallpaper_13</item>
++    <item>wallpaper_14</item>
++
+ </string-array>
+ </resources>

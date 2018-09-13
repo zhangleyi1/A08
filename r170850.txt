@@ -1,0 +1,22 @@
+Index: vendor/sprd/telephony-res/apn/apns-conf_8.xml
+===================================================================
+--- vendor/sprd/telephony-res/apn/apns-conf_8.xml	(revision 170849)
++++ vendor/sprd/telephony-res/apn/apns-conf_8.xml	(revision 170850)
+@@ -14296,7 +14296,7 @@
+     <apn carrier="Smartfren"
+         mcc="510"
+         mnc="09"
+-        apn="Smartfren"
++        apn="Smartfren4G"
+         proxy=""
+         port=""
+         user="smartfren"
+@@ -14472,7 +14472,7 @@
+     <apn carrier="Smartfren"
+         mcc="510"
+         mnc="28"
+-        apn="Smartfren"
++        apn="Smartfren4G"
+         proxy=""
+         port=""
+         user="smartfren"

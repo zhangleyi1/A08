@@ -1,0 +1,34 @@
+Index: vendor/sprd/feature_configs/base/overlay/packages/apps/Dialer/res/values-in/strings.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/packages/apps/Dialer/res/values-in/strings.xml	(revision 177372)
++++ vendor/sprd/feature_configs/base/overlay/packages/apps/Dialer/res/values-in/strings.xml	(revision 177373)
+@@ -10,9 +10,9 @@
+ <string name="fast_dial_title">Putar cepat</string>
+ <string name="no_fast_dial_number">"Panggil cepat nomor tidak diatur."</string>
+ <string name="fast_dial_in_guest_mode">"Tidak dapat menggunakan panggilan cepa+ pada mode pemilik"</string>
+-<string name="vibration_feedback_for_call_connection_setting_title">"Anjuran untuk koneksi panggilan"</string>
+-<string name="vibration_feedback_for_call_connection_title">"Umpan balik bergetar untuk koneksi panggilan luar"</string>
+-<string name="vibration_feedback_for_call_disconnection_title">"Masukan getaran untuk panggilan pemutusan"</string>
++<string name="vibration_feedback_for_call_connection_setting_title">"Pengingat koneksi panggilan"</string>
++<string name="vibration_feedback_for_call_connection_title">"Hubungkan panggilan Getar"</string>
++<string name="vibration_feedback_for_call_disconnection_title">"Lepaskan panggilan Getar"</string>
+ <string name="unselect_all">Batal pilih semua</string>
+ <string name="select_all_sprd">pilih semua</string>
+ <string name="doneButton">Selesai</string>
+Index: vendor/sprd/feature_configs/base/overlay/packages/apps/Dialer/res/values/strings.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/packages/apps/Dialer/res/values/strings.xml	(revision 177372)
++++ vendor/sprd/feature_configs/base/overlay/packages/apps/Dialer/res/values/strings.xml	(revision 177373)
+@@ -28,9 +28,9 @@
+     <string name="fast_dial_in_guest_mode">Can not use fast dial not in owner mode</string>
+     <!-- @} -->
+     <!-- SPRD: VIBRATION FEEDBACK FUNCTION & Modified for Bug608351 @{ -->
+-    <string name="vibration_feedback_for_call_connection_setting_title">Prompts for call connection</string>
+-    <string name="vibration_feedback_for_call_connection_title">Vibration feedback for outgoing call connection</string>
+-    <string name="vibration_feedback_for_call_disconnection_title">Vibration feedback for call disconnection</string>
++    <string name="vibration_feedback_for_call_connection_setting_title">Prompts call connection</string>
++    <string name="vibration_feedback_for_call_connection_title">Connect call with Vibrating</string>
++    <string name="vibration_feedback_for_call_disconnection_title">Disconnect call with Vibrating</string>
+     <!-- @} -->
+     <!-- SPRD: CLEAR CALL LOG FEATURE. @{ -->
+     <string name="unselect_all">Unselect All</string>

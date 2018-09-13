@@ -1,0 +1,13 @@
+Index: u-boot64/common/loader/loader_common.c
+===================================================================
+--- u-boot64/common/loader/loader_common.c	(revision 172876)
++++ u-boot64/common/loader/loader_common.c	(revision 172877)
+@@ -458,7 +458,7 @@
+ 	lcd_printf("   fastboot mode \n");
+ 	//display fixed item
+ 	lcd_printf("   Product Name : Andromax \n");
+-	lcd_printf("   Variant : B26D2H \n");
++	lcd_printf("   Variant : A36C5H \n");
+ 
+ 	// 1 Hw Version+	
+ 	lcd_printf("   HW Version : SC9832-A08A-V1.0.0 \n");

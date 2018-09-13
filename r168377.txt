@@ -1,0 +1,35 @@
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 168376)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 168377)
+@@ -739,9 +739,11 @@
+         final int phoneSubId = mPhone.getSubId();
+         /* SPRD: add for bug 596388 @{ */
+         int defaultDataSubId = mSubscriptionManager.getDefaultDataSubscriptionId();
++        int phoneSlotId = mSubscriptionManager.getSlotId(phoneSubId);
++
+         if (DBG) {
+             log("updateBody: isLteOnCdma=" + isLteOnCdma + " phoneSubId=" + phoneSubId
+-                    + " defaultDataSubId=" + defaultDataSubId);
++                    + " defaultDataSubId=" + defaultDataSubId + " phoneSlotId:" + phoneSlotId);
+         }
+         /* @} */
+ 
+@@ -749,7 +751,7 @@
+             prefSet.removeAll();
+             prefSet.addPreference(mButtonDataRoam);
+             /* SPRD: FEATURE_DATA_ALWAYS_ONLINE @{ */
+-            if (enableDataAlwaysOnline() && mButtonDataAol != null && phoneSubId != 2) {
++            if (enableDataAlwaysOnline() && mButtonDataAol != null && phoneSlotId != 1) {
+                 prefSet.addPreference(mButtonDataAol);
+             }
+             /* @} */
+@@ -979,7 +981,7 @@
+         /*mShowNationalDataRoam = carrierConfig
+                 .getBoolean("national_data_roaming_bool");*/
+         mShowNationalDataRoam = true;
+-        if (phoneSubId == 2) {
++        if (phoneSlotId == 1) {
+             mShowNationalDataRoam = false;
+             prefSet.removePreference(mButtonDataRoam);
+             prefSet.removePreference(mButtonPreferredDataRoam);

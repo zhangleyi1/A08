@@ -1,0 +1,11 @@
+Index: secute_boot.sh
+===================================================================
+--- secute_boot.sh	(revision 170533)
++++ secute_boot.sh	(revision 170534)
+
+Property changes on: secute_boot.sh
+___________________________________________________________________
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property

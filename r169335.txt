@@ -1,0 +1,24 @@
+Index: vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_51028.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_51028.xml	(revision 169334)
++++ vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_51028.xml	(revision 169335)
+@@ -5,4 +5,7 @@
+         <string name="ecclist_nocard">110@1,112,113@4,118@2</string>
+         <string name="ecclist_withcard">110@1,112,113@4,118@2</string>
+     </carrier_config>
++	<carrier_config>
++        <string name="vmnumber">*88</string>
++    </carrier_config>
+ </carrier_config_list>
+Index: vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_51009.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_51009.xml	(revision 169334)
++++ vendor/sprd/platform/packages/apps/CarrierConfig/assets/carrier_config_51009.xml	(revision 169335)
+@@ -5,4 +5,7 @@
+         <string name="ecclist_nocard">110@1,112,113@4,118@2</string>
+         <string name="ecclist_withcard">110@1,112,113@4,118@2</string>
+     </carrier_config>
++	<carrier_config>
++        <string name="vmnumber">*88</string>
++    </carrier_config>
+ </carrier_config_list>

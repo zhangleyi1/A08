@@ -1,0 +1,56 @@
+Index: device/sprd/scx35l/common/sepolicy/file.te
+===================================================================
+--- device/sprd/scx35l/common/sepolicy/file.te	(revision 168360)
++++ device/sprd/scx35l/common/sepolicy/file.te	(revision 168361)
+@@ -39,4 +39,8 @@
+ type alsps_cali_device, dev_type;
+ 
+ #tp_gesture_switch
+-type tp_gesture_switch_device, dev_type;
+\ No newline at end of file
++type tp_gesture_switch_device, dev_type;
++
++#/sys/class/power_supply/usb/online
++#/sys/class/power_supply/ac/online
++type power_supply_online_device, dev_type;
+\ No newline at end of file
+Index: device/sprd/scx35l/common/sepolicy/system_app.te
+===================================================================
+--- device/sprd/scx35l/common/sepolicy/system_app.te	(revision 168360)
++++ device/sprd/scx35l/common/sepolicy/system_app.te	(revision 168361)
+@@ -173,4 +173,4 @@
+ allow system_app alsps_cali_device:chr_file { open write read getattr }; 
+ 
+ ##/dev/tp_gesture_switch
+-allow system_app tp_gesture_switch_device:chr_file { open write read getattr }; 
+\ No newline at end of file
++allow system_app power_supply_online_device:chr_file { open write read getattr }; 
+\ No newline at end of file
+Index: device/sprd/scx35l/common/sepolicy/untrusted_app.te
+===================================================================
+--- device/sprd/scx35l/common/sepolicy/untrusted_app.te	(revision 168360)
++++ device/sprd/scx35l/common/sepolicy/untrusted_app.te	(revision 168361)
+@@ -42,3 +42,5 @@
+ ### Add untrusted_app permission for appbackup app
+ allow untrusted_app app_data_file:file { open read setattr rename unlink };
+ allow untrusted_app app_data_file:dir { open read search add_name remove_name};
++
++allow untrusted_app tp_gesture_switch_device:chr_file { open write read getattr }; 
+\ No newline at end of file
+Index: device/sprd/scx35l/common/sepolicy/file_contexts
+===================================================================
+--- device/sprd/scx35l/common/sepolicy/file_contexts	(revision 168360)
++++ device/sprd/scx35l/common/sepolicy/file_contexts	(revision 168361)
+@@ -204,4 +204,9 @@
+ /dev/alsps_cali u:object_r:alsps_cali_device:s0
+ 
+ #/dev/tp_gesture_switch
+-/dev/tp_gesture_switch u:object_r:tp_gesture_switch_device:s0
+\ No newline at end of file
++/dev/tp_gesture_switch u:object_r:tp_gesture_switch_device:s0
++
++#/sys/class/power_supply/usb/online
++#/sys/class/power_supply/ac/online
++/sys/class/power_supply/usb/online u:object_r:power_supply_online_device:s0
++/sys/class/power_supply/ac/online u:object_r:power_supply_online_device:s0
+\ No newline at end of file

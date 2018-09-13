@@ -1,0 +1,140 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/usb/StorageNotification.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/usb/StorageNotification.java	(revision 168461)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/usb/StorageNotification.java	(revision 168462)
+@@ -55,6 +55,11 @@
+     private static final int DISK_ID = 0x5344534b; // SDSK
+     private static final int MOVE_ID = 0x534d4f56; // SMOV
+ 
++	//sp
++	private final String NO_SDCARD_NOTIFICATION_ID = "no_volume:00,00";
++	private boolean isInsertedSDCard = false;
++	//sp
++	
+     private static final String ACTION_SNOOZE_VOLUME = "com.android.systemui.action.SNOOZE_VOLUME";
+     private static final String ACTION_FINISH_WIZARD = "com.android.systemui.action.FINISH_WIZARD";
+ 
+@@ -226,7 +231,13 @@
+ 
+         final List<VolumeInfo> vols = mStorageManager.getVolumes();
+         for (VolumeInfo vol : vols) {
+-            onVolumeStateChangedInternal(vol);
++			//sp
++			if (vol.getType() == VolumeInfo.TYPE_PUBLIC) {
++				isInsertedSDCard = true;
++			}
++			//sp
++			
++			onVolumeStateChangedInternal(vol);
+         }
+ 
+         mContext.getPackageManager().registerMoveCallback(mMoveCallback, new Handler());
+@@ -235,6 +246,12 @@
+ 
+         /* SPRD bug 618101:Change notification after change language.{@*/
+         mLocale = Locale.getDefault();
++		
++		//sp
++		if (!isInsertedSDCard) {
++			onNoSDNotification();
++		}
++		//sp
+     }
+ 
+     /* SPRD bug 618101:Change notification after change language.{@*/
+@@ -271,6 +288,30 @@
+     }
+     /*@}*/
+ 
++	//sp
++	private void onNoSDNotification(){
++		final Notification notif;
++		
++		final CharSequence title = mContext.getString(R.string.ext_media_missing_title,"SDCard");
++        final CharSequence text = mContext.getString(R.string.ext_media_missing_message);
++		
++		Notification.Builder builder = new Notification.Builder(mContext)
++			.setSmallIcon(R.drawable.ic_sd_card_48dp)
++			.setColor(mContext.getColor(R.color.system_notification_accent_color))
++			.setContentTitle(title)
++			.setContentText(text)
++			.setStyle(new Notification.BigTextStyle().bigText(text))
++			.setVisibility(Notification.VISIBILITY_PUBLIC)
++			.setLocalOnly(true);
++		SystemUI.overrideNotificationAppName(mContext, builder);
++		builder.setCategory(Notification.CATEGORY_ERROR);
++		notif = builder.build();
++		notif.flags |= Notification.FLAG_NO_CLEAR;
++
++		mNotificationManager.notifyAsUser(NO_SDCARD_NOTIFICATION_ID, PUBLIC_ID, notif, UserHandle.ALL);
++	}
++	//sp
++	
+     private void updateMissingPrivateVolumes() {
+         final List<VolumeRecord> recs = mStorageManager.getVolumeRecords();
+         for (VolumeRecord rec : recs) {
+@@ -279,11 +320,24 @@
+             final String fsUuid = rec.getFsUuid();
+             final VolumeInfo info = mStorageManager.findVolumeByUuid(fsUuid);
+             if ((info != null && info.isMountedWritable()) || rec.isSnoozed()) {
++				
++				//sp
++				if (!isInsertedSDCard) {
++					mNotificationManager.cancelAsUser(NO_SDCARD_NOTIFICATION_ID, PUBLIC_ID, UserHandle.ALL);
++					isInsertedSDCard = true;
++				}
++				//sp
++				
+                 // Yay, private volume is here, or user snoozed
+                 mNotificationManager.cancelAsUser(fsUuid, PRIVATE_ID, UserHandle.ALL);
+ 
+             } else {
+                 // Boo, annoy the user to reinsert the private volume
++				
++				//sp
++				isInsertedSDCard = true;
++				//sp
++				
+                 final CharSequence title = mContext.getString(R.string.ext_media_missing_title,
+                         rec.getNickname());
+                 final CharSequence text = mContext.getString(R.string.ext_media_missing_message);
+@@ -300,10 +354,13 @@
+                         .setCategory(Notification.CATEGORY_SYSTEM)
+                         .setDeleteIntent(buildSnoozeIntent(fsUuid));
+                 SystemUI.overrideNotificationAppName(mContext, builder);
+-
+-                mNotificationManager.notifyAsUser(fsUuid, PRIVATE_ID, builder
+-                        .build(), UserHandle.ALL);
+-            }
++				//sp
++				final Notification notif = builder.build();
++				notif.flags |= Notification.FLAG_NO_CLEAR;
++				
++                mNotificationManager.notifyAsUser(fsUuid, PRIVATE_ID, notif, UserHandle.ALL);
++				//sp
++			}
+         }
+     }
+ 
+@@ -406,10 +463,21 @@
+ 
+     private Notification onVolumeUnmounted(VolumeInfo vol) {
+         // Ignored
++		//sp
++		isInsertedSDCard = false;
++		onNoSDNotification();
++		//sp
+         return null;
+     }
+ 
+     private Notification onVolumeChecking(VolumeInfo vol) {
++		//sp
++		if (!isInsertedSDCard) {
++			mNotificationManager.cancelAsUser(NO_SDCARD_NOTIFICATION_ID, PUBLIC_ID, UserHandle.ALL);
++			isInsertedSDCard = true;
++		}
++		//sp
++		
+         final DiskInfo disk = vol.getDisk();
+         final CharSequence title = mContext.getString(
+                 R.string.ext_media_checking_notification_title, disk.getDescription());

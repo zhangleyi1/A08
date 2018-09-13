@@ -1,0 +1,13 @@
+Index: device/sprd/scx35l/common/device.mk
+===================================================================
+--- device/sprd/scx35l/common/device.mk	(revision 183090)
++++ device/sprd/scx35l/common/device.mk	(revision 183091)
+@@ -205,7 +205,7 @@
+ endif
+ 
+ PRODUCT_PROPERTY_OVERRIDES += \
+-        ro.frp.pst=/dev/block/platform/sdio_emmc/by-name/persist
++        ro.frp.pst=
+ 
+ ifeq ($(TARGET_BUILD_VARIANT),user)
+ 

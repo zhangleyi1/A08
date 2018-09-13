@@ -1,0 +1,50 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 178986)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 178987)
+@@ -1557,11 +1557,20 @@
+                 boolean mIsImsRegistered = TelephonyManager.from(getContext()).isImsRegistered();
+                 Log.d("DialPadFragment", "handleDialButtonPressed mIsImsRegistered"+mIsImsRegistered);
+                 if (isAirplaneModeOn
+-                        && !PhoneNumberUtils.isEmergencyNumber(number) && !mIsImsRegistered) {
++                        && !PhoneNumberUtils.isEmergencyNumber(number)) {
++                    if (mIsImsRegistered) {
++                        final Intent intent = new CallIntentBuilder(number).
++                                setCallInitiationType(LogState.INITIATION_DIALPAD)
++                                .build();
++                        Log.d(TAG, "--- Calling may be created by VoWifi in Airplane.");
++                        DialerUtils.startActivityWithErrorToast(getActivity(), intent);
++                        clearDialpad();
++                    } else {
+                     DialogFragment dialogFragment = ErrorDialogFragment
+                             .newInstance(R.string.dialog_make_call_airplane_mode_message);
+                     dialogFragment.show(getFragmentManager(),
+                             "make_call_request_during_airplane_mode");
++                    }
+                 } else {
+ 
+                     if (!oneSimState && twoSimState) {
+@@ -1613,12 +1622,23 @@
+                 final boolean isAirplaneModeOn = Settings.System.getInt(
+                         getActivity().getContentResolver(),
+                         Settings.System.AIRPLANE_MODE_ON, 0) != 0;
++                boolean mIsImsRegistered = TelephonyManager.from(getContext()).isImsRegistered();
++                Log.d(TAG, "handleDialButtonPressed --> mIsImsRegistered" + mIsImsRegistered);
+                 if (isAirplaneModeOn
+                         && !PhoneNumberUtils.isEmergencyNumber(number)) {
++                    if (mIsImsRegistered) {
++                        final Intent intent = new CallIntentBuilder(number).
++                                setCallInitiationType(LogState.INITIATION_DIALPAD)
++                                .build();
++                        Log.d(TAG, "Calling may be created by VoWifi in Airplane.");
++                        DialerUtils.startActivityWithErrorToast(getActivity(), intent);
++                        clearDialpad();
++                    } else {
+                     DialogFragment dialogFragment = ErrorDialogFragment
+                             .newInstance(R.string.dialog_make_call_airplane_mode_message);
+                     dialogFragment.show(getFragmentManager(),
+                             "make_call_request_during_airplane_mode");
++                    }
+                 } else {
+                     if (!oneSimState && twoSimState) {
+                         id--; 

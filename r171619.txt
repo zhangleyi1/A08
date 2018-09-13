@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/DreamFMRadio/res/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamFMRadio/res/values/strings.xml	(revision 171618)
++++ vendor/sprd/platform/packages/apps/DreamFMRadio/res/values/strings.xml	(revision 171619)
+@@ -117,7 +117,7 @@
+     <string name="toast_station_renamed">The station has been renamed</string>
+     <string name="station_freq">station freq</string>
+     <string name="change_frequency">Change frequency</string>
+-    <string name="button_ok">sure</string>
++    <string name="button_ok">OK</string>
+     <string name="button_cancel">cancel</string>
+     <string name="range_error">Out of the radio range(87.5MHz-108MHz)</string>
+     <string name="freq_input_info">Please input frequency</string>

@@ -1,0 +1,16 @@
+Index: packages/apps/PhoneCommon/res/values/dimens.xml
+===================================================================
+--- packages/apps/PhoneCommon/res/values/dimens.xml	(revision 167787)
++++ packages/apps/PhoneCommon/res/values/dimens.xml	(revision 167788)
+@@ -38,9 +38,9 @@
+     <!-- Provide adjustable dimensions so that different apps can use different dialpad sizes. -->
+     <dimen name="dialpad_digits_adjustable_text_size">@dimen/dialpad_digits_text_size</dimen>
+     <dimen name="dialpad_digits_adjustable_height">@dimen/dialpad_digits_height</dimen>
+-    <dimen name="dialpad_digits_padding">16dp</dimen>
++    <dimen name="dialpad_digits_padding">12dp</dimen>
+     <dimen name="dialpad_digits_menu_left_padding">8dp</dimen>
+-    <dimen name="dialpad_digits_menu_right_padding">10dp</dimen>
++    <dimen name="dialpad_digits_menu_right_padding">8dp</dimen>
+     <dimen name="dialpad_center_margin">3dp</dimen>
+     <dimen name="dialpad_button_margin">2dp</dimen>
+     <dimen name="dialpad_voicemail_icon_padding_top">2dp</dimen>

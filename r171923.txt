@@ -1,0 +1,14 @@
+Index: packages/apps/Launcher3/res/values/styles.xml
+===================================================================
+--- packages/apps/Launcher3/res/values/styles.xml	(revision 171922)
++++ packages/apps/Launcher3/res/values/styles.xml	(revision 171923)
+@@ -31,7 +31,8 @@
+         <item name="android:layout_height">match_parent</item>
+         <item name="android:layout_gravity">center</item>
+         <item name="android:gravity">center_horizontal</item>
+-        <item name="android:singleLine">true</item>
++        <item name="android:singleLine">false</item>
++		<item name="android:maxLines">2</item>
+         <item name="android:ellipsize">marquee</item>
+         <item name="android:textColor">@color/workspace_icon_text_color</item>
+         <item name="android:shadowRadius">2.0</item>

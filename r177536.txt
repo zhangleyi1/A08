@@ -1,0 +1,376 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 177535)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 177536)
+@@ -122,7 +122,9 @@
+ import android.text.InputFilter;
+ import android.content.BroadcastReceiver;
+ import android.content.IntentFilter;
++import android.os.SystemProperties;
+ 
++
+ /**
+  * Fragment that displays a twelve-key phone dialpad.
+  */
+@@ -300,6 +302,10 @@
+     private ImageButton mSwitchBtn;
+     private ImageButton mGsmCallBtn;
+     private int defaultSimSlot = 1;  //lte
++    
++    private static final int INDEX_SIM1 = 0;
++    private static final int INDEX_SIM2 = 1;
++    
+ 
+     private class CallStateReceiver extends BroadcastReceiver {
+         /**
+@@ -403,9 +409,9 @@
+         super.onCreate(state);
+ 
+         mFirstLaunch = state == null;
+-		WindowManager.LayoutParams lp =getActivity().getWindow().getAttributes();
+-				lp.flags |= WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED;
+-				getActivity().getWindow().setAttributes(lp);
++        WindowManager.LayoutParams lp =getActivity().getWindow().getAttributes();
++                lp.flags |= WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED;
++                getActivity().getWindow().setAttributes(lp);
+ 
+         mCurrentCountryIso = GeoUtil.getCurrentCountryIso(getActivity());
+ 
+@@ -552,19 +558,21 @@
+             }
+         }
+     }
+-
+-    public void call(Context context, int id, String telNum){	
++/*
++    public void call(Context context, int id, String telNum){   
+         Log.d(TAG, "call:  accoutId = " + id);
++        // modified by 104004
+         List<PhoneAccountHandle> subscriptionAccountHandles =
+                 PhoneAccountUtils.getSubscriptionPhoneAccounts(getActivity());
+         PhoneAccountHandle account = subscriptionAccountHandles.get(id);
++        
+         final Intent intent = new CallIntentBuilder(telNum)
+                 .setCallInitiationType(LogState.INITIATION_DIALPAD)
+                 .setPhoneAccountHandle(account)
+-							.build();
+-			DialerUtils.startActivityWithErrorToast(getActivity(), intent);
++                            .build();
++            DialerUtils.startActivityWithErrorToast(getActivity(), intent);
+     }
+-
++*/
+     public void registerBoradcastReceiver(){
+         IntentFilter myIntentFilter = new IntentFilter();
+         myIntentFilter.addAction("show_video_call_action");
+@@ -923,12 +931,12 @@
+             tryRegisterImsListener();//SRPD: Add for VoLTE
+         }
+         /* @} */
+-		// add  by  yujunjie for bug 95827 start
+-		List<PhoneAccountHandle> subscriptionAccounts =
++        // add  by  yujunjie for bug 95827 start
++        List<PhoneAccountHandle> subscriptionAccounts =
+                 PhoneAccountUtils.getSubscriptionPhoneAccounts(getContext());
+         int size = subscriptionAccounts.size();
+         mSwitchBtn.setVisibility(size > 1 ? View.VISIBLE : View.GONE);
+-		// add  by  yujunjie for bug 95827 end
++        // add  by  yujunjie for bug 95827 end
+         Trace.endSection();
+     }
+ 
+@@ -1154,7 +1162,7 @@
+                     (CarrierConfigManagerEx) getContext().getSystemService("carrier_config_ex");
+             if (configManager.getConfigForDefaultPhone() != null) {
+                 boolean isIpEnabled = false;
+-				//		configManager.getConfigForDefaultPhone().getBoolean(
++                //      configManager.getConfigForDefaultPhone().getBoolean(
+                 //        CarrierConfigManagerEx.KEY_FEATURE_IP_DIAL_ENABLED_BOOL);
+ 
+                 if (isIpEnabled) {
+@@ -1199,7 +1207,12 @@
+             view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+             /* SPRD: add for bug613747 @{ */
+             if (!mStateSaved) {
+-                handleDialButtonPressed();
++                Log.d(TAG, " sim1  " + SystemProperties.getBoolean("persist.radio.def.account", false));
++                if (SystemProperties.getBoolean("persist.radio.def.account", false)) {
++                    handleDialButtonPressed(INDEX_SIM1);
++                } else {
++                    handleDialButtonPressed();
++                }
+             }
+             /* @} */
+         }
+@@ -1221,7 +1234,13 @@
+             }
+         } else if (resId == R.id.dialpad_floating_action_gsm_button) {
+             if (!mStateSaved) {
+-                handleGSMDialButtonPressed();
++                Log.d(TAG, " sim2 " + SystemProperties.getBoolean("persist.radio.def.account", false));
++                if (SystemProperties.getBoolean("persist.radio.def.account", false)) {
++                    handleDialButtonPressed(INDEX_SIM2);
++                    
++                } else {
++                   handleDialButtonPressed(); 
++                }
+             }
+             //call(getContext(), 1, number);
+         }
+@@ -1533,24 +1552,19 @@
+                     dialogFragment.show(getFragmentManager(),
+                             "make_call_request_during_airplane_mode");
+                 } else {
+-                    //Added by zhangleyi for 20170321 begin
+-                    /*
+-                    final Intent intent = new CallIntentBuilder(number).
+-                            setCallInitiationType(LogState.INITIATION_DIALPAD)
+-                            .build();
+-                    DialerUtils.startActivityWithErrorToast(getActivity(), intent);
+-                    */
+ 
+                     if (!oneSimState && twoSimState) {
+                         Toast.makeText(getContext(), "Please switch to sim2", Toast.LENGTH_SHORT).show();
+                     } else {
+                         //call(getContext(), 0, number);
+-                        List<PhoneAccountHandle> subscriptionAccountHandles =
++                       /* modified by 104004
++                       List<PhoneAccountHandle> subscriptionAccountHandles =
+                                 PhoneAccountUtils.getSubscriptionPhoneAccounts(getActivity());
+                         PhoneAccountHandle account = subscriptionAccountHandles.get(0);
++                        */
+                         final Intent intent = new CallIntentBuilder(number)
+                                 .setCallInitiationType(LogState.INITIATION_DIALPAD)
+-                                .setPhoneAccountHandle(account)
++                              //  .setPhoneAccountHandle(account)
+                             .build();
+ 						Log.d("jiml", "DialpadFragment number is " + number);	
+                         DialerUtils.startActivityWithErrorToast(getActivity(), intent);
+@@ -1564,7 +1578,7 @@
+         }
+     }
+     //Added by zhangleyi for 20170321 begin
+-    private void handleGSMDialButtonPressed() {
++    private void handleDialButtonPressed(int id) {
+         if (isDigitsEmpty()) { // No number entered.
+             handleDialButtonClickWithEmptyDigits();
+         } else {
+@@ -1581,7 +1595,6 @@
+                     dialogFragment.show(getFragmentManager(), "phone_prohibited_dialog");
+ 
+                 }
+-
+                 // Clear the digits just in case.
+                 clearDialpad();
+ 
+@@ -1596,12 +1609,19 @@
+                     dialogFragment.show(getFragmentManager(),
+                             "make_call_request_during_airplane_mode");
+                 } else {
+-                    if (oneSimState && twoSimState) {
+-                        call(getContext(), 1, number);
+-                    } else if (!oneSimState && twoSimState) {
+-                        call(getContext(), 0, number);
+-                    }
+-
++                    if (!oneSimState && twoSimState) {
++                        id--; 
++                     }
++                    //call(getContext(), 1, number);
++                      List<PhoneAccountHandle> subscriptionAccountHandles =
++                      PhoneAccountUtils.getSubscriptionPhoneAccounts(getActivity());
++                      PhoneAccountHandle account = subscriptionAccountHandles.get(id);
++                    
++                      final Intent intent = new CallIntentBuilder(number)
++                      .setCallInitiationType(LogState.INITIATION_DIALPAD)
++                       .setPhoneAccountHandle(account)
++                          .build();
++                      DialerUtils.startActivityWithErrorToast(getActivity(), intent);
+                     //hideAndClearDialpad(false);
+                      clearDialpad();
+                 }
+Index: packages/services/Telecomm/src/com/android/server/telecom/CallsManager.java
+===================================================================
+--- packages/services/Telecomm/src/com/android/server/telecom/CallsManager.java	(revision 177535)
++++ packages/services/Telecomm/src/com/android/server/telecom/CallsManager.java	(revision 177536)
+@@ -965,7 +965,7 @@
+          * when activeSubscriptionInfoCount less than 2 @{ */
+         int activeSubscriptionInfoCount = SubscriptionManager.from(mContext).getActiveSubscriptionInfoCount();
+         boolean needsAccountSelection = phoneAccountHandle == null && accounts.size() > 1 &&
+-                !call.isEmergencyCall() && activeSubscriptionInfoCount >= 2;
++                !call.isEmergencyCall() && activeSubscriptionInfoCount >= 1;
+         /* @} */
+ 
+         if (needsAccountSelection) {
+Index: packages/services/Telephony/src/com/android/phone/settings/AccountSelectionPreference.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/settings/AccountSelectionPreference.java	(revision 177535)
++++ packages/services/Telephony/src/com/android/phone/settings/AccountSelectionPreference.java	(revision 177536)
+@@ -17,6 +17,8 @@
+ package com.android.phone.settings;
+ 
+ import com.android.phone.R;
++import com.android.services.telephony.sip.SipProfileDb;
++import com.android.services.telephony.sip.SipUtil;
+ 
+ import android.app.AlertDialog;
+ import android.content.Context;
+@@ -23,6 +25,11 @@
+ import android.content.DialogInterface;
+ import android.content.Intent;
+ import android.content.pm.PackageManager;
++import android.net.sip.SipException;
++import android.net.sip.SipManager;
++import android.net.sip.SipProfile;
++import android.os.RemoteException;
++import android.os.SystemProperties;
+ import android.os.UserHandle;
+ import android.preference.ListPreference;
+ import android.preference.Preference;
+@@ -74,6 +81,7 @@
+         mShowSelectionInSummary = value;
+     }
+ 
++    private boolean mSipAccountEnable;
+     public void setModel(
+             TelecomManager telecomManager,
+             List<PhoneAccountHandle> accountsList,
+@@ -94,8 +102,24 @@
+                 Log.d(TAG, "Account " + handle + " is invalid");
+             }
+         }
++		/* CQ @{ */
++        if (validAccounts.size() == 2) {
++            validAccounts.remove(1);
++        }
++        List<PhoneAccountHandle> accountHandles = telecomManager.getPhoneAccountsSupportingScheme(
++                PhoneAccount.SCHEME_SIP);
++        Log.d(TAG, ".setModel: " + accountHandles.size());
+ 
++        if (accountHandles != null && accountHandles.size() != 0) {
++            mSipAccountEnable = true;
++            for (PhoneAccountHandle accountHandle : accountHandles) {
++                validAccounts.add(accountHandle);
++            }
++        }
++        /* @} */
++
+         mAccounts = validAccounts.toArray(new PhoneAccountHandle[validAccounts.size()]);
++        Log.d(TAG, "setModel: " + mAccounts.length + ", mSipAccountEnable = " + mSipAccountEnable);
+         /* @} */
+         mEntryValues = new String[mAccounts.length + 1];
+         mEntries = new CharSequence[mAccounts.length + 1];
+@@ -122,9 +146,18 @@
+                     phoneId + 1);
+             /* @} */
+             /* SPRD: add for bug589268 @{*/
+-            origLabel[i] = (TextUtils.isEmpty(label) && isSimAccount)
+-                    ? mContext.getString(R.string.phone_accounts_default_account_label)
+-                    : String.valueOf(simLabelPrefix+label);
++            if (isSimAccount) {
++                origLabel[i] = (TextUtils.isEmpty(label) && isSimAccount)
++                        ? mContext.getString(R.string.phone_accounts_default_account_label)
++                        : String.valueOf(simLabelPrefix + label);
++            } else {
++                origLabel[i] = (TextUtils.isEmpty(label) && isSimAccount)
++                        ? mContext.getString(R.string.phone_accounts_default_account_label)
++                        : String.valueOf(label);
++            }
++            Log.d(TAG, "setModel:  isSimAccount = " + isSimAccount +
++                    ", simLabelPrefix = " + simLabelPrefix + ", origLabel[" + i + "] = " +
++                    origLabel[i] + ", label = " + String.valueOf(label));
+             if (!TextUtils.isEmpty(label)) {
+                 CharSequence target = "%";
+                 CharSequence replacement = "%%";
+@@ -131,12 +164,16 @@
+                 if (label.toString().contains(target)) {
+                     label = label.toString().replace(target, replacement);
+                 }
++                Log.d(TAG, TAG + ".setModel: ---> " + String.valueOf(label));
+             }
+             /* @} */
++
+             mEntries[i] = (TextUtils.isEmpty(label) && isSimAccount)
+                     ? mContext.getString(R.string.phone_accounts_default_account_label)
+                     : String.valueOf(label);
+             mEntryValues[i] = Integer.toString(i);
++            Log.d(TAG, "setModel:  mEntries[" + i + "] = " + mEntries[i] + ", mEntryValues[i] = "
++                    + mEntryValues[i]);
+             if (Objects.equals(currentSelection, mAccounts[i])) {
+                 selectedIndex = i;
+             }
+@@ -152,6 +189,8 @@
+         if (mShowSelectionInSummary) {
+             setSummary(mEntries[selectedIndex]);
+         }
++		    Log.d("rkniu", "setModel:  selectedIndex = " + selectedIndex);
++			setSystemProperties(selectedIndex);
+     }
+ 
+     @Override
+@@ -164,6 +203,10 @@
+                     setSummary(mEntries[index]);
+                 }
+                 if (index != findIndexOfValue(getValue())) {
++                    Log.d(TAG, "onPreferenceChange: index = " + index +
++                            ", mAccounts.length = " + mAccounts.length + ", mSipAccountEnable = "
++                            + mSipAccountEnable);
++                    setSystemProperties(index);
+                     setValueIndex(index);
+                     mListener.onAccountChanged(this);
+                 }
+@@ -173,6 +216,28 @@
+         return false;
+     }
+ 
++	    private void setSystemProperties(int index) {
++        Log.d("rkniu", "onPreferenceChange: index = " + index +
++                ", mAccounts.length = " + mAccounts.length + ", mSipAccountEnable = "
++                + mSipAccountEnable);
++        if (index == mAccounts.length) {
++            SystemProperties.set("persist.radio.def.account", "false");
++        } else {
++            if (mSipAccountEnable) {
++                if (index > 0 && mAccounts.length > 1) {
++                    SystemProperties.set("persist.radio.def.account", "false");
++                } else if (index == 0) {
++                    Log.d("rkniu", "============  def  true");
++                    SystemProperties.set("persist.radio.def.account", "true");
++                }
++            } else {
++                if (index == 0) {
++                    SystemProperties.set("persist.radio.def.account", "true");
++                }
++            }
++        }
++    }
++
+     /**
+      * Modifies the dialog to change the default "Cancel" button to "Choose Accounts", which
+      * triggers the {@link PhoneAccountSelectionPreferenceActivity} to be shown.
+Index: packages/services/Telephony/sip/src/com/android/services/telephony/sip/SipUtil.java
+===================================================================
+--- packages/services/Telephony/sip/src/com/android/services/telephony/sip/SipUtil.java	(revision 177535)
++++ packages/services/Telephony/sip/src/com/android/services/telephony/sip/SipUtil.java	(revision 177536)
+@@ -88,7 +88,7 @@
+      * @param phoneAccountHandle The {@link PhoneAccountHandle}.
+      * @return The SIP profile name.
+      */
+-    static String getSipProfileNameFromPhoneAccount(PhoneAccountHandle phoneAccountHandle) {
++    public static String getSipProfileNameFromPhoneAccount(PhoneAccountHandle phoneAccountHandle) {
+         if (phoneAccountHandle == null) {
+             return null;
+         }
+Index: packages/services/Telephony/sip/src/com/android/services/telephony/sip/SipProfileDb.java
+===================================================================
+--- packages/services/Telephony/sip/src/com/android/services/telephony/sip/SipProfileDb.java	(revision 177535)
++++ packages/services/Telephony/sip/src/com/android/services/telephony/sip/SipProfileDb.java	(revision 177536)
+@@ -36,7 +36,7 @@
+ /**
+  * Utility class that helps perform operations on the SipProfile database.
+  */
+-class SipProfileDb {
++public class SipProfileDb {
+     private static final String PREFIX = "[SipProfileDb] ";
+     private static final boolean VERBOSE = false; /* STOP SHIP if true */
+ 

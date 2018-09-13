@@ -1,0 +1,27 @@
+Index: vendor/google/apps/WebViewGoogle/Android.mk
+===================================================================
+--- vendor/google/apps/WebViewGoogle/Android.mk	(revision 177335)
++++ vendor/google/apps/WebViewGoogle/Android.mk	(revision 177336)
+@@ -18,7 +18,7 @@
+   _first_api_level := $(word 2,$(subst =,$(space),$(_ro_property_string)))
+ else
+   # if the first_api_level property is undefined, stop building
+-  $(error ro.product.first_api_level property is undefined)
++#  $(error ro.product.first_api_level property is undefined)
+ endif
+ 
+ # preload WebView full apk by default
+Index: build/target/product/full_base.mk
+===================================================================
+--- build/target/product/full_base.mk	(revision 177335)
++++ build/target/product/full_base.mk	(revision 177336)
+@@ -40,8 +40,7 @@
+ # Additional settings used in all AOSP builds
+ PRODUCT_PROPERTY_OVERRIDES := \
+     ro.config.ringtone=Ring_Synth_04.ogg \
+-    ro.config.notification_sound=pixiedust.ogg \
+-    ro.product.first_api_level=24
++    ro.config.notification_sound=pixiedust.ogg
+ 
+ # Put en_US first in the list, so make it default.
+ PRODUCT_LOCALES := en_US

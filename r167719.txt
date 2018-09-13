@@ -1,0 +1,13 @@
+Index: kernel/drivers/power/fan54015_charge.c
+===================================================================
+--- kernel/drivers/power/fan54015_charge.c	(revision 167718)
++++ kernel/drivers/power/fan54015_charge.c	(revision 167719)
+@@ -588,7 +588,7 @@
+         
+ 	//sprdchg_hl7059_set_safety_vol(bat_drv_data->chg_end_vol_pure);
+ 	//sprdchg_hl7059_set_safety_cur(bat_drv_data->adp_dcp_cur);
+-	sprdchg_hl7059_set_vindpm(4440);//(bat_drv_data->chg_end_vol_pure);
++	sprdchg_hl7059_set_vindpm(4520);//(bat_drv_data->chg_end_vol_pure);
+ 	//hl7059_set_iprechg(4);	//512ma
+ 	//hl7059_set_vreg(4350);
+ 

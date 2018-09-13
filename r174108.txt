@@ -1,0 +1,14 @@
+Index: packages/apps/Dialer/src/com/android/dialer/DialtactsActivity.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/DialtactsActivity.java	(revision 174107)
++++ packages/apps/Dialer/src/com/android/dialer/DialtactsActivity.java	(revision 174108)
+@@ -1452,7 +1452,8 @@
+                 .build();
+ 
+         DialerUtils.startActivityWithErrorToast(this, intent);
+-        mClearSearchOnPause = true;
++
++        //mClearSearchOnPause = true;
+     }
+ 
+     @Override

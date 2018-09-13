@@ -1,0 +1,13 @@
+Index: frameworks/base/media/java/android/media/AudioSystem.java
+===================================================================
+--- frameworks/base/media/java/android/media/AudioSystem.java	(revision 168052)
++++ frameworks/base/media/java/android/media/AudioSystem.java	(revision 168053)
+@@ -793,7 +793,7 @@
+         4,  // STREAM_VOICE_CALL
+         7,  // STREAM_SYSTEM
+         5,  // STREAM_RING
+-        6, // STREAM_MUSIC //change volume for Bug601788
++        11, // STREAM_MUSIC //change volume for Bug601788
+         6,  // STREAM_ALARM
+         5,  // STREAM_NOTIFICATION
+         7,  // STREAM_BLUETOOTH_SCO

@@ -1,0 +1,37 @@
+Index: frameworks/base/telephony/java/android/telephony/SignalStrength.java
+===================================================================
+--- frameworks/base/telephony/java/android/telephony/SignalStrength.java	(revision 166806)
++++ frameworks/base/telephony/java/android/telephony/SignalStrength.java	(revision 166807)
+@@ -623,11 +623,11 @@
+     public int getGsmLevel() {
+         int level;
+ 				int dBm = getGsmDbm();  
+-				if (dBm < -109) level = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;
+-				else if (dBm >= -90) level = SIGNAL_STRENGTH_HIGHEST;
+-				else if (dBm >= -95&&dBm < -90) level = SIGNAL_STRENGTH_GREAT;
+-				else if (dBm >= -100&&dBm < -95)  level = SIGNAL_STRENGTH_GOOD;
+-				else if (dBm >= -105&&dBm < -100)  level = SIGNAL_STRENGTH_MODERATE;
++				if (dBm <= -111) level = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;
++				else if (dBm > -81) level = SIGNAL_STRENGTH_HIGHEST;
++				else if (dBm > -97&&dBm < -81) level = SIGNAL_STRENGTH_GREAT;
++				else if (dBm > -105&&dBm <= -97)  level = SIGNAL_STRENGTH_GOOD;
++				else if (dBm > -109&&dBm <= -105)  level = SIGNAL_STRENGTH_MODERATE;
+ 				else   level = SIGNAL_STRENGTH_POOR;
+         // ASU ranges from 0 to 31 - TS 27.007 Sec 8.5
+         // asu = 0 (-113dB or less) is very weak
+@@ -808,11 +808,11 @@
+             threshRsrp = RSRP_THRESH_LENIENT;
+         }
+ 		if(mLteRsrp > -44) rsrpIconLevel = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;
+-        else if (mLteRsrp >= -97) rsrpIconLevel = SIGNAL_STRENGTH_HIGHEST;
++        else if (mLteRsrp >= -90) rsrpIconLevel = SIGNAL_STRENGTH_HIGHEST;
+         else if (mLteRsrp >= -105) rsrpIconLevel = SIGNAL_STRENGTH_GREAT;
+-        else if (mLteRsrp >= -110) rsrpIconLevel = SIGNAL_STRENGTH_GOOD;
+-        else if (mLteRsrp >= -115) rsrpIconLevel = SIGNAL_STRENGTH_MODERATE;
+-        else if (mLteRsrp >= -120) rsrpIconLevel = SIGNAL_STRENGTH_POOR;
++        else if (mLteRsrp >= -115) rsrpIconLevel = SIGNAL_STRENGTH_GOOD;
++        else if (mLteRsrp >= -120) rsrpIconLevel = SIGNAL_STRENGTH_MODERATE;
++        else if (mLteRsrp >= -125) rsrpIconLevel = SIGNAL_STRENGTH_POOR;
+         else rsrpIconLevel = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;
+ 
+         // SPRD Add For Feature Bug 474988:

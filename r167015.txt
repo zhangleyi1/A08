@@ -1,0 +1,35 @@
+Index: kernel/drivers/input/misc/stk3x1x.c
+===================================================================
+--- kernel/drivers/input/misc/stk3x1x.c	(revision 167014)
++++ kernel/drivers/input/misc/stk3x1x.c	(revision 167015)
+@@ -89,6 +89,7 @@
+ #if STK_WRITE_CALI
+ static int cal_finished = 0;
+ static int PS_MAX_XTALK = 800;
++int cali_temp = 0;
+ #endif
+ 
+ 
+@@ -2184,6 +2185,7 @@
+ 		goto err_out;
+ 	}
+ 
++    cali_temp = rst;
+ 	ps_hthr = rst +  stk3x1x_pfdata.ps_thd_h;
+ 	ps_lthr = rst +  stk3x1x_pfdata.ps_thd_l;
+ 
+@@ -2261,11 +2263,14 @@
+ 	
+ 
+ 	ps_value = stk3x1x_get_ps_reading(i2c_get_clientdata(this_client));
++#if 0	
+ 	if(!ps_value)
+ 	{
+ 		printk("%s: stk3x1x_get_ps_reading fail! ret = %d\r\n", __func__, ps_value);
+ 		return -EFAULT;
+ 	}
++#endif
++	ps_value = cali_temp;
+ 	data_buf[0] = ps_value;
+ 	data_buf[1] = ps_value + stk3x1x_pfdata.ps_thd_h;//stk3x1x_i2c_data->ps_thd_h;
+ 	data_buf[2] = ps_value + stk3x1x_pfdata.ps_thd_l;//stk3x1x_i2c_data->ps_thd_l;

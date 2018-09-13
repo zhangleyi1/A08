@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/frameworks/base/packages/Keyguard/src/com/android/keyguard/CarrierTextLayout.java
+===================================================================
+--- vendor/sprd/platform/frameworks/base/packages/Keyguard/src/com/android/keyguard/CarrierTextLayout.java	(revision 169616)
++++ vendor/sprd/platform/frameworks/base/packages/Keyguard/src/com/android/keyguard/CarrierTextLayout.java	(revision 169617)
+@@ -122,7 +122,7 @@
+                 R.bool.config_show_airplane_mode);
+         // SPRD: modify for bug643004
+         List<SubscriptionInfo> subs = mKeyguardUpdateMonitor.getSubscriptionInfo(true);
+-        final int N = subs.size() > 0 ? 1:0;
++        final int N = subs.size();// > 0 ? 1:0;
+ 
+         if (DEBUG) Log.d(TAG, "updateCarrierText(): " + N);
+         /* SPRD: modify by BUG 613319 @{ */

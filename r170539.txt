@@ -1,0 +1,11 @@
+Index: vendor/sprd/proprietories-source/sprd_secure_boot_tool/VLRSign
+===================================================================
+--- vendor/sprd/proprietories-source/sprd_secure_boot_tool/VLRSign	(revision 170538)
++++ vendor/sprd/proprietories-source/sprd_secure_boot_tool/VLRSign	(revision 170539)
+
+Property changes on: vendor/sprd/proprietories-source/sprd_secure_boot_tool/VLRSign
+___________________________________________________________________
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property

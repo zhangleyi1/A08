@@ -1,0 +1,40 @@
+Index: frameworks/base/packages/SystemUI/res/values-in/strings.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values-in/strings.xml	(revision 176142)
++++ frameworks/base/packages/SystemUI/res/values-in/strings.xml	(revision 176143)
+@@ -269,11 +269,11 @@
+     <string name="quick_settings_bluetooth_off_label" msgid="8159652146149219937">"Bluetooth Mati"</string>
+     <string name="quick_settings_bluetooth_detail_empty_text" msgid="4910015762433302860">"Perangkat yang disandingkan tak tersedia"</string>
+     <string name="quick_settings_brightness_label" msgid="6968372297018755815">"Kecerahan"</string>
+-    <string name="quick_settings_rotation_unlocked_label" msgid="7305323031808150099">"Rotasi otomatis"</string>
++    <string name="quick_settings_rotation_unlocked_label" msgid="7305323031808150099">"Hidup"</string>
+     <string name="accessibility_quick_settings_rotation" msgid="4231661040698488779">"Putar layar otomatis"</string>
+     <string name="accessibility_quick_settings_rotation_value" msgid="1428962304214992318">"Setel ke <xliff:g id="ID_1">%s</xliff:g>"</string>
+     <string name="quick_settings_rotation_locked_label" msgid="6359205706154282377">"Rotasi terkunci"</string>
+-    <string name="quick_settings_rotation_locked_portrait_label" msgid="5102691921442135053">"Potret"</string>
++    <string name="quick_settings_rotation_locked_portrait_label" msgid="5102691921442135053">"Mati"</string>
+     <string name="quick_settings_rotation_locked_landscape_label" msgid="8553157770061178719">"Lanskap"</string>
+     <string name="quick_settings_ime_label" msgid="7073463064369468429">"Metode Masukan"</string>
+     <string name="quick_settings_location_label" msgid="5011327048748762257">"Lokasi"</string>
+Index: frameworks/base/packages/SystemUI/res/values/strings.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 176142)
++++ frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 176143)
+@@ -656,7 +656,7 @@
+     <!-- QuickSettings: Brightness [CHAR LIMIT=NONE] -->
+     <string name="quick_settings_brightness_label">Brightness</string>
+     <!-- QuickSettings: Rotation Unlocked [CHAR LIMIT=NONE] -->
+-    <string name="quick_settings_rotation_unlocked_label">Auto-rotate</string>
++    <string name="quick_settings_rotation_unlocked_label">On</string>
+     <!-- Accessibility label for Auto-ratate QuickSettings tile [CHAR LIMIT=NONE] -->
+     <string name="accessibility_quick_settings_rotation">Auto-rotate screen</string>
+     <!-- Accessibility label for value of Auto-ratate QuickSettings tile [CHAR LIMIT=NONE] -->
+@@ -664,7 +664,7 @@
+     <!-- QuickSettings: Rotation Locked [CHAR LIMIT=NONE] -->
+     <string name="quick_settings_rotation_locked_label">Rotation locked</string>
+     <!-- QuickSettings: Locked to Portrait [CHAR LIMIT=NONE] -->
+-    <string name="quick_settings_rotation_locked_portrait_label">Portrait</string>
++    <string name="quick_settings_rotation_locked_portrait_label">Off</string>
+     <!-- QuickSettings: Locked to Landscape [CHAR LIMIT=NONE] -->
+     <string name="quick_settings_rotation_locked_landscape_label">Landscape</string>
+     <!-- QuickSettings: IME [CHAR LIMIT=NONE] -->

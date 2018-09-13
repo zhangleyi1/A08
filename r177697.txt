@@ -1,0 +1,11 @@
+Index: vendor/sprd/platform/packages/apps/Messaging/MmsFolderView/res/values-in/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Messaging/MmsFolderView/res/values-in/strings.xml	(revision 177696)
++++ vendor/sprd/platform/packages/apps/Messaging/MmsFolderView/res/values-in/strings.xml	(revision 177697)
+@@ -8,5 +8,5 @@
+ <string name="copy_sms_to_sim">"Salin pesan ke "</string>
+ <string name="del_sim_sms">"Hapus"</string>
+ <string name="menu_folder_view">Tampilan berkas</string>
+-<string name="simsms_title">"Sim Sms"</string>
++<string name="simsms_title">"Sim SMS"</string>
+ </resources>

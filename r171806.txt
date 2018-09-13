@@ -1,0 +1,61 @@
+Index: vendor/sprd/custom/Flashlight.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/custom/Flashlight.apk
+===================================================================
+--- vendor/sprd/custom/Flashlight.apk	(revision 0)
++++ vendor/sprd/custom/Flashlight.apk	(revision 171806)
+
+Property changes on: vendor/sprd/custom/Flashlight.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/custom/MySmartfren.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/custom/Android.mk
+===================================================================
+--- vendor/sprd/custom/Android.mk	(revision 171805)
++++ vendor/sprd/custom/Android.mk	(revision 171806)
+@@ -16,15 +16,15 @@
+ include $(BUILD_PREBUILT)
+ 
+ # Flashlight
+-#include $(CLEAR_VARS)
+-#LOCAL_MODULE_TAGS := optional
+-#LOCAL_MODULE := Flashlight
+-#LOCAL_MODULE_STEM := Flashlight.apk
+-#LOCAL_MODULE_CLASS := APPS
+-#LOCAL_CERTIFICATE := PRESIGNED
+-#LOCAL_MODULE_PATH := $(TARGET_OUT)/preloadapp
+-#LOCAL_SRC_FILES := Flashlight.apk
+-#include $(BUILD_PREBUILT)
++include $(CLEAR_VARS)
++LOCAL_MODULE_TAGS := optional
++LOCAL_MODULE := Flashlight
++LOCAL_MODULE_STEM := Flashlight.apk
++LOCAL_MODULE_CLASS := APPS
++LOCAL_CERTIFICATE := PRESIGNED
++LOCAL_MODULE_PATH := $(TARGET_OUT)/preloadapp
++LOCAL_SRC_FILES := Flashlight.apk
++include $(BUILD_PREBUILT)
+ 
+ # wps
+ include $(CLEAR_VARS)
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java	(revision 171805)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java	(revision 171806)
+@@ -363,7 +363,7 @@
+                             mPhoneStatusBar.makeExpandedInvisibleByGesture();
+                         }
+                         Intent flashLightIntent = new Intent();
+-                        flashLightIntent.setClassName("qualcomm.android.LEDFlashlight", "qualcomm.android.LEDFlashlight.LEDWidgetActivity");
++                        flashLightIntent.setClassName("com.bingcoo.flashlight", "com.bingcoo.flashlight.ui.Main");
+                         flashLightIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                         context.startActivity(flashLightIntent);
+                         break;

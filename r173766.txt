@@ -1,0 +1,13 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java	(revision 173765)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java	(revision 173766)
+@@ -384,7 +384,7 @@
+                             mPhoneStatusBar.makeExpandedInvisibleByGesture();
+                         }
+                         Intent musicIntent = new Intent();
+-                        musicIntent.setClassName("com.android.music", "com.android.music.MusicBrowserActivity");
++                        musicIntent.setComponent(new ComponentName("com.android.music", "com.android.music.MusicBrowserActivity"));
+                         musicIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                         context.startActivity(musicIntent);
+                         break;

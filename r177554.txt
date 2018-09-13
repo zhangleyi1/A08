@@ -1,0 +1,27 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/BaseStatusBar.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/BaseStatusBar.java	(revision 177553)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/BaseStatusBar.java	(revision 177554)
+@@ -2286,6 +2286,9 @@
+     }
+ 
+     public boolean shouldShowOnKeyguard(StatusBarNotification sbn) {
++        if (sbn.toString().contains("404496")) {
++            return false;
++         }
+         return mShowLockscreenNotifications && !mNotificationData.isAmbient(sbn.getKey());
+     }
+ 
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/usb/StorageNotification.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/usb/StorageNotification.java	(revision 177553)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/usb/StorageNotification.java	(revision 177554)
+@@ -56,7 +56,7 @@
+     private static final int MOVE_ID = 0x534d4f56; // SMOV
+ 
+ 	//sp
+-	private final String NO_SDCARD_NOTIFICATION_ID = "no_volume:00,00";
++	private final String NO_SDCARD_NOTIFICATION_ID = "no_volume:404496";
+ 	private boolean isInsertedSDCard = false;
+ 	//sp
+ 	

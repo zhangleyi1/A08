@@ -1,0 +1,228 @@
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_good_sprd.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_good_sprd.xml	(revision 166733)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_good_sprd.xml	(revision 166734)
+@@ -1,37 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="64dp"
+-    android:height="17dp"
+-    android:viewportWidth="64"
+-    android:viewportHeight="17">
+-
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M 38 6 H 40 V 8 H 38 V 6 Z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M 38 10 H 40 V 17 H 38 V 10 Z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M 32 17 L 32 6 L 37 6 L 37 8 L 34 8 L 34 11 L 37 11 L 37 13 L 34 13 L 34 17 Z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M 20 8.75 L 18 17 L 16 17 L 13 6 L 15 6 L 17 14.25 L 19 6 L 21 6 L 23 14.25 L 25 6 L 27 6 L 24 17 L 22 17 Z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M 28 10 H 30 V 17 H 28 V 10 Z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M 28 6 H 30 V 8 H 28 V 6 Z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M 5 17 L 3 17 L 0 6 L 2 6 L 4 14.25 L 6 6 L 8 6 Z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M10.5,10C8.567,10,7,11.566,7,13.5c0,1.933,1.567,3.5,3.5,3.5s3.5-1.567,3.5-3.5
+-C14,11.566,12.433,10,10.5,10z
+-M10.5,15C9.672,15,9,14.328,9,13.5S9.672,12,10.5,12s1.5,0.672,1.5,1.5S11.328,15,10.5,15z" />
+-    <path
+-        android:fillColor="#89C390"
+-        android:pathData="M52.094,0c-4.251,0-8.128,1.571-11.108,4.15L52,17L63.115,4.071C60.146,1.538,56.303,0,52.094,0z" />
+-</vector>
+\ No newline at end of file
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_poor_sprd.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_poor_sprd.xml	(revision 166733)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_poor_sprd.xml	(revision 166734)
+@@ -1,46 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="64dp"
+-    android:height="17dp"
+-    android:viewportWidth="64"
+-    android:viewportHeight="17">
+-
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M 38 6 H 40 V 8 H 38 V 6 Z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M 38 10 H 40 V 17 H 38 V 10 Z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M 32 17 L 32 6 L 37 6 L 37 8 L 34 8 L 34 11 L 37 11 L 37 13 L 34 13 L 34 17 Z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M 20 8.75 L 18 17 L 16 17 L 13 6 L 15 6 L 17 14.25 L 19 6 L 21 6 L 23 14.25 L 25 6 L 27 6 L 24 17 L 22 17 Z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M 28 10 H 30 V 17 H 28 V 10 Z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M 28 6 H 30 V 8 H 28 V 6 Z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M 5 17 L 3 17 L 0 6 L 2 6 L 4 14.25 L 6 6 L 8 6 Z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M10.5,10C8.567,10,7,11.566,7,13.5c0,1.933,1.567,3.5,3.5,3.5s3.5-1.567,3.5-3.5
+-C14,11.566,12.433,10,10.5,10z
+-M10.5,15C9.672,15,9,14.328,9,13.5S9.672,12,10.5,12s1.5,0.672,1.5,1.5S11.328,15,10.5,15z" />
+-    <path
+-        android:strokeColor="#CF5D5B"
+-        android:strokeWidth="1"
+-        android:strokeMiterLimit="10"
+-        android:pathData="M51.938,17" />
+-    <path
+-        android:fillColor="#CF5D5B"
+-        android:pathData="M52.094,1c3.459,0,6.826,1.131,9.588,3.204l-9.681,11.261L42.412,4.278C45.193,2.158,48.595,1,52.094,1
+-M52.094,0c-4.251,0-8.128,1.571-11.108,4.15L52,17L63.115,4.071C60.146,1.538,56.303,0,52.094,0L52.094,0z" />
+-    <path
+-        android:fillColor="#CF5D5B"
+-        android:pathData="M46.771,10.898L52,17l5.184-6.029C55.778,9.747,53.947,9,51.938,9C49.967,9,48.164,9.716,46.771,10.898z" />
+-</vector>
+\ No newline at end of file
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_fair_sprd.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_fair_sprd.xml	(revision 166733)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_fair_sprd.xml	(revision 166734)
+@@ -1,41 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="64dp"
+-    android:height="17dp"
+-    android:viewportWidth="64"
+-    android:viewportHeight="17">
+-
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M 38 6 H 40 V 8 H 38 V 6 Z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M 38 10 H 40 V 17 H 38 V 10 Z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M 32 17 L 32 6 L 37 6 L 37 8 L 34 8 L 34 11 L 37 11 L 37 13 L 34 13 L 34 17 Z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M 20 8.75 L 18 17 L 16 17 L 13 6 L 15 6 L 17 14.25 L 19 6 L 21 6 L 23 14.25 L 25 6 L 27 6 L 24 17 L 22 17 Z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M 28 10 H 30 V 17 H 28 V 10 Z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M 28 6 H 30 V 8 H 28 V 6 Z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M 5 17 L 3 17 L 0 6 L 2 6 L 4 14.25 L 6 6 L 8 6 Z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M10.5,10C8.567,10,7,11.566,7,13.5c0,1.933,1.567,3.5,3.5,3.5s3.5-1.567,3.5-3.5
+-C14,11.566,12.433,10,10.5,10z
+-M10.5,15C9.672,15,9,14.328,9,13.5S9.672,12,10.5,12s1.5,0.672,1.5,1.5S11.328,15,10.5,15z" />
+-    <path
+-        android:fillColor="#E1C535"
+-        android:pathData="M52.094,1c3.459,0,6.826,1.131,9.588,3.204l-9.681,11.261L42.412,4.278C45.193,2.158,48.595,1,52.094,1
+-M52.094,0c-4.251,0-8.128,1.571-11.108,4.15L52,17L63.115,4.071C60.146,1.538,56.303,0,52.094,0L52.094,0z" />
+-    <path
+-        android:fillColor="#E1C535"
+-        android:pathData="M44.196,7.896L52,17l7.816-9.093C57.716,6.1,54.988,5,52,5C49.018,5,46.295,6.095,44.196,7.896z" />
+-</vector>
+\ No newline at end of file
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_good_sprd.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_good_sprd.png
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_good_sprd.png	(revision 0)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_good_sprd.png	(revision 166734)
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_good_sprd.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_poor_sprd.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_poor_sprd.png
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_poor_sprd.png	(revision 0)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_poor_sprd.png	(revision 166734)
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_poor_sprd.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_fair_sprd.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_fair_sprd.png
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_fair_sprd.png	(revision 0)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_fair_sprd.png	(revision 166734)
+
+Property changes on: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_vowifi_fair_sprd.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable/stat_sys_volte.xml
+===================================================================
+--- vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable/stat_sys_volte.xml	(revision 166733)
++++ vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable/stat_sys_volte.xml	(revision 166734)
+@@ -1,20 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<vector xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:width="29dp"
+-    android:height="17dp"
+-    android:viewportWidth="29"
+-    android:viewportHeight="17">
+-
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M10.5,7.015C9.817,7.015,9,7.68,9,8.5v1.994c0,0.82,0.817,1.485,1.5,1.485s1.5-0.665,1.5-1.485V8.5
+-C12,7.68,11.183,7.015,10.5,7.015z" />
+-    <path
+-        android:fillColor="#FFFFFF"
+-        android:pathData="M29,4c0-1.104-0.896-2-2-2H2C0.896,2,0,2.896,0,4v11c0,1.104,0.896,2,2,2h25c1.104,0,2-0.896,2-2V4z
+-M4.091,13L1.413,6h1.273l2.042,5.601l2-5.601H8l-2.636,7H4.091z
+-M13,10.454C13,11.86,12,13,10.5,13C9.001,13,8,11.86,8,10.454
+-V8.546C8,7.14,9.001,6,10.5,6C12,6,13,7.14,13,8.546V10.454z
+-M18,13h-2.727H14v-0.637V6h1v6h3V13z M22,7h-2v6h-1V7h-2V6h5V7z M27,7
+-h-3v2h3v1h-3v2h3v1h-2.725H23v-0.637V6h1.275H27V7z" />
+-</vector>
+\ No newline at end of file
+Index: vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable/stat_sys_volte.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable/stat_sys_volte.png
+===================================================================
+--- vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable/stat_sys_volte.png	(revision 0)
++++ vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable/stat_sys_volte.png	(revision 166734)
+
+Property changes on: vendor/sprd/platform/frameworks/base/packages/SystemUI/res/drawable/stat_sys_volte.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property

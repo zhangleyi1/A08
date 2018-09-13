@@ -1,0 +1,42 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 175283)
++++ packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 175284)
+@@ -360,7 +360,7 @@
+ 
+     private final ArrayList<Integer> mSynchronouslyBoundPages = new ArrayList<Integer>();
+     private static final boolean DISABLE_SYNCHRONOUS_BINDING_CURRENT_PAGE = false;
+-    private static final boolean FAST_LOADER = true;
++    private static final boolean FAST_LOADER = false;//true
+ 
+     static final ArrayList<String> sDumpLogs = new ArrayList<String>();
+     static Date sDateStamp = new Date();
+Index: packages/apps/Launcher3/src/com/android/launcher3/LauncherModel.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/LauncherModel.java	(revision 175283)
++++ packages/apps/Launcher3/src/com/android/launcher3/LauncherModel.java	(revision 175284)
+@@ -1276,7 +1276,8 @@
+         if (Intent.ACTION_LOCALE_CHANGED.equals(action)) {
+             // If we have changed locale we need to clear out the labels in all apps/workspace.
+             UserManagerCompat.getInstance(context).enableAndResetCache();
+-            forceReload();
++            //forceReload();
++			forceReloadAtOnce();
+         } else if (SearchManager.INTENT_GLOBAL_SEARCH_ACTIVITY_CHANGED.equals(action)) {
+             Callbacks callbacks = getCallback();
+             if (callbacks != null) {
+@@ -1305,7 +1306,13 @@
+         // to reload.
+         startLoaderFromBackground();
+     }
+-
++	
++	//onlly use for local changed with TECHAINSH
++    void forceReloadAtOnce() {
++        resetLoadedState(true, true);
++        startLoader(PagedView.INVALID_RESTORE_PAGE);
++    }
++	
+     public void resetLoadedState(boolean resetAllAppsLoaded, boolean resetWorkspaceLoaded) {
+         synchronized (mLock) {
+             // Stop any existing loaders first, so they don't set mAllAppsLoaded or

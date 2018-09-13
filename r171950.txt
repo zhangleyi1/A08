@@ -1,0 +1,24 @@
+Index: frameworks/base/api/current.txt
+===================================================================
+--- frameworks/base/api/current.txt	(revision 171949)
++++ frameworks/base/api/current.txt	(revision 171950)
+@@ -32411,6 +32411,7 @@
+     field public static final java.lang.String EASY_DIAL_SWITCH = "easy_dial_switch";
+     field public static final java.lang.String EASY_START = "easy_start";
+     field public static final java.lang.String EASY_START_SWITCH = "easy_start_switch";
++    field public static final java.lang.String GSM_ROAMING_ENABLED = "gsm.roaming.control";
+     field public static final java.lang.String HANDSFREE_SWITCH = "handsfree_switch";
+     field public static final java.lang.String HANDSFREE_SWITCH_SWITCH = "handsfree_switch_switch";
+     field public static final java.lang.String HTTP_PROXY = "http_proxy";
+Index: frameworks/base/api/system-current.txt
+===================================================================
+--- frameworks/base/api/system-current.txt	(revision 171949)
++++ frameworks/base/api/system-current.txt	(revision 171950)
+@@ -35116,6 +35116,7 @@
+     field public static final java.lang.String EASY_DIAL_SWITCH = "easy_dial_switch";
+     field public static final java.lang.String EASY_START = "easy_start";
+     field public static final java.lang.String EASY_START_SWITCH = "easy_start_switch";
++    field public static final java.lang.String GSM_ROAMING_ENABLED = "gsm.roaming.control";
+     field public static final java.lang.String HANDSFREE_SWITCH = "handsfree_switch";
+     field public static final java.lang.String HANDSFREE_SWITCH_SWITCH = "handsfree_switch_switch";
+     field public static final java.lang.String HTTP_PROXY = "http_proxy";

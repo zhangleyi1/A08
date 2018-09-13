@@ -1,0 +1,15 @@
+Index: packages/apps/Settings/src/com/android/settings/inputmethod/UserDictionaryList.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/inputmethod/UserDictionaryList.java	(revision 177878)
++++ packages/apps/Settings/src/com/android/settings/inputmethod/UserDictionaryList.java	(revision 177879)
+@@ -129,6 +129,10 @@
+             localeSet.add(Locale.getDefault().toString());
+         }
+ 
++        if (localeSet.size() > 2) {
++            localeSet.pollLast();
++        }
++
+         return localeSet;
+     }
+ 

@@ -1,0 +1,17 @@
+Index: packages/services/Telephony/src/com/android/phone/CallFeaturesSetting.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/CallFeaturesSetting.java	(revision 183287)
++++ packages/services/Telephony/src/com/android/phone/CallFeaturesSetting.java	(revision 183288)
+@@ -170,6 +170,12 @@
+                 || ADDITIONAL_GSM_SETTINGS_KEY.equals(preference.getKey())
+                 || CALL_BARRING_KEY.equals(preference.getKey()))) {
+             /* SPRD: add for bug616257 and 629656 @{ */
++           boolean isVowifiEnable = mPhone.isWifiCallingEnabled();
++           Log.d(TAG, "onPreferenceTreeClick: isVowifiEnable = " + isVowifiEnable);
++           if (isVowifiEnable) {
++               return false;
++           }
++
+             if (isAirplaneModeOn(getBaseContext())) {
+                 log("the phone airplane mode is opened");
+                 AlertDialog.Builder builder = new AlertDialog.Builder(this);

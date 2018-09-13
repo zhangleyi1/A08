@@ -1,0 +1,22 @@
+Index: frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java	(revision 170355)
++++ frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java	(revision 170356)
+@@ -3080,7 +3080,7 @@
+         final boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
+         final boolean canceled = event.isCanceled();
+ 
+-        if (DEBUG_INPUT) {
++        if (DEBUG_INPUT || true) {
+             Log.d(TAG, "interceptKeyTi keyCode=" + keyCode + " down=" + down + " repeatCount="
+                     + repeatCount + " keyguardOn=" + keyguardOn + " mHomePressed=" + mHomePressed
+                     + " canceled=" + canceled);
+@@ -5670,7 +5670,7 @@
+                                                 isKeyguardShowingAndNotOccluded() :
+                                                 mKeyguardDelegate.isShowing()));
+ 
+-        if (DEBUG_INPUT) {
++        if (DEBUG_INPUT || true) {
+             Log.d(TAG, "interceptKeyTq keycode=" + keyCode
+                     + " interactive=" + interactive + " keyguardActive=" + keyguardActive
+                     + " policyFlags=" + Integer.toHexString(policyFlags));

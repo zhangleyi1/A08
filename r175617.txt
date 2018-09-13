@@ -1,0 +1,61 @@
+Index: frameworks/base/core/res/res/drawable-sw720dp-nodpi/default_wallpaper.jpg
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/core/res/res/drawable-sw720dp-nodpi/default_wallpaper.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/core/res/res/drawable-sw720dp-nodpi/default_wallpaper.png
+===================================================================
+--- frameworks/base/core/res/res/drawable-sw720dp-nodpi/default_wallpaper.png	(revision 0)
++++ frameworks/base/core/res/res/drawable-sw720dp-nodpi/default_wallpaper.png	(revision 175617)
+
+Property changes on: frameworks/base/core/res/res/drawable-sw720dp-nodpi/default_wallpaper.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/core/res/res/drawable-xhdpi/default_wallpaper.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/core/res/res/drawable-sw600dp-nodpi/default_wallpaper.jpg
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/core/res/res/drawable-sw600dp-nodpi/default_wallpaper.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/core/res/res/drawable-sw600dp-nodpi/default_wallpaper.png
+===================================================================
+--- frameworks/base/core/res/res/drawable-sw600dp-nodpi/default_wallpaper.png	(revision 0)
++++ frameworks/base/core/res/res/drawable-sw600dp-nodpi/default_wallpaper.png	(revision 175617)
+
+Property changes on: frameworks/base/core/res/res/drawable-sw600dp-nodpi/default_wallpaper.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/core/res/res/drawable-nodpi/default_wallpaper.jpg
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/core/res/res/drawable-nodpi/default_wallpaper.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/core/res/res/drawable-nodpi/default_wallpaper.png
+===================================================================
+--- frameworks/base/core/res/res/drawable-nodpi/default_wallpaper.png	(revision 0)
++++ frameworks/base/core/res/res/drawable-nodpi/default_wallpaper.png	(revision 175617)
+
+Property changes on: frameworks/base/core/res/res/drawable-nodpi/default_wallpaper.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property

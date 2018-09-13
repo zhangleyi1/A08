@@ -1,0 +1,34 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 175660)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 175661)
+@@ -747,12 +747,12 @@
+           intent.setClass(this, FlashLightSub.class);
+           startActivityForResult(intent, TESTITEM_FLASHLIGHT_SUB);
+           break;
+-/*
++
+ 	  case TESTITEM_LTEINFO:
+ 		intent.setClass(this, LteInfo.class);
+          startActivityForResult(intent, TESTITEM_LTEINFO);
+ 		break;
+-*/
++
+ 	  case  TESTITEM_SLEEPORWAKE:
+ 		 intent.setClass(this, SleepOrWake.class);
+          startActivityForResult(intent, TESTITEM_SLEEPORWAKE);
+@@ -761,12 +761,12 @@
+ 	  	intent.setClass(this, TPTest.class);
+          startActivityForResult(intent, TESTITEM_TPTEST);
+ 		break;
+-/*
++
+ 	 case  TESTITEM_MASTERCLEAR:
+ 		 intent.setClass(this, MasterClear.class);
+          startActivityForResult(intent, TESTITEM_MASTERCLEAR);
+ 		  break;
+-*/
++
+       default:
+         break;
+     }

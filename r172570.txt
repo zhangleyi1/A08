@@ -1,0 +1,59 @@
+Index: vendor/sprd/proprietories-source/autotest/camera.h
+===================================================================
+--- vendor/sprd/proprietories-source/autotest/camera.h	(revision 172569)
++++ vendor/sprd/proprietories-source/autotest/camera.h	(revision 172570)
+@@ -28,6 +28,7 @@
+ int camClose( void );
+ 
+ int flashlightSetValue(int value);
++int frontflashlightSetValue(int value);
+ 
+ //-----------------------------------------------------------------------------
+ //--};
+Index: vendor/sprd/proprietories-source/autotest/camera.cpp
+===================================================================
+--- vendor/sprd/proprietories-source/autotest/camera.cpp	(revision 172569)
++++ vendor/sprd/proprietories-source/autotest/camera.cpp	(revision 172570)
+@@ -80,6 +80,22 @@
+ }
+ //------------------------------------------------------------------------------
+ //------------------------------------------------------------------------------
++int frontflashlightSetValue(int value)
++{
++int ret = 0;
++ 
++FUN_ENTER;
++       if(1 == value)
++            ret = system("echo 0x101 > /sys/class/flash_test/flash_test/flash_value") ? -1 : 0;   
++       else  
++	   		ret = system("echo 0x100 > /sys/class/flash_test/flash_test/flash_value") ? -1 : 0; 
++ 
++DBGMSG("ret = %d\n", ret);
++FUN_EXIT;
++ 
++return ret;
++}
++
+ int camOpen( int cam_id, int width, int height )
+ {
+     if( -1 != s_cam_fd ) {
+Index: vendor/sprd/proprietories-source/autotest/tester.cpp
+===================================================================
+--- vendor/sprd/proprietories-source/autotest/tester.cpp	(revision 172569)
++++ vendor/sprd/proprietories-source/autotest/tester.cpp	(revision 172570)
+@@ -1821,6 +1821,15 @@
+ 	}
+         }
+         break;
++	case 0x08:
++	{
++		int value = data[1];//0x11:high  ,0x01:low , 0x00:off
++		if( frontflashlightSetValue(value) < 0 ) {
++			ret = -1;
++		}
++	}
++	break;
++
+ 	case 0x09://RGB
+ 	{
+ 		int value1 = data[1];//0x00:RED , 0x01:GREEN , 0x02:BLUE

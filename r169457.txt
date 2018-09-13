@@ -1,0 +1,93 @@
+Index: vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfileSoundSettings.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfileSoundSettings.java	(revision 169456)
++++ vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/AudioProfileSoundSettings.java	(revision 169457)
+@@ -87,6 +87,7 @@
+     public static String[] ringtoneKey;
+ 
+     private static final String KEY_NOTIFICATION = "notification_sound";
++    private static final String MESSAGING_APP_PACKAGE = "com.android.messaging";
+     private PreferenceCategory mRingtoneCategory;
+     // SPRD: Bug 608515
+     private PreferenceCategory mVibrateCategory;
+@@ -224,7 +225,8 @@
+         mVibrateCategory = (PreferenceCategory) findPreference(VIBRATE_CATEGORY_FEEDBACK);
+         mVibrateCategory.setOrderingAsAdded(false);
+         mVibrateMsg = (CheckBoxPreference) findPreference(KEY_VIBRATE_MSG);
+-        if (isGMSVersion()) {
++
++        if (!Utils.isAppInstalled(mContext, MESSAGING_APP_PACKAGE)) {
+             if(mVibrateCategory != null && mVibrateMsg != null) {
+                 mVibrateCategory.removePreference(mVibrateMsg);
+             }
+@@ -405,7 +407,8 @@
+         mMessagetonePreference[phoneId].setEditId(mEditId);
+         mMessagetonePreference[phoneId].setOrder(phoneId+2);
+         /* SPRD: Bug 608515  @{ */
+-        if (!isGMSVersion()) {
++        //SPRD: Bug 652146  delete messaging preferences for no messaging.
++        if (Utils.isAppInstalled(mContext, MESSAGING_APP_PACKAGE)) {
+             mRingtoneCategory.addPreference(mMessagetonePreference[phoneId]);
+         }
+         /* @} */
+@@ -657,7 +660,8 @@
+         if (!mUserManager.isSystemUser()) {
+             mVibrate.setEnabled(false);
+             /* SPRD: Bug 608515  @{ */
+-            if (!isGMSVersion()) {
++            //SPRD: Bug 652146  delete messaging preferences for no messaging.
++            if (Utils.isAppInstalled(mContext, MESSAGING_APP_PACKAGE)) {
+                 mVibrateMsg.setEnabled(false);
+             }
+             /* @} */
+@@ -1003,13 +1007,6 @@
+     }
+ 
+     /* SPRD: Bug 608515  @{ */
+-    public boolean isGMSVersion(){
+-        boolean ret = false;
+-        if (!SystemProperties.get("ro.com.google.gmsversion").isEmpty()) {
+-            ret = true;
+-        }
+-        return ret;
+-    }
+     /* @} */
+ 
+ }
+Index: vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/Utils.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/Utils.java	(revision 0)
++++ vendor/sprd/platform/packages/apps/AudioProfile/src/com/sprd/audioprofile/Utils.java	(revision 169457)
+@@ -0,0 +1,32 @@
++/**
++ * added for sprd audioprofile.
++ */
++
++package com.sprd.audioprofile;
++
++import android.content.Context;
++import android.content.pm.PackageInfo;
++import android.content.pm.PackageManager;
++
++public final class Utils {
++
++    /**
++     * whether the app is installed.
++     */
++    public static boolean isAppInstalled(Context context, String packageName) {
++        boolean result = false;
++        if (packageName != null) {
++            PackageManager pm = context.getPackageManager();
++            if (packageName != null) {
++                try {
++                    PackageInfo info = pm.getPackageInfo(packageName, 0);
++                    result = info != null;
++                } catch (PackageManager.NameNotFoundException e) {
++                }
++            }
++        }
++        return result;
++    }
++
++}
++

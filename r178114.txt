@@ -1,0 +1,51 @@
+Index: frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java	(revision 178113)
++++ frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java	(revision 178114)
+@@ -13158,6 +13158,7 @@
+             if (fifoPackages != null && fifoPackages.length > 0) {
+                 mFifoPackageList = Arrays.asList(fifoPackages);
+             }
++            initLmkWhiteList();//modify for lmk white list
+         }
+ 
+         ArrayList<ProcessRecord> procsToKill = null;
+@@ -20252,7 +20253,26 @@
+             }
+         }
+     }
+-	
++    //modify for lmk white list
++    private ArrayList<String> mLmkWhiteList = new  ArrayList<>();
++    private void initLmkWhiteList() {
++        mLmkWhiteList.add("com.whatsapp");
++        mLmkWhiteList.add("com.bitsmedia.android.muslimpro");
++        }
++    private void increaseAppAdjLocked(ProcessRecord app) {
++        if(app.info == null) {
++            return;
++        }
++        if (mLmkWhiteList.contains(app.info.packageName)) {
++            if(app.curAdj > 0) {
++                app.curAdj = app.modifyRawOomAdj(ProcessList.FOREGROUND_APP_ADJ);
++                app.curProcState = ActivityManager.PROCESS_STATE_FOREGROUND_SERVICE;
++                app.cached = false;
++                app.adjType= "fg-service";
++            }
++        }
++    }
++    //modify for lmk white list
+     protected final boolean applyOomAdjLocked(ProcessRecord app, boolean doingAll, long now,
+             long nowElapsed) {
+         boolean success = true;
+@@ -20261,8 +20281,8 @@
+             app.setRawAdj = app.curRawAdj;
+         }
+ 
+-        int changes = 0;
+-
++        int changes = 0; 
++        increaseAppAdjLocked(app);//modify for lmk white list
+         if (app.curAdj != app.setAdj) {
+             ProcessList.setOomAdj(app.pid, app.info.uid, app.curAdj);
+             if (DEBUG_SWITCH || DEBUG_OOM_ADJ) Slog.v(TAG_OOM_ADJ,

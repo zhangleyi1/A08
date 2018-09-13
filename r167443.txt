@@ -1,0 +1,166 @@
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/ServiceStateTracker.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/ServiceStateTracker.java	(revision 167442)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/ServiceStateTracker.java	(revision 167443)
+@@ -2751,6 +2751,14 @@
+             tm.setNetworkRoamingForPhone(mPhone.getPhoneId(), mSS.getVoiceRoaming());
+ 
+             setRoamingType(mSS);
++            final String SHOW_SMARTFREN_ROAMING_DIALOG = "android.intent.action.SHOW_SMARTFREN_ROAMING_DIALOG";
++            if(mSS.getVoiceRoamingType() == ServiceState.ROAMING_TYPE_INTERNATIONAL &&
++                    !operatorNumeric.equals("51009") && !operatorNumeric.equals("51028")){
++                Intent intent = new Intent(SHOW_SMARTFREN_ROAMING_DIALOG);
++                intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
++                mPhone.getContext().sendBroadcast(intent);
++            }
++
+             log("Broadcasting ServiceState : " + mSS);
+             mPhone.notifyServiceStateChanged(mSS);
+ 
+Index: packages/apps/Settings/AndroidManifest.xml
+===================================================================
+--- packages/apps/Settings/AndroidManifest.xml	(revision 167442)
++++ packages/apps/Settings/AndroidManifest.xml	(revision 167443)
+@@ -2840,6 +2840,7 @@
+         <receiver android:name=".sim.SimSelectNotification">
+             <intent-filter>
+                 <action android:name="android.intent.action.SIM_STATE_CHANGED"></action>
++                <action android:name="android.intent.action.SHOW_SMARTFREN_ROAMING_DIALOG"></action>
+             </intent-filter>
+         </receiver>
+ 
+Index: packages/apps/Settings/src/com/android/settings/sim/SimSelectNotification.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/sim/SimSelectNotification.java	(revision 167442)
++++ packages/apps/Settings/src/com/android/settings/sim/SimSelectNotification.java	(revision 167443)
+@@ -39,9 +39,19 @@
+ public class SimSelectNotification extends BroadcastReceiver {
+     private static final String TAG = "SimSelectNotification";
+     private static final int NOTIFICATION_ID = 1;
++    private static final String SHOW_SMARTFREN_ROAMING_DIALOG = "android.intent.action.SHOW_SMARTFREN_ROAMING_DIALOG";
+ 
+     @Override
+     public void onReceive(Context context, Intent intent) {
++        if (SHOW_SMARTFREN_ROAMING_DIALOG.equals(intent.getAction())) {
++            Intent targetIntent = new Intent(context, SimDialogActivity.class);
++            targetIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++            targetIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
++            targetIntent.putExtra(SimDialogActivity.DIALOG_TYPE_KEY,
++                    SimDialogActivity.SMARTFREN_ROAMING_PICK);
++            context.startActivity(targetIntent);
++            return;
++        }
+         final TelephonyManager telephonyManager = (TelephonyManager)
+                 context.getSystemService(Context.TELEPHONY_SERVICE);
+         final SubscriptionManager subscriptionManager = SubscriptionManager.from(context);
+Index: packages/apps/Settings/src/com/android/settings/sim/SimDialogActivity.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/sim/SimDialogActivity.java	(revision 167442)
++++ packages/apps/Settings/src/com/android/settings/sim/SimDialogActivity.java	(revision 167443)
+@@ -67,10 +67,12 @@
+     public static final int PREFERRED_PICK = 3;
+     //SPRD: Feature for SIM Languages
+     public static final int LANGUAGE_PICK = 4;
++    public static final int SMARTFREN_ROAMING_PICK = 5;
+     private SubscriptionManager mSubscriptionManager;
+ 
+     // SPRD: modify by add radioButton on set defult sub id
+     private Dialog mSimChooseDialog = null;
++    private Dialog mSmartFrenDialog = null;
+     private int mDialogType = INVALID_PICK;
+     private StateChangeReciever mStateChangeReciever = new StateChangeReciever();
+ 
+@@ -105,7 +107,10 @@
+                 break;
+                 //SPRD: Feature for SIM Languages
+             case LANGUAGE_PICK:
+-                createDialog(this, dialogType).show();
++                //createDialog(this, dialogType).show();
++            case SMARTFREN_ROAMING_PICK:
++                mSmartFrenDialog = createDialog(this, dialogType);
++                mSmartFrenDialog.show();
+                 break;
+             default:
+                 throw new IllegalArgumentException("Invalid dialog type " + dialogType + " sent.");
+@@ -118,7 +123,10 @@
+     protected void onResume() {
+         super.onResume();
+         mSubscriptionManager = SubscriptionManager.from(this);
+-        mSubscriptionManager.addOnSubscriptionsChangedListener(mOnSubscriptionsChangeListener);
++//        mSubscriptionManager.addOnSubscriptionsChangedListener(mOnSubscriptionsChangeListener);
++        if (mSmartFrenDialog == null) {
++            mSubscriptionManager.addOnSubscriptionsChangedListener(mOnSubscriptionsChangeListener);
++        }
+     }
+ 
+     private final SubscriptionManager.OnSubscriptionsChangedListener mOnSubscriptionsChangeListener = new SubscriptionManager.OnSubscriptionsChangedListener() {
+@@ -135,7 +143,11 @@
+     @Override
+     protected void onPause() {
+         super.onPause();
+-        mSubscriptionManager.removeOnSubscriptionsChangedListener(mOnSubscriptionsChangeListener);
++        //mSubscriptionManager.removeOnSubscriptionsChangedListener(mOnSubscriptionsChangeListener);
++        if (mSmartFrenDialog == null) {
++            mSubscriptionManager
++                    .removeOnSubscriptionsChangedListener(mOnSubscriptionsChangeListener);
++        }
+     }
+     /* @} */
+ 
+@@ -312,8 +324,14 @@
+ 
+         String[] arr = list.toArray(new String[0]);
+ 
+-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+-
++        //AlertDialog.Builder builder = new AlertDialog.Builder(context);
++        AlertDialog.Builder builder = null;
++        if (id == SMARTFREN_ROAMING_PICK) {
++            builder = new AlertDialog.Builder(context,
++                    android.R.style.Theme_Material_Light_Dialog_NoActionBar);
++        } else {
++            builder = new AlertDialog.Builder(context);
++        }
+         ListAdapter adapter = new SelectAccountListAdapter(
+                 id == CALLS_PICK ? callsSubInfoList : subInfoList,
+                 builder.getContext(),
+@@ -334,12 +352,26 @@
+             case LANGUAGE_PICK:
+                 builder.setTitle(R.string.sim_card_select_title);
+                 break;
++            case SMARTFREN_ROAMING_PICK:
++                break;
+             default:
+                 throw new IllegalArgumentException("Invalid dialog type "
+                         + id + " in SIM dialog.");
+         }
+ 
+-        Dialog dialog = builder.setAdapter(adapter, null).create();
++        //Dialog dialog = builder.setAdapter(adapter, null).create();
++        Dialog dialog = null;
++        if(id == SMARTFREN_ROAMING_PICK){
++            builder.setMessage(R.string.smartfren_roaming);
++            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
++                public void onClick(DialogInterface dialog, int which) {
++                    finish();
++                }
++            });
++            dialog = builder.create();
++        }else {
++            dialog = builder.setAdapter(adapter, null).create();
++        }
+         dialog.setOnKeyListener(keyListener);
+ 
+         dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+Index: packages/apps/Settings/res/values/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values/strings.xml	(revision 167442)
++++ packages/apps/Settings/res/values/strings.xml	(revision 167443)
+@@ -7672,6 +7672,7 @@
+     <string name="clear_btn_text">Stop</string>
+     <!-- SPRD:645023-->
+     <string name="public_volumes_permission">The guest or new user has no permission to access</string>
++    <string name="smartfren_roaming">Yours device is in roaming, additional charges may applied!</string>
+ 
+     <string name="app_title">Task Manager</string>
+     <!-- for custom requirements: gesture s -->

@@ -1,0 +1,102 @@
+Index: frameworks/base/core/java/android/os/storage/StorageManager.java
+===================================================================
+--- frameworks/base/core/java/android/os/storage/StorageManager.java	(revision 178539)
++++ frameworks/base/core/java/android/os/storage/StorageManager.java	(revision 178540)
+@@ -623,7 +623,26 @@
+         }
+         return null;
+     }
++    public @Nullable String getLinkPathName(String path) {
++        Preconditions.checkNotNull(path);
++        String[] a = path.split("/");
++        String linkName = null;
++        String linkPath = new String(path);
++        if (a != null && a.length >= 3 && a[1].equals("storage")) {
++            VolumeInfo v = findVolumeByUuid(a[2]);
++            if (v == null) {
++                return null;
++            }
++            linkName = v.linkName;
++            if (linkName != null) {
++                linkPath = linkPath.replaceFirst("/storage/" + a[2], "/storage/" + linkName);
++                return linkPath;
++            }
++        }
+ 
++        return null;
++    }
++
+     /** {@hide} */
+     public @Nullable VolumeInfo findPrivateForEmulated(VolumeInfo emulatedVol) {
+         if (emulatedVol != null) {
+Index: frameworks/base/api/current.txt
+===================================================================
+--- frameworks/base/api/current.txt	(revision 178539)
++++ frameworks/base/api/current.txt	(revision 178540)
+@@ -29520,6 +29520,7 @@
+   }
+ 
+   public class StorageManager {
++    method public java.lang.String getLinkPathName(java.lang.String);
+     method public java.lang.String getMountedObbPath(java.lang.String);
+     method public android.os.storage.StorageVolume getPrimaryStorageVolume();
+     method public android.os.storage.StorageVolume getStorageVolume(java.io.File);
+Index: frameworks/base/api/system-current.txt
+===================================================================
+--- frameworks/base/api/system-current.txt	(revision 178539)
++++ frameworks/base/api/system-current.txt	(revision 178540)
+@@ -32054,6 +32054,7 @@
+   }
+ 
+   public class StorageManager {
++    method public java.lang.String getLinkPathName(java.lang.String);
+     method public java.lang.String getMountedObbPath(java.lang.String);
+     method public android.os.storage.StorageVolume getPrimaryStorageVolume();
+     method public android.os.storage.StorageVolume getStorageVolume(java.io.File);
+Index: frameworks/base/api/test-current.txt
+===================================================================
+--- frameworks/base/api/test-current.txt	(revision 178539)
++++ frameworks/base/api/test-current.txt	(revision 178540)
+@@ -29590,6 +29590,7 @@
+   }
+ 
+   public class StorageManager {
++    method public java.lang.String getLinkPathName(java.lang.String);
+     method public java.lang.String getMountedObbPath(java.lang.String);
+     method public android.os.storage.StorageVolume getPrimaryStorageVolume();
+     method public android.os.storage.StorageVolume getStorageVolume(java.io.File);
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/ui/DialogDetailsView.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/ui/DialogDetailsView.java	(revision 178539)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/ui/DialogDetailsView.java	(revision 178540)
+@@ -45,6 +45,7 @@
+ import java.util.ArrayList;
+ import java.util.Locale;
+ import java.util.Map.Entry;
++import android.os.storage.StorageManager;
+ 
+ public class DialogDetailsView implements DetailsViewContainer {
+     @SuppressWarnings("unused")
+@@ -57,6 +58,7 @@
+     private int mIndex;
+     private Dialog mDialog;
+     private CloseListener mListener;
++    private StorageManager mStorageManager;
+ 
+     public DialogDetailsView(AbstractGalleryActivity activity, DetailsSource source) {
+         mActivity = activity;
+@@ -248,7 +250,13 @@
+                         // value = "\n" + detail.getValue().toString();
+                         // path = detail.getValue().toString();
+                         if (detail.getValue() != null) {
+-                            value = "\n" + detail.getValue().toString();
++                            mStorageManager = context.getSystemService(StorageManager.class);
++                            String expath = mStorageManager.getLinkPathName(detail.getValue().toString());
++                            if (expath != null) {
++                                value = "\n" + expath;
++                            } else {
++                                value = "\n" + detail.getValue().toString();
++                            }
+                             path = detail.getValue().toString();
+                             } else {
+                             value = "\n" + "";

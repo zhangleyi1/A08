@@ -1,0 +1,156 @@
+Index: frameworks/opt/chips/src/com/android/ex/chips/CopyDialog.java
+===================================================================
+--- frameworks/opt/chips/src/com/android/ex/chips/CopyDialog.java	(revision 169809)
++++ frameworks/opt/chips/src/com/android/ex/chips/CopyDialog.java	(revision 169810)
+@@ -8,6 +8,7 @@
+ import android.content.Context;
+ import android.content.DialogInterface;
+ import android.os.Bundle;
++import android.util.Log;
+ 
+ /**
+  * Simple dialog fragment for copying the contents of a chip.
+@@ -43,8 +44,17 @@
+     @Override
+     public void onClick(DialogInterface dialog, int which) {
+         if (which == DialogInterface.BUTTON_POSITIVE) {
+-            final ClipboardManager clipboard = (ClipboardManager)
+-                    getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
++            /* SPRD: Bug 649337-Activity is null when handling the click event. @{ */
++            final ClipboardManager clipboard;
++            if(getActivity() == null) {
++                Log.w(TAG, "The associated activity is null! Dialog context: " + getDialog().getContext());
++                clipboard = (ClipboardManager)
++                  getDialog().getContext().getSystemService(Context.CLIPBOARD_SERVICE);
++            } else {
++                clipboard = (ClipboardManager)
++                  getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
++            }
++            /* @} */
+             clipboard.setPrimaryClip(ClipData.newPlainText(null, mText));
+         }
+     }
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/gsm/GsmSMSDispatcher.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/gsm/GsmSMSDispatcher.java	(revision 169809)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/gsm/GsmSMSDispatcher.java	(revision 169810)
+@@ -261,7 +261,10 @@
+             tracker.mMessageRef = mTPMR;//set TP-MR
+             pdu[1] = (byte) tracker.mMessageRef;//write the TP-MR value
+         }
+-        mVowifiSMS.sendImsVowifiSms(IccUtils.bytesToHexString(smsc),
++       int mPhoneId=mPhone.getPhoneId();
++       int subId = mSubscriptionManager.getSubId(mPhoneId)[0];
++       String SimSmsc=mTelephonyManagerEx.getSmscForSubscriber(subId);
++        mVowifiSMS.sendImsVowifiSms(SimSmsc,IccUtils.bytesToHexString(smsc),
+                 IccUtils.bytesToHexString(pdu), tracker.mImsRetry,
+                 tracker.mMessageRef, serial, text);
+     }
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/SMSDispatcher.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/SMSDispatcher.java	(revision 169809)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/SMSDispatcher.java	(revision 169810)
+@@ -52,6 +52,7 @@
+ import android.telephony.ServiceState;
+ import android.telephony.SmsManager;
+ import android.telephony.TelephonyManager;
++import android.telephony.TelephonyManagerEx;
+ import android.telephony.SubscriptionManager;
+ import android.text.Html;
+ import android.text.Spanned;
+@@ -146,6 +147,7 @@
+     protected final ContentResolver mResolver;
+     protected final CommandsInterface mCi;
+     protected final TelephonyManager mTelephonyManager;
++    public final TelephonyManagerEx mTelephonyManagerEx;
+     public SubscriptionManager mSubscriptionManager;
+     /** Maximum number of times to retry sending a failed SMS. */
+     private static final int MAX_SEND_RETRIES = 3;
+@@ -197,6 +199,7 @@
+         mCi = phone.mCi;
+         mUsageMonitor = usageMonitor;
+         mTelephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
++        mTelephonyManagerEx=TelephonyManagerEx.from(mContext);
+         mSubscriptionManager = SubscriptionManager.from(mContext);
+         mSettingsObserver = new SettingsObserver(this, mPremiumSmsRule, mContext);
+         mContext.getContentResolver().registerContentObserver(Settings.Global.getUriFor(
+Index: frameworks/av/services/mediacodec/minijail/seccomp_policy/mediacodec-seccomp-arm.policy
+===================================================================
+--- frameworks/av/services/mediacodec/minijail/seccomp_policy/mediacodec-seccomp-arm.policy	(revision 169809)
++++ frameworks/av/services/mediacodec/minijail/seccomp_policy/mediacodec-seccomp-arm.policy	(revision 169810)
+@@ -43,6 +43,7 @@
+ sched_setscheduler: 1
+ fstatat64: 1
+ ugetrlimit: 1
++getdents64: 1
+ 
+ # for attaching to debuggerd on process crash
+ sigaction: 1
+Index: frameworks/av/media/libstagefright/codecs/on2/dec/Android.mk
+===================================================================
+--- frameworks/av/media/libstagefright/codecs/on2/dec/Android.mk	(revision 169809)
++++ frameworks/av/media/libstagefright/codecs/on2/dec/Android.mk	(revision 169810)
+@@ -17,6 +17,10 @@
+ LOCAL_SHARED_LIBRARIES := \
+         libstagefright libstagefright_omx libstagefright_foundation libutils liblog
+ 
++ifeq ($(strip $(BOARD_GETCPUCORECOUNT_CONF)),true)
++LOCAL_CFLAGS += -DGETCPUCORECOUNT_CONF
++endif
++
+ LOCAL_MODULE := libstagefright_soft_vpxdec
+ LOCAL_MODULE_TAGS := optional
+ 
+Index: frameworks/av/media/libstagefright/codecs/on2/dec/SoftVPX.cpp
+===================================================================
+--- frameworks/av/media/libstagefright/codecs/on2/dec/SoftVPX.cpp	(revision 169809)
++++ frameworks/av/media/libstagefright/codecs/on2/dec/SoftVPX.cpp	(revision 169810)
+@@ -67,7 +67,9 @@
+ 
+ static int GetCPUCoreCount() {
+     int cpuCoreCount = 1;
+-#if defined(_SC_NPROCESSORS_ONLN)
++#if defined(GETCPUCORECOUNT_CONF) && defined(_SC_NPROCESSORS_CONF)
++    cpuCoreCount = sysconf(_SC_NPROCESSORS_CONF);
++#elif defined(_SC_NPROCESSORS_ONLN)
+     cpuCoreCount = sysconf(_SC_NPROCESSORS_ONLN);
+ #else
+     // _SC_NPROC_ONLN must be defined...
+@@ -74,7 +76,7 @@
+     cpuCoreCount = sysconf(_SC_NPROC_ONLN);
+ #endif
+     CHECK(cpuCoreCount >= 1);
+-    ALOGV("Number of CPU cores: %d", cpuCoreCount);
++    ALOGI("Number of CPU cores: %d", cpuCoreCount);
+     return cpuCoreCount;
+ }
+ 
+Index: frameworks/base/packages/DocumentsUI/src/com/android/documentsui/FilesActivity.java
+===================================================================
+--- frameworks/base/packages/DocumentsUI/src/com/android/documentsui/FilesActivity.java	(revision 169809)
++++ frameworks/base/packages/DocumentsUI/src/com/android/documentsui/FilesActivity.java	(revision 169810)
+@@ -190,7 +190,8 @@
+         // have no reason to hang around.
+         // TODO: Rather than just disappearing, maybe we should inform
+         // the user what has happened, let them close us. Less surprising.
+-        if (mRoots.getRootBlocking(root.authority, root.rootId) == null) {
++        // #659134 The following method may block the UI to cause the ANR, so it can be executed after FirstLoadDone
++        if (mRoots.getFirstLoadDone() && mRoots.getRootBlocking(root.authority, root.rootId) == null) {
+             finish();
+         }
+     }
+Index: frameworks/base/packages/DocumentsUI/src/com/android/documentsui/RootsCache.java
+===================================================================
+--- frameworks/base/packages/DocumentsUI/src/com/android/documentsui/RootsCache.java	(revision 169809)
++++ frameworks/base/packages/DocumentsUI/src/com/android/documentsui/RootsCache.java	(revision 169810)
+@@ -361,6 +361,10 @@
+         }
+     }
+ 
++    public boolean getFirstLoadDone() {
++        return mFirstLoadDone;
++    }
++
+     public RootInfo getRootBlocking(String authority, String rootId) {
+         waitForFirstLoad();
+         loadStoppedAuthorities();

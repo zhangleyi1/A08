@@ -1,0 +1,52 @@
+Index: device/generic/goldfish/data/etc/apns-conf.xml
+===================================================================
+--- device/generic/goldfish/data/etc/apns-conf.xml	(revision 166624)
++++ device/generic/goldfish/data/etc/apns-conf.xml	(revision 166625)
+@@ -262,4 +262,40 @@
+          mmsc="http://t-mobilemms"
+          type="mms"
+     />
++
++    <apn carrier="IMS"
++         mcc="510"
++         mnc="09"
++         apn="IMS"
++         user="none"
++         server="*"
++         password="none"
++    />
++
++    <apn carrier="Smartfren4G"
++         mcc="510"
++         mnc="09"
++         apn="Smartfren4G"
++         user="none"
++         server="*"
++         password="none"
++    />
++
++    <apn carrier="IMS"
++         mcc="510"
++         mnc="28"
++         apn="IMS"
++         user="none"
++         server="*"
++         password="none"
++    />
++
++    <apn carrier="Smartfren4G"
++         mcc="510"
++         mnc="28"
++         apn="Smartfren4G"
++         user="none"
++         server="*"
++         password="none"
++    />
+ </apns>
+
+Property changes on: device/generic/goldfish/data/etc/apns-conf.xml
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/device/generic/goldfish/data/etc/apns-conf.xml:r161845
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/device/generic/goldfish/data/etc/apns-conf.xml:r165489
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/device/generic/goldfish/data/etc/apns-conf.xml:r163709

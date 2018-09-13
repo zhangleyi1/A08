@@ -1,0 +1,51 @@
+Index: packages/services/Telecomm/src/com/android/server/telecom/CallAudioManager.java
+===================================================================
+--- packages/services/Telecomm/src/com/android/server/telecom/CallAudioManager.java	(revision 181332)
++++ packages/services/Telecomm/src/com/android/server/telecom/CallAudioManager.java	(revision 181333)
+@@ -31,6 +31,8 @@
+ import java.util.Set;
+ import java.util.LinkedHashSet;
+ import com.sprd.server.telecom.TelcelCallWaitingToneHelper;
++import android.os.PowerManager;
++import android.content.Context;
+ 
+ public class CallAudioManager extends CallsManagerListenerBase {
+ 
+@@ -108,6 +110,7 @@
+         updateForegroundCall();
+         if (newState == CallState.DISCONNECTED) {
+             playToneForDisconnectedCall(call);
++            lightScreen();
+         }
+ 
+         onCallLeavingState(call, oldState);
+@@ -114,6 +117,17 @@
+         onCallEnteringState(call, newState);
+     }
+ 
++    Context mContext;
++    public void setContext(Context context) {
++        mContext = context;
++    }
++
++    private void lightScreen(){
++        PowerManager powerManager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
++        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "");
++        wakeLock.acquire();
++    } 
++
+     @Override
+     public void onCallAdded(Call call) {
+         if (shouldIgnoreCallForAudio(call)) {
+Index: packages/services/Telecomm/src/com/android/server/telecom/CallsManager.java
+===================================================================
+--- packages/services/Telecomm/src/com/android/server/telecom/CallsManager.java	(revision 181332)
++++ packages/services/Telecomm/src/com/android/server/telecom/CallsManager.java	(revision 181333)
+@@ -294,6 +294,7 @@
+                         mContext.getSystemService(Context.AUDIO_SERVICE)),
+                 playerFactory, mRinger, new RingbackPlayer(playerFactory), mDtmfLocalTonePlayer);
+ 
++        mCallAudioManager.setContext(context);
+         mHeadsetMediaButton = headsetMediaButtonFactory.create(context, this, mLock);
+         mTtyManager = new TtyManager(context, mWiredHeadsetManager);
+         mProximitySensorManager = proximitySensorManagerFactory.create(context, this);

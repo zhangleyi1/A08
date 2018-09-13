@@ -1,0 +1,22 @@
+Index: vendor/sprd/modules/wcn/connconfig/marlin/sp9832a_2h11_volte/connectivity_calibration.ba.ini
+===================================================================
+--- vendor/sprd/modules/wcn/connconfig/marlin/sp9832a_2h11_volte/connectivity_calibration.ba.ini	(revision 166893)
++++ vendor/sprd/modules/wcn/connconfig/marlin/sp9832a_2h11_volte/connectivity_calibration.ba.ini	(revision 166894)
+@@ -56,7 +56,7 @@
+ txpower_psat_temperature   = 0
+ txpower_psat_gainindex   = 11
+ txpower_psat_power   = 2800
+-txpower_psat_backoff   = -1
++txpower_psat_backoff   = 2
+ txpower_psat_upper_limit   = 5
+ txpower_psat_lower_limit   = 7
+ txpower_freq_delta_gainindex = 1, 2, 3, 2, 1, -1, 0, 0, 1, 3, 3, 1, 0, -1
+@@ -74,7 +74,7 @@
+ txpower_temperature_delta_gm_channel12 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ txpower_temperature_delta_gm_channel13 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ txpower_temperature_delta_gm_channel14 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+-txpower_reserved   = 0x00ff, 0, 0, 0
++txpower_reserved   = 0x0202, 0, 0, 0
+ [SETCTION 7]
+ #-----------------------------------------------------------------
+ # DPD calibration data

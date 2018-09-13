@@ -1,0 +1,94 @@
+Index: vendor/sprd/platform/packages/apps/CallSettings/src/com/android/callsettings/callforward/GsmUmtsAllCallForwardOptions.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/CallSettings/src/com/android/callsettings/callforward/GsmUmtsAllCallForwardOptions.java	(revision 179770)
++++ vendor/sprd/platform/packages/apps/CallSettings/src/com/android/callsettings/callforward/GsmUmtsAllCallForwardOptions.java	(revision 179771)
+@@ -81,18 +81,19 @@
+             log("isOnlySupportVoiceCall = " + isOnlySupportVoiceCall);
+         }
+         /* @} */
++		/*
+         Preference videoCallForwardingPref = prefScreen.findPreference(VIDEO_CALL_FORWARDING_KEY);
+-        videoCallForwardingPref
+-                .setIntent(subInfoHelper.getIntent("com.android.callsettings",
++        videoCallForwardingPref.setIntent(subInfoHelper.getIntent("com.android.callsettings",
+                         "com.android.callsettings.callforward.GsmUmtsVideoCallForwardOptions"));
++                        */
+         if (!ImsManager.isVolteEnabledByPlatform(mContext)
+                 // SPRD: add for bug 611966
+                 || !CallSettingsCMCCHelper.getInstance(mContext).isVideoCallForwardSupport()) {
+-            prefScreen.removePreference(videoCallForwardingPref);
++            //prefScreen.removePreference(videoCallForwardingPref);
+         }
+         final SubscriptionManager subscriptionManager = SubscriptionManager.from(this);
+         if (subscriptionManager.getDefaultDataSubscriptionId() != subInfoHelper.getSubId()) {
+-            videoCallForwardingPref.setEnabled(false);
++            //videoCallForwardingPref.setEnabled(false);
+         }
+     }
+ 
+Index: vendor/sprd/platform/packages/apps/CallSettings/res/values-in/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/CallSettings/res/values-in/strings.xml	(revision 179770)
++++ vendor/sprd/platform/packages/apps/CallSettings/res/values-in/strings.xml	(revision 179771)
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+-<string name="labelAudioCF">"Lanjutkan panggilan suara"</string>
++<string name="labelAudioCF">"Lanjutkan panggilan suara dan video"</string>
+ <string name="labelVideoCF">"Lanjutkan panggilan video"</string>
+ <string name="labelCFT">"Meneruskan durasi"</string>
+ <string name="start_time">"Waktu mulai"</string>
+Index: vendor/sprd/platform/packages/apps/CallSettings/res/values-zh-rCN/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/CallSettings/res/values-zh-rCN/strings.xml	(revision 179770)
++++ vendor/sprd/platform/packages/apps/CallSettings/res/values-zh-rCN/strings.xml	(revision 179771)
+@@ -102,7 +102,7 @@
+     <string name="promptWordTwo">"&#160;次机会"</string>
+     <string name="adn_full">FDN列表已满</string>
+     <!-- @} -->
+-    <string name="labelAudioCF">"语音来电转接"</string>
++    <string name="labelAudioCF">"语音和视频来电转接"</string>
+     <string name="labelVideoCF">"视频来电转接"</string>
+     <string name="audio_call_forward_setting_category_header">"语音电话"</string>
+     <string name="video_call_forward_setting_category_header">"视频电话"</string>
+Index: vendor/sprd/platform/packages/apps/CallSettings/res/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/CallSettings/res/values/strings.xml	(revision 179770)
++++ vendor/sprd/platform/packages/apps/CallSettings/res/values/strings.xml	(revision 179771)
+@@ -2,7 +2,7 @@
+ 
+ <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+ 
+-    <string name="labelAudioCF">Audio call forward</string>
++    <string name="labelAudioCF">Audio and video call forward</string>
+     <string name="labelVideoCF">Video call forward</string>
+     <string name="labelCFT">Duration forward</string>
+     <string name="start_time">Start time</string>
+Index: vendor/sprd/platform/packages/apps/CallSettings/res/xml/gsm_umts_all_call_forward_options.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/CallSettings/res/xml/gsm_umts_all_call_forward_options.xml	(revision 179770)
++++ vendor/sprd/platform/packages/apps/CallSettings/res/xml/gsm_umts_all_call_forward_options.xml	(revision 179771)
+@@ -9,9 +9,9 @@
+         android:title="@string/labelAudioCF"
+         android:persistent="false" />
+ 
+-    <PreferenceScreen
++    <!--<PreferenceScreen
+         android:key="video_call_forwarding_key"
+         android:title="@string/labelVideoCF"
+-        android:persistent="false" />
++        android:persistent="false" />-->
+ 
+ </PreferenceScreen>
+Index: vendor/sprd/platform/packages/services/Telephony/res/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/services/Telephony/res/values/strings.xml	(revision 179770)
++++ vendor/sprd/platform/packages/services/Telephony/res/values/strings.xml	(revision 179771)
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+-    <string name="labelCF">Call forwarding</string>
++    <string name="labelCF">Call forward</string>
+     <string name="sum_cfu_enabled_indicator">Forwarding all calls</string>
+     <!-- SPRD: Add for dealing with SS notification @{ -->
+     <string name="ActiveUnconCf">Call forwarded unconditional</string>

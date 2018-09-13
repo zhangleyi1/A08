@@ -1,0 +1,13 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 169513)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 169514)
+@@ -1683,7 +1683,7 @@
+ 
+             showLteButton(false);
+             mDialpadChooser.setVisibility(View.VISIBLE);
+-
++			mGsmCallBtn.setVisibility( View.GONE);
+             // Instantiate the DialpadChooserAdapter and hook it up to the
+             // ListView.  We do this only once.
+             if (mDialpadChooserAdapter == null) {

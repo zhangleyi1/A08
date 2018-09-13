@@ -1,0 +1,236 @@
+Index: packages/apps/DeskClock/AndroidManifest.xml
+===================================================================
+--- packages/apps/DeskClock/AndroidManifest.xml	(revision 169810)
++++ packages/apps/DeskClock/AndroidManifest.xml	(revision 169811)
+@@ -30,7 +30,6 @@
+     <protected-broadcast android:name="com.android.deskclock.ALARM_DONE" />
+     <protected-broadcast android:name="com.android.deskclock.ALARM_ALERT" />
+     <protected-broadcast android:name="com.android.deskclock.DIGITAL_WIDGET_CHANGED" />
+-    <protected-broadcast android:name="android.intent.action.CLOSE_SYSTEM_DIALOGS" />
+     <protected-broadcast android:name="com.sprd.deskclock.rtc_state" />
+ 
+     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+Index: packages/apps/Settings/src/com/android/settings/applications/RunningState.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/applications/RunningState.java	(revision 169810)
++++ packages/apps/Settings/src/com/android/settings/applications/RunningState.java	(revision 169811)
+@@ -894,6 +894,21 @@
+         userItem.mChildren.add(newItem);
+     }
+ 
++    private boolean isPersisSvcProcNeedToShow(
++            Context context, ActivityManager.RunningServiceInfo si){
++        String[] m3rdPartyPersistentServiceProcesses =
++            context.getResources().getStringArray(
++                    com.android.internal.R.array.third_party_persistent_service_processes);
++        if (si != null && si.process != null) {
++            for (int i = 0; i < m3rdPartyPersistentServiceProcesses.length; i++) {
++                if (si.process.equals(m3rdPartyPersistentServiceProcesses[i])) {
++                    return true;
++                }
++            }
++        }
++        return false;
++    }
++
+     private boolean update(Context context, ActivityManager am) {
+         final PackageManager pm = context.getPackageManager();
+ 
+@@ -919,8 +934,8 @@
+             }
+             // We likewise don't care about services running in a
+             // persistent process like the system or phone.
+-            if ((si.flags&ActivityManager.RunningServiceInfo.FLAG_PERSISTENT_PROCESS)
+-                    != 0) {
++            if (!isPersisSvcProcNeedToShow(context, si)
++                    && (si.flags&ActivityManager.RunningServiceInfo.FLAG_PERSISTENT_PROCESS) != 0) {
+                 services.remove(i);
+                 i--;
+                 NS--;
+Index: packages/apps/Settings/src/com/android/settings/applications/AppStorageSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/applications/AppStorageSettings.java	(revision 169810)
++++ packages/apps/Settings/src/com/android/settings/applications/AppStorageSettings.java	(revision 169811)
+@@ -554,6 +554,7 @@
+                         .setMessage(getActivity().getText(R.string.clear_data_dlg_text))
+                         .setPositiveButton(R.string.dlg_ok, new DialogInterface.OnClickListener() {
+                             public void onClick(DialogInterface dialog, int which) {
++                                dialog.dismiss();
+                                 // Clear user data here
+                                 initiateClearUserData();
+                             }
+Index: packages/apps/Settings/src/com/android/settings/sim/SimSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/sim/SimSettings.java	(revision 169810)
++++ packages/apps/Settings/src/com/android/settings/sim/SimSettings.java	(revision 169811)
+@@ -702,16 +702,23 @@
+                 setEnabled(mTm.getSimState(mSlotId) == TelephonyManager.SIM_STATE_READY
+                         && !isRadioBusy());
+                 setIcon(new BitmapDrawable(res, (mSubInfoRecord.createIconBitmap(mContext))));
++            /* @{ SPRD : Sim card slot prompt changes Modified for bug 648132 */
++            } else if(SettingsOperatorHelper.getInstance(mContext).isNeedSetDataEnable(mContext)
++                    && !mTmEx.isSimEnabled(mSlotId)){
++                updateSummary(R.string.sim_slot_not_enabled);
+             } else {
+-                setSummary(R.string.sim_slot_empty);
+-                setFragment(null);
+-                setEnabled(false);
++                updateSummary(R.string.sim_slot_empty);
+             }
+-
++            /* }@ */
+             updateSwitchState();
+         }
+         /* @} */
+-
++        // SPRD : Sim card slot prompt changes Modified for bug 648132
++        private void updateSummary(int index) {
++            setSummary(index);
++            setFragment(null);
++            setEnabled(false);
++        }
+         private int getSlotId() {
+             return mSlotId;
+         }
+
+Property changes on: packages/apps/Settings/src/com/android/settings/sim/SimSettings.java
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Merged /sprd_release_version/9832A_7.0/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.16.1/packages/apps/Settings/src/com/android/settings/sim/SimSettings.java:r169754
+Index: packages/apps/Settings/src/com/android/settings/datausage/UnrestrictedDataAccess.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/datausage/UnrestrictedDataAccess.java	(revision 169810)
++++ packages/apps/Settings/src/com/android/settings/datausage/UnrestrictedDataAccess.java	(revision 169811)
+@@ -218,7 +218,13 @@
+             boolean whitelisted = newValue == Boolean.TRUE;
+             mDataSaverBackend.setIsWhitelisted(accessPreference.mEntry.info.uid,
+                     accessPreference.mEntry.info.packageName, whitelisted);
+-            accessPreference.mState.isDataSaverWhitelisted = whitelisted;
++
++            /* SPRD Bug:664641, monkey test, and happens javaCrash, NullPointerException */
++            if (accessPreference.mState != null) {
++                accessPreference.mState.isDataSaverWhitelisted = whitelisted;
++            }
++            /* SPRD Bug:664641 */
++
+             /* SPRD: Add for bug598119, make sure com.android.dialer state is latest. @{ */
+             if ("com.android.dialer".equals(accessPreference.mEntry.info.packageName)) {
+                 mDataUsageBridge.resume();
+Index: packages/apps/Messaging/MmsFolderView/src/com/android/mmsfolderview/ui/SortMsgListActivity.java
+===================================================================
+--- packages/apps/Messaging/MmsFolderView/src/com/android/mmsfolderview/ui/SortMsgListActivity.java	(revision 169810)
++++ packages/apps/Messaging/MmsFolderView/src/com/android/mmsfolderview/ui/SortMsgListActivity.java	(revision 169811)
+@@ -121,7 +121,7 @@
+     protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+         OsUtil.getEmailPreminssion(this);
+-        Log.d(TAG, "getEmailPreminssion"+"onCreate");
++        Log.d(TAG, "onCreate:" + "getEmailPreminssion");
+         registerReceiver(mSimInOutReceiver, mSimFilter);
+         setContentView(R.layout.sort_msg_list_activity);
+         // bug 489223: add for Custom XML SQL Query begin
+@@ -911,24 +911,28 @@
+         }
+         //modify for bug  623061 end
+         //modify for bug 559631 begin
+-        Log.d(TAG, "delete message from db. Adapter count:"+
+-                mSortMsgListFragment.mAdapter.getItemCount()+" and messagesId.size"+messagesId.size());
+-        if (mSortMsgListFragment.mAdapter.getItemCount() == messagesId.size() && messagesId.size() != 1) {
+-            String box_type = String.valueOf(mSortType)+getMaxMessageIds();
+-            String subId_show = String.valueOf(mPreferences.getInt(SortMsgDataCollector.SHOW_MESSAGE_BY_SUB_ID, SortMsgDataCollector.SHOW_ALL_MESSAGE));
+-            String selection = box_type + "," + subId_show;
+-            getContentResolver().delete(SortMsgDataCollector.MESSAGE_SPECIFY_DELETE_URI,
+-                    selection, integerToString(messagesId));
+-        } else {
+-            for (int i : messagesId) {
+-                Uri uri = ContentUris
+-                        .withAppendedId(SortMsgDataCollector.MESSAGE_SPECIFY_DELETE_URI, i);
+-                getContentResolver().delete(uri, null, null);
++        try {
++            Log.d(TAG, "delete message from db. Adapter count:"+
++                    mSortMsgListFragment.mAdapter.getItemCount()+" and messagesId.size"+messagesId.size());
++            if (mSortMsgListFragment.mAdapter.getItemCount() == messagesId.size() && messagesId.size() != 1) {
++                String box_type = String.valueOf(mSortType)+getMaxMessageIds();
++                String subId_show = String.valueOf(mPreferences.getInt(SortMsgDataCollector.SHOW_MESSAGE_BY_SUB_ID, SortMsgDataCollector.SHOW_ALL_MESSAGE));
++                String selection = box_type + "," + subId_show;
++                getContentResolver().delete(SortMsgDataCollector.MESSAGE_SPECIFY_DELETE_URI,
++                        selection, integerToString(messagesId));
++            } else {
++                for (int i : messagesId) {
++                    Uri uri = ContentUris
++                            .withAppendedId(SortMsgDataCollector.MESSAGE_SPECIFY_DELETE_URI, i);
++                    getContentResolver().delete(uri, null, null);
++                }
+             }
++            //modify for bug 559631 end
++
++            exitMultiSelectState();
++        } catch (Exception e) {
++            Log.e(TAG, "deleteMessagesFromDatabase failed: " + e);
+         }
+-        //modify for bug 559631 end
+-
+-        exitMultiSelectState();
+         if (mIsFromContextMenu) {
+             mMessagesId.clear();
+         }
+Index: packages/apps/Messaging/MmsFolderView/src/com/android/mmsfolderview/ui/BaseActionBarActivity.java
+===================================================================
+--- packages/apps/Messaging/MmsFolderView/src/com/android/mmsfolderview/ui/BaseActionBarActivity.java	(revision 169810)
++++ packages/apps/Messaging/MmsFolderView/src/com/android/mmsfolderview/ui/BaseActionBarActivity.java	(revision 169811)
+@@ -306,9 +306,26 @@
+                                 confirmDeleteMessage();
+                             }
+                         }).setNegativeButton(android.R.string.cancel, null);
+-        builder.create().show();
++        //modified by sprd for Bug 673403 start
++        //builder.create().show();
++        mDeleteDialog = builder.create();
++        mDeleteDialog.show();
++    }
+ 
++    private AlertDialog mDeleteDialog;
++
++    @Override
++    protected void onDestroy() {
++        try {
++            if (mDeleteDialog != null){
++                mDeleteDialog.dismiss();
++            }
++        } catch (Exception ex){
++            Log.d("BaseActionBarActivity", " onDestroy " + ex);
++        }
++        super.onDestroy();
+     }
++        //modified by sprd for Bug 673403 end
+ 
+     abstract protected void confirmDeleteMessage();
+ }
+Index: packages/apps/Messaging/MmsFolderView/src/com/android/mmsfolderview/ui/SortMsgListFragment.java
+===================================================================
+--- packages/apps/Messaging/MmsFolderView/src/com/android/mmsfolderview/ui/SortMsgListFragment.java	(revision 169810)
++++ packages/apps/Messaging/MmsFolderView/src/com/android/mmsfolderview/ui/SortMsgListFragment.java	(revision 169811)
+@@ -49,6 +49,7 @@
+     private ListEmptyView mEmptyListMessageView;
+     private SortMsgListFragmentHost mHost;
+     private Context mContext;
++    private static final String TAG = "SortMsgListFragment";
+ 
+     // Saved Instance State Data - only for temporal data which is nice to
+     // maintain but not
+@@ -95,6 +96,7 @@
+     @Override
+     public void onAttach(Activity activity) {
+         super.onAttach(activity);
++        Log.d(TAG, "onAttach ");
+         mListData = new SortMsgListData(activity, this);
+         mContext = activity;
+     }
+@@ -109,6 +111,7 @@
+     @Override
+     public void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
++        Log.d(TAG, "onCreate ");
+         mAdapter = new SortMsgListAdapter(getActivity(), null, this);
+     }
+ 

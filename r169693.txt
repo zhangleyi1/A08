@@ -1,0 +1,50 @@
+Index: frameworks/base/core/java/android/provider/Settings.java
+===================================================================
+--- frameworks/base/core/java/android/provider/Settings.java	(revision 169692)
++++ frameworks/base/core/java/android/provider/Settings.java	(revision 169693)
+@@ -1292,7 +1292,7 @@
+             "android.settings.WIFI_CALLING_SETTINGS";
+ 
+     // End of Intent actions for Settings
+-
++   
+     /**
+      * @hide - Private call() method on SettingsProvider to read from 'system' table.
+      */
+@@ -2735,6 +2735,11 @@
+ 
+         private static final Validator DIM_SCREEN_VALIDATOR = sBooleanValidator;
+ 
++	/**
++   	 *add for barrery percengage
++    	*/
++    public static final String BATTERY_PERCENTAGE_ENABLED = "battery_percentage_enabled";
++
+         /**
+          * The amount of time in milliseconds before the device goes to sleep or begins
+          * to dream after a period of inactivity.  This value is also known as the
+Index: frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java
+===================================================================
+--- frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java	(revision 169692)
++++ frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java	(revision 169693)
+@@ -2369,7 +2369,7 @@
+         try {
+             stmt = db.compileStatement("INSERT OR IGNORE INTO system(name,value)"
+                     + " VALUES(?,?);");
+-
++			loadIntegerSetting(stmt, Settings.System.BATTERY_PERCENTAGE_ENABLED, R.integer.battery_percentage_enabled);
+             loadBooleanSetting(stmt, Settings.System.DIM_SCREEN,
+                     R.bool.def_dim_screen);
+             loadIntegerSetting(stmt, Settings.System.SCREEN_OFF_TIMEOUT,
+Index: frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+===================================================================
+--- frameworks/base/packages/SettingsProvider/res/values/defaults.xml	(revision 169692)
++++ frameworks/base/packages/SettingsProvider/res/values/defaults.xml	(revision 169693)
+@@ -21,6 +21,7 @@
+     <integer name="def_screen_off_timeout">30000</integer>
+     <integer name="def_button_light_off_timeout">1500</integer>
+     <integer name="def_sleep_timeout">-1</integer>
++	<integer name="battery_percentage_enabled">1</integer>
+     <bool name="def_airplane_mode_on">false</bool>
+     <bool name="def_theater_mode_on">false</bool>
+     <!-- Comma-separated list of bluetooth, wifi, and cell. -->

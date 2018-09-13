@@ -1,0 +1,14 @@
+Index: packages/apps/Settings/src/com/android/settings/WifiCallingSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/WifiCallingSettings.java	(revision 170310)
++++ packages/apps/Settings/src/com/android/settings/WifiCallingSettings.java	(revision 170311)
+@@ -74,6 +74,9 @@
+         @Override
+         public void onCallStateChanged(int state, String incomingNumber) {
+             final SettingsActivity activity = (SettingsActivity) getActivity();
++            if (activity == null) {//modify 
++                return;
++            }
+             boolean isNonTtyOrTtyOnVolteEnabled = ImsManager
+                     .isNonTtyOrTtyOnVolteEnabled(activity);
+             final SwitchBar switchBar = activity.getSwitchBar();

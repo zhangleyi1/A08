@@ -1,0 +1,54 @@
+Index: packages/apps/Messaging/src/com/android/messaging/sms/MmsConfig.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/sms/MmsConfig.java	(revision 170242)
++++ packages/apps/Messaging/src/com/android/messaging/sms/MmsConfig.java	(revision 170243)
+@@ -74,7 +74,7 @@
+ public class MmsConfig {
+     private static final String TAG = LogUtil.BUGLE_TAG;
+ 
+-    private static final int DEFAULT_MAX_TEXT_LENGTH = 2000;
++    private static final int DEFAULT_MAX_TEXT_LENGTH = 1000;//2000
+ 
+     /*
+      * Key types
+Index: packages/apps/Messaging/src/com/android/messaging/util/PhoneUtils.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/util/PhoneUtils.java	(revision 170242)
++++ packages/apps/Messaging/src/com/android/messaging/util/PhoneUtils.java	(revision 170243)
+@@ -999,8 +999,8 @@
+      * Returns whether the given destination is valid for sending SMS/MMS message.
+      */
+     public static boolean isValidSmsMmsDestination(final String destination) {
+-        return (PhoneNumberUtils.isWellFormedSmsAddress(destination) /* && MmsSmsUtils.isPhoneNumber(destination)*/)||
+-                MmsSmsUtils.isEmailAddress(destination);
++        return (PhoneNumberUtils.isWellFormedSmsAddress(destination)  && MmsSmsUtils.isPhoneNumber(destination))/*||
++                MmsSmsUtils.isEmailAddress(destination)*/;
+     }
+ 
+     public interface SubscriptionRunnable {
+Index: packages/apps/Messaging/AndroidManifest.xml
+===================================================================
+--- packages/apps/Messaging/AndroidManifest.xml	(revision 170242)
++++ packages/apps/Messaging/AndroidManifest.xml	(revision 170243)
+@@ -287,8 +287,9 @@
+                 <action android:name="android.intent.action.SEND" />
+ 
+                 <category android:name="android.intent.category.DEFAULT" />
+-                <!--
++                
+                 <data android:mimeType="text/plain" />
++		<!--
+                 <data android:mimeType="text/x-vCard" />
+                 <data android:mimeType="text/x-vcard" />
+                 <data android:mimeType="text/x-vCalendar" />
+@@ -305,8 +306,9 @@
+                 <action android:name="android.intent.action.SEND_MULTIPLE" />
+ 
+                 <category android:name="android.intent.category.DEFAULT" />
+-
++		<!--
+                 <data android:mimeType="image/*" />
++		-->
+             </intent-filter>
+         </activity>
+ 

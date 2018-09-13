@@ -1,0 +1,227 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/Android.mk
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/Android.mk	(revision 167383)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/Android.mk	(revision 167384)
+@@ -171,6 +171,8 @@
+ LOCAL_OVERRIDES_PACKAGES := Camera2
+ LOCAL_CERTIFICATE := platform
+ 
++LOCAL_PRIVILEGED_MODULE := true
++
+ #LOCAL_SDK_VERSION := current
+ 
+ LOCAL_PROGUARD_FLAG_FILES := proguard.flags
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java	(revision 167383)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java	(revision 167384)
+@@ -2291,6 +2291,13 @@
+             Log.i(TAG, "factorymode mCameraId = " + mCameraId);
+         }
+ 
++        //Added by zhangleyi for 20170420 begin
++        boolean isVideoMode = Settings.System.getInt(getContentResolver(), "open_camera_video", 0) != 0;
++        if (isVideoMode) {
++            switchModeSpecial();
++            Settings.System.putInt(getContentResolver(), "open_camera_video", 0);
++        }
++        //Added by zhangleyi for 20170420 end
+     }
+ 
+     private void preInit() {
+Index: vendor/sprd/platform/packages/apps/Camcorder/Android.mk
+===================================================================
+--- vendor/sprd/platform/packages/apps/Camcorder/Android.mk	(revision 0)
++++ vendor/sprd/platform/packages/apps/Camcorder/Android.mk	(revision 167384)
+@@ -0,0 +1,13 @@
++LOCAL_PATH:= $(call my-dir)
++include $(CLEAR_VARS)
++
++LOCAL_MODULE_TAGS := optional
++
++LOCAL_SRC_FILES := $(call all-subdir-java-files)
++LOCAL_RESOURCE_DIR := vendor/sprd/platform/packages/apps/Camcorder/res
++
++LOCAL_PACKAGE_NAME := Camcorder
++LOCAL_CERTIFICATE := platform
++LOCAL_PRIVILEGED_MODULE := true
++
++include $(BUILD_PACKAGE)
+Index: vendor/sprd/platform/packages/apps/Camcorder/AndroidManifest.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Camcorder/AndroidManifest.xml	(revision 0)
++++ vendor/sprd/platform/packages/apps/Camcorder/AndroidManifest.xml	(revision 167384)
+@@ -0,0 +1,23 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.techainsh.camcorder.activity">
++
++
++    <application
++        android:allowBackup="true"
++        android:icon="@mipmap/ic_launcher"
++        android:label="@string/app_name"
++        android:supportsRtl="true"
++        android:theme="@android:style/Theme.Light">
++
++
++        <activity android:name=".Camcorder">
++            <intent-filter>
++                <action android:name="android.intent.action.MAIN" />
++                <category android:name="android.intent.category.LAUNCHER" />
++            </intent-filter>
++        </activity>
++    </application>
++
++    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
++</manifest>
+Index: vendor/sprd/platform/packages/apps/Camcorder/src/com/techainsh/camcorder/activity/Camcorder.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/Camcorder/src/com/techainsh/camcorder/activity/Camcorder.java	(revision 0)
++++ vendor/sprd/platform/packages/apps/Camcorder/src/com/techainsh/camcorder/activity/Camcorder.java	(revision 167384)
+@@ -0,0 +1,30 @@
++package com.techainsh.camcorder.activity;
++
++import android.app.Activity;
++import android.content.Intent;
++import android.os.Bundle;
++import android.provider.Settings;
++
++public class Camcorder extends Activity {
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++
++        //Settings.System.putInt(getContentResolver(), Settings.System.OPEN_CAMERA_VIDEO, 1);
++        Settings.System.putInt(getContentResolver(), "open_camera_video", 1);
++/*
++        Intent intent = new Intent();
++        intent.setClassName("com.android.camera2", "com.android.camera.CameraLauncher");
++        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++        intent.putExtra("videoMode", true);
++        startActivity(intent);
++        finish();
++*/
++        Intent intent = new Intent();
++        intent.setClassName("com.android.camera2", "com.android.camera.CameraLauncher");
++        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++        startActivity(intent);
++        finish();
++    }
++}
+Index: vendor/sprd/platform/packages/apps/Camcorder/res/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Camcorder/res/values/strings.xml	(revision 0)
++++ vendor/sprd/platform/packages/apps/Camcorder/res/values/strings.xml	(revision 167384)
+@@ -0,0 +1,3 @@
++<resources>
++    <string name="app_name">Camcorder</string>
++</resources>
+Index: vendor/sprd/platform/packages/apps/Camcorder/res/values/dimens.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Camcorder/res/values/dimens.xml	(revision 0)
++++ vendor/sprd/platform/packages/apps/Camcorder/res/values/dimens.xml	(revision 167384)
+@@ -0,0 +1,5 @@
++<resources>
++    <!-- Default screen margins, per the Android Design guidelines. -->
++    <dimen name="activity_horizontal_margin">16dp</dimen>
++    <dimen name="activity_vertical_margin">16dp</dimen>
++</resources>
+Index: vendor/sprd/platform/packages/apps/Camcorder/res/values/colors.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Camcorder/res/values/colors.xml	(revision 0)
++++ vendor/sprd/platform/packages/apps/Camcorder/res/values/colors.xml	(revision 167384)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <color name="colorPrimary">#3F51B5</color>
++    <color name="colorPrimaryDark">#303F9F</color>
++    <color name="colorAccent">#FF4081</color>
++</resources>
+Index: vendor/sprd/platform/packages/apps/Camcorder/res/values-w820dp/dimens.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Camcorder/res/values-w820dp/dimens.xml	(revision 0)
++++ vendor/sprd/platform/packages/apps/Camcorder/res/values-w820dp/dimens.xml	(revision 167384)
+@@ -0,0 +1,6 @@
++<resources>
++    <!-- Example customization of dimensions originally defined in res/values/dimens.xml
++         (such as screen margins) for screens with more than 820dp of available width. This
++         would include 7" and 10" devices in landscape (~960dp and ~1280dp respectively). -->
++    <dimen name="activity_horizontal_margin">64dp</dimen>
++</resources>
+Index: vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-hdpi/ic_launcher.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-hdpi/ic_launcher.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-hdpi/ic_launcher.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-hdpi/ic_launcher.png	(revision 167384)
+
+Property changes on: vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-hdpi/ic_launcher.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-xxhdpi/ic_launcher.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-xxhdpi/ic_launcher.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-xxhdpi/ic_launcher.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-xxhdpi/ic_launcher.png	(revision 167384)
+
+Property changes on: vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-xxhdpi/ic_launcher.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-mdpi/ic_launcher.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-mdpi/ic_launcher.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-mdpi/ic_launcher.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-mdpi/ic_launcher.png	(revision 167384)
+
+Property changes on: vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-mdpi/ic_launcher.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-xhdpi/ic_launcher.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-xhdpi/ic_launcher.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-xhdpi/ic_launcher.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-xhdpi/ic_launcher.png	(revision 167384)
+
+Property changes on: vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-xhdpi/ic_launcher.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-xxxhdpi/ic_launcher.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-xxxhdpi/ic_launcher.png
+===================================================================
+--- vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-xxxhdpi/ic_launcher.png	(revision 0)
++++ vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-xxxhdpi/ic_launcher.png	(revision 167384)
+
+Property changes on: vendor/sprd/platform/packages/apps/Camcorder/res/mipmap-xxxhdpi/ic_launcher.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property

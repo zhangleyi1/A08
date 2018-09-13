@@ -1,0 +1,23 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/NotificationBroadcastReceiver.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/NotificationBroadcastReceiver.java	(revision 169552)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/NotificationBroadcastReceiver.java	(revision 169553)
+@@ -75,12 +75,14 @@
+         } else if (action.equals(WifiManager.RSSI_CHANGED_ACTION)) {
+             int rssi = intent.getIntExtra(WifiManager.EXTRA_NEW_RSSI, -200);
+             int level = WifiManager.calculateSignalLevel(rssi, 5);
+-			 Log.d(this, "onReceive RSSI_CHANGED_ACTION"+level);
++			Log.d(this, "onReceive RSSI_CHANGED_ACTION"+level);
+             InCallPresenter.getInstance().setSignalLevel(level);
+         } else if (ACTION_SMS_REJUST_INCOMING_CALL.equals(action)) {
+-            Intent it = new Intent();
+-            it.setClass(context.getApplicationContext(), SmsRejustDialogActivity.class);
+-            it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++			Log.i(this, "Broadcast from Notification: SmsRejust" +ACTION_SMS_REJUST_INCOMING_CALL );
++            Intent Smsintent = new Intent();
++            Smsintent.setClass(context.getApplicationContext(), SmsRejustDialogActivity.class);
++            Smsintent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++			context.startActivity(Smsintent);
+         } 
+     }
+ 

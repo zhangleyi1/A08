@@ -1,0 +1,41 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 173244)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 173245)
+@@ -300,6 +300,8 @@
+     private ImageButton mSwitchBtn;
+     private ImageButton mGsmCallBtn;
+     private int defaultSimSlot = 1;  //lte
++	private ConnectivityManager connectivityManager;
++	private NetworkInfo mobNetInfoActivity;
+ 
+     private class CallStateReceiver extends BroadcastReceiver {
+         /**
+@@ -518,7 +520,7 @@
+ 
+         mGsmCallBtn = (ImageButton)fragmentView.findViewById(R.id.dialpad_floating_action_gsm_button);
+         mGsmCallBtn.setOnClickListener(this);
+-        if (!oneSimState && twoSimState) {
++        if (oneSimState) {//�ж���������Ӧ�����Ƿ�ע�ᵽ4G��Ϊ�ж���������ǰ�жϵ��ǿ�ע�ᵽ����
+             showLteButton(false);
+         } else {
+             showLteButton(true);
+@@ -550,9 +552,16 @@
+                     twoSimState = false;
+                 }
+             }
+-        }
+-    }
++	private boolean is4GNetType() {
++		int networkType = TelephonyManager.from(getActivity()).getNetworkType(0); // need change
++		int defaultDataSubId = SubscriptionManager.from(getContext()).getDefaultDataSubscriptionId();
++		if ((networkType == TelephonyManager.NETWORK_TYPE_LTE) || (networkType == TelephonyManager.NETWORK_TYPE_LTE_CA)) {
++			return true;
++		}
++		return false;
+ 
++	}
++
+     public void call(Context context, int id, String telNum){	
+         TelecomManager telecomManager = (TelecomManager) context.getSystemService(Context.TELECOM_SERVICE);
+ 		if(telecomManager != null){

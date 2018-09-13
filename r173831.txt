@@ -1,0 +1,227 @@
+Index: packages/services/Telecomm/src/com/android/server/telecom/CallsManager.java
+===================================================================
+--- packages/services/Telecomm/src/com/android/server/telecom/CallsManager.java	(revision 173830)
++++ packages/services/Telecomm/src/com/android/server/telecom/CallsManager.java	(revision 173831)
+@@ -51,6 +51,8 @@
+ import android.text.TextUtils;
+ import com.sprd.server.telecom.BlockIncomingCallNotifierUtils;
+ import com.sprd.server.telecom.TelecomCmccHelper;
++import android.content.SharedPreferences;
++import android.content.pm.PackageManager.NameNotFoundException;
+ 
+ import com.android.internal.annotations.VisibleForTesting;
+ import com.android.internal.telephony.AsyncEmergencyContactNotifier;
+@@ -76,8 +78,11 @@
+ import java.util.Map;
+ import java.util.Objects;
+ import java.util.Set;
++import android.os.Message;
+ import java.util.concurrent.ConcurrentHashMap;
+ import com.sprd.server.telecom.TelcelCallWaitingToneHelper;
++import android.preference.PreferenceManager;
++import com.android.internal.content.NativeLibraryHelper.Handle;
+ 
+ /**
+  * Singleton.
+@@ -214,6 +219,10 @@
+      * SPRD: Support Telcel Operator requirement
+      */
+     private TelcelCallWaitingToneHelper mTelcelCallWaitingToneHelper;
++        /* SPRD: Add for zwj   headset auto answer @{ */
++    protected static final int EVENT_SET_HEADSET_AUTO_ANSWER = 30;
++    protected static final int HEADSET_AUTO_ANSWER_WAITE_VALUE = 3000;
++    private int headSetValue;
+ 
+     /**
+      * Initializes the required Telecom components.
+@@ -442,6 +451,12 @@
+                 mMissedCallNotifier.showMissedCallNotification(incomingCall);
+             }
+         }
++              headSetValue = getHeadSetAutoAnswerValue();
++        if (mWiredHeadsetManager.isPluggedIn()&&headSetValue == 1) {
++            headSetHandler.sendMessage(headSetHandler.obtainMessage(EVENT_SET_HEADSET_AUTO_ANSWER));
++        }else if (mWiredHeadsetManager.isPluggedIn()&&headSetValue == 2) {
++            headSetHandler.sendMessageDelayed(headSetHandler.obtainMessage(EVENT_SET_HEADSET_AUTO_ANSWER), HEADSET_AUTO_ANSWER_WAITE_VALUE);
++        }
+     }
+ 
+     @Override
+@@ -2342,4 +2357,32 @@
+     public void stop3rdCallWaitingTone() {
+         mTelcelCallWaitingToneHelper.stop3rdCallWaitingTone();
+     }
++    private static final String VALUE_HEADSET_AUTO_ANSWER="value_headset_auto_answer";
++    private static final int DEFVALUE_HEADSET_AUTO_ANSWER=0;
++    private static final String HEADSET_AUTO_ANSWER_NAME="headset_auto_answer_name";
++    private Context otherContext;
++    public int getHeadSetAutoAnswerValue() {
++        try {
++            otherContext = mContext.createPackageContext("com.android.phone", Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
++        } catch (NameNotFoundException e) {
++            e.printStackTrace();
++        }
++        SharedPreferences headSetAutoAnserSharedpref=otherContext.getSharedPreferences(HEADSET_AUTO_ANSWER_NAME, Context.MODE_WORLD_READABLE|Context.MODE_MULTI_PROCESS);
++        int  value =  headSetAutoAnserSharedpref.getInt(VALUE_HEADSET_AUTO_ANSWER, DEFVALUE_HEADSET_AUTO_ANSWER);
++        return value;
++        }
++    Handler headSetHandler = new Handler(){
++        public void handleMessage(Message msg) {
++            Call ringingCall = getFirstCallWithState(CallState.RINGING);
++            switch (msg.what) {
++                case EVENT_SET_HEADSET_AUTO_ANSWER:
++                    if ( ringingCall!=null) {
++                        ringingCall.answer(ringingCall.getVideoState());
++                    }
++                    break;
++            default:
++                break;
++            }
++        };
++    };
+ }
+Index: packages/services/Telephony/src/com/android/phone/CallFeaturesSetting.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/CallFeaturesSetting.java	(revision 173830)
++++ packages/services/Telephony/src/com/android/phone/CallFeaturesSetting.java	(revision 173831)
+@@ -69,7 +69,8 @@
+ import com.android.phone.settings.VoicemailSettingsActivity;
+ import com.android.services.telephony.sip.SipUtil;
+ import com.sprd.settings.ActivityContainer;
+-
++import android.content.SharedPreferences;
++import android.preference.PreferenceManager;
+ import java.lang.String;
+ import java.util.ArrayList;
+ import java.util.List;
+@@ -141,6 +142,11 @@
+     private ActivityContainer mActivityContainer;
+     // SPRD: add for bug653676
+     private AlertDialog mOpenDataDialog = null;
++    private ListPreference mPreferredHeadSetAutoAnswer;
++    private static final String BUTTON_HEADSET_AUTO_ANSER_KEY="button_headset_auto_answer_key";
++    private static final String VALUE_HEADSET_AUTO_ANSWER="value_headset_auto_answer";
++    private static final String HEADSET_AUTO_ANSWER_NAME="headset_auto_answer_name";
++    private SharedPreferences mSharedPrefs;
+ 
+     /*
+      * Click Listeners, handle click based on objects attached to UI.
+@@ -252,8 +258,18 @@
+         }
+ 
+         // Always let the preference setting proceed.
++        if (preference ==mPreferredHeadSetAutoAnswer ) {
++            setValueHeadSetAutoAnswer(Integer.parseInt((String)objValue));
++        }
+         return true;
+     }
++    
++    protected void setValueHeadSetAutoAnswer(int value) {
++               android.util.Log.e("zwj", "setValueHeadSetAutoAnswer value "+value);
++               SharedPreferences.Editor editor = mSharedPrefs.edit();
++               editor.putInt(VALUE_HEADSET_AUTO_ANSWER , value);
++               editor.commit();
++            }
+ 
+     @Override
+     protected void onCreate(Bundle icicle) {
+@@ -281,6 +297,7 @@
+         mActivityContainer.setApplication(getApplication());
+         mActivityContainer.addActivity(this, mPhone.getPhoneId());
+         /* @} */
++        mSharedPrefs = getSharedPreferences(HEADSET_AUTO_ANSWER_NAME, Context.MODE_WORLD_READABLE | Context.MODE_MULTI_PROCESS);
+     }
+ 
+     @Override
+@@ -458,6 +475,8 @@
+             prefSet.removePreference(wifiCallingSettings);
+         }
+         /* @} */
++         mPreferredHeadSetAutoAnswer = (ListPreference)prefSet.findPreference(BUTTON_HEADSET_AUTO_ANSER_KEY);
++        mPreferredHeadSetAutoAnswer.setOnPreferenceChangeListener(this);
+         // SPRD: LND/SDN FEATURE.
+         addPreferencesFromResource(R.xml.lnd_sdn_list_ex);
+         // SPRD: modify for bug579749
+Index: packages/services/Telephony/res/xml/call_feature_setting.xml
+===================================================================
+--- packages/services/Telephony/res/xml/call_feature_setting.xml	(revision 173830)
++++ packages/services/Telephony/res/xml/call_feature_setting.xml	(revision 173831)
+@@ -76,5 +76,15 @@
+         android:title="@string/labelCDMAMore"
+         android:summary="@string/sum_cdma_call_settings"
+         android:persistent="false" />
++    <ListPreference
++        android:key="button_headset_auto_answer_key"
++        android:title="@string/headset_auto_answer_title"
++        android:summary="@string/headset_auto_answer_summary"
++        android:entries="@array/headset_auto_answer_entries"
++        android:entryValues="@array/headset_auto_answervalues"
++        android:dialogTitle="@string/headset_auto_answer_title"
++        android:defaultValue="@string/headset_auto_answer_option_default_value"/>
+ 
++   
++
+ </PreferenceScreen>
+Index: packages/services/Telephony/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values-zh-rCN/strings.xml	(revision 173830)
++++ packages/services/Telephony/res/values-zh-rCN/strings.xml	(revision 173831)
+@@ -558,6 +558,27 @@
+     <string name="callFailed_cdma_activation" msgid="2307989779233262164">"SIM 卡已启用您的服务，并更新了您手机的漫游功能。"</string>
+     <string name="callFailed_cdma_call_limit" msgid="1556916577171457086">"进行中的通话过多。请结束现有通话或将其合并，然后再拨打新的电话。"</string>
+     <string name="call_end_try_again">"通话中，请通话结束后重试。"</string>
++    <!--  Headset Audo Answer settings -->
++    <!-- Title for the  Headset Audo Answer options displayed in Call Settings -->
++     <string name="headset_auto_answer_option_default_value">0</string>
++     <string name="headset_auto_answer_title">耳机自动接听</string>
++     <!-- Summary for the Headset Audo Answer  options displayed in Call Settings -->
++     <string name="headset_auto_answer_summary">来电自动接听，需要插入耳机</string>
++     <!-- Options displayed as part of  Headset Audo Answer in Call Settings -->
++     <string-array name="headset_auto_answer_entries">
++       <item>关闭</item>
++       <item>开启</item>
++       <item>等待3秒 </item>
++     </string-array>
++     <!-- Do not translate. -->
++     <string-array name="headset_auto_answervalues" translatable="false">
++        <item>0</item>
++        <item>1</item>
++        <item>2</item>
++     </string-array>
++    
++    
++    
+ 	
+ 	<string name="user_input">用户输入</string>
+ 	<string name="police">报警</string>
+Index: packages/services/Telephony/res/values/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values/strings.xml	(revision 173830)
++++ packages/services/Telephony/res/values/strings.xml	(revision 173831)
+@@ -1332,6 +1332,26 @@
+ 
+     <!-- SPRD: 606404 Toast in Call settings when setting the VideoCallingEnable -->
+     <string name="call_end_try_again">Please try again after the call is end.</string>
++      <!--  Headset Audo Answer settings -->
++    <!-- Title for the  Headset Auto Answer options displayed in Call Settings -->
++    <string name="headset_auto_answer_option_default_value">0</string>
++    <string name="headset_auto_answer_title">Headset auto answer</string>
++   <!-- Summary for the Headset Auto Answer  options displayed in Call Settings -->
++    <string name="headset_auto_answer_summary">The caller automatically calls in and needs to insert the headset</string>
++    <!-- Options displayed as part of  Headset Auto Answer in Call Settings -->
++    <string-array name="headset_auto_answer_entries">
++       <item>Off</item>
++       <item>On</item>
++       <item>Wait for 3 Secs </item>
++    </string-array>
++    <!-- Do not translate. -->
++    <string-array name="headset_auto_answervalues" translatable="false">
++       <item>0</item>
++       <item>1</item>
++       <item>2</item>
++    </string-array>
++
++    
+     <!-- @} -->
+     <string name="close_volte_info">Disabling VoLTE will make call and sms unavailable. Are you sure?</string>
+     <string name="confirm">OK</string>

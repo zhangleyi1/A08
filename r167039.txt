@@ -1,0 +1,26 @@
+Index: packages/apps/Settings/src/com/android/settings/sim/SimSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/sim/SimSettings.java	(revision 167038)
++++ packages/apps/Settings/src/com/android/settings/sim/SimSettings.java	(revision 167039)
+@@ -164,6 +164,10 @@
+         mSimPreferenceCatergory.removePreference(mSmartDualSim);
+         refreshSmartDualSimStatus();
+         /* @} */
++		//fix for bug 90596 by zhangchi start 
++		mSimPreferenceCatergory.removePreference((Preference)findPreference(KEY_CALLS));
++		mSimPreferenceCatergory.removePreference((Preference)findPreference(KEY_SMS));
++		//fix for bug 90596 by zhangchi end  
+     }
+ 
+     private boolean isRadioBusy() {
+@@ -246,8 +250,8 @@
+ 
+     private void updateActivitesCategory() {
+         updateCellularDataValues();
+-        updateCallValues();
+-        updateSmsValues();
++     //   updateCallValues();
++     //   updateSmsValues();
+     }
+ 
+     private boolean isPhoneInCall() {

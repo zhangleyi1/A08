@@ -1,0 +1,15 @@
+Index: packages/apps/Settings/src/com/android/settings/bluetooth/BluetoothSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/bluetooth/BluetoothSettings.java	(revision 167813)
++++ packages/apps/Settings/src/com/android/settings/bluetooth/BluetoothSettings.java	(revision 167814)
+@@ -533,8 +533,8 @@
+ 
+         private CharSequence getSummary() {
+             return mContext.getString(!mEnabled ? R.string.bluetooth_disabled
+-                    : mConnected ? R.string.bluetooth_connected
+-                    : R.string.bluetooth_disconnected);
++                    : /*mConnected ? */R.string.bluetooth_connected
++                    /*: R.string.bluetooth_disconnected*/);
+         }
+ 
+         @Override

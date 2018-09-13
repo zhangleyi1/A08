@@ -1,0 +1,12 @@
+Index: vendor/sprd/platform/frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/SprdCameraActions.java
+===================================================================
+--- vendor/sprd/platform/frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/SprdCameraActions.java	(revision 173893)
++++ vendor/sprd/platform/frameworks/ex/camera2/portability/src/com/android/ex/camera2/portability/SprdCameraActions.java	(revision 173894)
+@@ -2,6 +2,7 @@
+ 
+ public class SprdCameraActions {
+     /* SPRD: fix bug 473462 add burst capture @{*/
++	public static final int SET_PREVIEW_DISPLAY_ASYNC_WITHOUT_OPTIMIZE =        110;
+     public static final int CAPTURE_BURST_PHOTO = 602;
+     public static final int CANCEL_CAPTURE_BURST_PHOTO = 603;
+     /* @}*/

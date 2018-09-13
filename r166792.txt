@@ -1,0 +1,13 @@
+Index: device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 166791)
++++ device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 166792)
+@@ -169,7 +169,7 @@
+ PRODUCT_COPY_FILES += \
+ 	$(BOARDDIR)/audio_params/audio_policy.conf:system/etc/audio_policy.conf
+ endif
+-
++PRODUCT_COPY_FILES += vendor/sprd/res/blackAppList.xml:system/etc/blackAppList.xml
+ $(call inherit-product-if-exists, vendor/sprd/open-source/common_packages.mk)
+ $(call inherit-product-if-exists, vendor/sprd/open-source/plus_special_packages.mk)
+ #$(call inherit-product, vendor/sprd/partner/shark/bluetooth/device-shark-bt.mk)

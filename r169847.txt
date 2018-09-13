@@ -1,0 +1,137 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/SmartDialNameMatcher.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/SmartDialNameMatcher.java	(revision 169846)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/SmartDialNameMatcher.java	(revision 169847)
+@@ -199,35 +199,86 @@
+             return null;
+         }
+         int queryAt = 0;
+-        int numberAt = offset;
+-        for (int i = offset; i < phoneNumber.length(); i++) {
+-            if (queryAt == query.length()) {
+-                break;
+-            }
+-            char ch = phoneNumber.charAt(i);
+-            if (mMap.isValidDialpadNumericChar(ch)) {
+-                if (ch != query.charAt(queryAt)) {
+-                    return null;
++//        int numberAt = offset;
++//        for (int i = offset; i < phoneNumber.length(); i++) {
++//            if (queryAt == query.length()) {
++//                break;
++//            }
++//            char ch = phoneNumber.charAt(i);
++//            if (mMap.isValidDialpadNumericChar(ch)) {
++//                if (ch != query.charAt(queryAt)) {
++//                    return null;
++//                }
++//                queryAt++;
++//            } else {
++//                if (queryAt == 0) {
++//                    // Found a separator before any part of the query was matched, so advance the
++//                    // offset to avoid prematurely highlighting separators before the rest of the
++//                    // query.
++//                    // E.g. don't highlight the first '-' if we're matching 1-510-111-1111 with
++//                    // '510'.
++//                    // However, if the current offset is 0, just include the beginning separators
++//                    // anyway, otherwise the highlighting ends up looking weird.
++//                    // E.g. if we're matching (510)-111-1111 with '510', we should include the
++//                    // first '('.
++//                    if (offset != 0) {
++//                        offset++;
++//                    }
++//                }
++//            }
++//            numberAt++;
++//        }
++
++        int numberAt = 0;
++
++        int numberLength = phoneNumber.length();
++        int queryLength = query.length();
++        a:
++        for (int j = offset; j <= numberLength - queryLength; j++) {
++            offset = j;
++            queryAt = 0;
++            numberAt = j;
++            b:
++            for (int i = offset; i < phoneNumber.length(); i++) {
++                if (queryAt == query.length()) {
++                    break a;
+                 }
+-                queryAt++;
+-            } else {
+-                if (queryAt == 0) {
+-                    // Found a separator before any part of the query was matched, so advance the
+-                    // offset to avoid prematurely highlighting separators before the rest of the
+-                    // query.
+-                    // E.g. don't highlight the first '-' if we're matching 1-510-111-1111 with
+-                    // '510'.
+-                    // However, if the current offset is 0, just include the beginning separators
+-                    // anyway, otherwise the highlighting ends up looking weird.
+-                    // E.g. if we're matching (510)-111-1111 with '510', we should include the
+-                    // first '('.
+-                    if (offset != 0) {
+-                        offset++;
++                char ch = phoneNumber.charAt(i);
++                if (mMap.isValidDialpadNumericChar(ch)) {
++                    if (ch != query.charAt(queryAt)) {
++                        if (j == numberLength - queryLength) {
++                            return null;
++                        }
++                        break b;
+                     }
++                    queryAt++;
++                } else {
++                    if (queryAt == 0) {
++                        // Found a separator before any part of the query was matched, so advance the
++                        // offset to avoid prematurely highlighting separators before the rest of the
++                        // query.
++                        // E.g. don't highlight the first '-' if we're matching 1-510-111-1111 with
++                        // '510'.
++                        // However, if the current offset is 0, just include the beginning separators
++                        // anyway, otherwise the highlighting ends up looking weird.
++                        // E.g. if we're matching (510)-111-1111 with '510', we should include the
++                        // first '('.
++                        if (offset != 0) {
++                            offset++;
++                        }
++                    }
+                 }
++                numberAt++;
++				if (numberAt == numberLength) {
++                    break a;
++                }
+             }
+-            numberAt++;
++
+         }
++        if (0 == numberAt) {
++            return null;
++        }
++
+         return new SmartDialMatchPosition(0 + offset, numberAt);
+     }
+ 
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/format/TextHighlighter.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/format/TextHighlighter.java	(revision 169846)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/format/TextHighlighter.java	(revision 169847)
+@@ -16,6 +16,7 @@
+ 
+ package com.android.contacts.common.format;
+ 
++import android.graphics.Color;
+ import android.graphics.Typeface;
+ import android.text.SpannableString;
+ import android.text.style.CharacterStyle;
+@@ -64,7 +65,8 @@
+      */
+     public void applyMaskingHighlight(SpannableString text, int start, int end) {
+         /** Sets text color of the masked locations to be highlighted. */
+-        text.setSpan(getStyleSpan(), start, end, 0);
++//        text.setSpan(getStyleSpan(), start, end, 0);
++        text.setSpan(new ForegroundColorSpan(Color.RED), start, end, 0);
+     }
+ 
+     /**

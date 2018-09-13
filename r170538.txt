@@ -1,0 +1,11 @@
+Index: vendor/sprd/proprietories-source/sprd_secure_boot_tool/sig_script.sh
+===================================================================
+--- vendor/sprd/proprietories-source/sprd_secure_boot_tool/sig_script.sh	(revision 170537)
++++ vendor/sprd/proprietories-source/sprd_secure_boot_tool/sig_script.sh	(revision 170538)
+
+Property changes on: vendor/sprd/proprietories-source/sprd_secure_boot_tool/sig_script.sh
+___________________________________________________________________
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property

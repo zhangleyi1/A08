@@ -1,0 +1,141 @@
+Index: packages/apps/Settings/src/com/android/settings/deviceinfo/StorageSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/deviceinfo/StorageSettings.java	(revision 172228)
++++ packages/apps/Settings/src/com/android/settings/deviceinfo/StorageSettings.java	(revision 172229)
+@@ -55,7 +55,13 @@
+ import com.android.settings.search.SearchIndexableRaw;
+ import com.android.settingslib.RestrictedLockUtils;
+ import com.android.settingslib.drawer.SettingsDrawerActivity;
++import android.os.Environment;
++import android.os.EnvironmentEx;
++import android.os.SystemProperties;
++import android.support.v7.preference.ListPreference;
++import android.support.v7.preference.Preference.OnPreferenceChangeListener;
+ 
++
+ import java.io.File;
+ import java.util.ArrayList;
+ import java.util.Collections;
+@@ -99,6 +105,14 @@
+     /*  SPRD: Modified for bug 619600, dismiss the dialog when SD card mounted. @{ */
+     private static final String MOUNT_EVENT = "mount_storage_event";
+     private VolumeUnmountedFragment mVolumeUnmountedDialog;
++	private static final String KEY_APP_INSTALL_LOCATION = "app_install_location";
++    private static final int APP_INSTALL_AUTO = 0;
++    private static final int APP_INSTALL_DEVICE = 1;
++    private static final int APP_INSTALL_SDCARD = 2;
++    private static final String APP_INSTALL_DEVICE_ID = "device";
++    private static final String APP_INSTALL_SDCARD_ID = "sdcard";
++    private static final String APP_INSTALL_AUTO_ID = "auto";
++    private ListPreference mInstallLocation;
+     /* @} */
+ 
+     @Override
+@@ -136,9 +150,66 @@
+                 false,
+                 mRemoveUserObserver,
+                 UserHandle.USER_OWNER);
++		mInstallLocation = (ListPreference) findPreference(KEY_APP_INSTALL_LOCATION);
++        mInstallLocation.setValue(getAppInstallLocation());
++        mInstallLocation.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
++            public boolean onPreferenceChange(Preference preference, Object newValue) {
++                String value = (String) newValue;
++                if (value.equals(APP_INSTALL_SDCARD_ID) || value.equals(APP_INSTALL_AUTO_ID)) {
++                    if (!EnvironmentEx.getExternalStoragePathState().equals(Environment.MEDIA_MOUNTED)) {
++                        Toast.makeText(getActivity(), getString(R.string.sdcard_settings_not_present_status), Toast.LENGTH_LONG).show();
++                        return false;
++                    }
++                }
++                mInstallLocation.setValue(value);
++                updateAppInstallLocation();
++                return false;
++            }
++        });
+         /* @} */
+     }
++	private String getAppInstallLocation() {
++        int selectedLocation = Settings.Global.getInt(getContentResolver(),
++                Settings.Global.DEFAULT_INSTALL_LOCATION, APP_INSTALL_AUTO);
++        if (selectedLocation == APP_INSTALL_DEVICE) {
++            return APP_INSTALL_DEVICE_ID;
++        } else if (selectedLocation == APP_INSTALL_SDCARD) {
++            if(!Environment.MEDIA_MOUNTED.equals(EnvironmentEx.getExternalStoragePathState())){
++                Settings.Global.putInt(getContentResolver(),
++                        Settings.Global.DEFAULT_INSTALL_LOCATION, APP_INSTALL_DEVICE);
++                return APP_INSTALL_DEVICE_ID;
++            }
++            return APP_INSTALL_SDCARD_ID;
++        } else  if (selectedLocation == APP_INSTALL_AUTO) {
++            return APP_INSTALL_AUTO_ID;
++        } else {
++            // Default value, should not happen.
++            return APP_INSTALL_AUTO_ID;
++        }
++    }
+ 
++    protected void updateAppInstallLocation() {
++        String value = mInstallLocation.getValue();
++        if(!Environment.MEDIA_MOUNTED.equals(EnvironmentEx.getExternalStoragePathState())){
++            value = APP_INSTALL_DEVICE_ID;
++            mInstallLocation.setValue(value);
++        }
++        if(APP_INSTALL_DEVICE_ID.equals(value)) {
++            Settings.Global.putInt(getContentResolver(),
++                    Settings.Global.DEFAULT_INSTALL_LOCATION, APP_INSTALL_DEVICE);
++
++        } else if (APP_INSTALL_SDCARD_ID.equals(value)) {
++            Settings.Global.putInt(getContentResolver(),
++                    Settings.Global.DEFAULT_INSTALL_LOCATION, APP_INSTALL_SDCARD);
++        } else {
++            // Should not happen, default to prompt...
++            Settings.Global.putInt(getContentResolver(),
++                    Settings.Global.DEFAULT_INSTALL_LOCATION, APP_INSTALL_AUTO);
++        }
++        int test =  Settings.Global.getInt(getContentResolver(),Settings.Global.DEFAULT_INSTALL_LOCATION, APP_INSTALL_AUTO);
++         Log.d(TAG,"after update location:" + test);        
++    }
++
+     private final StorageEventListener mStorageListener = new StorageEventListener() {
+         @Override
+         public void onVolumeStateChanged(VolumeInfo vol, int oldState, int newState) {
+@@ -156,6 +227,10 @@
+             /* @} */
+             refresh();
+         }
++		@Override
++        public void onStorageStateChanged(String path, String oldState, String newState) {
++            refresh();
++        }
+     };
+ 
+     /*  SPRD: Modified for bug 619600, dismiss the dialog when SD card mounted. @{ */
+@@ -193,6 +268,8 @@
+         mExternalCategory.removeAll();
+ 
+         mInternalCategory.addPreference(mInternalSummary);
++		getPreferenceScreen().addPreference(mInstallLocation);
++		updateAppInstallLocation();
+ 
+         int privateCount = 0;
+         long privateUsedBytes = 0;
+Index: packages/apps/Settings/res/xml/device_info_storage.xml
+===================================================================
+--- packages/apps/Settings/res/xml/device_info_storage.xml	(revision 172228)
++++ packages/apps/Settings/res/xml/device_info_storage.xml	(revision 172229)
+@@ -19,7 +19,15 @@
+     xmlns:settings="http://schemas.android.com/apk/res/com.android.settings"
+     android:title="@string/storage_settings"
+     settings:keywords="@string/keywords_storage">
+-
++    <ListPreference
++	
++        android:key="app_install_location"
++        android:title="@string/app_install_location_title"
++        android:summary="@string/app_install_location_summary"
++        android:persistent="false"
++        android:entries="@array/app_install_location_entries"
++        android:entryValues="@array/app_install_location_values"/>
++		
+     <PreferenceCategory
+         android:key="storage_internal"
+         android:title="@string/storage_internal_title" />

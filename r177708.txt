@@ -1,0 +1,55 @@
+Index: packages/apps/Dialer/src/com/android/dialer/list/SearchFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/list/SearchFragment.java	(revision 177707)
++++ packages/apps/Dialer/src/com/android/dialer/list/SearchFragment.java	(revision 177708)
+@@ -345,8 +345,8 @@
+ 
+                         ContactListItemView view = (ContactListItemView)getListView().getChildAt(position + 1);
+                         if (twoSimState) {
+-                        	if(view.getGsmButtonView() != null){
+-                        		view.getGsmButtonView().setOnClickListener(new View.OnClickListener() {
++                            if(view != null && view.getGsmButtonView() != null){
++                                view.getGsmButtonView().setOnClickListener(new View.OnClickListener() {
+                                 @Override
+                                 public void onClick(View v) {
+                                     if (!oneSimState && twoSimState) {
+@@ -356,10 +356,10 @@
+                                     }
+                                 }
+                             });
+-                        	}  
++                            }
+                         }
+ 
+-                        if (oneSimState || twoSimState) {
++                        if ((view != null && view.getSmSButtonView() != null) && (oneSimState || twoSimState)) {
+                             view.getSmSButtonView().setOnClickListener(new View.OnClickListener() {
+                                 @Override
+                                 public void onClick(View v) {
+@@ -368,7 +368,7 @@
+                             });
+                         }
+ 
+-                        if (oneSimState && CallUtil.isVideoEnabled(mContext)) {
++                        if ((view != null && view.getVideoCallButtonView() != null) && oneSimState && CallUtil.isVideoEnabled(mContext)) {
+                             view.getVideoCallButtonView().setOnClickListener(new View.OnClickListener() {
+                                 @Override
+                                 public void onClick(View v) {
+@@ -380,7 +380,7 @@
+                             });
+                         }
+ 
+-                        if (oneSimState || !twoSimState) {
++                        if ((view != null && view.getLteButtonView() != null) && (oneSimState || !twoSimState)) {
+                             view.getLteButtonView().setOnClickListener(new View.OnClickListener() {
+                                 @Override
+                                 public void onClick(View v) {
+@@ -398,7 +398,7 @@
+                         listener.onPickPhoneNumber(callNumber, false /* isVideoCall */,
+                                 getCallInitiationType(false /* isRemoteDirectory */));
+                     }
+-               // }
++
+                 break;
+             /* @} */
+             case DialerPhoneNumberListAdapter.SHORTCUT_DIRECT_CALL:

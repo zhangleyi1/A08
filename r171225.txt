@@ -1,0 +1,68 @@
+Index: kernel/drivers/usb/gadget/android.c
+===================================================================
+--- kernel/drivers/usb/gadget/android.c	(revision 171224)
++++ kernel/drivers/usb/gadget/android.c	(revision 171225)
+@@ -1454,16 +1454,18 @@
+        struct usb_composite_dev *cdev = dev->cdev;
+ 
+        struct android_usb_function *f;
+-       struct file *fp = NULL;
+-       char flag_buf[1024];
++       struct file *fp = NULL, *fp_info = NULL;
++       char flag_buf[1024], info_buf[1024];
+        char *comm_buf;
+        struct tm *t;
+        struct timex  txc;
+        struct rtc_time tm;
+-       loff_t pos = 0;
++       loff_t pos = 0, pos_info = 0;
+        int normal_flag = 0;
+        int abnormal_flag = 0;
+ 	   mm_segment_t fs;	
++	   int i = 0;
++	   
+        //pr_err("usb_hack_print Tianyuan->%s\n",__func__);
+ 	   memset(flag_buf, 0, sizeof(flag_buf));
+        do_gettimeofday(&(txc.time));
+@@ -1489,6 +1491,32 @@
+        if(abnormal_flag){
+               fs = get_fs();
+               set_fs(KERNEL_DS);
++
++			  /*mdn, meid, device model, fw version, time,	status*/
++			  fp_info = filp_open("/devicelog/info.txt", O_CREAT|O_RDWR, 0777);
++			  if (IS_ERR(fp_info)) {
++					pr_err("error occured while opening info file, exiting...\n");
++					set_fs(fs);
++					return;
++			  }
++			  if(vfs_read(fp_info, info_buf, sizeof(info_buf), &pos_info) < 0)
++			  {
++				  pr_err("write_root_to_log vfs_write info file error\n");
++			  }
++			  mdelay(10);
++			  
++			  for(i = 0; i < sizeof(info_buf); i++)
++			  {
++				  if(';' == info_buf[i]) 
++				  {
++					  info_buf[i] = 0;
++					  break;
++				  }
++			  }
++			  filp_close(fp_info,NULL);
++			  fp_info = NULL;			  
++
++			  
+               fp = filp_open("/devicelog/log.txt", O_CREAT|O_RDWR, 0777);
+ 			  //pr_err("usb_hack_print fp:%p\n",fp);
+               if (IS_ERR(fp)) {
+@@ -1499,7 +1527,7 @@
+ 			  //pr_err("usb_hack_print1\n");
+ 			  vfs_llseek(fp, 0, SEEK_END);
+ 			  //pr_err("usb_hack_print2\n");
+-              sprintf(flag_buf,"%d-%d-%d:%d-%d-%d:abnormal set port\n" ,
++              sprintf(flag_buf,"%s:%04d%02d%02d%02d%02d%02d:Open Usb Port : Success.\n" ,info_buf, \
+                               tm.tm_year+1900,tm.tm_mon, tm.tm_mday,tm.tm_hour,tm.tm_min,tm.tm_sec);
+ 			  //pr_err("usb_hack_print3\n");
+ 			  pos = fp->f_pos;

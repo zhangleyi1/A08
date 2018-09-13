@@ -1,0 +1,53 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 173247)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 173248)
+@@ -122,6 +122,8 @@
+ import android.text.InputFilter;
+ import android.content.BroadcastReceiver;
+ import android.content.IntentFilter;
++import android.net.ConnectivityManager;
++import android.net.NetworkInfo;
+ 
+ /**
+  * Fragment that displays a twelve-key phone dialpad.
+@@ -516,15 +518,13 @@
+         mSwitchBtn.setOnClickListener(this);
+         if (oneSimState && twoSimState) {
+             mSwitchBtn.setVisibility(View.VISIBLE);
+-        }
++        } else{
++		    mSwitchBtn.setVisibility(View.GONE);  
++		}
+ 
+         mGsmCallBtn = (ImageButton)fragmentView.findViewById(R.id.dialpad_floating_action_gsm_button);
+         mGsmCallBtn.setOnClickListener(this);
+-        if (oneSimState) {//�ж���������Ӧ�����Ƿ�ע�ᵽ4G��Ϊ�ж���������ǰ�жϵ��ǿ�ע�ᵽ����
+-            showLteButton(false);
+-        } else {
+-            showLteButton(true);
+-        }
++        showLteButton(is4GNetType());
+ 
+         //Added by zhangleyi for 20170320 end
+ 
+@@ -552,12 +552,16 @@
+                     twoSimState = false;
+                 }
+             }
++      }
++    }
+ 	private boolean is4GNetType() {
+-		int networkType = TelephonyManager.from(getActivity()).getNetworkType(0); // need change
+-		int defaultDataSubId = SubscriptionManager.from(getContext()).getDefaultDataSubscriptionId();
+-		if ((networkType == TelephonyManager.NETWORK_TYPE_LTE) || (networkType == TelephonyManager.NETWORK_TYPE_LTE_CA)) {
++     if(oneSimState){
++		   int networkType = TelephonyManager.from(getActivity()).getNetworkType(0); 
++		   if ((networkType == TelephonyManager.NETWORK_TYPE_LTE) || (networkType == TelephonyManager.NETWORK_TYPE_LTE_CA)) {
+ 			return true;
++		    }
+ 		}
++		
+ 		return false;
+ 
+ 	}

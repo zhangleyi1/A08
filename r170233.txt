@@ -1,0 +1,12 @@
+Index: vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/CallLogProvider.java
+===================================================================
+--- vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/CallLogProvider.java	(revision 170232)
++++ vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/android/providers/contacts/CallLogProvider.java	(revision 170233)
+@@ -501,6 +501,7 @@
+                             sb.append(Data._ID + " IN (SELECT DISTINCT "
+                                     + PhoneLookupColumns.DATA_ID + " FROM " + ContactsDatabaseHelper.Tables.PHONE_LOOKUP
+                                     + " WHERE (" + PhoneLookupColumns.NORMALIZED_NUMBER + " LIKE '");
++                            sb.append("%");
+                             sb.append(normalizeNumber);
+                             sb.append("%')");
+                         }

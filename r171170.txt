@@ -1,0 +1,13 @@
+Index: packages/apps/Messaging/res/values/strings_ex.xml
+===================================================================
+--- packages/apps/Messaging/res/values/strings_ex.xml	(revision 171169)
++++ packages/apps/Messaging/res/values/strings_ex.xml	(revision 171170)
+@@ -370,7 +370,7 @@
+     <string name="show_save_attachment_info">"save it?"</string>
+     <string name="attachment_save_success">"save success"</string>
+ 
+-    <string name="unread_message_count">"not read information"</string>
++    <string name="unread_message_count">"information"</string>
+     <!-- Add by SPRD for bug 585286 2016.08.08 Start -->
+     <string name="mms_convert_to_smil_title">"Convert to slides"</string>
+     <string name="mms_convert_to_smil_message">"The Mms will be converted to slides, which could drop some attachments that unsupported in slide mode, sure?"</string>

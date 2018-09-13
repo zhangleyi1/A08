@@ -1,0 +1,13 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java	(revision 168419)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java	(revision 168420)
+@@ -1827,7 +1827,7 @@
+                 && (mUserSetup || mUserSwitcherController == null
+                         || !mUserSwitcherController.isSimpleUserSwitcher())
+                 && ((mDisabled2 & StatusBarManager.DISABLE2_QUICK_SETTINGS) == 0)
+-                && !ONLY_CORE_APPS);
++                && !ONLY_CORE_APPS(mState != StatusBarState.SHADE_LOCKED && mState != StatusBarState.KEYGUARD));
+     }
+ 
+     private void addNotificationChildrenAndSort() {

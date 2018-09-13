@@ -1,0 +1,15 @@
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/InboundSmsHandler.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/InboundSmsHandler.java	(revision 173224)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/InboundSmsHandler.java	(revision 173225)
+@@ -1049,10 +1049,6 @@
+                         getHandler(), Activity.RESULT_OK, null, null);
+             }
+         } else {
+-            if (Telephony.Sms.Intents.WAP_PUSH_DELIVER_ACTION.equals(intent.getAction())
+-                    && (intent.getType()).equals("application/vnd.wap.mms-message")){
+-                return;
+-            }
+             mContext.sendOrderedBroadcastAsUser(intent, user, permission, appOp, opts,
+                     resultReceiver, getHandler(), Activity.RESULT_OK, null, null);
+         }

@@ -1,0 +1,109 @@
+Index: u-boot64/include/dl_cmd_proc.h
+===================================================================
+--- u-boot64/include/dl_cmd_proc.h	(revision 166655)
++++ u-boot64/include/dl_cmd_proc.h	(revision 166656)
+@@ -49,6 +49,6 @@
+ int dl_cmd_read_mcptype(dl_packet_t * packet, void *arg);
+ int dl_cmd_check_rootflag(dl_packet_t * packet, void *arg);
+ int dl_cmd_get_uid(dl_packet_t *packet, void *arg);
++void dl_enable_write_flash(void);
+ 
+-
+ #endif /*DL_CMD_PROC_H */
+
+Property changes on: u-boot64/include/dl_cmd_proc.h
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/u-boot64/include/dl_cmd_proc.h:r163265
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/u-boot64/include/dl_cmd_proc.h:r165576
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/u-boot64/include/dl_cmd_proc.h:r163735
+Index: u-boot64/include/dl_cmd_def.h
+===================================================================
+--- u-boot64/include/dl_cmd_def.h	(revision 166655)
++++ u-boot64/include/dl_cmd_def.h	(revision 166656)
+@@ -46,6 +46,7 @@
+     BSL_CMD_POWER_DOWN_TYPE = 0x17,             /* 0x17*/
+     BSL_CMD_CHECK_ROOTFLAG = 0x19,               /* 0x19*/
+     BSL_CMD_READ_UID = 0x1A,               /*0x1A*/
++    BSL_CMD_ENABLE_WRITE_FLASH = 0x1B,
+     BSL_CMD_TYPE_MAX,
+ 
+     /* Start of the Command can be transmited by phone*/
+@@ -101,6 +102,7 @@
+     /*phone root return value*/
+     BSL_PHONE_ROOTFLAG = 0xA7,
+     BSL_REP_READ_CHIP_UID = 0xAB,
++    BSL_REP_NOT_ENABLE_WRITE_FLASH = 0xAC,
+     BSL_PKT_TYPE_MAX
+ 
+ }dl_cmd_type_t ;
+
+Property changes on: u-boot64/include/dl_cmd_def.h
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/u-boot64/include/dl_cmd_def.h:r163265
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/u-boot64/include/dl_cmd_def.h:r165576
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/u-boot64/include/dl_cmd_def.h:r163735
+Index: u-boot64/common/cmd_download.c
+===================================================================
+--- u-boot64/common/cmd_download.c	(revision 166655)
++++ u-boot64/common/cmd_download.c	(revision 166656)
+@@ -93,7 +93,8 @@
+ 	dl_cmd_register(BSL_CMD_READ_MCP_TYPE, dl_cmd_read_mcptype);
+ 	dl_cmd_register(BSL_CMD_CHECK_ROOTFLAG, dl_cmd_check_rootflag);
+ 	dl_cmd_register(BSL_CMD_READ_UID, dl_cmd_get_uid);
+-
++	dl_cmd_register(BSL_CMD_ENABLE_WRITE_FLASH, dl_enable_write_flash);
++	
+ 	usb_init(0);
+ 	dl_send_ack (BSL_INCOMPATIBLE_PARTITION);
+ 	/* enter command handler */
+
+Property changes on: u-boot64/common/cmd_download.c
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/u-boot64/common/cmd_download.c:r163265
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/u-boot64/common/cmd_download.c:r165576
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/u-boot64/common/cmd_download.c:r163735
+Index: u-boot64/common/dloader/dl_cmd_proc.c
+===================================================================
+--- u-boot64/common/dloader/dl_cmd_proc.c	(revision 166655)
++++ u-boot64/common/dloader/dl_cmd_proc.c	(revision 166656)
+@@ -22,7 +22,7 @@
+ 
+ static root_stat_t root_stat;
+ 
+-
++static int enable_write_flash = 0;
+ static void _decode_packet_data(dl_packet_t *packet, uchar * partition_name, uint32_t * size, uint32_t * checksum)
+ {
+ 	uint32_t  i = 0;
+@@ -232,6 +232,11 @@
+ 	uchar * p_part_list = NULL;
+ 	uint32_t part_cell_length = 0;
+ 
++	if(0 == enable_write_flash) {
++		debugf(" has not check matchine, cannot write flash\n");
++		dl_send_ack(BSL_REP_NOT_ENABLE_WRITE_FLASH);
++		return 0;
++	}
+ 	_parse_repartition_header(raw_data, &rp_info, &p_part_list);
+ 
+ 	if (0 == rp_info.version) {
+@@ -342,3 +347,9 @@
+ 	return 0;
+ }
+ 
++void dl_enable_write_flash(void)
++{
++	enable_write_flash = 1;
++	dl_send_ack(BSL_REP_ACK);
++	
++}
+
+Property changes on: u-boot64/common/dloader/dl_cmd_proc.c
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/u-boot64/common/dloader/dl_cmd_proc.c:r165576
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/u-boot64/common/dloader/dl_cmd_proc.c:r163735
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/u-boot64/common/dloader/dl_cmd_proc.c:r163265

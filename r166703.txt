@@ -1,0 +1,15 @@
+Index: vendor/sprd/custom/MySmartfren.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/custom/MySmartfren.apk
+===================================================================
+--- vendor/sprd/custom/MySmartfren.apk	(revision 0)
++++ vendor/sprd/custom/MySmartfren.apk	(revision 166703)
+
+Property changes on: vendor/sprd/custom/MySmartfren.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property

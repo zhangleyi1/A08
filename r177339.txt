@@ -1,0 +1,283 @@
+Index: vendor/custom/cts/packages/apps/Launcher3/res/values/colors.xml
+===================================================================
+--- vendor/custom/cts/packages/apps/Launcher3/res/values/colors.xml	(revision 0)
++++ vendor/custom/cts/packages/apps/Launcher3/res/values/colors.xml	(revision 177339)
+@@ -0,0 +1,54 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++/* //device/apps/common/assets/res/any/colors.xml
++**
++** Copyright 2008, The Android Open Source Project
++**
++** Licensed under the Apache License, Version 2.0 (the "License"); 
++** you may not use this file except in compliance with the License. 
++** You may obtain a copy of the License at 
++**
++**     http://www.apache.org/licenses/LICENSE-2.0 
++**
++** Unless required by applicable law or agreed to in writing, software 
++** distributed under the License is distributed on an "AS IS" BASIS, 
++** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
++** See the License for the specific language governing permissions and 
++** limitations under the License.
++*/
++-->
++<resources>
++    <!-- The color tints to apply to the text and drag view when hovering
++         over the delete target or the info target -->
++    <color name="delete_target_hover_tint">#FFC1C1C1</color>
++    <color name="uninstall_target_hover_tint">#FFF0592B</color>
++    <color name="info_target_hover_tint">#FF009688</color>
++    <color name="cling_scrim_background">#80000000</color>
++
++    <color name="focused_background">#80c6c5c5</color>
++
++    <color name="workspace_icon_text_color">#FFF</color>
++
++    <color name="workspace_edge_effect_color">#FFFFFFFF</color>
++    <color name="folder_edge_effect_color">#FF757575</color>
++
++    <color name="quantum_panel_text_color">#FFFFFFFF</color>
++    <color name="quantum_folder_panel_text_color">#FF000000</color>
++    <color name="quantum_panel_bg_color">#FFF5F5F5</color>
++    <color name="quantum_panel_bg_color_dark">#FF374248</color>
++
++    <color name="outline_color">#FFFFFFFF</color>
++
++    <!-- Containers -->
++    <color name="container_fastscroll_thumb_inactive_color">#009688</color>
++    <color name="container_fastscroll_thumb_active_color">#009688</color>
++
++    <!-- All Apps -->
++    <color name="all_apps_grid_section_text_color">#009688</color>
++    <color name="all_apps_search_market_button_focused_bg_color">#DDDDDD</color>
++
++    <!-- Widgets view -->
++    <color name="widgets_view_section_text_color">#FFFFFF</color>
++    <color name="widgets_view_item_text_color">#C4C4C4</color>
++    <color name="widgets_cell_color">#263238</color>
++</resources>
+Index: vendor/custom/cts/packages/apps/Launcher3/res/values/styles.xml
+===================================================================
+--- vendor/custom/cts/packages/apps/Launcher3/res/values/styles.xml	(revision 0)
++++ vendor/custom/cts/packages/apps/Launcher3/res/values/styles.xml	(revision 177339)
+@@ -0,0 +1,99 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++/*
++* Copyright (C) 2008 The Android Open Source Project
++*
++* Licensed under the Apache License, Version 2.0 (the "License");
++* you may not use this file except in compliance with the License.
++* You may obtain a copy of the License at
++*
++*      http://www.apache.org/licenses/LICENSE-2.0
++*
++* Unless required by applicable law or agreed to in writing, software
++* distributed under the License is distributed on an "AS IS" BASIS,
++* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++* See the License for the specific language governing permissions and
++* limitations under the License.
++*/
++-->
++
++<resources>
++    <style name="Theme.Light.CustomOverscroll" parent="@android:style/Theme.DeviceDefault">
++        <item name="android:colorEdgeEffect">@color/folder_edge_effect_color</item>
++    </style>
++
++    <style name="Theme.Dark.CustomOverscroll" parent="@android:style/Theme.DeviceDefault">
++        <item name="android:colorEdgeEffect">@color/workspace_edge_effect_color</item>
++    </style>
++
++    <style name="Icon">
++        <item name="android:layout_width">match_parent</item>
++        <item name="android:layout_height">match_parent</item>
++        <item name="android:layout_gravity">center</item>
++        <item name="android:gravity">center_horizontal</item>
++        <item name="android:singleLine">false</item>
++		<item name="android:maxLines">2</item>
++        <!--<item name="android:ellipsize">marquee</item>-->
++        <item name="android:textColor">@color/workspace_icon_text_color</item>
++        <item name="android:shadowRadius">2.0</item>
++        <item name="android:shadowColor">#B0000000</item>
++        <item name="android:fontFamily">sans-serif-condensed</item>
++    </style>
++
++    <style name="Icon.AllApps">
++        <item name="android:background">@null</item>
++        <item name="android:textColor">@color/quantum_panel_text_color</item>
++        <item name="android:drawablePadding">@dimen/dynamic_grid_icon_drawable_padding</item>
++        <item name="android:shadowRadius">0</item>
++        <item name="android:paddingLeft">4dp</item>
++        <item name="android:paddingRight">4dp</item>
++        <item name="customShadows">false</item>
++    </style>
++
++    <style name="Icon.Folder">
++        <item name="android:background">@null</item>
++        <item name="android:textColor">@color/quantum_folder_panel_text_color</item>
++        <item name="android:shadowRadius">0</item>
++        <item name="customShadows">false</item>
++    </style>
++
++    <style name="SearchButton"></style>
++
++    <style name="DropTargetButtonContainer">
++        <item name="android:layout_width">0dp</item>
++        <item name="android:layout_height">match_parent</item>
++    </style>
++
++    <style name="DropTargetButtonBase">
++        <item name="android:layout_width">wrap_content</item>
++        <item name="android:layout_height">match_parent</item>
++        <item name="android:layout_gravity">center</item>
++        <item name="android:gravity">center_vertical</item>
++        <item name="android:drawablePadding">7.5dp</item>
++        <item name="android:paddingLeft">25dp</item>
++        <item name="android:paddingRight">25dp</item>
++        <item name="android:textColor">#FFFFFFFF</item>
++        <item name="android:textSize">@dimen/drop_target_text_size</item>
++        <item name="android:singleLine">true</item>
++        <item name="android:ellipsize">end</item>
++        <item name="android:shadowColor">#FF000000</item>
++        <item name="android:shadowDx">0.0</item>
++        <item name="android:shadowDy">1.0</item>
++        <item name="android:shadowRadius">4.0</item>
++    </style>
++
++    <style name="DropTargetButton" parent="DropTargetButtonBase" />
++
++    <style name="PreloadIcon">
++        <item name="background">@drawable/virtual_preload</item>
++        <item name="indicatorSize">4dp</item>
++        <item name="ringOutset">4dp</item>
++    </style>
++
++    <style name="PreloadIcon.Folder">
++        <item name="background">@drawable/virtual_preload_folder</item>
++        <item name="indicatorSize">4dp</item>
++        <item name="ringOutset">4dp</item>
++    </style>
++
++</resources>
+Index: vendor/custom/cts/packages/apps/Launcher3/res/xml/default_workspace_4x4.xml
+===================================================================
+--- vendor/custom/cts/packages/apps/Launcher3/res/xml/default_workspace_4x4.xml	(revision 0)
++++ vendor/custom/cts/packages/apps/Launcher3/res/xml/default_workspace_4x4.xml	(revision 177339)
+@@ -0,0 +1,115 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2009 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++
++<favorites xmlns:launcher="http://schemas.android.com/apk/res-auto/com.android.launcher3">
++
++    <!-- Hotseat -->
++    <include launcher:workspace="@xml/dw_phone_hotseat" />
++    <appwidget
++        launcher:packageName="com.android.deskclock"
++        launcher:className="com.android.alarmclock.AnalogAppWidgetProvider"
++        launcher:screen="0"
++        launcher:x="1"
++        launcher:y="0"
++        launcher:spanX="2"
++        launcher:spanY="2" />
++
++     <folder
++        launcher:title="@string/default_folder_gms"  
++        launcher:screen="0"
++        launcher:x="0"
++        launcher:y="3">
++		
++			<favorite
++            launcher:packageName="com.google.android.googlequicksearchbox"
++            launcher:className="com.google.android.googlequicksearchbox.SearchActivity"
++            launcher:screen="0"
++            launcher:x="0"
++            launcher:y="0" /> 
++            
++      <favorite
++            launcher:packageName="com.android.chrome"
++            launcher:className="com.google.android.apps.chrome.Main"
++            launcher:screen="0"
++            launcher:x="1"
++            launcher:y="0" />   
++                    
++
++        <favorite
++            launcher:packageName="com.google.android.gm"
++            launcher:className="com.google.android.gm.ConversationListActivityGmail"
++            launcher:screen="0"
++            launcher:x="2"
++            launcher:y="0" />
++
++			 <favorite
++            launcher:packageName="com.google.android.apps.maps"
++            launcher:className="com.google.android.maps.MapsActivity"
++            launcher:screen="0"
++            launcher:x="3"
++            launcher:y="0" />
++           <!-- 2-->
++           
++       <favorite
++            launcher:packageName="com.google.android.youtube"
++            launcher:className="com.google.android.apps.youtube.app.WatchWhileActivity"
++            launcher:screen="0"
++            launcher:x="0"
++            launcher:y="1" />
++       
++       <favorite
++            launcher:packageName="com.google.android.apps.docs"
++            launcher:className="com.google.android.apps.docs.app.NewMainProxyActivity"
++            launcher:screen="0"
++            launcher:x="1"
++            launcher:y="1" />
++
++			 <favorite
++            launcher:packageName="com.google.android.music"
++            launcher:className="com.android.music.activitymanagement.TopLevelActivity"
++            launcher:screen="0"
++            launcher:x="2"
++            launcher:y="1" />
++
++			 <favorite
++            launcher:packageName="com.google.android.videos"
++            launcher:className="com.google.android.youtube.videos.EntryPoint"
++            launcher:screen="0"
++            launcher:x="3"
++            launcher:y="1" />
++            
++       <favorite
++            launcher:packageName="com.google.android.apps.tachyon"
++            launcher:className="com.google.android.apps.tachyon.MainActivity"
++            launcher:screen="0"
++            launcher:x="0"
++            launcher:y="2" />
++      
++      <favorite
++            launcher:packageName="com.google.android.apps.photos"
++            launcher:className="com.google.android.apps.photos.home.HomeActivity"
++            launcher:screen="0"
++            launcher:x="1"
++            launcher:y="2" />  
++    </folder>
++    <favorite
++          launcher:packageName="com.android.vending"
++          launcher:className="com.android.vending.AssetBrowserActivity"
++          launcher:screen="0"
++          launcher:x="3"
++          launcher:y="3" />
++     
++</favorites>

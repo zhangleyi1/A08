@@ -1,0 +1,25 @@
+Index: kernel/drivers/power/sprd_2713_fgu.c
+===================================================================
+--- kernel/drivers/power/sprd_2713_fgu.c	(revision 183097)
++++ kernel/drivers/power/sprd_2713_fgu.c	(revision 183098)
+@@ -705,7 +705,7 @@
+ 
+ 		/*mainly for use this situation that cnom already studied
+ 			but don't restart phone*/
+-		temp_cnom = sprdfgu_cnominfo_opera(CNOM_OPERA_GET, 0);
++		temp_cnom = sprdfgu_cnominfo_opera(CNOM_OPERA_GET, sprdfgu_data.pdata->cnom);
+ 		if (temp_cnom != 0) {
+ 			sprdfgu_data.pdata->cnom = temp_cnom;
+ 		}
+@@ -779,9 +779,9 @@
+ 	int y;
+ 
+ 	if (x >= tab[0].x)
+-		y = tab[0].y;
++		y = tab[0].y * 100;
+ 	else if (x <= tab[n - 1].x)
+-		y = tab[n - 1].y;
++		y = tab[n - 1].y * 100;
+ 	else {
+ 		/*  find interval */
+ 		for (index = 1; index < n; index++)

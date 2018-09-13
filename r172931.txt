@@ -1,0 +1,101 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 172930)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 172931)
+@@ -81,7 +81,7 @@
+ 	public static final int TESTITEM_SPEAKER = 6;
+ 	public static final int TESTITEM_HEADSET = 7;
+     public static final int TESTITEM_FM = 8;
+-  public static final int TESTITEM_RECEIVER = 29;//9
++  public static final int TESTITEM_RECEIVER = 26;//9
+   public static final int TESTITEM_WIFI = 9;
+   public static final int TESTITEM_BT = 10;
+   public static final int TESTITEM_SHAKE = 11;
+@@ -106,7 +106,7 @@
+ 	public static final int TESTITEM_TATOL = 31;
+ 	//public static final int TESTITEM_TPRAWDATA=28;
+ 	public static final int TESTITEM_TPTEST=28;
+-	public static final int TESTITEM_LTEINFO=26;
++	public static final int TESTITEM_LTEINFO=29;
+ 	//private static int currentTestMode = 0;
+ 	public static int currenttestitem = TESTITEM_START;
+   public static boolean isAutoTest = false;
+@@ -179,10 +179,10 @@
+   //TESTITEM_LED ,
+     TESTITEM_FLASHLIGHT ,
+ 	TESTITEM_FLASHLIGHT_SUB ,
+-	TESTITEM_LTEINFO,
++	TESTITEM_RECEIVER ,
+ 	TESTITEM_SLEEPORWAKE,
+ 	TESTITEM_TPTEST,
+-	TESTITEM_RECEIVER ,
++	TESTITEM_LTEINFO,
+ 	TESTITEM_MASTERCLEAR
+     //TESTITEM_TPRAWDATA
+   };
+@@ -352,7 +352,7 @@
+ 
+     if(isAutoTest){
+       currenttestitem = currenttestitem + 1;
+-      if(currenttestitem == testitem.length-1){
++      if(currenttestitem == testitem.length-2){
+         Intent intent2 = new Intent();
+         intent2.setClass(this, Report.class);
+         if(AutoTested == 0){
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/lteinfo/LteInfo.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/lteinfo/LteInfo.java	(revision 172930)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/lteinfo/LteInfo.java	(revision 172931)
+@@ -147,7 +147,7 @@
+                        LteInfo.this, R.layout.array_item, values);
+          listView.setAdapter(LteAdapter);
+ 		 
+-        mSuccesBtn = (Button)findViewById(R.id.ok);
++        /*mSuccesBtn = (Button)findViewById(R.id.ok);
+ 		if(mDataNetType!=NETWORK_LTE){
+ 			mSuccesBtn.setEnabled(false);
+ 		}
+@@ -170,7 +170,7 @@
+                 setResult(FactoryMode.TEST_FAIL,intent);
+                 finish();
+             }
+-        });
++        });*/
+        /*mTimer = new Timer();
+         mTimer.schedule(new TimerTask() {
+             @Override
+@@ -486,7 +486,7 @@
+ 
+ 		case KeyEvent.KEYCODE_BACK:
+ 			Intent intent = new Intent(LteInfo.this, FactoryMode.class);
+-			setResult(FactoryMode.TEST_CANCEL,intent);
++			setResult(FactoryMode.TEST_OK,intent);
+ 			finish();
+ 			return true;
+ 		}
+Index: packages/apps/FactoryMode/res/layout/lte_info.xml
+===================================================================
+--- packages/apps/FactoryMode/res/layout/lte_info.xml	(revision 172930)
++++ packages/apps/FactoryMode/res/layout/lte_info.xml	(revision 172931)
+@@ -6,12 +6,12 @@
+ 
+     <ListView
+         android:id="@+id/info_list"
+-        android:layout_width="wrap_content"
++        android:layout_width="match_parent"
+         android:layout_height="wrap_content" 
+         android:layout_above="@+id/button_layout">
+     </ListView>
+ 
+-	<LinearLayout 
++	<!--<LinearLayout 
+ 	    android:id="@+id/button_layout"
+ 	    android:layout_width="match_parent"
+ 	    android:layout_height="60dp"
+@@ -34,5 +34,5 @@
+ 	        android:text="@string/Failed"
+ 	        android:textSize="25sp"
+ 	        />
+-	</LinearLayout>
++	</LinearLayout>-->
+ </RelativeLayout>

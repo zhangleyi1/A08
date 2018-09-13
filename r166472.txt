@@ -1,0 +1,24 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/Speaker.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/Speaker.java	(revision 166471)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/Speaker.java	(revision 166472)
+@@ -32,6 +32,7 @@
+ 
+ import android.os.Environment;
+ import java.io.File;
++import android.os.EnvironmentEx;
+ public class Speaker extends Activity{
+ 	
+ 	private static final String TAG = "Speaker";
+@@ -168,9 +169,9 @@
+ 	try {
+ 		mMediaPlayer.reset();
+ 		mMediaPlayer.release();
+-		mMediaPlayer = MediaPlayer.create(this, Uri.parse("file://" + Environment.getExternalStorageDirectory().getPath() + musicName));
++		mMediaPlayer = MediaPlayer.create(this, Uri.parse("file://" + EnvironmentEx.getExternalStoragePath().toString() + musicName));
+ 		Log.v(TAG, "xxxxxxxxxxxxxx mMediaPlayer = " + mMediaPlayer);
+-				
++		Log.v(TAG, "xxxxxxxxxxxxxx file://" + EnvironmentEx.getExternalStoragePath().toString());		
+ 		if(mMediaPlayer == null){
+ 			mMediaPlayer = MediaPlayer.create(this,R.raw.tada);
+ 		}

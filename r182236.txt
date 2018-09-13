@@ -1,0 +1,149 @@
+Index: art/runtime/thread_list.cc
+===================================================================
+--- art/runtime/thread_list.cc	(revision 182235)
++++ art/runtime/thread_list.cc	(revision 182236)
+@@ -616,11 +616,7 @@
+             PLOG(FATAL) << "futex wait failed for SuspendAllInternal()";
+           }
+         }
+-      } else {
+-        cur_val = pending_threads.LoadRelaxed();
+-        CHECK_EQ(cur_val, 0);
+-        break;
+-      }
++      }  // else re-check pending_threads in the next iteration (this may be a spurious wake-up).
+ #else
+       // Spin wait. This is likely to be slow, but on most architecture ART_USE_FUTEXES is set.
+ #endif
+Index: bootable/recovery/install.cpp
+===================================================================
+--- bootable/recovery/install.cpp	(revision 182235)
++++ bootable/recovery/install.cpp	(revision 182236)
+@@ -272,7 +272,50 @@
+     return INSTALL_SUCCESS;
+ }
+ 
++/* SPRD: write uboot and spl partition {@ */
+ static int
++write_file(const char* path, const char *buff) {
++	if (path == NULL) {
++		return 0;
++	}
++
++	int fd = open(path, O_WRONLY);
++	if (fd == -1) {
++		printf("failed to open file %s because: %s \n", path, strerror(errno));
++		return 0;
++	}
++
++	if (write(fd, buff, strlen(buff)) == -1) {
++		printf("failed to write file %s because: %s \n", path, strerror(errno));
++		close(fd);
++		return 0;
++	}
++	close(fd);
++	return 1;
++}
++
++int write_force_ro(void) {
++	int ret1, ret2;
++	ret1 = ret2 = 0;
++	int utime = 0;
++	const char *path_boot0 = "/sys/block/mmcblk0boot0/force_ro";
++	const char *path_boot1 = "/sys/block/mmcblk0boot1/force_ro";
++	do {
++		ret1 = write_file(path_boot0, "0");
++		ret2 = write_file(path_boot1, "0");
++		if (ret1 && ret2) {
++			return 1;
++		} else {
++			usleep(50000);// sleep 50ms
++		}
++		utime ++;
++	} while (utime < 100);// timeout 5s
++
++	return 0;
++}
++/* @} */
++
++static int
+ really_install_package(const char *path, bool* wipe_cache, bool needs_mount,
+                        std::vector<std::string>& log_buffer, int retry_count)
+ {
+@@ -354,6 +397,14 @@
+ {
+     modified_flash = true;
+     auto start = std::chrono::system_clock::now();
++	/*SPRD: write uboot and spl partition {@ */
++	if (1 == if_emmc_or_not()){
++		if (write_force_ro() == 0) {
++			LOGE("Can't open /sys/block/mmcblk0boot0(1)/force_ro!!\n");
++			return INSTALL_ERROR;
++		}
++	}
++	/* @} */
+ 
+     FILE* install_log = fopen_path(install_file, "w");
+     if (install_log) {
+Index: bootable/recovery/roots.h
+===================================================================
+--- bootable/recovery/roots.h	(revision 182235)
++++ bootable/recovery/roots.h	(revision 182236)
+@@ -51,4 +51,5 @@
+ // mounted (/tmp and /cache) are mounted.  Returns 0 on success.
+ int setup_install_mounts();
+ 
++int if_emmc_or_not(void);
+ #endif  // RECOVERY_ROOTS_H_
+Index: bootable/recovery/roots.cpp
+===================================================================
+--- bootable/recovery/roots.cpp	(revision 182235)
++++ bootable/recovery/roots.cpp	(revision 182236)
+@@ -198,6 +198,19 @@
+     return -1;
+ }
+ 
++int if_emmc_or_not(void){
++	Volume* v = volume_for_path("/spl");
++	if (v == NULL) {
++		LOGE("spl is unknown volume \n");
++		return -1;
++	}
++	if (strcmp(v->fs_type, "emmc") == 0){
++		printf("only when emmc, to set force_ro\n");
++		return 1;
++	}else
++		return 0;
++}
++
+ int ensure_path_mounted(const char* path) {
+     // Mount at the default mount point.
+     /* SPRD: add for fota @ { */
+Index: build/core/version_defaults.mk
+===================================================================
+--- build/core/version_defaults.mk	(revision 182235)
++++ build/core/version_defaults.mk	(revision 182236)
+@@ -114,8 +114,7 @@
+     #  It must be of the form "YYYY-MM-DD" on production devices.
+     #  It must match one of the Android Security Patch Level strings of the Public Security Bulletins.
+     #  If there is no $PLATFORM_SECURITY_PATCH set, keep it empty.
+-      PLATFORM_SECURITY_PATCH := 2017-06-01
+-
++    PLATFORM_SECURITY_PATCH := 2017-09-05
+ endif
+ 
+ ifeq "" "$(PLATFORM_BASE_OS)"
+Index: bionic/linker/linker.cpp
+===================================================================
+--- bionic/linker/linker.cpp	(revision 182235)
++++ bionic/linker/linker.cpp	(revision 182236)
+@@ -2239,6 +2239,9 @@
+         if (local_unload_list.contains(child)) {
+           continue;
+         } else if (child->is_linked() && child->get_local_group_root() != root) {
++          child->get_parents().remove_if([&] (const soinfo* parent) {
++            return parent == si;
++          });
+           external_unload_list.push_back(child);
+         } else {
+           unload_list.push_front(child);

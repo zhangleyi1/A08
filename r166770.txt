@@ -1,0 +1,76 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 166769)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 166770)
+@@ -471,12 +471,14 @@
+ 
+         //Added by zhangleyi for 20170320 begin
+         mVideoCallBtn = (ImageButton)fragmentView.findViewById(R.id.videoCallBtn);
+-        mVideoCallBtn.setOnClickListener(this);
+-
++        if(mVideoCallBtn != null){
++            mVideoCallBtn.setOnClickListener(this);
++        }
+         getSlotState();
+-
+-        if (CallUtil.isVideoEnabled(getActivity())) {
+-            mVideoCallBtn.setVisibility(View.VISIBLE);
++        if (ImsManager.isVolteEnabledByPlatform(getActivity())) {
++            if (CallUtil.isVideoEnabled(getActivity())) {
++                mVideoCallBtn.setVisibility(View.VISIBLE);
++            }
+         }
+ 
+         mSwitchBtn = (ImageButton)fragmentView.findViewById(R.id.switchBtn);
+@@ -538,8 +540,11 @@
+     private void showLteButton(boolean flag) {
+         mFloatingActionButtonController.setVisible(flag);
+         mGsmCallBtn.setVisibility(flag ? View.GONE:View.VISIBLE);
+-        if (CallUtil.isVideoEnabled(getActivity())) {
+-            mVideoCallBtn.setVisibility(flag ? View.VISIBLE:View.GONE);
++
++        if (ImsManager.isVolteEnabledByPlatform(getActivity())) {
++            if (CallUtil.isVideoEnabled(getActivity())) {
++                mVideoCallBtn.setVisibility(flag ? View.VISIBLE:View.GONE);
++            }
+         }
+ 
+         defaultSimSlot = flag ? 1:2;
+@@ -1462,7 +1467,11 @@
+                     if (!oneSimState && twoSimState) {
+                         Toast.makeText(getContext(), "Please switch to sim2", Toast.LENGTH_SHORT).show();
+                     } else {
+-                        call(getContext(), 0, number);
++                        //call(getContext(), 0, number);
++                        final Intent intent = new CallIntentBuilder(number).
++                            setCallInitiationType(LogState.INITIATION_DIALPAD)
++                            .build();
++                        DialerUtils.startActivityWithErrorToast(getActivity(), intent);
+                     }
+ 
+                     hideAndClearDialpad(false);
+@@ -2139,8 +2148,13 @@
+             if (mAnimate) {
+                 dialpadView.animateShow();
+             }
+-            showLteButton(true);
+-            mFloatingActionButtonController.scaleIn(mAnimate ? mDialpadSlideInDuration : 0);
++
++            if (!oneSimState && twoSimState) {
++                showLteButton(false);
++            } else {
++                showLteButton(true);
++                mFloatingActionButtonController.scaleIn(mAnimate ? mDialpadSlideInDuration : 0);
++            }
+             activity.onDialpadShown();
+             mDigits.requestFocus();
+         }
+@@ -2148,7 +2162,7 @@
+             if (mAnimate) {
+                 mFloatingActionButtonController.scaleOut();
+             } else {
+-                showLteButton(false);
++               // showLteButton(false);
+             }
+         }
+     }

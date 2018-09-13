@@ -1,0 +1,24 @@
+Index: packages/apps/Settings/res/values/arrays.xml
+===================================================================
+--- packages/apps/Settings/res/values/arrays.xml	(revision 172350)
++++ packages/apps/Settings/res/values/arrays.xml	(revision 172351)
+@@ -41,6 +41,7 @@
+ 
+     <!-- Display settings.  The delay in inactivity before the screen is turned off. These are shown in a list dialog. -->
+     <string-array name="screen_timeout_entries">
++		<item>Never</item>
+         <item>15 seconds</item>
+         <item>30 seconds</item>
+         <item>1 minute</item>
+Index: packages/apps/Settings/res/values-in/arrays.xml
+===================================================================
+--- packages/apps/Settings/res/values-in/arrays.xml	(revision 172350)
++++ packages/apps/Settings/res/values-in/arrays.xml	(revision 172351)
+@@ -30,6 +30,7 @@
+     <item msgid="8392017019801393511">"Semua"</item>
+   </string-array>
+   <string-array name="screen_timeout_entries">
++	<item>"Tak pernah"</item>
+     <item msgid="3342301044271143016">"15 detik"</item>
+     <item msgid="8881760709354815449">"30 detik"</item>
+     <item msgid="7589406073232279088">"1 menit"</item>

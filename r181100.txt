@@ -1,0 +1,230 @@
+Index: packages/apps/Dialer/src/com/android/dialer/list/AllContactsFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/list/AllContactsFragment.java	(revision 181099)
++++ packages/apps/Dialer/src/com/android/dialer/list/AllContactsFragment.java	(revision 181100)
+@@ -34,11 +34,13 @@
+ import android.view.View;
+ import android.view.ViewGroup;
+ import android.widget.AdapterView;
++import android.widget.ListView;
+ 
+ import com.android.contacts.common.compat.CompatUtils;
+ import com.android.contacts.common.list.ContactEntryListAdapter;
+ import com.android.contacts.common.list.ContactEntryListFragment;
+ import com.android.contacts.common.list.ContactListFilter;
++import com.android.contacts.common.list.ContactsSectionIndexer;
+ import com.android.contacts.common.list.DefaultContactListAdapter;
+ import com.android.contacts.common.util.PermissionsUtil;
+ import com.android.contacts.common.util.ViewUtil;
+@@ -47,6 +49,7 @@
+ import com.android.dialer.util.IntentUtil;
+ import com.android.dialer.widget.EmptyContentView;
+ import com.android.dialer.widget.EmptyContentView.OnEmptyViewActionButtonClickedListener;
++import com.sprd.contacts.common.widget.BladeView;
+ 
+ /**
+  * Fragments to show all contacts with phone numbers.
+@@ -79,10 +82,16 @@
+         setVisibleScrollbarEnabled(true);
+     }
+ 
++    protected ListView mListView;
++    protected BladeView mBladeView;
++
+     @Override
+     public void onViewCreated(View view, android.os.Bundle savedInstanceState) {
+         super.onViewCreated(view, savedInstanceState);
+ 
++        mListView = (ListView) view.findViewById(android.R.id.list);
++        mBladeView = (BladeView) getView().findViewById(R.id.blade);
++        mBladeView.setVisibility(View.GONE);
+         mEmptyListView = (EmptyContentView) view.findViewById(R.id.empty_list_view);
+         mEmptyListView.setImage(R.drawable.empty_contacts);
+         mEmptyListView.setDescription(R.string.all_contacts_empty);
+@@ -128,9 +137,60 @@
+ 
+         if (data == null || data.getCount() == 0) {
+             mEmptyListView.setVisibility(View.VISIBLE);
++        } else {
++            configureBladeView();
+         }
+     }
+ 
++    protected void configureBladeView() {
++        boolean hasBladeView = isSectionHeaderDisplayEnabled()
++                && isVisibleScrollbarEnabled();
++        if (mListView != null) {
++
++            ContactsSectionIndexer indexer = (ContactsSectionIndexer) getAdapter()
++                    .getIndexer();
++            String[] sections = (String[]) indexer.getSections();
++            mBladeView.setAlphabet(sections);
++
++            if (mBladeView != null && hasBladeView
++                    && (mListView.getVisibility() == View.VISIBLE)) {
++                mBladeView.setVisibility(View.VISIBLE);
++            } else {
++                if (mBladeView != null) {
++                    mBladeView.setVisibility(View.GONE);
++                }
++                return;
++            }
++            final String[] alphabet = mBladeView.getAlphabet();
++            mBladeView.setOnItemClickListener(new BladeView.OnItemClickListener() {
++                public void onItemClick(int item) {
++                    if (indexer == null) {
++                        return;
++                    }
++                    String currentSection = alphabet[item];
++                    int currentSectionItem = -1;
++                    for (int i = 0; i < sections.length; ++i) {
++                        String s = (String) sections[i];
++                        if (s.equals(currentSection)) {
++                            currentSectionItem = i;
++                        }
++                    }
++                    if (currentSectionItem == -1) {
++                        return;
++                    }
++                    int position = indexer
++                            .getPositionForSection(currentSectionItem);
++                    if (position == -1) {
++                        return;
++                    }
++                    int adjPosition = position
++                            + mListView.getHeaderViewsCount();
++                    mListView.setSelectionFromTop(adjPosition, 0);
++                }
++            });
++        }
++    }
++
+     @Override
+     protected ContactEntryListAdapter createListAdapter() {
+         final DefaultContactListAdapter adapter = new DefaultContactListAdapter(getActivity()) {
+Index: packages/apps/Dialer/res/layout/all_contacts_fragment.xml
+===================================================================
+--- packages/apps/Dialer/res/layout/all_contacts_fragment.xml	(revision 181099)
++++ packages/apps/Dialer/res/layout/all_contacts_fragment.xml	(revision 181100)
+@@ -17,38 +17,66 @@
+ <LinearLayout
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     android:id="@+id/pinned_header_list_layout"
+-    android:orientation="vertical"
++    android:orientation="horizontal"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent">
+ 
+-    <!-- Shown only when an Account filter is set.
+-         - paddingTop should be here to show "shade" effect correctly. -->
+-    <!-- TODO: Remove the filter header. -->
+-    <include layout="@layout/account_filter_header" />
+-
+-    <FrameLayout
++    <LinearLayout
++        android:id="@+id/pinned_header_list_layout"
++        android:orientation="vertical"
+         android:layout_width="match_parent"
+-        android:layout_height="0dip"
++        android:layout_height="match_parent"
+         android:layout_weight="1" >
+-        <view
+-            class="com.android.contacts.common.list.PinnedHeaderListView"
+-            style="@style/DialtactsTheme"
+-            android:id="@android:id/list"
+-            android:layout_width="match_parent"
+-            android:layout_height="match_parent"
+-            android:layout_marginStart="?attr/contact_browser_list_padding_left"
+-            android:layout_marginEnd="?attr/contact_browser_list_padding_right"
+-            android:paddingTop="18dp"
+-            android:fastScrollEnabled="true"
+-            android:fadingEdge="none"
+-            android:nestedScrollingEnabled="true" />
+ 
+-        <com.android.dialer.widget.EmptyContentView
+-            android:id="@+id/empty_list_view"
++        <!-- Shown only when an Account filter is set.
++             - paddingTop should be here to show "shade" effect correctly. -->
++        <!-- TODO: Remove the filter header. -->
++        <include layout="@layout/account_filter_header" />
++
++        <FrameLayout
+             android:layout_width="match_parent"
+-            android:layout_height="wrap_content"
+-            android:layout_gravity="center"
+-            android:visibility="gone"/>
++            android:layout_height="0dip"
++            android:layout_weight="1" >
++            <view
++                class="com.android.contacts.common.list.PinnedHeaderListView"
++                style="@style/DialtactsTheme"
++                android:id="@android:id/list"
++                android:layout_width="match_parent"
++                android:layout_height="match_parent"
++                android:layout_marginStart="?attr/contact_browser_list_padding_left"
++                android:layout_marginEnd="?attr/contact_browser_list_padding_right"
++                android:paddingTop="18dp"
++                android:fastScrollEnabled="false"
++                android:scrollbars="none"
++                android:fadingEdge="none"
++                android:nestedScrollingEnabled="true" />
+ 
+-    </FrameLayout>
++            <ProgressBar
++                android:id="@+id/search_progress"
++                style="?android:attr/progressBarStyleLarge"
++                android:layout_width="wrap_content"
++                android:layout_height="wrap_content"
++                android:layout_gravity="center"
++                android:visibility="gone" />
++
++            <com.android.dialer.widget.EmptyContentView
++                android:id="@+id/empty_list_view"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:layout_gravity="center"
++                android:visibility="gone"/>
++
++        </FrameLayout>
++
++    </LinearLayout>
++
++    <view
++        class="com.sprd.contacts.common.widget.BladeView"
++        android:id="@+id/blade"
++        android:layout_width="wrap_content"
++        android:paddingLeft="2dip"
++        android:paddingRight="2dip"
++        android:layout_height="match_parent"
++        android.visibility="gone"
++        android:background="?attr/contact_browser_background" />
+ </LinearLayout>
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/sprd/contacts/common/widget/BladeView.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/sprd/contacts/common/widget/BladeView.java	(revision 181099)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/sprd/contacts/common/widget/BladeView.java	(revision 181100)
+@@ -35,6 +35,8 @@
+ 
+ import com.android.contacts.common.R;
+ 
++import java.util.Arrays;
++
+ public class BladeView extends View {
+ 
+     private int mMinCharHeight = 1;
+@@ -341,4 +343,15 @@
+             return mAlphabet;
+         }
+     }
++
++    public String[] getAlphabet() {
++        return mAlphabet;
++    }
++
++    public void setAlphabet(String[] alphabet) {
++        if (Arrays.equals(mAlphabet, alphabet)) {
++            return;
++        }
++        invalidate();
++    }
+ }

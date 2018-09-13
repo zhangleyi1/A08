@@ -1,0 +1,13 @@
+Index: u-boot64/common/loader/sprd_fdt_support.c
+===================================================================
+--- u-boot64/common/loader/sprd_fdt_support.c	(revision 173542)
++++ u-boot64/common/loader/sprd_fdt_support.c	(revision 173543)
+@@ -602,7 +602,7 @@
+ 
+ 	str_len = strlen(buf);
+ 
+-	convertBinToHex(pubk, 260, &buf[str_len]);
++	//convertBinToHex(pubk, 260, &buf[str_len]);
+ 
+ 	fdt_chosen_bootargs_append(fdt_blob, buf, 1);
+ }

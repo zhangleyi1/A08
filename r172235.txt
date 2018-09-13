@@ -1,0 +1,91 @@
+Index: frameworks/base/services/core/java/com/android/server/MountService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/MountService.java	(revision 172234)
++++ frameworks/base/services/core/java/com/android/server/MountService.java	(revision 172235)
+@@ -106,6 +106,8 @@
+ import com.android.internal.util.IndentingPrintWriter;
+ import com.android.internal.util.Preconditions;
+ import com.android.internal.widget.LockPatternUtils;
++import com.android.internal.content.PackageHelper;
++
+ import com.android.server.NativeDaemonConnector.Command;
+ import com.android.server.NativeDaemonConnector.SensitiveArg;
+ import com.android.server.pm.PackageManagerService;
+@@ -172,6 +174,8 @@
+             mMountService = new MountService(getContext());
+             publishBinderService("mount", mMountService);
+             mMountService.start();
++			Slog.d(TAG, "MountService onStart");
++            sSelf.isBootingPhase = true;
+         }
+ 
+         @Override
+@@ -180,6 +184,9 @@
+                 mMountService.systemReady();
+             } else if (phase == SystemService.PHASE_BOOT_COMPLETED) {
+                 mMountService.bootCompleted();
++				Slog.d(TAG, "MountService onBootPhase: PHASE_BOOT_COMPLETED");
++                sSelf.isBootingPhase = false;
++                mMountService.updateInstallLocation();
+             }
+         }
+ 
+@@ -659,6 +666,8 @@
+                     break;
+                 }
+                 case H_SHUTDOWN: {
++					Slog.d(TAG, "H_SHUTDOWN");
++                    isShuttingDown = true;
+                     final IMountShutdownObserver obs = (IMountShutdownObserver) msg.obj;
+                     boolean success = false;
+                     try {
+@@ -671,6 +680,8 @@
+                         } catch (RemoteException ignored) {
+                         }
+                     }
++					Slog.d(TAG, "finsh shut down");
++                    isShuttingDown = false;
+                     break;
+                 }
+                 case H_VOLUME_MOUNT: {
+@@ -1449,7 +1460,33 @@
+             mObbActionHandler.sendMessage(mObbActionHandler.obtainMessage(
+                     OBB_FLUSH_MOUNT_STATE, vol.path));
+         }
++		updateInstallLocation();
+     }
++	private  void updateInstallLocation(){
++		if(sSelf.isShuttingDown || sSelf.isBootingPhase) return;
++		boolean isHasPublicSD = false;
++		int internalType = SystemProperties.getInt("sys.internal.emulated", 1);
++		int selectStation = Settings.Global.getInt(mContext.getContentResolver(), Settings.Global.DEFAULT_INSTALL_LOCATION, PackageHelper.APP_INSTALL_EXTERNAL);
++		Slog.d(TAG, "log for storageLocation selectStation:"+selectStation);
++		synchronized (mVolumes) {
++			for (int i = 0; i < mVolumes.size(); ++i) {
++						VolumeInfo vol = mVolumes.valueAt(i);
++				if ((vol.type == VolumeInfo.TYPE_PUBLIC && vol.linkName != null) 
++					&& (((internalType == 1) && vol.linkName.equals("sdcard0")) 
++						|| ((internalType != 1) && vol.linkName.equals("sdcard1")))
++					&&(vol.state == VolumeInfo.STATE_MOUNTED)) {
++					isHasPublicSD = true;
++					break;
++				}
++			}
++			if((selectStation == PackageHelper.APP_INSTALL_EXTERNAL) && !isHasPublicSD){
++						Settings.Global.putInt(mContext.getContentResolver(), Settings.Global.DEFAULT_INSTALL_LOCATION, PackageHelper.APP_INSTALL_INTERNAL);
++			}else if(isHasPublicSD){
++					//select sd card when sd insert
++					//SystemProperties.set("persist.sys.storageLocation", "storate_sdcard");
++			} 
++		}
++	}
+ 
+     protected void onMoveStatusLocked(int status) {
+         if (mMoveCallback == null) {
+@@ -4051,4 +4088,6 @@
+             return true;
+         }
+     }
++	private static boolean isBootingPhase = false;
++    private static boolean isShuttingDown = false;
+ }

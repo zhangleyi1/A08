@@ -1,0 +1,13 @@
+Index: u-boot64/include/configs/sp9832a_2h11_volte.h
+===================================================================
+--- u-boot64/include/configs/sp9832a_2h11_volte.h	(revision 167312)
++++ u-boot64/include/configs/sp9832a_2h11_volte.h	(revision 167313)
+@@ -326,7 +326,7 @@
+ 
+ //#define LOW_BAT_ADC_LEVEL 782 /*phone battery adc value low than this value will not boot up*/
+ #define LOW_BAT_VOL            3400 /*phone battery voltage low than this value will not boot up*/
+-#define LOW_BAT_VOL_CHG        3300    //3.3V charger connect
++#define LOW_BAT_VOL_CHG        3400    //3.3V charger connect
+ 
+ #define PWR_KEY_DETECT_CNT 2 /*this should match the count of boot_pwr_check() function */
+ #define ALARM_LEAD_SET_MS 0 /* time set for alarm boot in advancd */

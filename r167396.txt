@@ -1,0 +1,13 @@
+Index: frameworks/base/packages/SystemUI/res/values/config.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/config.xml	(revision 167395)
++++ frameworks/base/packages/SystemUI/res/values/config.xml	(revision 167396)
+@@ -100,7 +100,7 @@
+ 
+     <!-- The default tiles to display in QuickSettings -->
+     <string name="quick_settings_tiles_default" translatable="false">
+-        wifi,battery,dnd,data,lte,vowifi,flashlight,rotation,bt,airplane,location
++        wifi,bt,flashlight,airplane,hotspot,location,data,vowifi,rotation,dnd,battery
+     </string>
+ 
+     <!-- The tiles to display in QuickSettings -->

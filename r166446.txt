@@ -1,0 +1,14 @@
+Index: packages/apps/Messaging/src/com/android/messaging/util/BugleGservicesKeys.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/util/BugleGservicesKeys.java	(revision 166445)
++++ packages/apps/Messaging/src/com/android/messaging/util/BugleGservicesKeys.java	(revision 166446)
+@@ -193,7 +193,8 @@
+      */
+     public static final String MAX_MESSAGES_IN_CONVERSATION_NOTIFICATION =
+             "bugle_max_messages_in_conversation_notification";
+-    public static final int MAX_MESSAGES_IN_CONVERSATION_NOTIFICATION_DEFAULT = 9;
++	//bug for 91570
++    public static final int MAX_MESSAGES_IN_CONVERSATION_NOTIFICATION_DEFAULT = 7;
+ 
+     /**
+      * Time (in seconds) between notification ringing for incoming messages of the same

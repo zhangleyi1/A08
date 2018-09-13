@@ -1,0 +1,23 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 166676)
++++ packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 166677)
+@@ -3076,7 +3076,11 @@
+         if (mLauncherCallbacks != null) {
+             mLauncherCallbacks.onClickSettingsButton(v);
+         } else {
+-            startActivity(new Intent(this, SettingsActivity.class));
++		//	fix for bug 91003 by zhangchi start 
++           // startActivity(new Intent(this, SettingsActivity.class));
++		   Intent intent =  new Intent(Settings.ACTION_SETTINGS);  
++           startActivity(intent);
++		//	fix for bug 91003 by zhangchi end 
+         }
+     }
+ 
+
+Property changes on: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/src/com/android/launcher3/Launcher.java:r165588
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Launcher3/src/com/android/launcher3/Launcher.java:r163796

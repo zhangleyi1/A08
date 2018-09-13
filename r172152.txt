@@ -1,0 +1,41 @@
+Index: packages/apps/Settings/src/com/android/settings/GestureReceiver.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/GestureReceiver.java	(revision 172151)
++++ packages/apps/Settings/src/com/android/settings/GestureReceiver.java	(revision 172152)
+@@ -43,7 +43,14 @@
+             TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+ 
+             String phoneNumber1 = tm.getLine1Number();
+-            String buf = ((phoneNumber1.length() < 1)?"NULL":phoneNumber1) + ":" + tm.getDeviceId() + ":" + android.os.Build.MODEL + ":" + android.os.Build.DISPLAY.substring(16, 20)+";";
++            String number = "";
++            if (phoneNumber1 == null) {
++                number = "NULL";
++            } else {
++                number = (phoneNumber1.length() < 1)?"NULL":phoneNumber1;
++            }
++
++            String buf = number + ":" + tm.getDeviceId() + ":" + android.os.Build.MODEL + ":" + android.os.Build.DISPLAY.substring(16, 20)+";";
+             writeFile(buf);
+         }
+     }
+Index: vendor/sprd/platform/packages/apps/KeyGen/src/com/sprd/keygen/MainActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/KeyGen/src/com/sprd/keygen/MainActivity.java	(revision 172151)
++++ vendor/sprd/platform/packages/apps/KeyGen/src/com/sprd/keygen/MainActivity.java	(revision 172152)
+@@ -98,7 +98,15 @@
+                 String time = sdf.format(date);
+ 
+                 String phoneNumber1 = tm.getLine1Number();
+-                String buf = ((phoneNumber1.length() < 1)?"NULL":phoneNumber1) + ":" + tm.getDeviceId() + ":" + android.os.Build.MODEL + ":" + android.os.Build.DISPLAY.substring(16, 20)
++                
++                String number = "";
++                if(phoneNumber1 != null) {
++                    number = phoneNumber1.length() < 1?"NULL":phoneNumber1;
++                } else {
++                    number = "NULL";
++                }
++
++                String buf = number + ":" + tm.getDeviceId() + ":" + android.os.Build.MODEL + ":" + android.os.Build.DISPLAY.substring(16, 20)
+                         + ":" + time;
+ 
+                 if(mPwd.getText().toString().trim().equals(pwd)) {

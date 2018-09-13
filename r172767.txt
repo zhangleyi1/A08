@@ -1,0 +1,4925 @@
+Index: vendor/google/apps/Keep/Keep_x86.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Keep/Keep_arm64.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Keep/Keep_arm.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Duo/Duo_x86_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Duo/Duo_x86_xxxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Duo/Duo_arm64_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Duo/Duo_arm_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Duo/Duo_arm64_xxxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Duo/Duo_x86_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Duo/Duo_arm_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Duo/Duo_arm64_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Duo/Duo_arm.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Duo/Duo_x86_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Duo/Duo_arm_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Duo/Duo_x86.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Duo/Duo_arm64_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Duo/Duo_arm_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Duo/Duo_x86_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Duo/Duo_arm64.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Duo/Duo_arm_xxxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Duo/Duo_arm64_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Videos/Videos_arm.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Videos/Videos_x86.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Music2/Android.mk
+===================================================================
+--- vendor/google/apps/Music2/Android.mk	(revision 172766)
++++ vendor/google/apps/Music2/Android.mk	(revision 172767)
+@@ -10,7 +10,7 @@
+ LOCAL_MODULE_SUFFIX := $(COMMON_ANDROID_PACKAGE_SUFFIX)
+ #LOCAL_PRIVILEGED_MODULE :=
+ LOCAL_CERTIFICATE := PRESIGNED
+-#LOCAL_OVERRIDES_PACKAGES := Music
++LOCAL_OVERRIDES_PACKAGES := Music
+ LOCAL_SRC_FILES := $(LOCAL_MODULE).apk
+ #LOCAL_REQUIRED_MODULES :=
+ #LOCAL_PREBUILT_JNI_LIBS :=
+Index: vendor/google/apps/Music2/Music2.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/embedded_normalizer.mfar
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/embedded_normalizer.mfar
+===================================================================
+--- vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/embedded_normalizer.mfar	(revision 0)
++++ vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/embedded_normalizer.mfar	(revision 172767)
+
+Property changes on: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/embedded_normalizer.mfar
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/dictation.config
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/am_phonemes.syms
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/am_phonemes.syms
+===================================================================
+--- vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/am_phonemes.syms	(revision 0)
++++ vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/am_phonemes.syms	(revision 172767)
+
+Property changes on: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/am_phonemes.syms
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/CONTACT_NAME.fst
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/semantics.pumpkin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/pumpkin.mmap
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/lstm_model.uint8.data
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/metadata
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/confirmation_bias.fst
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/voice_actions_compiler.config
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/time_bias.fst
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/time_bias.fst
+===================================================================
+--- vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/time_bias.fst	(revision 0)
++++ vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/time_bias.fst	(revision 172767)
+
+Property changes on: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/time_bias.fst
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/config.pumpkin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/monastery_config.pumpkin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/word_confidence_classifier
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/word_confidence_classifier
+===================================================================
+--- vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/word_confidence_classifier	(revision 0)
++++ vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/word_confidence_classifier	(revision 172767)
+
+Property changes on: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/word_confidence_classifier
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/transform.mfar
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/transform.mfar
+===================================================================
+--- vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/transform.mfar	(revision 0)
++++ vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/transform.mfar	(revision 172767)
+
+Property changes on: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/transform.mfar
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/SONG_NAME.syms
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/g2p.data
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/wordlist.syms
+===================================================================
+--- vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/wordlist.syms	(revision 172766)
++++ vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/wordlist.syms	(revision 172767)
+@@ -72,1425 +72,1425 @@
+ %	71
+ ,	72
+ -	73
+-<UNK>	74
+-?	75
+-équipement	76
+-st	77
+-sh	78
+-su	79
+-sp	80
+-se	81
+-sa	82
+-so	83
+-si	84
+-sy	85
+-sq	86
+-s.	87
+-s1	88
+-s2	89
+-sd	90
+-s3	91
+-s4	92
+-s5	93
+-sIGNARAMA	94
+-sOooo	95
+-sbcglobal.net	96
+-sf	97
+-ss	98
+-co	99
+-ca	100
+-ch	101
+-ci	102
+-c$contacts	103
+-c1	104
+-cc	105
+-cn	106
+-cz	107
+-c'mon	108
+-c-section	109
+-c2	110
+-c3	111
+-c4	112
+-c5	113
+-c6	114
+-c7	115
+-cORESTAFF	116
+-cVS	117
+-cd	118
+-cf	119
+-cm	120
+-cv	121
+-St	122
+-Sh	123
+-So	124
+-Si	125
+-SA	126
+-SP	127
+-SS	128
+-ST	129
+-SM	130
+-SE	131
+-SC	132
+-SI	133
+-SL	134
+-SO	135
+-SW	136
+-SR	137
+-SD	138
+-SU	139
+-SB	140
+-SH	141
+-SN	142
+-SF	143
+-SG	144
+-SK	145
+-SQ	146
+-Sr	147
+-S's	148
+-SJ	149
+-SX	150
+-Sbarro	151
+-Sgt	152
+-Szechuan	153
+-pa	154
+-po	155
+-pi	156
+-pl	157
+-pp	158
+-pc	159
+-pk	160
+-pt	161
+-p90	162
+-pg	163
+-pj	164
+-pm	165
+-p1	166
+-p2	167
+-p3	168
+-pH	169
+-pS	170
+-pdf	171
+-pffcu	172
+-px	173
+-Co	174
+-Cl	175
+-Cu	176
+-CC	177
+-CP	178
+-CS	179
+-CA	180
+-CD	181
+-CM	182
+-CN	183
+-CR	184
+-CI	185
+-CL	186
+-CO	187
+-CB	188
+-CE	189
+-CF	190
+-CH	191
+-CT	192
+-CV	193
+-CW	194
+-CG	195
+-CU	196
+-CJ	197
+-CK	198
+-Ct	199
+-Czech	200
+-C's	201
+-CQ	202
+-CX	203
+-CY	204
+-CZ	205
+-Ma	206
+-Mo	207
+-Mi	208
+-Me	209
+-My	210
+-MS	211
+-MC	212
+-MO	213
+-MT	214
+-MI	215
+-ML	216
+-MM	217
+-MA	218
+-MD	219
+-MG	220
+-MP	221
+-MJ	222
+-MB	223
+-MH	224
+-MU	225
+-MV	226
+-MF	227
+-Mr	228
+-ME	229
+-MK	230
+-MW	231
+-M's	232
+-MN	233
+-MX	234
+-Mb	235
+-Mk	236
+-Ms	237
+-Mt	238
+-Br	239
+-Be	240
+-Bo	241
+-Bi	242
+-By	243
+-BB	244
+-BC	245
+-BM	246
+-BO	247
+-BA	248
+-BF	249
+-BL	250
+-BS	251
+-BT	252
+-BI	253
+-BJ	254
+-BN	255
+-BP	256
+-BR	257
+-BD	258
+-BG	259
+-BH	260
+-BW	261
+-B's	262
+-BK	263
+-BQ	264
+-BU	265
+-BV	266
+-BX	267
+-BZ	268
+-Bhutan	269
+-Bjorn	270
+-ba	271
+-bo	272
+-bu	273
+-be	274
+-bi	275
+-by	276
+-b1	277
+-bf	278
+-bw3	279
+-b'ville	280
+-b2	281
+-b4	282
+-b6	283
+-b96	284
+-bTW	285
+-bc	286
+-bgmu	287
+-bhai	288
+-bj	289
+-bmw	290
+-bn	291
+-bs	292
+-btw	293
+-re	294
+-ra	295
+-ro	296
+-ri	297
+-ru	298
+-rx	299
+-ry	300
+-r2	301
+-rs	302
+-r.i.p	303
+-r1	304
+-r4	305
+-r5	306
+-r6	307
+-r8	308
+-rETECH	309
+-rd	310
+-rg3	311
+-rly	312
+-rm	313
+-rpm	314
+-de	315
+-di	316
+-do	317
+-dr	318
+-da	319
+-du	320
+-d1	321
+-d-bag	322
+-d2	323
+-d3	324
+-dARCARS	325
+-dB	326
+-dc	327
+-dd	328
+-dfcu	329
+-dj	330
+-dk	331
+-dlow	332
+-dmv	333
+-dnt	334
+-dvd	335
+-an	336
+-al	337
+-ac	338
+-ad	339
+-ar	340
+-as	341
+-ap	342
+-am	343
+-au	344
+-ab	345
+-at	346
+-ai	347
+-aw	348
+-av	349
+-ax	350
+-aa	351
+-ah	352
+-a.	353
+-az	354
+-a1	355
+-ay	356
+-a2	357
+-a4	358
+-a/c	359
+-a0	360
+-a3	361
+-a5	362
+-a6	363
+-a7	364
+-a8	365
+-a9	366
+-aAA	367
+-aI	368
+-aT&T	369
+-aja	370
+-tr	371
+-te	372
+-ta	373
+-to	374
+-th	375
+-ti	376
+-tu	377
+-ty	378
+-tt	379
+-ts	380
+-tv	381
+-t2	382
+-t3	383
+-t's	384
+-t.i	385
+-t1	386
+-t5	387
+-t6	388
+-t8	389
+-t9	390
+-tAP	391
+-tC	392
+-tJ	393
+-tSFL	394
+-tUFF	395
+-tXU	396
+-tbh	397
+-td	398
+-tmobile	399
+-tn	400
+-txt	401
+-ma	402
+-mo	403
+-mi	404
+-me	405
+-mu	406
+-my	407
+-mp	408
+-mr	409
+-ms	410
+-m.	411
+-mm	412
+-m1	413
+-mg	414
+-m2	415
+-m3	416
+-m4	417
+-m5	418
+-m6	419
+-m8	420
+-mObridge	421
+-mPerks	422
+-mfg	423
+-mhm	424
+-mjna	425
+-ml	426
+-mn	427
+-mx	428
+-Al	429
+-An	430
+-Am	431
+-As	432
+-Ad	433
+-At	434
+-Ag	435
+-AC	436
+-AT	437
+-AM	438
+-AS	439
+-AB	440
+-AD	441
+-AP	442
+-AA	443
+-AF	444
+-AI	445
+-AR	446
+-AV	447
+-AE	448
+-AJ	449
+-AL	450
+-AW	451
+-AG	452
+-AK	453
+-AO	454
+-AH	455
+-A's	456
+-AQ	457
+-AU	458
+-AXA	459
+-AZ	460
+-Pa	461
+-Pi	462
+-PS	463
+-PC	464
+-PD	465
+-PP	466
+-PA	467
+-PE	468
+-PO	469
+-PR	470
+-PT	471
+-PI	472
+-PM	473
+-PB	474
+-PN	475
+-PG	476
+-PF	477
+-PL	478
+-PJ	479
+-PV	480
+-PK	481
+-PU	482
+-P's	483
+-PQ	484
+-PW	485
+-PX	486
+-Pt	487
+-PvP	488
+-PwC	489
+-fi	490
+-fo	491
+-fa	492
+-fr	493
+-fe	494
+-fu	495
+-f-ing	496
+-f.y.i	497
+-f1	498
+-fRANK	499
+-fUCK	500
+-fYI	501
+-fb	502
+-fm	503
+-fsnb	504
+-ft	505
+-fwy	506
+-fyi	507
+-Ro	508
+-RS	509
+-RC	510
+-RE	511
+-RI	512
+-RO	513
+-RT	514
+-RA	515
+-RB	516
+-RM	517
+-RP	518
+-RD	519
+-RF	520
+-RG	521
+-RV	522
+-RJ	523
+-RK	524
+-RN	525
+-RR	526
+-RW	527
+-R's	528
+-RH	529
+-RL	530
+-RX	531
+-RYA	532
+-Rd	533
+-Rs	534
+-Rt	535
+-Rx	536
+-De	537
+-Da	538
+-Do	539
+-Di	540
+-Du	541
+-Dr	542
+-DC	543
+-DS	544
+-DV	545
+-DO	546
+-DM	547
+-DH	548
+-DT	549
+-DD	550
+-DN	551
+-DA	552
+-DI	553
+-DP	554
+-DJ	555
+-DF	556
+-DW	557
+-DB	558
+-DL	559
+-DR	560
+-DX	561
+-DG	562
+-DK	563
+-DQ	564
+-DZ	565
+-Django	566
+-Dvorak	567
+-ho	568
+-ha	569
+-he	570
+-hi	571
+-hu	572
+-hy	573
+-hm	574
+-h2	575
+-hd	576
+-h&L	577
+-h1	578
+-h3	579
+-hhgregg	580
+-hrs	581
+-hsn.com	582
+-htc	583
+-hville	584
+-To	585
+-Ti	586
+-Ty	587
+-TC	588
+-TR	589
+-TM	590
+-TS	591
+-TH	592
+-TI	593
+-TA	594
+-TB	595
+-TD	596
+-TP	597
+-TT	598
+-TV	599
+-TG	600
+-TK	601
+-TW	602
+-TJ	603
+-TL	604
+-TN	605
+-TF	606
+-TX	607
+-T's	608
+-TQ	609
+-Tso's	610
+-La	611
+-Le	612
+-Lo	613
+-Li	614
+-Lu	615
+-LE	616
+-LA	617
+-LM	618
+-LC	619
+-LS	620
+-LT	621
+-LP	622
+-LD	623
+-LG	624
+-LL	625
+-LB	626
+-LK	627
+-LV	628
+-LH	629
+-LJ	630
+-LR	631
+-Lt	632
+-LF	633
+-LQ	634
+-LW	635
+-LX	636
+-Lhasa	637
+-Ln	638
+-Ho	639
+-He	640
+-Hi	641
+-Hy	642
+-HI	643
+-HO	644
+-HS	645
+-HT	646
+-HC	647
+-HD	648
+-HP	649
+-HH	650
+-HM	651
+-HR	652
+-HA	653
+-HG	654
+-HB	655
+-HL	656
+-H's	657
+-HF	658
+-HJ	659
+-HK	660
+-HQ	661
+-HVAC	662
+-HW	663
+-HX	664
+-Hsu	665
+-Hwy	666
+-ex	667
+-en	668
+-el	669
+-em	670
+-es	671
+-ed	672
+-er	673
+-eye	674
+-et	675
+-eff	676
+-eg	677
+-ep	678
+-ee	679
+-eh	680
+-e2	681
+-e3	682
+-e40	683
+-e7	684
+-eHarmony	685
+-eNews	686
+-eSPN	687
+-eTown	688
+-eV	689
+-ek	690
+-eons	691
+-eww	692
+-Go	693
+-Gi	694
+-GT	695
+-GS	696
+-GM	697
+-GR	698
+-GE	699
+-GB	700
+-GC	701
+-GN	702
+-GP	703
+-GA	704
+-GF	705
+-GH	706
+-GO	707
+-GV	708
+-GD	709
+-GI	710
+-G's	711
+-GG	712
+-GJ	713
+-GK	714
+-GL	715
+-GQ	716
+-GUI	717
+-GW	718
+-GX	719
+-GYN	720
+-Gd	721
+-Gmail	722
+-Gnarls	723
+-gr	724
+-ga	725
+-go	726
+-ge	727
+-gi	728
+-g2	729
+-g3	730
+-g4	731
+-gf	732
+-gmail	733
+-g'night	734
+-g1	735
+-g5	736
+-g6	737
+-g8	738
+-gM	739
+-gTunes	740
+-gb3	741
+-gchat	742
+-gg	743
+-gps.com	744
+-gs3	745
+-in	746
+-im	747
+-id	748
+-ir	749
+-it	750
+-il	751
+-is	752
+-ic	753
+-if	754
+-i3	755
+-ia	756
+-iz	757
+-i4	758
+-ie	759
+-i25	760
+-i5	761
+-i7	762
+-i9	763
+-iBook	764
+-iDoctor	765
+-iHome	766
+-iOS	767
+-iRise	768
+-ibuprofen	769
+-ih	770
+-iight	771
+-ik	772
+-iu	773
+-la	774
+-li	775
+-lo	776
+-le	777
+-ly	778
+-ll	779
+-lb	780
+-lg	781
+-lmao	782
+-l1	783
+-l2	784
+-l3	785
+-l5	786
+-lEGO	787
+-lOL	788
+-lP&L	789
+-lds.org	790
+-lr44	791
+-wa	792
+-we	793
+-wo	794
+-w/	795
+-w2	796
+-w-9	797
+-w.e	798
+-w4	799
+-w9	800
+-wTF	801
+-wcsg	802
+-wd40	803
+-wg&r	804
+-wk	805
+-wqmx	806
+-ws	807
+-wyndham	808
+-We	809
+-WS	810
+-WB	811
+-WI	812
+-WP	813
+-Wu	814
+-WA	815
+-WC	816
+-WG	817
+-WN	818
+-WR	819
+-WT	820
+-WL	821
+-WF	822
+-WH	823
+-WM	824
+-WV	825
+-WX	826
+-WY	827
+-W's	828
+-WD	829
+-WJ	830
+-Fi	831
+-Fe	832
+-Fu	833
+-FA	834
+-FC	835
+-FS	836
+-FD	837
+-FI	838
+-FM	839
+-FP	840
+-FB	841
+-FF	842
+-FL	843
+-FW	844
+-FH	845
+-F's	846
+-FG	847
+-FJ	848
+-FK	849
+-FN	850
+-FX	851
+-Ku	852
+-Ky	853
+-KC	854
+-KR	855
+-KS	856
+-KF	857
+-KT	858
+-KD	859
+-KJ	860
+-KK	861
+-KL	862
+-KO	863
+-KP	864
+-KA	865
+-KB	866
+-KU	867
+-K's	868
+-KETV	869
+-KH	870
+-KMEL	871
+-KQED	872
+-KWWL	873
+-KX	874
+-KY	875
+-KZ	876
+-Kb	877
+-Kmart	878
+-El	879
+-Ed	880
+-Ex	881
+-ES	882
+-ET	883
+-EC	884
+-EM	885
+-EP	886
+-Eq	887
+-ED	888
+-EV	889
+-EA	890
+-EB	891
+-EE	892
+-EF	893
+-EI	894
+-EO	895
+-EX	896
+-EJ	897
+-EK	898
+-ENT	899
+-EW	900
+-E's	901
+-EQ	902
+-ER	903
+-EU	904
+-EZ	905
+-Ehrlich	906
+-Eola	907
+-ov	908
+-ou	909
+-or	910
+-op	911
+-ob	912
+-of	913
+-on	914
+-ol	915
+-om	916
+-ox	917
+-ok	918
+-oo	919
+-ot	920
+-os	921
+-od	922
+-oh	923
+-oi	924
+-og	925
+-oz	926
+-o$contacts	927
+-o1	928
+-o2	929
+-o3	930
+-o6	931
+-o7	932
+-o8	933
+-o9	934
+-oK	935
+-oj	936
+-No	937
+-Ne	938
+-Ni	939
+-Nu	940
+-NA	941
+-NO	942
+-NC	943
+-NF	944
+-NY	945
+-NH	946
+-NE	947
+-NS	948
+-NB	949
+-NT	950
+-ND	951
+-NP	952
+-NG	953
+-NR	954
+-NW	955
+-NJ	956
+-NK	957
+-NL	958
+-NM	959
+-NN	960
+-NV	961
+-NXT	962
+-NZ	963
+-Nguyen	964
+-ne	965
+-no	966
+-na	967
+-ni	968
+-nu	969
+-ny	970
+-nf	971
+-n/a	972
+-n2	973
+-n64	974
+-n8	975
+-nAPA	976
+-nTelos	977
+-nWTC	978
+-nc	979
+-nd	980
+-ng	981
+-nm	982
+-nt	983
+-nvm	984
+-Ja	985
+-Jo	986
+-Ju	987
+-Ji	988
+-JC	989
+-JB	990
+-JT	991
+-JA	992
+-JM	993
+-JP	994
+-JD	995
+-JF	996
+-JJ	997
+-JL	998
+-JS	999
+-JV	1000
+-JW	1001
+-Jr	1002
+-J's	1003
+-JEA	1004
+-JG	1005
+-JH	1006
+-JIT	1007
+-JK	1008
+-JN	1009
+-JOHN	1010
+-JR	1011
+-JUNK	1012
+-JX	1013
+-Jhene	1014
+-un	1015
+-up	1016
+-ur	1017
+-us	1018
+-ut	1019
+-um	1020
+-uh	1021
+-u'd	1022
+-u2	1023
+-uCLA	1024
+-uLTA	1025
+-uPS	1026
+-uRS	1027
+-uSC	1028
+-ukulele	1029
+-uuuu	1030
+-uverse	1031
+-On	1032
+-Ok	1033
+-Om	1034
+-OS	1035
+-Oz	1036
+-OP	1037
+-Ox	1038
+-OT	1039
+-Of	1040
+-OC	1041
+-OM	1042
+-OB	1043
+-OR	1044
+-Oi	1045
+-OH	1046
+-Oh	1047
+-OD	1048
+-OE	1049
+-OU	1050
+-OG	1051
+-OK	1052
+-OL	1053
+-ON	1054
+-OA	1055
+-OFF	1056
+-OIP	1057
+-OJ	1058
+-OO	1059
+-OWN	1060
+-Oelwein	1061
+-Ooltewah	1062
+-Oquirrh	1063
+-Oyster	1064
+-ve	1065
+-va	1066
+-vo	1067
+-vu	1068
+-v-neck	1069
+-v1	1070
+-v6	1071
+-v8	1072
+-vh1	1073
+-vs	1074
+-In	1075
+-Is	1076
+-Im	1077
+-Il	1078
+-IC	1079
+-Id	1080
+-IM	1081
+-It	1082
+-IS	1083
+-IR	1084
+-ID	1085
+-IH	1086
+-IP	1087
+-IB	1088
+-IN	1089
+-IE	1090
+-II	1091
+-Ike	1092
+-IG	1093
+-IU	1094
+-IV	1095
+-IA	1096
+-IL	1097
+-IO	1098
+-IT	1099
+-I&I	1100
+-IJ	1101
+-IKEA	1102
+-IQ	1103
+-IX	1104
+-If	1105
+-Ipswich	1106
+-Iuka	1107
+-Ixtapa	1108
+-Va	1109
+-Vo	1110
+-VI	1111
+-VC	1112
+-VG	1113
+-VP	1114
+-VS	1115
+-VT	1116
+-VA	1117
+-VF	1118
+-VM	1119
+-VR	1120
+-VZ	1121
+-Vlad	1122
+-V's	1123
+-VB	1124
+-VD	1125
+-VERY	1126
+-VHS	1127
+-VJ	1128
+-VLC	1129
+-VNA	1130
+-VOA	1131
+-VUE	1132
+-VV	1133
+-VW	1134
+-Vs	1135
+-Vybz	1136
+-ki	1137
+-ka	1138
+-ke	1139
+-ko	1140
+-kr	1141
+-ku	1142
+-km	1143
+-k1	1144
+-k2	1145
+-k5	1146
+-k9	1147
+-kV	1148
+-kW	1149
+-kg	1150
+-kp.org	1151
+-ksl.com	1152
+-kt	1153
+-kwal	1154
+-jo	1155
+-je	1156
+-ji	1157
+-jcp	1158
+-jk	1159
+-jpay	1160
+-j&P	1161
+-j/o	1162
+-jBK	1163
+-jJ	1164
+-jr	1165
+-jw.org	1166
+-10	1167
+-11	1168
+-12	1169
+-19	1170
+-14	1171
+-15	1172
+-17	1173
+-13	1174
+-16	1175
+-18	1176
+-1/2	1177
+-1a	1178
+-1c	1179
+-1d	1180
+-1g	1181
+-1i	1182
+-1k	1183
+-1o	1184
+-1st	1185
+-1x	1186
+-US	1187
+-UN	1188
+-UC	1189
+-UM	1190
+-Up	1191
+-UT	1192
+-UA	1193
+-Us	1194
+-UF	1195
+-UP	1196
+-UH	1197
+-UB	1198
+-UV	1199
+-UD	1200
+-UI	1201
+-UW	1202
+-Uinta	1203
+-UE	1204
+-UJ	1205
+-UK	1206
+-UL	1207
+-UX	1208
+-Ubisoft	1209
+-Uccello's	1210
+-Uhaul	1211
+-Uxbridge	1212
+-20	1213
+-24	1214
+-25	1215
+-21	1216
+-22	1217
+-27	1218
+-26	1219
+-28	1220
+-29	1221
+-23	1222
+-2k	1223
+-2-	1224
+-2d	1225
+-2o	1226
+-2's	1227
+-2/2	1228
+-2a	1229
+-2c	1230
+-2g	1231
+-2i	1232
+-2morrow	1233
+-2p	1234
+-2s	1235
+-2t	1236
+-2x	1237
+-30	1238
+-33	1239
+-31	1240
+-34	1241
+-35	1242
+-37	1243
+-32	1244
+-39	1245
+-36	1246
+-38	1247
+-3-	1248
+-3s	1249
+-3G	1250
+-3d	1251
+-3o	1252
+-3's	1253
+-3a	1254
+-3c	1255
+-3i	1256
+-3k	1257
+-3m	1258
+-3p	1259
+-3rd	1260
+-3t	1261
+-3x	1262
+-Yo	1263
+-Ya	1264
+-Yu	1265
+-Yi	1266
+-YES	1267
+-YM	1268
+-Ypsi	1269
+-YA	1270
+-YOU	1271
+-YRC	1272
+-YS	1273
+-YUM	1274
+-YWCA	1275
+-YZ	1276
+-Ybor	1277
+-Ygnacio	1278
+-Ynez	1279
+-Yreka	1280
+-Ysidro	1281
+-40	1282
+-49	1283
+-41	1284
+-42	1285
+-43	1286
+-44	1287
+-47	1288
+-45	1289
+-46	1290
+-48	1291
+-4-	1292
+-4s	1293
+-4d	1294
+-4o	1295
+-4's	1296
+-4G	1297
+-4a	1298
+-4chan	1299
+-4gotten	1300
+-4h	1301
+-4i	1302
+-4k	1303
+-4p	1304
+-4runner	1305
+-4th	1306
+-4x4	1307
+-50	1308
+-51	1309
+-55	1310
+-58	1311
+-52	1312
+-53	1313
+-54	1314
+-56	1315
+-57	1316
+-59	1317
+-5-	1318
+-5's	1319
+-5a	1320
+-5c	1321
+-5d	1322
+-5g	1323
+-5i	1324
+-5k	1325
+-5o	1326
+-5p	1327
+-5s	1328
+-5th	1329
+-5w	1330
+-yo	1331
+-ye	1332
+-ya	1333
+-yu	1334
+-y'all	1335
+-y100	1336
+-yOU	1337
+-yds	1338
+-yg	1339
+-yr	1340
+-60	1341
+-61	1342
+-62	1343
+-64	1344
+-65	1345
+-63	1346
+-66	1347
+-68	1348
+-67	1349
+-69	1350
+-6i	1351
+-6p	1352
+-6's	1353
+-6a	1354
+-6o	1355
+-6s	1356
+-6th	1357
+-70	1358
+-72	1359
+-71	1360
+-77	1361
+-73	1362
+-76	1363
+-74	1364
+-75	1365
+-78	1366
+-79	1367
+-7's	1368
+-7a	1369
+-7d	1370
+-7i	1371
+-7o	1372
+-7p	1373
+-7th	1374
+-7up	1375
+-92	1376
+-93	1377
+-97	1378
+-90	1379
+-94	1380
+-95	1381
+-99	1382
+-91	1383
+-98	1384
+-96	1385
+-9/	1386
+-9&i	1387
+-9's	1388
+-9-10	1389
+-9.5	1390
+-9a	1391
+-9i	1392
+-9mm	1393
+-9th	1394
+-9w	1395
+-q-tip	1396
+-q1	1397
+-qt	1398
+-qvc.com	1399
+-Zi	1400
+-ZZ	1401
+-Z's	1402
+-ZAR	1403
+-ZIP	1404
+-ZS	1405
+-ZTE	1406
+-ZX	1407
+-Zhang's	1408
+-80	1409
+-82	1410
+-83	1411
+-85	1412
+-81	1413
+-84	1414
+-86	1415
+-88	1416
+-87	1417
+-89	1418
+-8's	1419
+-8-9	1420
+-8i	1421
+-8o	1422
+-8p	1423
+-8th	1424
+-8x	1425
+-QP	1426
+-QR	1427
+-QV	1428
+-Qi	1429
+-Qt	1430
+-Q&A	1431
+-Q's	1432
+-QA	1433
+-QB	1434
+-QC	1435
+-QFC	1436
+-QQ	1437
+-QS	1438
+-QT	1439
+-Qdoba	1440
+-Qwest	1441
+-zo	1442
+-ze	1443
+-za	1444
+-z-pack	1445
+-z100	1446
+-z28	1447
+-z71	1448
+-zpizza	1449
+-zr1	1450
+-XL	1451
+-XX	1452
+-XC	1453
+-XD	1454
+-XM	1455
+-XT	1456
+-XY	1457
+-Xbox	1458
+-X's	1459
+-XA	1460
+-XE	1461
+-XI	1462
+-XJ	1463
+-XO	1464
+-XP	1465
+-XQ	1466
+-XR	1467
+-XS	1468
+-Xfinity	1469
+-Xmas	1470
+-Xsport	1471
+-xx	1472
+-xvideo	1473
+-xbox	1474
+-xi	1475
+-xnxx	1476
+-xray	1477
+-x1	1478
+-x2	1479
+-x3	1480
+-x5	1481
+-xB	1482
+-xD	1483
+-xmas	1484
+-xp	1485
+-xtube	1486
+-xylophone	1487
+-$CONTACTS	1488
+-$DAY	1489
+-$FULLPHONENUM	1490
+-$OPERAND	1491
+-$TIME	1492
++?	74
++équipement	75
++st	76
++sh	77
++su	78
++sp	79
++se	80
++sa	81
++so	82
++si	83
++sy	84
++sq	85
++s.	86
++s1	87
++s2	88
++sd	89
++s3	90
++s4	91
++s5	92
++sIGNARAMA	93
++sOooo	94
++sbcglobal.net	95
++sf	96
++ss	97
++co	98
++ca	99
++ch	100
++ci	101
++c$contacts	102
++c1	103
++cc	104
++cn	105
++cz	106
++c'mon	107
++c-section	108
++c2	109
++c3	110
++c4	111
++c5	112
++c6	113
++c7	114
++cORESTAFF	115
++cVS	116
++cd	117
++cf	118
++cm	119
++cv	120
++St	121
++Sh	122
++So	123
++Si	124
++SA	125
++SP	126
++SS	127
++ST	128
++SM	129
++SE	130
++SC	131
++SI	132
++SL	133
++SO	134
++SW	135
++SR	136
++SD	137
++SU	138
++SB	139
++SH	140
++SN	141
++SF	142
++SG	143
++SK	144
++SQ	145
++Sr	146
++S's	147
++SJ	148
++SX	149
++Sbarro	150
++Sgt	151
++Szechuan	152
++pa	153
++po	154
++pi	155
++pl	156
++pp	157
++pc	158
++pk	159
++pt	160
++p90	161
++pg	162
++pj	163
++pm	164
++p1	165
++p2	166
++p3	167
++pH	168
++pS	169
++pdf	170
++pffcu	171
++px	172
++Co	173
++Cl	174
++Cu	175
++CC	176
++CP	177
++CS	178
++CA	179
++CD	180
++CM	181
++CN	182
++CR	183
++CI	184
++CL	185
++CO	186
++CB	187
++CE	188
++CF	189
++CH	190
++CT	191
++CV	192
++CW	193
++CG	194
++CU	195
++CJ	196
++CK	197
++Ct	198
++Czech	199
++C's	200
++CQ	201
++CX	202
++CY	203
++CZ	204
++Ma	205
++Mo	206
++Mi	207
++Me	208
++My	209
++MS	210
++MC	211
++MO	212
++MT	213
++MI	214
++ML	215
++MM	216
++MA	217
++MD	218
++MG	219
++MP	220
++MJ	221
++MB	222
++MH	223
++MU	224
++MV	225
++MF	226
++Mr	227
++ME	228
++MK	229
++MW	230
++M's	231
++MN	232
++MX	233
++Mb	234
++Mk	235
++Ms	236
++Mt	237
++Br	238
++Be	239
++Bo	240
++Bi	241
++By	242
++BB	243
++BC	244
++BM	245
++BO	246
++BA	247
++BF	248
++BL	249
++BS	250
++BT	251
++BI	252
++BJ	253
++BN	254
++BP	255
++BR	256
++BD	257
++BG	258
++BH	259
++BW	260
++B's	261
++BK	262
++BQ	263
++BU	264
++BV	265
++BX	266
++BZ	267
++Bhutan	268
++Bjorn	269
++ba	270
++bo	271
++bu	272
++be	273
++bi	274
++by	275
++b1	276
++bf	277
++bw3	278
++b'ville	279
++b2	280
++b4	281
++b6	282
++b96	283
++bTW	284
++bc	285
++bgmu	286
++bhai	287
++bj	288
++bmw	289
++bn	290
++bs	291
++btw	292
++re	293
++ra	294
++ro	295
++ri	296
++ru	297
++rx	298
++ry	299
++r2	300
++rs	301
++r.i.p	302
++r1	303
++r4	304
++r5	305
++r6	306
++r8	307
++rETECH	308
++rd	309
++rg3	310
++rly	311
++rm	312
++rpm	313
++de	314
++di	315
++do	316
++dr	317
++da	318
++du	319
++d1	320
++d-bag	321
++d2	322
++d3	323
++dARCARS	324
++dB	325
++dc	326
++dd	327
++dfcu	328
++dj	329
++dk	330
++dlow	331
++dmv	332
++dnt	333
++dvd	334
++an	335
++al	336
++ac	337
++ad	338
++ar	339
++as	340
++ap	341
++am	342
++au	343
++ab	344
++at	345
++ai	346
++aw	347
++av	348
++ax	349
++aa	350
++ah	351
++a.	352
++az	353
++a1	354
++ay	355
++a2	356
++a4	357
++a/c	358
++a0	359
++a3	360
++a5	361
++a6	362
++a7	363
++a8	364
++a9	365
++aAA	366
++aI	367
++aT&T	368
++aja	369
++tr	370
++te	371
++ta	372
++to	373
++th	374
++ti	375
++tu	376
++ty	377
++tt	378
++ts	379
++tv	380
++t2	381
++t3	382
++t's	383
++t.i	384
++t1	385
++t5	386
++t6	387
++t8	388
++t9	389
++tAP	390
++tC	391
++tJ	392
++tSFL	393
++tUFF	394
++tXU	395
++tbh	396
++td	397
++tmobile	398
++tn	399
++txt	400
++ma	401
++mo	402
++mi	403
++me	404
++mu	405
++my	406
++mp	407
++mr	408
++ms	409
++m.	410
++mm	411
++m1	412
++mg	413
++m2	414
++m3	415
++m4	416
++m5	417
++m6	418
++m8	419
++mObridge	420
++mPerks	421
++mfg	422
++mhm	423
++mjna	424
++ml	425
++mn	426
++mx	427
++Al	428
++An	429
++Am	430
++As	431
++Ad	432
++At	433
++Ag	434
++AC	435
++AT	436
++AM	437
++AS	438
++AB	439
++AD	440
++AP	441
++AA	442
++AF	443
++AI	444
++AR	445
++AV	446
++AE	447
++AJ	448
++AL	449
++AW	450
++AG	451
++AK	452
++AO	453
++AH	454
++A's	455
++AQ	456
++AU	457
++AXA	458
++AZ	459
++Pa	460
++Pi	461
++PS	462
++PC	463
++PD	464
++PP	465
++PA	466
++PE	467
++PO	468
++PR	469
++PT	470
++PI	471
++PM	472
++PB	473
++PN	474
++PG	475
++PF	476
++PL	477
++PJ	478
++PV	479
++PK	480
++PU	481
++P's	482
++PQ	483
++PW	484
++PX	485
++Pt	486
++PvP	487
++PwC	488
++fi	489
++fo	490
++fa	491
++fr	492
++fe	493
++fu	494
++f-ing	495
++f.y.i	496
++f1	497
++fRANK	498
++fUCK	499
++fYI	500
++fb	501
++fm	502
++fsnb	503
++ft	504
++fwy	505
++fyi	506
++Ro	507
++RS	508
++RC	509
++RE	510
++RI	511
++RO	512
++RT	513
++RA	514
++RB	515
++RM	516
++RP	517
++RD	518
++RF	519
++RG	520
++RV	521
++RJ	522
++RK	523
++RN	524
++RR	525
++RW	526
++R's	527
++RH	528
++RL	529
++RX	530
++RYA	531
++Rd	532
++Rs	533
++Rt	534
++Rx	535
++De	536
++Da	537
++Do	538
++Di	539
++Du	540
++Dr	541
++DC	542
++DS	543
++DV	544
++DO	545
++DM	546
++DH	547
++DT	548
++DD	549
++DN	550
++DA	551
++DI	552
++DP	553
++DJ	554
++DF	555
++DW	556
++DB	557
++DL	558
++DR	559
++DX	560
++DG	561
++DK	562
++DQ	563
++DZ	564
++Django	565
++Dvorak	566
++ho	567
++ha	568
++he	569
++hi	570
++hu	571
++hy	572
++hm	573
++h2	574
++hd	575
++h&L	576
++h1	577
++h3	578
++hhgregg	579
++hrs	580
++hsn.com	581
++htc	582
++hville	583
++To	584
++Ti	585
++Ty	586
++TC	587
++TR	588
++TM	589
++TS	590
++TH	591
++TI	592
++TA	593
++TB	594
++TD	595
++TP	596
++TT	597
++TV	598
++TG	599
++TK	600
++TW	601
++TJ	602
++TL	603
++TN	604
++TF	605
++TX	606
++T's	607
++TQ	608
++Tso's	609
++La	610
++Le	611
++Lo	612
++Li	613
++Lu	614
++LE	615
++LA	616
++LM	617
++LC	618
++LS	619
++LT	620
++LP	621
++LD	622
++LG	623
++LL	624
++LB	625
++LK	626
++LV	627
++LH	628
++LJ	629
++LR	630
++Lt	631
++LF	632
++LQ	633
++LW	634
++LX	635
++Lhasa	636
++Ln	637
++Ho	638
++He	639
++Hi	640
++Hy	641
++HI	642
++HO	643
++HS	644
++HT	645
++HC	646
++HD	647
++HP	648
++HH	649
++HM	650
++HR	651
++HA	652
++HG	653
++HB	654
++HL	655
++H's	656
++HF	657
++HJ	658
++HK	659
++HQ	660
++HVAC	661
++HW	662
++HX	663
++Hsu	664
++Hwy	665
++ex	666
++en	667
++el	668
++em	669
++es	670
++ed	671
++er	672
++eye	673
++et	674
++eff	675
++eg	676
++ep	677
++ee	678
++eh	679
++e2	680
++e3	681
++e40	682
++e7	683
++eHarmony	684
++eNews	685
++eSPN	686
++eTown	687
++eV	688
++ek	689
++eons	690
++eww	691
++Go	692
++Gi	693
++GT	694
++GS	695
++GM	696
++GR	697
++GE	698
++GB	699
++GC	700
++GN	701
++GP	702
++GA	703
++GF	704
++GH	705
++GO	706
++GV	707
++GD	708
++GI	709
++G's	710
++GG	711
++GJ	712
++GK	713
++GL	714
++GQ	715
++GUI	716
++GW	717
++GX	718
++GYN	719
++Gd	720
++Gmail	721
++Gnarls	722
++gr	723
++ga	724
++go	725
++ge	726
++gi	727
++g2	728
++g3	729
++g4	730
++gf	731
++gmail	732
++g'night	733
++g1	734
++g5	735
++g6	736
++g8	737
++gM	738
++gTunes	739
++gb3	740
++gchat	741
++gg	742
++gps.com	743
++gs3	744
++in	745
++im	746
++id	747
++ir	748
++it	749
++il	750
++is	751
++ic	752
++if	753
++i3	754
++ia	755
++iz	756
++i4	757
++ie	758
++i25	759
++i5	760
++i7	761
++i9	762
++iBook	763
++iDoctor	764
++iHome	765
++iOS	766
++iRise	767
++ibuprofen	768
++ih	769
++iight	770
++ik	771
++iu	772
++la	773
++li	774
++lo	775
++le	776
++ly	777
++ll	778
++lb	779
++lg	780
++lmao	781
++l1	782
++l2	783
++l3	784
++l5	785
++lEGO	786
++lOL	787
++lP&L	788
++lds.org	789
++lr44	790
++wa	791
++we	792
++wo	793
++w/	794
++w2	795
++w-9	796
++w.e	797
++w4	798
++w9	799
++wTF	800
++wcsg	801
++wd40	802
++wg&r	803
++wk	804
++wqmx	805
++ws	806
++wyndham	807
++We	808
++WS	809
++WB	810
++WI	811
++WP	812
++Wu	813
++WA	814
++WC	815
++WG	816
++WN	817
++WR	818
++WT	819
++WL	820
++WF	821
++WH	822
++WM	823
++WV	824
++WX	825
++WY	826
++W's	827
++WD	828
++WJ	829
++Fi	830
++Fe	831
++Fu	832
++FA	833
++FC	834
++FS	835
++FD	836
++FI	837
++FM	838
++FP	839
++FB	840
++FF	841
++FL	842
++FW	843
++FH	844
++F's	845
++FG	846
++FJ	847
++FK	848
++FN	849
++FX	850
++Ku	851
++Ky	852
++KC	853
++KR	854
++KS	855
++KF	856
++KT	857
++KD	858
++KJ	859
++KK	860
++KL	861
++KO	862
++KP	863
++KA	864
++KB	865
++KU	866
++K's	867
++KETV	868
++KH	869
++KMEL	870
++KQED	871
++KWWL	872
++KX	873
++KY	874
++KZ	875
++Kb	876
++Kmart	877
++El	878
++Ed	879
++Ex	880
++ES	881
++ET	882
++EC	883
++EM	884
++EP	885
++Eq	886
++ED	887
++EV	888
++EA	889
++EB	890
++EE	891
++EF	892
++EI	893
++EO	894
++EX	895
++EJ	896
++EK	897
++ENT	898
++EW	899
++E's	900
++EQ	901
++ER	902
++EU	903
++EZ	904
++Ehrlich	905
++Eola	906
++ov	907
++ou	908
++or	909
++op	910
++ob	911
++of	912
++on	913
++ol	914
++om	915
++ox	916
++ok	917
++oo	918
++ot	919
++os	920
++od	921
++oh	922
++oi	923
++og	924
++oz	925
++o$contacts	926
++o1	927
++o2	928
++o3	929
++o6	930
++o7	931
++o8	932
++o9	933
++oK	934
++oj	935
++No	936
++Ne	937
++Ni	938
++Nu	939
++NA	940
++NO	941
++NC	942
++NF	943
++NY	944
++NH	945
++NE	946
++NS	947
++NB	948
++NT	949
++ND	950
++NP	951
++NG	952
++NR	953
++NW	954
++NJ	955
++NK	956
++NL	957
++NM	958
++NN	959
++NV	960
++NXT	961
++NZ	962
++Nguyen	963
++ne	964
++no	965
++na	966
++ni	967
++nu	968
++ny	969
++nf	970
++n/a	971
++n2	972
++n64	973
++n8	974
++nAPA	975
++nTelos	976
++nWTC	977
++nc	978
++nd	979
++ng	980
++nm	981
++nt	982
++nvm	983
++Ja	984
++Jo	985
++Ju	986
++Ji	987
++JC	988
++JB	989
++JT	990
++JA	991
++JM	992
++JP	993
++JD	994
++JF	995
++JJ	996
++JL	997
++JS	998
++JV	999
++JW	1000
++Jr	1001
++J's	1002
++JEA	1003
++JG	1004
++JH	1005
++JIT	1006
++JK	1007
++JN	1008
++JOHN	1009
++JR	1010
++JUNK	1011
++JX	1012
++Jhene	1013
++un	1014
++up	1015
++ur	1016
++us	1017
++ut	1018
++um	1019
++uh	1020
++u'd	1021
++u2	1022
++uCLA	1023
++uLTA	1024
++uPS	1025
++uRS	1026
++uSC	1027
++ukulele	1028
++uuuu	1029
++uverse	1030
++On	1031
++Ok	1032
++Om	1033
++OS	1034
++Oz	1035
++OP	1036
++Ox	1037
++OT	1038
++Of	1039
++OC	1040
++OM	1041
++OB	1042
++OR	1043
++Oi	1044
++OH	1045
++Oh	1046
++OD	1047
++OE	1048
++OU	1049
++OG	1050
++OK	1051
++OL	1052
++ON	1053
++OA	1054
++OFF	1055
++OIP	1056
++OJ	1057
++OO	1058
++OWN	1059
++Oelwein	1060
++Ooltewah	1061
++Oquirrh	1062
++Oyster	1063
++ve	1064
++va	1065
++vo	1066
++vu	1067
++v-neck	1068
++v1	1069
++v6	1070
++v8	1071
++vh1	1072
++vs	1073
++In	1074
++Is	1075
++Im	1076
++Il	1077
++IC	1078
++Id	1079
++IM	1080
++It	1081
++IS	1082
++IR	1083
++ID	1084
++IH	1085
++IP	1086
++IB	1087
++IN	1088
++IE	1089
++II	1090
++Ike	1091
++IG	1092
++IU	1093
++IV	1094
++IA	1095
++IL	1096
++IO	1097
++IT	1098
++I&I	1099
++IJ	1100
++IKEA	1101
++IQ	1102
++IX	1103
++If	1104
++Ipswich	1105
++Iuka	1106
++Ixtapa	1107
++Va	1108
++Vo	1109
++VI	1110
++VC	1111
++VG	1112
++VP	1113
++VS	1114
++VT	1115
++VA	1116
++VF	1117
++VM	1118
++VR	1119
++VZ	1120
++Vlad	1121
++V's	1122
++VB	1123
++VD	1124
++VERY	1125
++VHS	1126
++VJ	1127
++VLC	1128
++VNA	1129
++VOA	1130
++VUE	1131
++VV	1132
++VW	1133
++Vs	1134
++Vybz	1135
++ki	1136
++ka	1137
++ke	1138
++ko	1139
++kr	1140
++ku	1141
++km	1142
++k1	1143
++k2	1144
++k5	1145
++k9	1146
++kV	1147
++kW	1148
++kg	1149
++kp.org	1150
++ksl.com	1151
++kt	1152
++kwal	1153
++jo	1154
++je	1155
++ji	1156
++jcp	1157
++jk	1158
++jpay	1159
++j&P	1160
++j/o	1161
++jBK	1162
++jJ	1163
++jr	1164
++jw.org	1165
++10	1166
++11	1167
++12	1168
++19	1169
++14	1170
++15	1171
++17	1172
++13	1173
++16	1174
++18	1175
++1/2	1176
++1a	1177
++1c	1178
++1d	1179
++1g	1180
++1i	1181
++1k	1182
++1o	1183
++1st	1184
++1x	1185
++US	1186
++UN	1187
++UC	1188
++UM	1189
++Up	1190
++UT	1191
++UA	1192
++Us	1193
++UF	1194
++UP	1195
++UH	1196
++UB	1197
++UV	1198
++UD	1199
++UI	1200
++UW	1201
++Uinta	1202
++UE	1203
++UJ	1204
++UK	1205
++UL	1206
++UX	1207
++Ubisoft	1208
++Uccello's	1209
++Uhaul	1210
++Uxbridge	1211
++20	1212
++24	1213
++25	1214
++21	1215
++22	1216
++27	1217
++26	1218
++28	1219
++29	1220
++23	1221
++2k	1222
++2-	1223
++2d	1224
++2o	1225
++2's	1226
++2/2	1227
++2a	1228
++2c	1229
++2g	1230
++2i	1231
++2morrow	1232
++2p	1233
++2s	1234
++2t	1235
++2x	1236
++30	1237
++33	1238
++31	1239
++34	1240
++35	1241
++37	1242
++32	1243
++39	1244
++36	1245
++38	1246
++3-	1247
++3s	1248
++3G	1249
++3d	1250
++3o	1251
++3's	1252
++3a	1253
++3c	1254
++3i	1255
++3k	1256
++3m	1257
++3p	1258
++3rd	1259
++3t	1260
++3x	1261
++Yo	1262
++Ya	1263
++Yu	1264
++Yi	1265
++YES	1266
++YM	1267
++Ypsi	1268
++YA	1269
++YOU	1270
++YRC	1271
++YS	1272
++YUM	1273
++YWCA	1274
++YZ	1275
++Ybor	1276
++Ygnacio	1277
++Ynez	1278
++Yreka	1279
++Ysidro	1280
++40	1281
++49	1282
++41	1283
++42	1284
++43	1285
++44	1286
++47	1287
++45	1288
++46	1289
++48	1290
++4-	1291
++4s	1292
++4d	1293
++4o	1294
++4's	1295
++4G	1296
++4a	1297
++4chan	1298
++4gotten	1299
++4h	1300
++4i	1301
++4k	1302
++4p	1303
++4runner	1304
++4th	1305
++4x4	1306
++50	1307
++51	1308
++55	1309
++58	1310
++52	1311
++53	1312
++54	1313
++56	1314
++57	1315
++59	1316
++5-	1317
++5's	1318
++5a	1319
++5c	1320
++5d	1321
++5g	1322
++5i	1323
++5k	1324
++5o	1325
++5p	1326
++5s	1327
++5th	1328
++5w	1329
++yo	1330
++ye	1331
++ya	1332
++yu	1333
++y'all	1334
++y100	1335
++yOU	1336
++yds	1337
++yg	1338
++yr	1339
++60	1340
++61	1341
++62	1342
++64	1343
++65	1344
++63	1345
++66	1346
++68	1347
++67	1348
++69	1349
++6i	1350
++6p	1351
++6's	1352
++6a	1353
++6o	1354
++6s	1355
++6th	1356
++70	1357
++72	1358
++71	1359
++77	1360
++73	1361
++76	1362
++74	1363
++75	1364
++78	1365
++79	1366
++7's	1367
++7a	1368
++7d	1369
++7i	1370
++7o	1371
++7p	1372
++7th	1373
++7up	1374
++92	1375
++93	1376
++97	1377
++90	1378
++94	1379
++95	1380
++99	1381
++91	1382
++98	1383
++96	1384
++9/	1385
++9&i	1386
++9's	1387
++9-10	1388
++9.5	1389
++9a	1390
++9i	1391
++9mm	1392
++9th	1393
++9w	1394
++q-tip	1395
++q1	1396
++qt	1397
++qvc.com	1398
++Zi	1399
++ZZ	1400
++Z's	1401
++ZAR	1402
++ZIP	1403
++ZS	1404
++ZTE	1405
++ZX	1406
++Zhang's	1407
++80	1408
++82	1409
++83	1410
++85	1411
++81	1412
++84	1413
++86	1414
++88	1415
++87	1416
++89	1417
++8's	1418
++8-9	1419
++8i	1420
++8o	1421
++8p	1422
++8th	1423
++8x	1424
++QP	1425
++QR	1426
++QV	1427
++Qi	1428
++Qt	1429
++Q&A	1430
++Q's	1431
++QA	1432
++QB	1433
++QC	1434
++QFC	1435
++QQ	1436
++QS	1437
++QT	1438
++Qdoba	1439
++Qwest	1440
++zo	1441
++ze	1442
++za	1443
++z-pack	1444
++z100	1445
++z28	1446
++z71	1447
++zpizza	1448
++zr1	1449
++XL	1450
++XX	1451
++XC	1452
++XD	1453
++XM	1454
++XT	1455
++XY	1456
++Xbox	1457
++X's	1458
++XA	1459
++XE	1460
++XI	1461
++XJ	1462
++XO	1463
++XP	1464
++XQ	1465
++XR	1466
++XS	1467
++Xfinity	1468
++Xmas	1469
++Xsport	1470
++xx	1471
++xvideo	1472
++xbox	1473
++xi	1474
++xnxx	1475
++xray	1476
++x1	1477
++x2	1478
++x3	1479
++x5	1480
++xB	1481
++xD	1482
++xmas	1483
++xp	1484
++xtube	1485
++xylophone	1486
++$CONTACTS	1487
++$DAY	1488
++$FULLPHONENUM	1489
++$OPERAND	1490
++$TIME	1491
++$UNKNOWN	1492
+ $YEAR	1493
+ 00	1494
+ 01	1495
+@@ -64034,317 +64034,321 @@
+ </unknown>	64033
+ <year>	64034
+ </year>	64035
+-</integer>	64036
+-</integer_fivedigit>	64037
+-</integer_fourdigit>	64038
+-</integer_onedigit>	64039
+-</integer_threedigit>	64040
+-</integer_twodigit>	64041
+-</num>	64042
+-<integer>	64043
+-<integer_fivedigit>	64044
+-<integer_fourdigit>	64045
+-<integer_onedigit>	64046
+-<integer_threedigit>	64047
+-<integer_twodigit>	64048
+-<num>	64049
+-E1	64050
+-E10	64051
+-E11	64052
+-E12	64053
+-E13	64054
+-E2	64055
+-E3	64056
+-E4	64057
+-E5	64058
+-E6	64059
+-E7	64060
+-E8	64061
+-E9	64062
+-February	64063
+-September	64064
+-ZERO	64065
+-decade_marker	64066
+-eighteen	64067
+-eighteenth	64068
+-eighteenths	64069
+-eighths	64070
+-eightieth	64071
+-eightieths	64072
+-eleventh	64073
+-elevenths	64074
+-fifteenth	64075
+-fifteenths	64076
+-fiftieth	64077
+-fiftieths	64078
+-fortieth	64079
+-fortieths	64080
+-fourteenth	64081
+-fourteenths	64082
+-hundredths	64083
+-millionths	64084
+-nineteenth	64085
+-nineteenths	64086
+-ninetieth	64087
+-ninetieths	64088
+-ninths	64089
+-seventeenth	64090
+-seventeenths	64091
+-sevenths	64092
+-seventieth	64093
+-seventieths	64094
+-sixteenth	64095
+-sixteenths	64096
+-sixths	64097
+-sixtieth	64098
+-sixtieths	64099
+-tens_marker	64100
+-thirteenth	64101
+-thirteenths	64102
+-thirtieth	64103
+-thirtieths	64104
+-thousandth	64105
+-thousandths	64106
+-trillion	64107
+-twelfth	64108
+-twelfths	64109
+-twentieth	64110
+-twentieths	64111
+-zeroth	64112
+-zeroths	64113
+-0x01	64114
+-0x02	64115
+-0x03	64116
+-0x04	64117
+-0x05	64118
+-0x06	64119
+-0x07	64120
+-0x08	64121
+-0x09	64122
+-0x0a	64123
+-0x0b	64124
+-0x0c	64125
+-0x0d	64126
+-0x0e	64127
+-0x0f	64128
+-0x10	64129
+-0x11	64130
+-0x12	64131
+-0x13	64132
+-0x14	64133
+-0x15	64134
+-0x16	64135
+-0x17	64136
+-0x18	64137
+-0x19	64138
+-0x1a	64139
+-0x1b	64140
+-0x1c	64141
+-0x1d	64142
+-0x1e	64143
+-0x1f	64144
+-0x20	64145
+-"	64146
+-#	64147
+-$	64148
+-(	64149
+-)	64150
+-*	64151
+-;	64152
+-<	64153
+-=	64154
+->	64155
+-[	64156
+-\	64157
+-]	64158
+-^	64159
+-_	64160
+-`	64161
+-{	64162
+-|	64163
+-}	64164
+-~	64165
+-0x7f	64166
+-0x80	64167
+-0x81	64168
+-0x82	64169
+-0x83	64170
+-0x84	64171
+-0x85	64172
+-0x86	64173
+-0x87	64174
+-0x88	64175
+-0x89	64176
+-0x8a	64177
+-0x8b	64178
+-0x8c	64179
+-0x8d	64180
+-0x8e	64181
+-0x8f	64182
+-0x90	64183
+-0x91	64184
+-0x92	64185
+-0x93	64186
+-0x94	64187
+-0x95	64188
+-0x96	64189
+-0x97	64190
+-0x98	64191
+-0x99	64192
+-0x9a	64193
+-0x9b	64194
+-0x9c	64195
+-0x9d	64196
+-0x9e	64197
+-0x9f	64198
+-0xa0	64199
+-0xa1	64200
+-0xa2	64201
+-0xa3	64202
+-0xa4	64203
+-0xa5	64204
+-0xa6	64205
+-0xa7	64206
+-0xa8	64207
+-0xa9	64208
+-0xaa	64209
+-0xab	64210
+-0xac	64211
+-0xad	64212
+-0xae	64213
+-0xaf	64214
+-0xb0	64215
+-0xb1	64216
+-0xb2	64217
+-0xb3	64218
+-0xb4	64219
+-0xb5	64220
+-0xb6	64221
+-0xb7	64222
+-0xb8	64223
+-0xb9	64224
+-0xba	64225
+-0xbb	64226
+-0xbc	64227
+-0xbd	64228
+-0xbe	64229
+-0xbf	64230
+-0xc0	64231
+-0xc1	64232
+-0xc2	64233
+-0xc3	64234
+-0xc4	64235
+-0xc5	64236
+-0xc6	64237
+-0xc7	64238
+-0xc8	64239
+-0xc9	64240
+-0xca	64241
+-0xcb	64242
+-0xcc	64243
+-0xcd	64244
+-0xce	64245
+-0xcf	64246
+-0xd0	64247
+-0xd1	64248
+-0xd2	64249
+-0xd3	64250
+-0xd4	64251
+-0xd5	64252
+-0xd6	64253
+-0xd7	64254
+-0xd8	64255
+-0xd9	64256
+-0xda	64257
+-0xdb	64258
+-0xdc	64259
+-0xdd	64260
+-0xde	64261
+-0xdf	64262
+-0xe0	64263
+-0xe1	64264
+-0xe2	64265
+-0xe3	64266
+-0xe4	64267
+-0xe5	64268
+-0xe6	64269
+-0xe7	64270
+-0xe8	64271
+-0xe9	64272
+-0xea	64273
+-0xeb	64274
+-0xec	64275
+-0xed	64276
+-0xee	64277
+-0xef	64278
+-0xf0	64279
+-0xf1	64280
+-0xf2	64281
+-0xf3	64282
+-0xf4	64283
+-0xf5	64284
+-0xf6	64285
+-0xf7	64286
+-0xf8	64287
+-0xf9	64288
+-0xfa	64289
+-0xfb	64290
+-0xfc	64291
+-0xfd	64292
+-0xfe	64293
+-0xff	64294
+-$APT	64295
+-$AREACODE	64296
+-$COUNTRYCODE	64297
+-$FULLDATE	64298
+-$GRAMMARS	64299
+-$ORDINAL	64300
+-$PERSONAL	64301
+-$PHONENUM	64302
+-$PREFIX	64303
+-$RECENCY	64304
+-$REJECT	64305
+-$RESTAURANT	64306
+-$ROOT	64307
+-$UNKNOWN	64308
+-@.monophone	64309
+-@`.monophone	64310
+-A.monophone	64311
+-D.monophone	64312
+-E.monophone	64313
+-I.monophone	64314
+-N.monophone	64315
+-O.monophone	64316
+-OI.monophone	64317
+-S.monophone	64318
+-T.monophone	64319
+-U.monophone	64320
+-V.monophone	64321
+-Z.monophone	64322
+-aI.monophone	64323
+-aU.monophone	64324
+-b.monophone	64325
+-d.monophone	64326
+-dZ.monophone	64327
+-eI.monophone	64328
+-f.monophone	64329
+-g.monophone	64330
+-h.monophone	64331
+-i.monophone	64332
+-j.monophone	64333
+-k.monophone	64334
+-l.monophone	64335
+-m.monophone	64336
+-n.monophone	64337
+-oU.monophone	64338
+-p.monophone	64339
+-r\.monophone	64340
+-s.monophone	64341
+-sil.monophone	64342
+-t.monophone	64343
+-tS.monophone	64344
+-u.monophone	64345
+-v.monophone	64346
+-w.monophone	64347
+-z.monophone	64348
+-{.monophone	64349
++<CONTACT:top>	64036
++</CONTACT:top>	64037
++<CONTACT:focus>	64038
++</CONTACT:focus>	64039
++</integer>	64040
++</integer_fivedigit>	64041
++</integer_fourdigit>	64042
++</integer_onedigit>	64043
++</integer_threedigit>	64044
++</integer_twodigit>	64045
++</num>	64046
++<integer>	64047
++<integer_fivedigit>	64048
++<integer_fourdigit>	64049
++<integer_onedigit>	64050
++<integer_threedigit>	64051
++<integer_twodigit>	64052
++<num>	64053
++E1	64054
++E10	64055
++E11	64056
++E12	64057
++E13	64058
++E2	64059
++E3	64060
++E4	64061
++E5	64062
++E6	64063
++E7	64064
++E8	64065
++E9	64066
++February	64067
++September	64068
++ZERO	64069
++decade_marker	64070
++eighteen	64071
++eighteenth	64072
++eighteenths	64073
++eighths	64074
++eightieth	64075
++eightieths	64076
++eleventh	64077
++elevenths	64078
++fifteenth	64079
++fifteenths	64080
++fiftieth	64081
++fiftieths	64082
++fortieth	64083
++fortieths	64084
++fourteenth	64085
++fourteenths	64086
++hundredths	64087
++millionths	64088
++nineteenth	64089
++nineteenths	64090
++ninetieth	64091
++ninetieths	64092
++ninths	64093
++seventeenth	64094
++seventeenths	64095
++sevenths	64096
++seventieth	64097
++seventieths	64098
++sixteenth	64099
++sixteenths	64100
++sixths	64101
++sixtieth	64102
++sixtieths	64103
++tens_marker	64104
++thirteenth	64105
++thirteenths	64106
++thirtieth	64107
++thirtieths	64108
++thousandth	64109
++thousandths	64110
++trillion	64111
++twelfth	64112
++twelfths	64113
++twentieth	64114
++twentieths	64115
++zeroth	64116
++zeroths	64117
++0x01	64118
++0x02	64119
++0x03	64120
++0x04	64121
++0x05	64122
++0x06	64123
++0x07	64124
++0x08	64125
++0x09	64126
++0x0a	64127
++0x0b	64128
++0x0c	64129
++0x0d	64130
++0x0e	64131
++0x0f	64132
++0x10	64133
++0x11	64134
++0x12	64135
++0x13	64136
++0x14	64137
++0x15	64138
++0x16	64139
++0x17	64140
++0x18	64141
++0x19	64142
++0x1a	64143
++0x1b	64144
++0x1c	64145
++0x1d	64146
++0x1e	64147
++0x1f	64148
++0x20	64149
++"	64150
++#	64151
++$	64152
++(	64153
++)	64154
++*	64155
++;	64156
++<	64157
++=	64158
++>	64159
++[	64160
++\	64161
++]	64162
++^	64163
++_	64164
++`	64165
++{	64166
++|	64167
++}	64168
++~	64169
++0x7f	64170
++0x80	64171
++0x81	64172
++0x82	64173
++0x83	64174
++0x84	64175
++0x85	64176
++0x86	64177
++0x87	64178
++0x88	64179
++0x89	64180
++0x8a	64181
++0x8b	64182
++0x8c	64183
++0x8d	64184
++0x8e	64185
++0x8f	64186
++0x90	64187
++0x91	64188
++0x92	64189
++0x93	64190
++0x94	64191
++0x95	64192
++0x96	64193
++0x97	64194
++0x98	64195
++0x99	64196
++0x9a	64197
++0x9b	64198
++0x9c	64199
++0x9d	64200
++0x9e	64201
++0x9f	64202
++0xa0	64203
++0xa1	64204
++0xa2	64205
++0xa3	64206
++0xa4	64207
++0xa5	64208
++0xa6	64209
++0xa7	64210
++0xa8	64211
++0xa9	64212
++0xaa	64213
++0xab	64214
++0xac	64215
++0xad	64216
++0xae	64217
++0xaf	64218
++0xb0	64219
++0xb1	64220
++0xb2	64221
++0xb3	64222
++0xb4	64223
++0xb5	64224
++0xb6	64225
++0xb7	64226
++0xb8	64227
++0xb9	64228
++0xba	64229
++0xbb	64230
++0xbc	64231
++0xbd	64232
++0xbe	64233
++0xbf	64234
++0xc0	64235
++0xc1	64236
++0xc2	64237
++0xc3	64238
++0xc4	64239
++0xc5	64240
++0xc6	64241
++0xc7	64242
++0xc8	64243
++0xc9	64244
++0xca	64245
++0xcb	64246
++0xcc	64247
++0xcd	64248
++0xce	64249
++0xcf	64250
++0xd0	64251
++0xd1	64252
++0xd2	64253
++0xd3	64254
++0xd4	64255
++0xd5	64256
++0xd6	64257
++0xd7	64258
++0xd8	64259
++0xd9	64260
++0xda	64261
++0xdb	64262
++0xdc	64263
++0xdd	64264
++0xde	64265
++0xdf	64266
++0xe0	64267
++0xe1	64268
++0xe2	64269
++0xe3	64270
++0xe4	64271
++0xe5	64272
++0xe6	64273
++0xe7	64274
++0xe8	64275
++0xe9	64276
++0xea	64277
++0xeb	64278
++0xec	64279
++0xed	64280
++0xee	64281
++0xef	64282
++0xf0	64283
++0xf1	64284
++0xf2	64285
++0xf3	64286
++0xf4	64287
++0xf5	64288
++0xf6	64289
++0xf7	64290
++0xf8	64291
++0xf9	64292
++0xfa	64293
++0xfb	64294
++0xfc	64295
++0xfd	64296
++0xfe	64297
++0xff	64298
++$APT	64299
++$AREACODE	64300
++$COUNTRYCODE	64301
++$FULLDATE	64302
++$GRAMMARS	64303
++$ORDINAL	64304
++$PERSONAL	64305
++$PHONENUM	64306
++$PREFIX	64307
++$RECENCY	64308
++$REJECT	64309
++$RESTAURANT	64310
++$ROOT	64311
++@.monophone	64312
++@`.monophone	64313
++A.monophone	64314
++D.monophone	64315
++E.monophone	64316
++I.monophone	64317
++N.monophone	64318
++O.monophone	64319
++OI.monophone	64320
++S.monophone	64321
++T.monophone	64322
++U.monophone	64323
++V.monophone	64324
++Z.monophone	64325
++aI.monophone	64326
++aU.monophone	64327
++b.monophone	64328
++d.monophone	64329
++dZ.monophone	64330
++eI.monophone	64331
++f.monophone	64332
++g.monophone	64333
++h.monophone	64334
++i.monophone	64335
++j.monophone	64336
++k.monophone	64337
++l.monophone	64338
++m.monophone	64339
++n.monophone	64340
++oU.monophone	64341
++p.monophone	64342
++r\.monophone	64343
++s.monophone	64344
++sil.monophone	64345
++t.monophone	64346
++tS.monophone	64347
++u.monophone	64348
++v.monophone	64349
++w.monophone	64350
++z.monophone	64351
++{.monophone	64352
++*.monophone	64353
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/CLG.prewalk.fst
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/input_mean_std_dev
+===================================================================
+--- vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/input_mean_std_dev	(revision 172766)
++++ vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/input_mean_std_dev	(revision 172767)
+@@ -1,19 +1,33 @@
+ 
+ �
+-��A�BA�AOvA94Ax� A="Ax9"A�!A�� A�AAi(A,�A#�A��A��!A��#A
+-6%A��&A�}&A�2'A?7(A��)A�+A}H+A��+A�-Ap�-Aae-A�h'Ak[A�)�@���@�@)�@Ԧ�@���@V��@<��@g�@��AqFA �A�rA�.Ak� A�"A�9"AP�!A\� A\>A�1A��A/�A��A��!A��#A1%A8�&A7y&A�9'A�;(A�)A$+A)R+A��+A�-A��-A�c-A�q'A�[AnH�@}��@��@'�@��@]��@��@���@xm�@��Aq>A�A"sAg1A�� A�"A�7"A3�!A�� A�9A�,A��A��AS�A1�!A��#A�(%Ab�&A�p&Ar*'A�.(A9�)A+A�I+A3�+A�-A��-A�b-A�l'A}ZA��@X��@�-�@��@���@���@\��@��@�a�@T�An<A�AlA�)A�� A*
+-"Aj+"AV�!A[� A
+-3A�A�AO�Aq�A�!A��#A%*%A��&A�o&A!('A*,(A�)A�+Aq@+A��+A�-AY�-Ad\-AR`'A>UA��@���@N�@��@���@��@���@���@b�@�A�=AےA�hAg#A� A�"A�*"A�!A`� A20A�%A��AR�AקAA�!A�#A�$%Ai�&Adk&A�.'A�0(A{�)A-+A�I+A��+A-A��-A�Z-A{i'A�UA(=�@���@��@r�@���@���@���@p��@�f�@��A(4AQ�A�fA�$A�� A$"AU("A��!A�� A-,A� A'�A�AZ�A��!A��#A�%A�&A�c&A� 'A%(A��)A�
+-+A�A+A��+A�-A��-AZ-Aub'ApSA��@-��@��@6�@���@k��@���@���@H\�@��A~1A�AM_A�A.� A��!A?"Aj�!A&� A�$AIAj�A��A��A��!AL�#A�%A�&Ab&A�'A� (A�)Ao +A8+A��+A4-A��-A2S-A�V'AMAP-�@���@�@��@ۑ�@���@���@���@@\�@��A�1AL�A|[A5Av� As"A�"A-�!A�� A"A�A�As�A��A��!A/�#A8%A�x&A�]&A<"'A�%(A�)A^+A�@+Aq�+AA
+--A��-A*Q-A�_'AUMA2+�@4��@7-�@�@A��@���@h��@���@M`�@�
+-/۳?��?�?��?j5�?
+-�?8��?N��?Q�?�0�?���?h�?�S�?��?fh�?-κ?�k�?�8�?>��?B�?�Q�?���?BC�?�Ÿ?g��?��?{��?��?uJ�??9�?��?N�@�˯@+�@<Q�@���@���@�X�@۸�@24�@���?X�?$�?��?Bb�?��?Ҋ�?�?���?���?���?�,�?�4�?��?X�?k�?
+-ɺ?ef�?��?�z�?HS�?���?��?@��?ܸ?�?;��?�?Ջ�?��?U�?��@�ׯ@�1�@VU�@���@ӎ�@ [�@���@N5�@@��?��?M�?���?�t�?�H�?��?� �?	J�?��?j��?�P�?)`�?(ܻ?m��?W�?���?mѻ?oX�?�׻?���?���?ϡ�?e2�?q�?.*�?��?��?r�? �?g��?��@�ɯ@$"�@�J�@���@m~�@sU�@���@5+�@��?�.�?5�?L�?�o�?M�?�3�?�U�??��?e�?��?O�?F��?s?�?���?.
+-�?d��?�t�?��?�?j��?�۸?�u�?L�?�?LM�?�ߴ?>�?n��?�h�?R�?\�@�ů@'�@sJ�@��@녲@�T�@E��@�0�@8�?�7�?#Q�?�7�?1��?�G�?I��?�Q�?�%�?��??�?wc�?Dn�?1-�?�1�?/Z�?��?��?�P�?�ɻ?���?j��?�ظ?���?��?�Q�?�Ѵ?�3�?�˲?OC�?��?.ؕ@�ί@
+-,�@WN�@��@J��@QU�@¯�@�/�@-��?��?�5�?6�?|��?��?[1�?r�?m��?��?��?���?���?x�?�Ӽ?�R�?�˺?���?6��?��?�ú?�Ѹ?���?nM�?A�?�`�?��?�#�?۴�?�Q�?���?��@j��@J�@C�@�@�w�@O�@e��@7'�@��?pX�?�v�?�Y�?���?���?�m�?��?���?X��?	�?C��?���?�e�?ü?hK�?�ߺ?f��?-�?q�?�Ⱥ?��?☸?n�?X�?�u�?��?�s�?pϲ?׊�?�-�?~�@.��@�!�@lB�@\��@~�@�N�@���@E,�@;%�?�c�?(��?�|�?���?���?`�?K��?�h�?�:�?x,�?ʏ�?ޜ�?l1�?Z�?֜�?�<�?�ƻ?���?m�?��?��?�	�?&ݹ?�E�?y��?��?Wk�?Y�?�m�?��?�ԕ@�ů@W&�@XE�@ɒ�@{��@�M�@���@d+�@
+\ No newline at end of file
++�oA�9A7�A�|Ax�Ar6"A�##A��!A)#A�"Aõ"At}"A"AЖ#AO"AI�%A3�(A��*A�*A�+Av@,A+A�.-A�M/AK�.A�^/AI�0A>b1Aa�2A��.A��(A�YA��+A��+A:D+AA:�A�[A�A�'A)`A�-A��Af�Ai�A�:"A�#A�!A�2#A�"AT�"A�}"A"A�#A}"A�%A[�(Ag�*A�*AR�+Aq<,A+A�4-AU/A5/A&f/A��0A�d1A��2A��.A��(A�eA�+A��+A+D+A�|A��A�VAR�A�)AdA�*A{�AzAP�A#:"A�"#A|�!A=:#Aə"A��"A�r"A�"A�#A�"A٤%A��(A��*A��*Az�+A6:,A/+A�2-A�U/A� /Aua/AӮ0A�d1A�2A��.AW�(AqA��+A��+AiK+A,�A��A0ZA��A�.AQnA:Ap�A�}A+�A@:"A�##Ao�!A�)#A�"A��"A�|"AN"A̔#A�"Af�%A<�(A��*A#�*A�+A1>,A +A�--A�J/A'�.A]/A��0Aa`1A��2Ap�.A��(ATA~�+A��+A�>+A7{A��A�VA��A�#A�\A0)A��A҄Ar�AM="A�#A��!A�4#A �"A��"A�|"A�"A5�#A:"A�%A2�(A��*A��*Aٍ+Ai9,A�+A`1-ASQ/A/Asb/A�0Ay`1A��2A��.A~�(A+`A��+A��+A�=+A�wA�APAM�A�#A�aA�)Av�AzA"�A;<"A. #A��!A�9#A�"A�"AYr"Aq"A�#A6"Aޥ%AQ�(A6�*A�*A
++�+A}7,A�++A�--A�P/A+�.A�]/A�0A�b1A"�2A��.A��(A�kA��+A�+A�E+A�|A_�A_SAQ�A�)AnmA 7A��A^}A��A<"A�#A�!AI*#A��"AU�"A�|"A"A��#A5"A��%A��(A��*A;�*A�+AS<,Ah+A*-A�F/A��.A�Y/A��0A�]1Al�2A�.Av�(A\NA��+A1�+A�8+A�vA
++�A|PA��A�A�YA�&A��Ab�A��A�="Ad#A��!A�2#A��"A��"A�{"A["A��#A`"Ar�%A/�(A�*A��*A�+A�5,A�+A�,-A�L/A��.A�_/A�0A�]1A9�2A�.A�(A1ZA��+A8�+A�7+A�qA��A�HAJ�AYA�
++�x�?�?�C�?��?�D�?�(�?�t�?�P�?�t�?���?.��?Iv�?S��?(<�?�+�?`�? 9�?+ں?Ѻ?��?�d�?ri�?.�?V6�?�X�?��?�b�?��?O�?�/�?ц�?EX�@&Ǘ@��@>P�@Tb�@{u�@��@Xy�@�L�@�0�?��?,�?���?|7�?���?	q�?�)�??���?���?�H�?�L�?�?��?|Ҹ?UA�?i	�?�R�?�>�?��?�B�?��?��?��?D�?g��?*7�?A6�?-A�?���?�<�@�Η@���@�P�@�_�@?u�@�ܗ@�s�@TR�@*\�?��?r^�?�=�?֩�?wϻ?k�? ��?��?W��?*A�?�]�?�x�?�B�?��?��?Ig�?���?jq�?Hz�?��?�z�?�!�?F��?!�?@*�?�s�?�?>I�?�O�?���?�)�@�ԗ@�ė@�X�@�f�@#v�@L�@Pp�@�Q�@�e�?�ͬ?n0�?��?#�?� �?7l�?ZO�?Dh�?��?t��?+l�?i��?t=�?���?^��?�)�?ĺ?��?���?�\�?�s�?��?��?�I�?m׺?�X�?��?@K�?J!�?�z�?|[�@#ė@+��@NJ�@�]�@pp�@�ޗ@ht�@H�@f/�?��?��?�۲?Y+�?��?ss�?�+�?�n�?x�?���?�F�?4J�?�?�?R��?�-�?S��?R�?V4�?���?�I�?�ڹ?{�?|�?��??9�?�C�?�<�?���?�;�@�ɗ@��@�J�@�Z�@�n�@�՗@�k�@4L�@�V�?٬?�?�?�-�?˕�?>Ż?*�?�ȿ?B�? ��?�)�?�;�?�i�?�7�?���?�̸?,U�?��?2d�?�t�?r�?4t�?��?1��?`��?T�?�u�?��?�F�?�=�?v��?q'�@UΗ@&��@�Q�@�`�@�o�@�ٗ@�h�@�K�@�P�?��?*'�?��?��?��?�|�?K�?�G�?Η�?��?=f�?���?7@�?<и?��?�?���?���?}x�?6J�?v�?O�?0�?�D�?Cκ?�S�?��?�A�?��?�u�?�[�@���@Į�@)C�@�X�@Ej�@*ח@>l�@�A�@�*�?x�?.�?Bϲ?.-�?P��?�o�?~�?g^�?��?]��?f:�?#<�?9$�?sѸ?l��?��?��?	=�?^(�?U�?�F�?��?�q�?�Ϲ?��?T��?�4�?dD�?G4�?���?�;�@�×@T��@�B�@US�@�f�@�̗@Dd�@�E�@
+\ No newline at end of file
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/contacts_bias.fst
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/media_bias.fst
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/media_bias.fst
+===================================================================
+--- vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/media_bias.fst	(revision 0)
++++ vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/media_bias.fst	(revision 172767)
+
+Property changes on: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/media_bias.fst
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/rescoring.fst.compact
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/rescoring.fst.compact
+===================================================================
+--- vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/rescoring.fst.compact	(revision 0)
++++ vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/rescoring.fst.compact	(revision 172767)
+
+Property changes on: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/rescoring.fst.compact
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/read_items_bias.fst
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/read_items_bias.fst
+===================================================================
+--- vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/read_items_bias.fst	(revision 0)
++++ vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/read_items_bias.fst	(revision 172767)
+
+Property changes on: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/read_items_bias.fst
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/embedded_class_denorm.mfar
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/embedded_class_denorm.mfar
+===================================================================
+--- vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/embedded_class_denorm.mfar	(revision 0)
++++ vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/embedded_class_denorm.mfar	(revision 172767)
+
+Property changes on: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/embedded_class_denorm.mfar
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/contacts_disambig.fst
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/app_bias.fst
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/app_bias.fst
+===================================================================
+--- vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/app_bias.fst	(revision 0)
++++ vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/app_bias.fst	(revision 172767)
+
+Property changes on: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/app_bias.fst
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/g2p_phonemes.syms
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/g2p_phonemes.syms
+===================================================================
+--- vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/g2p_phonemes.syms	(revision 0)
++++ vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/g2p_phonemes.syms	(revision 172767)
+
+Property changes on: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/g2p_phonemes.syms
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/CONTACT_NAME.syms
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/voice_actions.config
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/lexicon.U.fst
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/skip_items_bias.fst
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/skip_items_bias.fst
+===================================================================
+--- vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/skip_items_bias.fst	(revision 0)
++++ vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/skip_items_bias.fst	(revision 172767)
+
+Property changes on: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/skip_items_bias.fst
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/SONG_NAME.fst
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/offensive_word_normalizer.mfar
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/offline_action_data.pb
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/APP_NAME.syms
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/APP_NAME.fst
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/ep_portable_model.uint8.mmap
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/ep_portable_model.uint8.mmap
+===================================================================
+--- vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/ep_portable_model.uint8.mmap	(revision 0)
++++ vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/ep_portable_model.uint8.mmap	(revision 172767)
+
+Property changes on: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/ep_portable_model.uint8.mmap
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/g2p_graphemes.syms
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/g2p_graphemes.syms
+===================================================================
+--- vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/g2p_graphemes.syms	(revision 0)
++++ vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/g2p_graphemes.syms	(revision 172767)
+
+Property changes on: vendor/google/apps/Velvet/OfflineVoiceRecognitionLanguagePacks/en-US/g2p_graphemes.syms
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Velvet/Velvet_arm_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/Velvet_x86.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/Velvet_arm_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/Velvet_arm64.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/Velvet_arm_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Velvet/Velvet_arm.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/WebViewGoogle/WebViewGoogle_x86.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/WebViewGoogle/WebViewGoogle_arm64.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/WebViewGoogle/WebViewGoogle_x86_64.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/WebViewGoogle/WebViewGoogle_arm.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/GoogleContactsSyncAdapter/GoogleContactsSyncAdapter.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Gmail2/Gmail2_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Gmail2/Gmail2_xxxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Gmail2/Gmail2.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Gmail2/Android.mk
+===================================================================
+--- vendor/google/apps/Gmail2/Android.mk	(revision 172766)
++++ vendor/google/apps/Gmail2/Android.mk	(revision 172767)
+@@ -10,7 +10,7 @@
+ LOCAL_MODULE_SUFFIX := $(COMMON_ANDROID_PACKAGE_SUFFIX)
+ #LOCAL_PRIVILEGED_MODULE :=
+ LOCAL_CERTIFICATE := PRESIGNED
+-LOCAL_OVERRIDES_PACKAGES := Email
++LOCAL_OVERRIDES_PACKAGES := Email Exchange2
+ LOCAL_DPI_VARIANTS := xxxhdpi xxhdpi xhdpi hdpi mdpi
+ LOCAL_DPI_FILE_STEM := $(LOCAL_MODULE)_%.apk
+ LOCAL_SRC_FILES := $(LOCAL_MODULE).apk
+Index: vendor/google/apps/Gmail2/Gmail2_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Gmail2/Gmail2_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Gmail2/Gmail2_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/talkback/talkback.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Chrome/Chrome_arm64.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Chrome/Chrome_x86_64.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Chrome/Android.mk
+===================================================================
+--- vendor/google/apps/Chrome/Android.mk	(revision 172766)
++++ vendor/google/apps/Chrome/Android.mk	(revision 172767)
+@@ -13,7 +13,7 @@
+ LOCAL_MODULE_SUFFIX := $(COMMON_ANDROID_PACKAGE_SUFFIX)
+ #LOCAL_PRIVILEGED_MODULE :=
+ LOCAL_CERTIFICATE := PRESIGNED
+-LOCAL_OVERRIDES_PACKAGES := Browser Browser2 SprdBrowser
++LOCAL_OVERRIDES_PACKAGES := Browser Browser2
+ LOCAL_SRC_FILES := $(LOCAL_MODULE)_$(my_src_arch).apk
+ LOCAL_REQUIRED_MODULES := BookmarkProvider PartnerBookmarksProvider
+ LOCAL_MODULE_TARGET_ARCH := $(my_src_arch)
+Index: vendor/google/apps/Chrome/Chrome_arm.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Chrome/Chrome_x86.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/SetupWizard/Android.mk
+===================================================================
+--- vendor/google/apps/SetupWizard/Android.mk	(revision 172766)
++++ vendor/google/apps/SetupWizard/Android.mk	(revision 172767)
+@@ -10,7 +10,7 @@
+ LOCAL_MODULE_SUFFIX := $(COMMON_ANDROID_PACKAGE_SUFFIX)
+ LOCAL_PRIVILEGED_MODULE := true
+ LOCAL_CERTIFICATE := PRESIGNED
+-#LOCAL_OVERRIDES_PACKAGES := Provision
++LOCAL_OVERRIDES_PACKAGES := Provision
+ LOCAL_SRC_FILES := $(LOCAL_MODULE)_default.apk
+ #LOCAL_REQUIRED_MODULES :=
+ #LOCAL_PREBUILT_JNI_LIBS :=
+Index: vendor/google/apps/Hangouts/Hangouts_arm64_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Hangouts/Hangouts_x86_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Hangouts/Hangouts_x86_xxxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Hangouts/Hangouts_arm64_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Hangouts/Hangouts_arm_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Hangouts/Hangouts_arm64_xxxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Hangouts/Hangouts_x86_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Hangouts/Hangouts_arm_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Hangouts/Hangouts_arm64_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Hangouts/Hangouts_arm.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Hangouts/Hangouts_x86_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Hangouts/Hangouts_arm_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Hangouts/Hangouts_x86.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Hangouts/Hangouts_arm64_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Hangouts/Hangouts_arm_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Hangouts/Hangouts_x86_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Hangouts/Hangouts_arm64.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Hangouts/Hangouts_arm_xxxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/YouTube/YouTube_arm64.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/YouTube/YouTube_x86_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/YouTube/YouTube_x86_64_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/YouTube/YouTube_arm64_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/YouTube/YouTube_x86_64.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/YouTube/YouTube_x86_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/YouTube/YouTube_x86_64_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/YouTube/YouTube_arm64_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/YouTube/YouTube_arm_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/YouTube/YouTube_x86_64_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/YouTube/YouTube_x86_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/YouTube/YouTube_arm_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/YouTube/YouTube_arm64_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/YouTube/YouTube_arm.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/YouTube/YouTube_x86_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/YouTube/YouTube_x86_64_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/YouTube/YouTube_arm_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/YouTube/YouTube_x86.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/YouTube/YouTube_arm64_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/YouTube/YouTube_arm_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/GmsCore/GmsCore_arm64.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/GmsCore/GmsCore_arm_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/GmsCore/GmsCore_arm64_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/GmsCore/GmsCore_x86_64.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/GmsCore/GmsCore_arm.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/GmsCore/GmsCore_arm_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/GmsCore/GmsCore_arm_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/GmsCore/GmsCore_arm64_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/GmsCore/GmsCore_x86.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Phonesky/Phonesky.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/CalendarGoogle/CalendarGoogle.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/GoogleTTS/GoogleTTS_arm.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/GoogleTTS/GoogleTTS_x86.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Messages/Messages_arm.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Messages/Messages_arm.apk
+===================================================================
+--- vendor/google/apps/Messages/Messages_arm.apk	(revision 0)
++++ vendor/google/apps/Messages/Messages_arm.apk	(revision 172767)
+
+Property changes on: vendor/google/apps/Messages/Messages_arm.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Messages/Messages_x86_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Messages/Messages_x86_xhdpi.apk
+===================================================================
+--- vendor/google/apps/Messages/Messages_x86_xhdpi.apk	(revision 0)
++++ vendor/google/apps/Messages/Messages_x86_xhdpi.apk	(revision 172767)
+
+Property changes on: vendor/google/apps/Messages/Messages_x86_xhdpi.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Messages/Messages_arm_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Messages/Messages_arm_hdpi.apk
+===================================================================
+--- vendor/google/apps/Messages/Messages_arm_hdpi.apk	(revision 0)
++++ vendor/google/apps/Messages/Messages_arm_hdpi.apk	(revision 172767)
+
+Property changes on: vendor/google/apps/Messages/Messages_arm_hdpi.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Messages/Messages_x86.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Messages/Messages_x86.apk
+===================================================================
+--- vendor/google/apps/Messages/Messages_x86.apk	(revision 0)
++++ vendor/google/apps/Messages/Messages_x86.apk	(revision 172767)
+
+Property changes on: vendor/google/apps/Messages/Messages_x86.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Messages/Messages_arm64_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Messages/Messages_arm64_xhdpi.apk
+===================================================================
+--- vendor/google/apps/Messages/Messages_arm64_xhdpi.apk	(revision 0)
++++ vendor/google/apps/Messages/Messages_arm64_xhdpi.apk	(revision 172767)
+
+Property changes on: vendor/google/apps/Messages/Messages_arm64_xhdpi.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Messages/Android.mk
+===================================================================
+--- vendor/google/apps/Messages/Android.mk	(revision 0)
++++ vendor/google/apps/Messages/Android.mk	(revision 172767)
+@@ -0,0 +1,22 @@
++###############################################################################
++# Messages
++LOCAL_PATH := $(call my-dir)
++
++my_archs := arm x86 arm64
++my_src_arch := $(call get-prebuilt-src-arch, $(my_archs))
++
++include $(CLEAR_VARS)
++LOCAL_MODULE := Messages
++LOCAL_MODULE_CLASS := APPS
++LOCAL_MODULE_TAGS := optional
++LOCAL_BUILT_MODULE_STEM := package.apk
++LOCAL_MODULE_SUFFIX := $(COMMON_ANDROID_PACKAGE_SUFFIX)
++#LOCAL_PRIVILEGED_MODULE :=
++LOCAL_CERTIFICATE := PRESIGNED
++LOCAL_OVERRIDES_PACKAGES := messaging
++LOCAL_DPI_VARIANTS := xxxhdpi xxhdpi xhdpi hdpi mdpi
++LOCAL_DPI_FILE_STEM := $(LOCAL_MODULE)_$(my_src_arch)_%.apk
++LOCAL_SRC_FILES := $(LOCAL_MODULE)_$(my_src_arch).apk
++#LOCAL_REQUIRED_MODULES :=
++LOCAL_MODULE_TARGET_ARCH := $(my_src_arch)
++include $(BUILD_PREBUILT)
+
+Property changes on: vendor/google/apps/Messages/Android.mk
+___________________________________________________________________
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Messages/Messages_arm_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Messages/Messages_arm_mdpi.apk
+===================================================================
+--- vendor/google/apps/Messages/Messages_arm_mdpi.apk	(revision 0)
++++ vendor/google/apps/Messages/Messages_arm_mdpi.apk	(revision 172767)
+
+Property changes on: vendor/google/apps/Messages/Messages_arm_mdpi.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Messages/Messages_x86_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Messages/Messages_x86_hdpi.apk
+===================================================================
+--- vendor/google/apps/Messages/Messages_x86_hdpi.apk	(revision 0)
++++ vendor/google/apps/Messages/Messages_x86_hdpi.apk	(revision 172767)
+
+Property changes on: vendor/google/apps/Messages/Messages_x86_hdpi.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Messages/Messages_arm64.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Messages/Messages_arm64.apk
+===================================================================
+--- vendor/google/apps/Messages/Messages_arm64.apk	(revision 0)
++++ vendor/google/apps/Messages/Messages_arm64.apk	(revision 172767)
+
+Property changes on: vendor/google/apps/Messages/Messages_arm64.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Messages/Messages_arm_xxxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Messages/Messages_arm_xxxhdpi.apk
+===================================================================
+--- vendor/google/apps/Messages/Messages_arm_xxxhdpi.apk	(revision 0)
++++ vendor/google/apps/Messages/Messages_arm_xxxhdpi.apk	(revision 172767)
+
+Property changes on: vendor/google/apps/Messages/Messages_arm_xxxhdpi.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Messages/Messages_arm64_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Messages/Messages_arm64_hdpi.apk
+===================================================================
+--- vendor/google/apps/Messages/Messages_arm64_hdpi.apk	(revision 0)
++++ vendor/google/apps/Messages/Messages_arm64_hdpi.apk	(revision 172767)
+
+Property changes on: vendor/google/apps/Messages/Messages_arm64_hdpi.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Messages/Messages_x86_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Messages/Messages_x86_mdpi.apk
+===================================================================
+--- vendor/google/apps/Messages/Messages_x86_mdpi.apk	(revision 0)
++++ vendor/google/apps/Messages/Messages_x86_mdpi.apk	(revision 172767)
+
+Property changes on: vendor/google/apps/Messages/Messages_x86_mdpi.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Messages/Messages_x86_xxxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Messages/Messages_x86_xxxhdpi.apk
+===================================================================
+--- vendor/google/apps/Messages/Messages_x86_xxxhdpi.apk	(revision 0)
++++ vendor/google/apps/Messages/Messages_x86_xxxhdpi.apk	(revision 172767)
+
+Property changes on: vendor/google/apps/Messages/Messages_x86_xxxhdpi.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Messages/Messages_arm64_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Messages/Messages_arm64_mdpi.apk
+===================================================================
+--- vendor/google/apps/Messages/Messages_arm64_mdpi.apk	(revision 0)
++++ vendor/google/apps/Messages/Messages_arm64_mdpi.apk	(revision 172767)
+
+Property changes on: vendor/google/apps/Messages/Messages_arm64_mdpi.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Messages/Messages_arm_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Messages/Messages_arm_xxhdpi.apk
+===================================================================
+--- vendor/google/apps/Messages/Messages_arm_xxhdpi.apk	(revision 0)
++++ vendor/google/apps/Messages/Messages_arm_xxhdpi.apk	(revision 172767)
+
+Property changes on: vendor/google/apps/Messages/Messages_arm_xxhdpi.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Messages/Messages_arm64_xxxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Messages/Messages_arm64_xxxhdpi.apk
+===================================================================
+--- vendor/google/apps/Messages/Messages_arm64_xxxhdpi.apk	(revision 0)
++++ vendor/google/apps/Messages/Messages_arm64_xxxhdpi.apk	(revision 172767)
+
+Property changes on: vendor/google/apps/Messages/Messages_arm64_xxxhdpi.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Messages/Messages_x86_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Messages/Messages_x86_xxhdpi.apk
+===================================================================
+--- vendor/google/apps/Messages/Messages_x86_xxhdpi.apk	(revision 0)
++++ vendor/google/apps/Messages/Messages_x86_xxhdpi.apk	(revision 172767)
+
+Property changes on: vendor/google/apps/Messages/Messages_x86_xxhdpi.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Messages/Messages_arm_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Messages/Messages_arm_xhdpi.apk
+===================================================================
+--- vendor/google/apps/Messages/Messages_arm_xhdpi.apk	(revision 0)
++++ vendor/google/apps/Messages/Messages_arm_xhdpi.apk	(revision 172767)
+
+Property changes on: vendor/google/apps/Messages/Messages_arm_xhdpi.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Messages/Messages_arm64_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Messages/Messages_arm64_xxhdpi.apk
+===================================================================
+--- vendor/google/apps/Messages/Messages_arm64_xxhdpi.apk	(revision 0)
++++ vendor/google/apps/Messages/Messages_arm64_xxhdpi.apk	(revision 172767)
+
+Property changes on: vendor/google/apps/Messages/Messages_arm64_xxhdpi.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Index: vendor/google/apps/Drive/Drive_arm64_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_arm.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_x86_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_x86_64_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_arm_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_x86.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_arm64_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_arm_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_arm64.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_x86_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_x86_64_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_arm_xxxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_arm64_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_x86_64.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_x86_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_x86_xxxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_x86_64_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_arm64_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_arm_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_arm64_xxxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_x86_64_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_x86_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_x86_64_xxxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Drive/Drive_arm_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Photos/Photos_x86_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Photos/Photos_arm_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Photos/Photos_arm64_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Photos/Photos_arm.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Photos/Photos_x86_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Photos/Photos_arm_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Photos/Photos_x86.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Photos/Photos_arm64_xhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Photos/Photos_arm_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Photos/Photos_x86_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Photos/Photos_arm64.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Photos/Photos_arm_xxxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Photos/Photos_arm64_hdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Photos/Photos_x86_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Photos/Photos_x86_xxxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Photos/Photos_arm64_mdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Photos/Photos_arm_xxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/Photos/Photos_arm64_xxxhdpi.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/products/gms.mk
+===================================================================
+--- vendor/google/products/gms.mk	(revision 172766)
++++ vendor/google/products/gms.mk	(revision 172767)
+@@ -1,7 +1,7 @@
+ ###############################################################################
+ # GMS home folder location
+ # Note: we cannot use $(my-dir) in this makefile
+-ANDROID_PARTNER_GMS_HOME := vendor/partner_gms
++ANDROID_PARTNER_GMS_HOME := vendor/google
+ 
+ # GMS mandatory core packages
+ PRODUCT_PACKAGES := \
+@@ -42,10 +42,17 @@
+ # GMS mandatory application packages
+ # Note: Duo is mandatory for telephony devices, whereas Hangouts is for non-telephony devices.
+ PRODUCT_PACKAGES += \
++    PlusOne \
++    NewsWeather \
++    Newsstand \
++    PlayGames \
++    Books \
+     Chrome \
+     Drive \
+     Gmail2 \
+     Duo \
++    talkback \
++    DMAgent \
+     Hangouts \
+     Maps \
+     Music2 \
+@@ -56,35 +63,9 @@
+ 
+ # GMS optional application packages
+ PRODUCT_PACKAGES += \
+-    Books \
+     CalendarGoogle \
+-    CloudPrint \
+-    DeskClockGoogle \
+-    DMAgent \
+-    FaceLock \
+-    LatinImeGoogle \
+-    PlayGames \
+-    PlusOne \
+-    TagGoogle \
+-    talkback \
+-    AndroidPay
+-
+-PRODUCT_PACKAGES += \
+-    EditorsDocs \
+-    EditorsSheets \
+-    EditorsSlides \
+-    Keep \
+-    Newsstand
+-
+-# More GMS optional application packages
+-PRODUCT_PACKAGES += \
+     CalculatorGoogle \
+-    Messenger \
+-    GoogleHindiIME \
+-    GooglePinyinIME \
+-    JapaneseIME \
+-    KoreanIME \
+-    NewsWeather
++    GooglePinyinIME
+ 
+ # GMS sample application packages
+ # GmsSampleLayout customizes the default home screen layout of Launcher3
+@@ -97,4 +78,4 @@
+ PRODUCT_PROPERTY_OVERRIDES += \
+     ro.setupwizard.require_network=any \
+     ro.setupwizard.mode=OPTIONAL \
+-    ro.com.google.gmsversion=7.0_r7
++    ro.com.google.gmsversion=7.0_r8

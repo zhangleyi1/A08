@@ -1,0 +1,12 @@
+Index: device/sprd/scx35l/sp9832a_2h11/modem/SC9600_sharkl_wphy_5mod_volte_zc.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: device/sprd/scx35l/sp9832a_2h11/modem/LTE_DSP.bin
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: device/sprd/scx35l/sp9832a_2h11/modem/SC9600_sharkls_3593.dat
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream

@@ -1,0 +1,147 @@
+Index: packages/apps/Launcher3/WallpaperPicker/src/com/android/launcher3/WallpaperPickerActivity.java
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/src/com/android/launcher3/WallpaperPickerActivity.java	(revision 178224)
++++ packages/apps/Launcher3/WallpaperPicker/src/com/android/launcher3/WallpaperPickerActivity.java	(revision 178225)
+@@ -27,6 +27,7 @@
+ import android.content.pm.ApplicationInfo;
+ import android.content.pm.PackageManager;
+ import android.content.res.Resources;
++import android.content.res.Configuration;
+ import android.database.Cursor;
+ import android.database.DataSetObserver;
+ import android.graphics.Bitmap;
+@@ -143,6 +144,19 @@
+                 mView.setContentDescription(label);
+             }
+         }
++		public float getWallpaperScale(Context context, Point wallpaperSize, RectF crop) {
++            boolean isLandscape = context.getResources().getConfiguration().orientation
++                    == Configuration.ORIENTATION_LANDSCAPE;
++            int currentWidth = isLandscape
++                    ? Math.max(wallpaperSize.x, wallpaperSize.y)
++                    : Math.min(wallpaperSize.x, wallpaperSize.y);
++
++            if (wallpaperSize.x >= wallpaperSize.y) {
++                return wallpaperSize.x/crop.width();
++            } else {
++                return currentWidth/crop.width();
++            }
++        }
+     }
+ 
+     public static class PickImageInfo extends WallpaperTileInfo {
+Index: packages/apps/Launcher3/WallpaperPicker/src/com/android/launcher3/WallpaperCropActivity.java
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/src/com/android/launcher3/WallpaperCropActivity.java	(revision 178224)
++++ packages/apps/Launcher3/WallpaperPicker/src/com/android/launcher3/WallpaperCropActivity.java	(revision 178225)
+@@ -32,6 +32,7 @@
+ import android.graphics.Point;
+ import android.graphics.PointF;
+ import android.graphics.RectF;
++import android.graphics.drawable.Drawable;
+ import android.net.Uri;
+ import android.os.Build;
+ import android.os.Bundle;
+@@ -357,7 +358,11 @@
+         // this device
+         int rotation = BitmapUtils.getRotationFromExif(res, resId);
+         Point inSize = mCropView.getSourceDimensions();
+-        Point outSize = WallpaperUtils.getDefaultWallpaperSize(getResources(), getWindowManager());
++		Drawable drawable = this.getResources().getDrawable(resId);
++        final int mWidth = drawable.getIntrinsicWidth();
++        final int mHeight = drawable.getIntrinsicHeight();
++        Point outSize = WallpaperUtils.getDefaultWallpaperSize(getResources(),
++                getWindowManager(), mWidth);
+         RectF crop = Utils.getMaxCropRect(
+                 inSize.x, inSize.y, outSize.x, outSize.y, false);
+         BitmapCropTask.OnEndCropHandler onEndCrop = new BitmapCropTask.OnEndCropHandler() {
+@@ -364,7 +369,7 @@
+             public void run(boolean cropSucceeded) {
+                 // Passing 0, 0 will cause launcher to revert to using the
+                 // default wallpaper size
+-                updateWallpaperDimensions(0, 0);
++                updateWallpaperDimensions(mWidth, mHeight);
+                 if (finishActivityWhenDone) {
+                     setResult(Activity.RESULT_OK);
+                     finish();
+@@ -518,7 +523,7 @@
+ 
+         public void updateCropView(WallpaperCropActivity a, TileSource src) {
+             Point wallpaperSize = WallpaperUtils.getDefaultWallpaperSize(
+-                    a.getResources(), a.getWindowManager());
++                    a.getResources(), a.getWindowManager(),src.getImageWidth());
+             RectF crop = Utils.getMaxCropRect(src.getImageWidth(), src.getImageHeight(),
+                     wallpaperSize.x, wallpaperSize.y, false /* leftAligned */);
+ 
+Index: packages/apps/Launcher3/src/com/android/launcher3/util/WallpaperUtils.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/util/WallpaperUtils.java	(revision 178224)
++++ packages/apps/Launcher3/src/com/android/launcher3/util/WallpaperUtils.java	(revision 178225)
+@@ -122,4 +122,44 @@
+         }
+         return sDefaultWallpaperSize;
+     }
++	private static Point sWallpaperSize;
++    private static int sLastWidth;
++
++    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
++    public static Point getDefaultWallpaperSize(Resources res, WindowManager windowManager, int width) {
++        if (sWallpaperSize == null || width != sLastWidth) {
++            sLastWidth = width;
++            Point minDims = new Point();
++            Point maxDims = new Point();
++            windowManager.getDefaultDisplay().getCurrentSizeRange(minDims, maxDims);
++
++            int maxDim = Math.max(maxDims.x, maxDims.y);
++            int minDim = Math.max(minDims.x, minDims.y);
++
++            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
++                Point realSize = new Point();
++                windowManager.getDefaultDisplay().getRealSize(realSize);
++                maxDim = Math.max(realSize.x, realSize.y);
++                minDim = Math.min(realSize.x, realSize.y);
++            }
++
++            // We need to ensure that there is enough extra space in the wallpaper
++            // for the intended parallax effects
++            final int defaultWidth, defaultHeight;
++            if (res.getConfiguration().smallestScreenWidthDp >= 720) {
++                defaultWidth = (int) (maxDim * wallpaperTravelToScreenWidthRatio(maxDim, minDim));
++                defaultHeight = maxDim;
++            } else {
++                if(width <= minDim){
++                    defaultWidth = minDim;
++                }else{
++                    defaultWidth = Math.max((int) (minDim * WALLPAPER_SCREENS_SPAN), maxDim);
++                }
++                defaultHeight = maxDim;
++            }
++            sWallpaperSize = new Point(defaultWidth, defaultHeight);
++        }
++
++        return sWallpaperSize;
++    }
+ }
+Index: packages/apps/Launcher3/src/com/android/launcher3/Workspace.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Workspace.java	(revision 178224)
++++ packages/apps/Launcher3/src/com/android/launcher3/Workspace.java	(revision 178225)
+@@ -1445,6 +1445,18 @@
+                 String spKey = LauncherFiles.WALLPAPER_CROP_PREFERENCES_KEY;
+                 SharedPreferences sp =
+                         mLauncher.getSharedPreferences(spKey, Context.MODE_MULTI_PROCESS);
++				Drawable drawable = mWallpaperManager.getDrawable();
++                if(drawable != null){
++                    int mWidth = drawable.getIntrinsicWidth();
++                    int mHeight = drawable.getIntrinsicHeight();
++
++                    SharedPreferences.Editor editor = sp.edit();
++                    if (mWidth != 0 && mHeight != 0) {
++                        editor.putInt(WallpaperUtils.WALLPAPER_WIDTH_KEY, mWidth);
++                        editor.putInt(WallpaperUtils.WALLPAPER_HEIGHT_KEY, mHeight);
++                    }
++                    editor.commit();
++                }
+                 WallpaperUtils.suggestWallpaperDimension(mLauncher.getResources(),
+                         sp, mLauncher.getWindowManager(), mWallpaperManager,
+                         mLauncher.overrideWallpaperDimensions());

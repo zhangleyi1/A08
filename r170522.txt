@@ -1,0 +1,14 @@
+Index: frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java	(revision 170521)
++++ frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java	(revision 170522)
+@@ -5711,7 +5711,8 @@
+         }
+ 
+         boolean useHapticFeedback = down
+-                && (policyFlags & WindowManagerPolicy.FLAG_VIRTUAL) != 0
++                /*&& (policyFlags & WindowManagerPolicy.FLAG_VIRTUAL) != 0*/
++                && (KeyEvent.KEYCODE_HOME == keyCode || KeyEvent.KEYCODE_MENU == keyCode || KeyEvent.KEYCODE_BACK == keyCode)
+                 && event.getRepeatCount() == 0;
+ 
+         if(isGestureKeyCode(keyCode)) {

@@ -1,0 +1,1088 @@
+Index: packages/apps/FactoryMode/jni/engfetch.cpp
+===================================================================
+--- packages/apps/FactoryMode/jni/engfetch.cpp	(revision 172481)
++++ packages/apps/FactoryMode/jni/engfetch.cpp	(revision 172482)
+@@ -57,6 +57,7 @@
+ };
+ 
+ 
++
+ static jint tp_init(JNIEnv* env, jobject clazz){
+ 	int ii;
+ 	struct stat st;
+Index: packages/apps/FactoryMode/jni/Android.mk
+===================================================================
+--- packages/apps/FactoryMode/jni/Android.mk	(revision 172481)
++++ packages/apps/FactoryMode/jni/Android.mk	(revision 172482)
+@@ -1,57 +1,28 @@
+-#
+-# Copyright (C) 2008 The Android Open Source Project
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#      http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-#
++LOCAL_PATH:= $(call my-dir)
+ 
+-# This makefile supplies the rules for building a library of JNI code for
+-# use by our example of how to bundle a shared library with an APK.
++#factorymode invoke native methods
+ 
+-LOCAL_PATH:= $(call my-dir)
+ include $(CLEAR_VARS)
+ 
+-LOCAL_MODULE_TAGS := optional
++LOCAL_MODULE        := libjni_factorymode
+ 
+-# This is the target being built.
+-LOCAL_MODULE:= libfactorymodeljni
++LOCAL_NDK_STL_VARIANT := stlport_static
+ 
++LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../../vendor/sprd/proprietories-source/trustzone/libefuse
+ 
+-# All of the source files that we will compile.
+-#LOCAL_SRC_FILES:= \
+-  engfetch.cpp
++LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../../../vendor/sprd/modules/libatci
++#factorymode invoke native lib
++LOCAL_SHARED_LIBRARIES := libcutils libutils liblog
++LOCAL_SHARED_LIBRARIES += libefuse
++LOCAL_SHARED_LIBRARIES += libatci
++LOCAL_LDFLAGS        := -llog
+ 
+-# All of the shared libraries we link against.
+-LOCAL_SHARED_LIBRARIES := \
+-	libutils
++LOCAL_CPPFLAGS += $(JNI_CFLAGS)
+ 
+-LOCAL_LDFLAGS := -llog
+ 
+-# No static libraries.
+-LOCAL_STATIC_LIBRARIES :=
++LOCAL_CPP_EXTENSION := .cpp
++LOCAL_SRC_FILES     := \
++    src/jniutils.cpp \
+ 
+-# Also need the JNI headers.
+-LOCAL_C_INCLUDES += \
+-	$(JNI_H_INCLUDE) \
+-	$(TOP)/device/sprd/common/apps/engineeringmodel/engcs
+ 
+-# No special compiler flags.
+-LOCAL_CFLAGS +=
+-
+-# Don't prelink this library.  For more efficient code, you may want
+-# to add this library to the prelink map and set this to true. However,
+-# it's difficult to do this for applications that are not supplied as
+-# part of a system image.
+-
+-LOCAL_PRELINK_MODULE := false
+-
+ include $(BUILD_SHARED_LIBRARY)
+Index: packages/apps/FactoryMode/jni/src/jniutils.cpp
+===================================================================
+--- packages/apps/FactoryMode/jni/src/jniutils.cpp	(revision 0)
++++ packages/apps/FactoryMode/jni/src/jniutils.cpp	(revision 172482)
+@@ -0,0 +1,193 @@
++/*
++ * Copyright (C) 2013 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++#define LOG_TAG "engjni"
++#include "utils/Log.h"
++
++#include <stdint.h>
++#include <jni.h>
++
++#include <stdio.h>
++#include <string.h>
++#include <unistd.h>
++#include <fcntl.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <malloc.h>
++
++
++#define ROOT_MAGIC 0x524F4F54 //"ROOT"
++#define ROOT_OFFSET 512
++#define MAX_COMMAND_BYTES               (8 * 1024)
++
++extern "C" {
++#include "sprd_efuse_hw.h"
++#include "atci.h"
++}
++
++typedef struct {
++  uint32_t magic;
++  uint32_t root_flag;
++} root_stat_t;
++
++static jstring FactoryMode_sendATCmd(JNIEnv* env, jobject thiz, jint phoneId, jstring cmd) {
++   char result[MAX_COMMAND_BYTES] = {0};
++   const char* atCmd = env->GetStringUTFChars(cmd,0);
++   ALOGD("send AT cmd: %s",atCmd);
++   int resultValue = sendATCmd(phoneId,atCmd,result,MAX_COMMAND_BYTES);
++   env->ReleaseStringUTFChars(cmd, atCmd);
++   if (resultValue != 0) {
++        return env->NewStringUTF("ERROR");
++      }
++   ALOGI("the return value is: %s",result);
++   return env->NewStringUTF(result);
++}
++static jint check_sdcard_mounted_default(JNIEnv* env, jobject thiz) {
++    char str[4096];
++    char *token, *last;
++    const char *mountPath = "/mnt/media_rw/";
++    FILE *fp = fopen("/proc/mounts", "r");
++    if (fp != NULL) {
++        while (fgets(str, sizeof(str), fp)) {
++            token = strtok_r(str, " ", &last);
++            if (token != NULL) {
++                token = strtok_r(NULL, " ", &last);
++                if (strstr(token, mountPath)) {
++                    return 1;
++               }
++            }
++        }
++        fclose(fp);
++    }
++    return -1;
++}
++static jstring get_sd_file_path(JNIEnv* env, jobject thiz) {
++    char str[4096];
++    char result[254] = { 0 };
++    char *token, *last;
++    const char *mountPath = "/mnt/media_rw/";
++    FILE *fp = fopen("/proc/mounts", "r");
++    if (fp != NULL) {
++        while (fgets(str, sizeof(str), fp)) {
++            token = strtok_r(str, " ", &last);
++            if (token != NULL) {
++                token = strtok_r(NULL, " ", &last);
++                if (strstr(token, mountPath)) {
++                    snprintf(result, sizeof("/storage/") + strlen(mountPath),
++                        "/storage/%s", token + strlen(mountPath));
++                    ALOGD("the path of sd is: %s",result);
++                    break;
++               }
++            }
++        }
++        fclose(fp);
++    } else {
++        return env->NewStringUTF("/storage/sdcard0");
++    }
++    return env->NewStringUTF(result);
++}
++static jint get_rootflag(JNIEnv* env, jobject thiz) {
++
++    char block_device[100];
++    //strcpy(block_device, "/dev/block/platform/sdio_emmc/by-name/miscdata");
++    strcpy(block_device, "/sys/root_recorder/rootrecorder");
++
++    root_stat_t stat;
++    FILE *device;
++    int retval = 0;
++
++    device = fopen(block_device, "r");
++    if (!device) {
++//        ALOGE("[root_recorder] Could not open block device %s (%s).\n", block_device, strerror(errno));
++        goto out;
++    }
++
++    //if (fseek(device, ROOT_OFFSET, SEEK_SET) < 0) {
++        //ALOGE("[root_recorder] Could not seek to start of ROOT FLAG metadata block.\n");
++        //goto out;
++    //}
++    if (!fread(&stat, sizeof(root_stat_t), 1, device)) {
++        ALOGE("[root_recorder] Couldn't read magic number!\n");
++        goto out;
++    }
++
++    ALOGD("[root_recorder] magic=%d\n",stat.magic);
++    ALOGD("[root_recorder] rootflag=%d\n",stat.root_flag);
++
++    if(stat.magic == ROOT_MAGIC) {
++        ALOGE("[root_recorder] sprd magic verify pass.\n");
++        retval = stat.root_flag;
++    } else {
++        ALOGE("[root_recorder] sprd magic verify failed.\n");
++    }
++
++out:
++    if (device)
++        fclose(device);
++    return retval;
++
++}
++
++
++static jboolean Hardware_hashValueWrited(JNIEnv* env, jobject thiz) {      
++if (efuse_is_hash_write() == 1) {
++ALOGD("hash value has writed");
++return true;
++}
++ALOGD("hash value has not writed");
++return false;
++}
++
++static const char *hardWareClassPathName =
++        "com/mediatek/factorymode/utils/FactoryModeNative";
++        
++static JNINativeMethod getMethods[] = {
++        {"native_sendATCmd","(ILjava/lang/String;)Ljava/lang/String;", (void*) FactoryMode_sendATCmd },
++        {"native_hashValueWrited", "()Z", (void*) Hardware_hashValueWrited },
++        {"native_get_rootflag", "()I", (void*)get_rootflag},
++        {"native_check_sdcard_mounted_default","()I",(void*)check_sdcard_mounted_default},
++        {"native_get_sd_file_path","()Ljava/lang/String;",(void*)get_sd_file_path},
++};
++
++static int registerNativeMethods(JNIEnv* env, const char* className,
++        JNINativeMethod* gMethods, int numMethods) {
++    jclass clazz;
++    clazz = env->FindClass(className);
++    if (clazz == NULL) {
++        ALOGE("Native registration unable to find class '%s'", className);
++        return JNI_FALSE;
++    }
++    if (env->RegisterNatives(clazz, gMethods, numMethods) < 0) {
++        ALOGE("RegisterNatives failed for '%s'", className);
++        return JNI_FALSE;
++    }
++    return JNI_TRUE;
++}
++
++jint JNI_OnLoad(JavaVM* vm, void* reserved) {
++    JNIEnv* env;
++    //use JNI1.6
++    if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
++        ALOGE("Error: GetEnv failed in JNI_OnLoad");
++        return -1;
++    }
++    if (!registerNativeMethods(env, hardWareClassPathName, getMethods,
++            sizeof(getMethods) / sizeof(getMethods[0]))) {
++        ALOGE("Error: could not register native methods for HardwareFragment");
++        return -1;
++    }
++      return JNI_VERSION_1_6;
++}
+Index: packages/apps/FactoryMode/Android.mk
+===================================================================
+--- packages/apps/FactoryMode/Android.mk	(revision 172481)
++++ packages/apps/FactoryMode/Android.mk	(revision 172482)
+@@ -46,7 +46,7 @@
+ 
+ LOCAL_CERTIFICATE := platform
+ 
+-LOCAL_JNI_SHARED_LIBRARIES := libfactorymodeljni
++LOCAL_JNI_SHARED_LIBRARIES := libjni_factorymode
+ LOCAL_REQUIRED_MODULES := libfactorymodeljni
+ 
+ include $(BUILD_PACKAGE)
+Index: packages/apps/FactoryMode/AndroidManifest.xml
+===================================================================
+--- packages/apps/FactoryMode/AndroidManifest.xml	(revision 172481)
++++ packages/apps/FactoryMode/AndroidManifest.xml	(revision 172482)
+@@ -255,6 +255,10 @@
+             android:name=".tptest.TPTest"
+             android:label="@string/tp_text"
+             android:screenOrientation="portrait" />
++		<activity
++            android:name=".lteinfo.LteInfo"
++            android:label="@string/lte_info"
++            android:screenOrientation="portrait" />
+     </application>
+ 
+ </manifest>
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java	(revision 172481)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java	(revision 172482)
+@@ -135,9 +135,9 @@
+         case FactoryMode.TESTITEM_FLASHLIGHT_SUB:
+                 str = getString(R.string.flashlightSub);
+                 break;
+-		case FactoryMode.TESTITEM_MASTERCLEAR:
+-                str = getString(R.string.masterclear);
+-                break;
++		case FactoryMode.TESTITEM_LTEINFO:
++				str = getString(R.string.lte_info);
++				break;
+ 		case FactoryMode.TESTITEM_SLEEPORWAKE:
+                 str = getString(R.string.sleeporwake);
+                 break;
+@@ -144,6 +144,10 @@
+ 		case FactoryMode.TESTITEM_TPTEST:
+                 str = getString(R.string.tp_text);
+                 break;
++		
++		case FactoryMode.TESTITEM_MASTERCLEAR:
++                str = getString(R.string.masterclear);
++                break;
+ 		default:
+ 			break;
+ 		}
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 172481)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 172482)
+@@ -54,6 +54,7 @@
+ import com.mediatek.factorymode.masterclear.MasterClear;
+ import com.mediatek.factorymode.sleeporwake.SleepOrWake;
+ import com.mediatek.factorymode.tptest.TPTest;
++import com.mediatek.factorymode.lteinfo.LteInfo;
+ 
+ import java.io.File;
+ import java.io.FileNotFoundException;
+@@ -100,11 +101,12 @@
+     public static final int TESTITEM_FLASHLIGHT_SUB = 24;
+ 	//public static final int TESTITEM_LED = 25;
+ 	public static final int TESTITEM_LSENSORCALI = 25;
+-	public static final int TESTITEM_MASTERCLEAR = 28;
++	public static final int TESTITEM_MASTERCLEAR = 29;
+ 	public static final int TESTITEM_SLEEPORWAKE = 27;
+-	public static final int TESTITEM_TATOL = 29;
++	public static final int TESTITEM_TATOL = 30;
+ 	//public static final int TESTITEM_TPRAWDATA=28;
+-	public static final int TESTITEM_TPTEST=26;
++	public static final int TESTITEM_TPTEST=28;
++	public static final int TESTITEM_LTEINFO=26;
+ 	//private static int currentTestMode = 0;
+ 	public static int currenttestitem = TESTITEM_START;
+   public static boolean isAutoTest = false;
+@@ -177,8 +179,9 @@
+   //TESTITEM_LED ,
+     TESTITEM_FLASHLIGHT ,
+ 	TESTITEM_FLASHLIGHT_SUB ,
++	TESTITEM_LTEINFO,
++	TESTITEM_SLEEPORWAKE,
+ 	TESTITEM_TPTEST,
+-	TESTITEM_SLEEPORWAKE,
+ 	TESTITEM_MASTERCLEAR
+     //TESTITEM_TPRAWDATA
+   };
+@@ -296,7 +299,7 @@
+         break;
+       }
+     }
+-    return index;
++	return index;
+   }
+ 
+   public void onActivityResult(int requestCode, int resultCode, Intent intent){
+@@ -739,10 +742,10 @@
+           intent.setClass(this, FlashLightSub.class);
+           startActivityForResult(intent, TESTITEM_FLASHLIGHT_SUB);
+           break;
+-	  case  TESTITEM_MASTERCLEAR:
+-		 intent.setClass(this, MasterClear.class);
+-         startActivityForResult(intent, TESTITEM_MASTERCLEAR);
+-		  break;
++	  case TESTITEM_LTEINFO:
++		intent.setClass(this, LteInfo.class);
++         startActivityForResult(intent, TESTITEM_LTEINFO);
++		break;
+ 	  case  TESTITEM_SLEEPORWAKE:
+ 		 intent.setClass(this, SleepOrWake.class);
+          startActivityForResult(intent, TESTITEM_SLEEPORWAKE);
+@@ -751,6 +754,11 @@
+ 	  	intent.setClass(this, TPTest.class);
+          startActivityForResult(intent, TESTITEM_TPTEST);
+ 		break;
++	  
++	 case  TESTITEM_MASTERCLEAR:
++		 intent.setClass(this, MasterClear.class);
++         startActivityForResult(intent, TESTITEM_MASTERCLEAR);
++		  break;
+       default:
+         break;
+     }
+@@ -855,8 +863,8 @@
+         case TESTITEM_FLASHLIGHT_SUB:
+             str = getString(R.string.flashlightSub);
+             break;
+-		case TESTITEM_MASTERCLEAR:
+-			str = getString(R.string.masterclear);
++		case TESTITEM_LTEINFO:
++			str = getString(R.string.lte_info);
+ 			break;
+ 		case TESTITEM_SLEEPORWAKE:
+ 			str = getString(R.string.sleeporwake);
+@@ -864,6 +872,10 @@
+ 		case TESTITEM_TPTEST:
+ 			str = getString(R.string.tp_text);
+ 			break;
++		
++		case TESTITEM_MASTERCLEAR:
++			str = getString(R.string.masterclear);
++			break;
+ 		default:
+ 			break;
+ 		}
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/lteinfo/LteInfo.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/lteinfo/LteInfo.java	(revision 0)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/lteinfo/LteInfo.java	(revision 172482)
+@@ -0,0 +1,456 @@
++package com.mediatek.factorymode.lteinfo;
++
++import com.mediatek.factorymode.R; 
++import android.app.Activity;
++import android.content.Intent;
++import android.os.Bundle;
++import android.os.Handler;
++import android.os.Message;
++import android.util.Log;
++import android.view.View;
++import android.content.Context;
++import android.os.HandlerThread;
++import android.os.Looper;
++
++
++import android.view.View.OnClickListener;
++import android.widget.Button;
++import android.widget.TextView;
++import android.widget.ListView;
++
++import com.mediatek.factorymode.FactoryMode;
++import com.mediatek.factorymode.utils.IATUtils;
++
++import android.view.KeyEvent;
++
++import android.telephony.PhoneStateListener;
++import android.telephony.SubscriptionManager;
++import android.telephony.SubscriptionInfo;
++import android.telephony.TelephonyManager;
++import android.net.NetworkInfo;
++import android.net.ConnectivityManager;
++import android.net.wifi.WifiManager;
++import android.net.wifi.WifiInfo;
++
++import com.android.internal.telephony.Phone;
++import com.android.internal.telephony.PhoneConstants;
++import com.android.internal.telephony.PhoneFactory;
++
++
++import android.telephony.ServiceState;
++import android.widget.ArrayAdapter;
++import java.util.Timer;
++import java.util.TimerTask;
++import java.util.Enumeration;
++import java.net.*;
++import java.util.Arrays;
++
++
++
++
++
++public class LteInfo extends Activity {
++
++    private static String TAG = "LTEtest";
++	private static final int NETWORK_UNKNOW = 0;
++    private static final int NETWORK_GSM = 1;
++    private static final int NETWORK_TDSCDMA = 2;
++    private static final int NETWORK_WCDMA = 3;
++    private static final int NETWORK_LTE = 4;
++	private static final int GET_LTE = 5;
++	static final boolean DEBUG = true;
++    private Button mSuccesBtn;
++    private Button mFailBtn;
++    private TextView mInfoView;
++	private ListView listView;
++  	private ServiceState mServiceState;
++    private TelephonyManager mTelephonyManager;
++    private SubscriptionManager mSubscriptionManager;
++    private PhoneStateListener mPhoneStateListener;
++	private LteHandler mLteHandler;
++	private Handler mUiThread = new Handler();
++	public boolean isRoaming;
++	public String mNetworkOperator;
++    public String mNetworkOperatorName;
++	private int mDataNetType;
++    private int mDataState;
++    private int mSimIndex=0;
++    private int mNetWorkType = NETWORK_UNKNOW;
++	private int mPhoneCount;
++	private int mSubId;
++	private Timer mTimer;
++	private Context mContext;
++	private Phone mPhone;
++	//private ImsManager mIms;
++	private ArrayAdapter<String> LteAdapter;
++	private String SaveName = "atchannel";
++	private String[] values;
++	String imsi;
++	private boolean mIsNetworkAvailable=false;
++	
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++		//mContext = this.getApplicationContext();
++        mServiceState = new ServiceState();
++		HandlerThread ht = new HandlerThread(TAG);
++        ht.start();
++        mLteHandler = new LteHandler(ht.getLooper());
++		mTelephonyManager = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
++        mSubscriptionManager = (SubscriptionManager) SubscriptionManager.from(LteInfo.this);
++		mPhoneCount = mTelephonyManager.getPhoneCount();
++        mDataNetType = getNetworkState(this);
++		setContentView(R.layout.lte_info);
++        /*final SubscriptionInfo sir = mSubscriptionManager.getActiveSubscriptionInfoForSimSlotIndex(slotIdToSubId(mSimIndex));
++        if (sir != null) {
++            mPhone = PhoneFactory.getPhone(SubscriptionManager.getPhoneId(sir.getSubscriptionId()));
++        }
++        if (mPhone == null) {
++            // Do the best we can
++            mPhone = PhoneFactory.getDefaultPhone();
++        }
++		mIms=ImsManager.getInstance(this, mPhone);*/
++        SaveName = "atchannel" + mSimIndex;
++		 mNetworkOperatorName = mTelephonyManager.getNetworkOperatorName(mSubId);
++         mNetworkOperator = mTelephonyManager.getNetworkOperatorForPhone(mSimIndex);
++		values = getResources().getStringArray(R.array.Lte_sering_name);
++	   	listView = (ListView) findViewById(R.id.info_list);
++		imsi = mTelephonyManager.getSubscriberId();
++		if (mNetworkOperator != null) {
++        	values[2] = values[2] + "\n" + mNetworkOperator;
++        } else {
++            values[2] = values[2] + ": NA";
++        }
++		if (imsi != null) {
++                values[0] = values[0] + "\n" + imsi;
++        } else {
++                values[0] = values[0] + ": NA";
++        }
++		String ipAddress=getIPAddress(this);
++		if(mIsNetworkAvailable){
++			values[1] = values[1] + "\n" + "connected";
++			values[14] = values[14] + "\n" + ipAddress ;
++		}else{
++			values[1] = values[1] + "\n" + "NA";
++			values[14] = values[14] + "\n" + "NA";
++		}
++		/*if(mIms.isServiceAvailable()){
++			values[15]=values[15]+"\n"+"Registered";
++		}else{
++			values[15]=values[15]+"\n"+"NA";
++		}*/
++
++         Message serving = mLteHandler.obtainMessage(GET_LTE);
++         mLteHandler.sendMessage(serving);
++		LteAdapter = new ArrayAdapter<String>(
++                       LteInfo.this, R.layout.array_item, values);
++         listView.setAdapter(LteAdapter);
++		 
++        mSuccesBtn = (Button)findViewById(R.id.ok);
++		if(mDataNetType!=NETWORK_LTE){
++			mSuccesBtn.setEnabled(false);
++		}
++        mFailBtn = (Button)findViewById(R.id.fail);
++        mSuccesBtn.setOnClickListener(new OnClickListener() {
++            
++            @Override
++            public void onClick(View arg0) {
++                Intent intent = new Intent(LteInfo.this, FactoryMode.class);
++                setResult(FactoryMode.TEST_OK,intent);
++                finish();
++            }
++        });
++        
++        mFailBtn.setOnClickListener(new OnClickListener() {
++            
++            @Override
++            public void onClick(View arg0) {
++                Intent intent = new Intent(LteInfo.this, FactoryMode.class);
++                setResult(FactoryMode.TEST_FAIL,intent);
++                finish();
++            }
++        });
++       /*mTimer = new Timer();
++        mTimer.schedule(new TimerTask() {
++            @Override
++            public void run() {
++                Message serving = mLteHandler.obtainMessage(GET_LTE);
++                mLteHandler.sendMessage(serving);
++            }
++        }, 0, 200);*/
++        
++    }
++
++	public String getIPAddress(Context context) {
++        NetworkInfo info = ((ConnectivityManager) context
++                .getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
++        if (info != null && info.isConnected()) {
++			mIsNetworkAvailable=true;
++            if (info.getType() == ConnectivityManager.TYPE_MOBILE) {//2G/3G/4G
++                try {
++                    for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
++                        NetworkInterface intf = en.nextElement();
++                        for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
++                            InetAddress inetAddress = enumIpAddr.nextElement();
++                            if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {
++                                return inetAddress.getHostAddress();
++                            }
++                        }
++                    }
++                } catch (SocketException e) {
++                    e.printStackTrace();
++                }
++
++            } else if (info.getType() == ConnectivityManager.TYPE_WIFI) {//wifi
++                WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
++                WifiInfo wifiInfo = wifiManager.getConnectionInfo();
++                String ipAddress = intIP2StringIP(wifiInfo.getIpAddress());
++                return ipAddress;
++            }
++        } else {
++        	mIsNetworkAvailable=false;
++        }
++        return null;
++    }
++
++    /**
++     *
++     *
++     * @param ip
++     * @return
++     */
++    public static String intIP2StringIP(int ip) {
++        return (ip & 0xFF) + "." +
++                ((ip >> 8) & 0xFF) + "." +
++                ((ip >> 16) & 0xFF) + "." +
++                (ip >> 24 & 0xFF);
++    }
++	
++	@Override
++    protected void onResume() {
++    super.onResume(); 
++	}
++
++   public int slotIdToSubId(int phoneId) {
++       int subId;
++       SubscriptionInfo mSubscriptionInfo = mSubscriptionManager.getActiveSubscriptionInfoForSimSlotIndex(phoneId);
++       if (mSubscriptionInfo == null) {
++           Log.d(TAG,"mSubscriptionInfo is null");
++           subId = SubscriptionManager.getDefaultSubscriptionId();
++       } else {
++           subId = mSubscriptionInfo.getSubscriptionId();
++       }
++       return subId;
++    }
++   
++   private static int getNetworkState(Context context) {
++		ConnectivityManager mConnManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
++		if (null == mConnManager)
++            return NETWORK_UNKNOW;
++		NetworkInfo activeNetInfo = mConnManager.getActiveNetworkInfo();
++        if (activeNetInfo == null || !activeNetInfo.isAvailable()) {
++            return NETWORK_UNKNOW;
++        }
++		NetworkInfo networkInfo = mConnManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
++ 
++        if (null != networkInfo) {
++            NetworkInfo.State state = networkInfo.getState();
++            String strSubTypeName = networkInfo.getSubtypeName();
++            if (null != state)
++                if (state == NetworkInfo.State.CONNECTED || state == NetworkInfo.State.CONNECTING) {
++                    switch (activeNetInfo.getSubtype()) {
++                        case TelephonyManager.NETWORK_TYPE_GPRS: 
++                        case TelephonyManager.NETWORK_TYPE_CDMA: 
++                        case TelephonyManager.NETWORK_TYPE_EDGE: 
++                        case TelephonyManager.NETWORK_TYPE_1xRTT:
++                        case TelephonyManager.NETWORK_TYPE_IDEN:
++                            return  NETWORK_GSM;
++                        case TelephonyManager.NETWORK_TYPE_EVDO_A: 
++                        case TelephonyManager.NETWORK_TYPE_UMTS:
++                        case TelephonyManager.NETWORK_TYPE_EVDO_0:
++                        case TelephonyManager.NETWORK_TYPE_HSDPA:
++                        case TelephonyManager.NETWORK_TYPE_HSUPA:
++                        case TelephonyManager.NETWORK_TYPE_HSPA:
++                        case TelephonyManager.NETWORK_TYPE_EVDO_B:
++                        case TelephonyManager.NETWORK_TYPE_EHRPD:
++                        case TelephonyManager.NETWORK_TYPE_HSPAP:
++                            return NETWORK_WCDMA;
++                        case TelephonyManager.NETWORK_TYPE_LTE:
++                            return NETWORK_LTE;
++                        default:
++                            if (strSubTypeName.equalsIgnoreCase("TD-SCDMA") || strSubTypeName.equalsIgnoreCase("WCDMA") || strSubTypeName.equalsIgnoreCase("CDMA2000")) {
++                                return NETWORK_WCDMA;
++                            } else {
++                                return NETWORK_UNKNOW;
++                            }
++                    }
++                }
++        }
++        return NETWORK_UNKNOW;
++		
++	}
++   
++	class LteHandler extends Handler {
++        public LteHandler(Looper looper) {
++            super(looper);
++        }
++
++        @Override
++        public void handleMessage(Message msg) {
++            switch (msg.what) {
++            case GET_LTE:
++                valuesDisplay(mSimIndex);
++            }
++        }
++    }
++	
++	@Override
++    protected void onDestroy() {
++        if (mTimer != null) {
++            mTimer.cancel();
++        }
++        if (mLteHandler != null) {
++            mLteHandler.getLooper().quit();
++        }
++        super.onDestroy();
++    }
++
++	public void valuesDisplay(int cmdType) {
++		String result = null;
++        //final String[] values;
++        int temp;
++        String strTemp = null;
++        //values = this.getResources().getStringArray(R.array.Lte_sering_name);
++        result = IATUtils.sendATCmd("AT+SPENGMD=0,6,0", SaveName);//060
++        Log.d(TAG, "AT+SPENGMD=0,6,0: " + result);
++        if (result.contains(IATUtils.AT_OK)) {
++             result = result.replaceAll(",-", ",+");
++			 Log.d(TAG, "result1: " + result);
++             result = result.replaceAll("--", "-+");
++			 Log.d(TAG, "result2: " + result);
++             String[] str1 = result.split("\n");//0-0-0-0-0-0-0-0-0-0-0-0
++             String[] str2 = str1[0].split("-");//[0,0,0,0,0,0,0,0,0,0,0,0]
++			 Log.d(TAG, "str2: " + Arrays.toString(str2));
++                // 559502 modify by alisa.li 2016.05.05
++              for (int i = 0; i < str2.length; i++) {//12
++					if(i==0){
++						values[3]=values[3]+"\n"+str2[i];
++						
++					}else if(i==1){
++						values[6]=values[6]+"\n"+str2[i];
++					}else if(i==2){
++						values[5]=values[5]+"\n"+str2[i];
++					}else if(i==3){
++						values[9]=values[9]+"\n"+str2[i].replace("+", "-").trim();
++					}else if(i==4){
++						values[10]=values[10]+"\n"+str2[i].replace("+", "-").trim();//str2[i].replace("+", "-").trim()
++						values[12]=values[12]+"\n"+str2[i].replace("+", "-").trim();
++					}else if(i==6){
++						if(Integer.parseInt(str2[i])==0){
++							values[4]=values[4]+"\n"+"FDD";
++						}else{
++							values[4]=values[4]+"\n"+"TDD";
++						}
++					}else if(i==7){
++						values[7]=values[7]+"\n"+str2[i];
++						values[8]=values[8]+"\n"+str2[i];
++						
++					}else{
++					 
++					}
++				
++              	}
++                //559502 modify by alisa.li 2016.05.05
++            } else {
++            	
++            }
++            result = IATUtils.sendATCmd("AT+SPENGMD=0,0,6", SaveName);
++            Log.d(TAG, "AT+SPENGMD=0,0,6: " + result);
++            if (result.contains(IATUtils.AT_OK)) {
++                result = result.replaceAll(",-", ",+");
++                result = result.replaceAll("--", "-+");//0-0-0-0-0-0-0-0 ok
++                String[] str1 = result.split("\n");
++                String[] str2 = str1[0].split("-");//0-0-0-0-0-0-0-0
++                Log.d(TAG, "str2: " + Arrays.toString(str2));
++                for (int i = 0; i < str2.length; i++) {
++                     if (i==2) {
++                         //Log.d(TAG,"i="+num+" "+str2[i].replace("+", "-"));
++                         values[11] = values[11] + "\n"+ str2[i];
++                     }
++                }
++                
++            } else {
++                
++            }
++
++			result = IATUtils.sendATCmd("AT+SPENGMD=0,6,6", SaveName);
++            Log.d(TAG, "AT+SPENGMD=0,6,6: " + result);
++            if (result.contains(IATUtils.AT_OK)) {
++                result = result.replaceAll(",-", ",+");
++                result = result.replaceAll("--", "-+");//0-0-0-0-0-0-0-0 ok
++                String[] str1 = result.split("\n");
++                String[] str2 = str1[0].split("-");//0-0-0-0-0-0-0-0
++                Log.d(TAG, "str2: " + Arrays.toString(str2));
++                for (int i = 0; i < str2.length; i++) {
++                  if (str2[i].contains(",") && !str2[i].contains("0,0,0")) {
++						//values[i] = values[i] + ": "
++							String v="";
++                            String[] str3 = str2[i].split(",");
++                            int[] tempArray = new int[str3.length];
++							Log.d(TAG, "tempArray: " + Arrays.toString(tempArray));
++                            for (int j = 0; j < str3.length-1; j++) {
++                                tempArray[j] = Integer.parseInt(str3[j].replace("+", "-").trim());
++                                v =v+" "+String.valueOf(tempArray[j]);
++                            }
++							values[16]= values[16] + "\n"+"earfcn-pic-rsrp-rsrq"+"\n"+v;
++                  	}else{
++						//values[16]= values[16]+"\n"+"NA";
++					}
++                }
++                
++            } else {
++                
++            }
++
++			result = IATUtils.sendATCmd("AT+SPENGMD=0,0,0", SaveName);
++            Log.d(TAG, "AT+SPENGMD=0,0,0: " + result);
++            if (result.contains(IATUtils.AT_OK)) {
++                result = result.replaceAll(",-", ",+");
++                result = result.replaceAll("--", "-+");//0-0-0-0-0-0-0-0 ok
++                String[] str1 = result.split("\n");
++                String[] str2 = str1[0].split("-");//0-0-0-0-0-0-0-0
++                Log.d(TAG, "str2: " + Arrays.toString(str2));
++                for (int i = 0; i < str2.length; i++) {
++                     if (i==6) {
++                         //Log.d(TAG,"i="+num+" "+str2[i].replace("+", "-"));
++                         values[13] = values[13] + "\n"+ str2[i];
++                     }
++                }
++                
++            } else {
++                
++            }
++            mUiThread.post(new Runnable() {
++                @Override
++                public void run() {
++                    LteAdapter.notifyDataSetChanged();
++                }
++            });
++		}
++
++	
++    @Override
++	public boolean onKeyUp(int keyCode, KeyEvent event) {
++		switch (keyCode) {
++		case KeyEvent.KEYCODE_MENU:
++			return true;
++
++		case KeyEvent.KEYCODE_BACK:
++			Intent intent = new Intent(LteInfo.this, FactoryMode.class);
++			setResult(FactoryMode.TEST_CANCEL,intent);
++			finish();
++			return true;
++		}
++		return super.onKeyUp(keyCode, event);
++    } 
++}
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/utils/FactoryModeNative.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/utils/FactoryModeNative.java	(revision 0)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/utils/FactoryModeNative.java	(revision 172482)
+@@ -0,0 +1,30 @@
++package com.mediatek.factorymode.utils;
++
++import android.util.Log;
++
++public class FactoryModeNative {
++
++    static {
++        try {
++            System.loadLibrary("jni_factorymode");
++        } catch (UnsatisfiedLinkError e) {
++            Log.d("FactoryModeNative", " #loadLibrary jni_factorymode failed  ");
++            e.printStackTrace();
++        }
++    }
++
++    /**
++     * send AT cmd to modem
++     *
++     * @return (String: the return value of send cmd, "OK":sucess, "ERROR":fail)
++     */
++    public static native String native_sendATCmd(int phoneId, String cmd);
++
++    public static native boolean native_hashValueWrited();
++
++    public static native int native_get_rootflag();
++
++    public static native int native_check_sdcard_mounted_default();
++
++    public static native String native_get_sd_file_path();
++}
+\ No newline at end of file
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/utils/IATUtils.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/utils/IATUtils.java	(revision 0)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/utils/IATUtils.java	(revision 172482)
+@@ -0,0 +1,51 @@
++package com.mediatek.factorymode.utils;
++
++import android.os.RemoteException;
++import android.os.ServiceManager;
++import android.util.Log;
++import android.telephony.TelephonyManager;
++import com.mediatek.factorymode.utils.FactoryModeNative;
++
++public class IATUtils {
++    private static final String TAG = "IATUtils";
++    public static String AT_FAIL = "AT FAILED";
++    public static String AT_OK = "OK";
++    public static String AT_CONNECT = "CONNECT";
++
++    /**
++     * send AT cmd to modem.
++     * @param cmd:specific AT commands to be sent.
++     * @param serverName:phoneId.
++     * @return at command return value.
++     * @hide
++     */
++    public static synchronized String sendATCmd(String cmd, String serverName) {
++        String strTmp = "error service can't get";
++        int mPhoneCount = TelephonyManager.getDefault().getPhoneCount();
++        int phoneId = 0;
++        if (mPhoneCount == 1) {
++            Log.d(TAG, "phone count is 1");
++            serverName = "atchannel";
++        }
++        if (serverName.contains("atchannel0")) {
++            phoneId = 0;
++            Log.d(TAG, "<0> mAtChannel = " + phoneId + " , and cmd = " + cmd);
++        } else if (serverName.contains("atchannel1")) {
++            phoneId = 1;
++            Log.d(TAG, "<1> mAtChannel = " + phoneId + " , and cmd = " + cmd);
++        } else {
++            phoneId = 0;
++            Log.d(TAG, "<atchannel> mAtChannel = " + phoneId + " , and cmd = "
++                    + cmd);
++        }
++        strTmp = FactoryModeNative.native_sendATCmd(phoneId, cmd);
++        if (serverName.contains("atchannel0")) {
++            Log.d(TAG, "<0> AT response " + strTmp);
++        } else if (serverName.contains("atchannel1")) {
++            Log.d(TAG, "<1> AT response " + strTmp);
++        } else {
++            Log.d(TAG, "<atchannel> AT response " + strTmp);
++        }
++        return strTmp;
++    }
++}
+Index: packages/apps/FactoryMode/res/values/arrays.xml
+===================================================================
+--- packages/apps/FactoryMode/res/values/arrays.xml	(revision 172481)
++++ packages/apps/FactoryMode/res/values/arrays.xml	(revision 172482)
+@@ -4,4 +4,23 @@
+         <item>成功</item>
+         <item>失败</item>
+     </string-array>
++	<string-array name="Lte_sering_name">
++        <item>Imsi</item>
++        <item>State</item>
++        <item>PLMN ID</item>
++        <item>Band</item>
++        <item>TDD/FDD</item>
++		<item>Pci</item>
++		<item>Channel</item>
++		<item>UL Band</item>
++		<item>DL Band</item>
++		<item>RSRP</item>
++		<item>RSRQ</item>
++		<item>RS-SINER</item>
++		<item>Rssi</item>
++		<item>Tx-Pwr</item>
++		<item>IP Address</item>
++		<item>IMS state</item>
++		<item>Neighbor Set</item>
++    </string-array>
+ </resources>
+Index: packages/apps/FactoryMode/res/values/strings.xml
+===================================================================
+--- packages/apps/FactoryMode/res/values/strings.xml	(revision 172481)
++++ packages/apps/FactoryMode/res/values/strings.xml	(revision 172482)
+@@ -232,4 +232,5 @@
+ 	<string name="sleeporwake_hint">Please press Power to sleep phone and then press again to wake up!</string>
+ 	<string name="tp_text">TP test</string>
+ 	<string name="tp_test_hint">TP test......</string>
++	<string name="lte_info">LTE info</string>
+ </resources>
+Index: packages/apps/FactoryMode/res/layout/array_item.xml
+===================================================================
+--- packages/apps/FactoryMode/res/layout/array_item.xml	(revision 0)
++++ packages/apps/FactoryMode/res/layout/array_item.xml	(revision 172482)
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<TextView
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    android:id="@+id/TextView"
++    android:layout_width="match_parent"
++    android:layout_height="wrap_content"
++    android:textSize="16dp"
++    android:padding="4px"
++    android:shadowRadius="2"/>
+Index: packages/apps/FactoryMode/res/layout/lte_info.xml
+===================================================================
+--- packages/apps/FactoryMode/res/layout/lte_info.xml	(revision 0)
++++ packages/apps/FactoryMode/res/layout/lte_info.xml	(revision 172482)
+@@ -0,0 +1,38 @@
++<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:orientation="vertical" >
++
++    <ListView
++        android:id="@+id/info_list"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content" 
++        android:layout_above="@+id/button_layout">
++    </ListView>
++
++	<LinearLayout 
++	    android:id="@+id/button_layout"
++	    android:layout_width="match_parent"
++	    android:layout_height="60dp"
++	    android:orientation="horizontal"
++	    android:layout_alignParentBottom="true"
++	    >
++	    <Button 
++	        android:id="@+id/ok"
++	        android:layout_width="0dp"
++	        android:layout_weight="1"
++	        android:layout_height="match_parent"
++	        android:text="@string/Success"
++	        android:textSize="25sp"
++	        />
++	    <Button 
++	        android:id="@+id/fail"
++	        android:layout_width="0dp"
++	        android:layout_height="match_parent"
++	        android:layout_weight="1"
++	        android:text="@string/Failed"
++	        android:textSize="25sp"
++	        />
++	</LinearLayout>
++</RelativeLayout>

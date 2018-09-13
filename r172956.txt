@@ -1,0 +1,33 @@
+Index: packages/apps/Settings/src/com/android/settings/sim/SimSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/sim/SimSettings.java	(revision 172955)
++++ packages/apps/Settings/src/com/android/settings/sim/SimSettings.java	(revision 172956)
+@@ -405,7 +405,7 @@
+             SimFragmentDialog.show(SimSettings.this, ((SimPreference) preference).getSlotId());
+         } else if (preference instanceof DataPreference) {
+             intent.putExtra(SimDialogActivity.DIALOG_TYPE_KEY, SimDialogActivity.DATA_PICK);
+-        //  context.startActivity(intent);
++            context.startActivity(intent);
+         } else if (findPreference(KEY_CALLS) == preference) {
+             intent.putExtra(SimDialogActivity.DIALOG_TYPE_KEY, SimDialogActivity.CALLS_PICK);
+             context.startActivity(intent);
+@@ -437,8 +437,8 @@
+         public void onBindViewHolder(PreferenceViewHolder holder) {
+             super.onBindViewHolder(holder);
+             mDataSwitch = (Switch) holder.findViewById(R.id.universal_switch);
+-     //     mDataSwitch.setVisibility(View.VISIBLE);
+-			mDataSwitch.setVisibility(View.GONE);
++            mDataSwitch.setVisibility(View.VISIBLE);
++			//mDataSwitch.setVisibility(View.GONE);
+             final int dataSubId = SubscriptionManager.getDefaultDataSubscriptionId();
+             mDataSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+                 @Override
+@@ -667,7 +667,7 @@
+                         && !isPhoneInCall();
+                 mSwitch.setEnabled(canSetSimEnabled);
+ 			//fix for bug 93092 by zhangchi start 	
+-            //  mSwitch.setVisibility(View.VISIBLE);
++           	  // mSwitch.setVisibility(View.VISIBLE);
+ 				if(mSlotId==0){mSwitch.setVisibility(View.GONE); }else{mSwitch.setVisibility(View.VISIBLE);}
+ 			//fix for bug 93092 by zhangchi end  	
+ 		  }

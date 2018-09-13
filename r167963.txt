@@ -1,0 +1,12 @@
+Index: vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmService.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmService.java	(revision 167962)
++++ vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmService.java	(revision 167963)
+@@ -1729,6 +1729,7 @@
+         /**
+          * @}
+          */
++        filter.addAction("com.mediatek.FMRadio.FMRadioService.ACTION_TOFMSERVICE_POWERDOWN"); 
+         mBroadcastReceiver = new FmServiceBroadcastReceiver();
+         registerReceiver(mBroadcastReceiver, filter);
+     }

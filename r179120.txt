@@ -1,0 +1,17 @@
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactListItemView.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactListItemView.java	(revision 179119)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactListItemView.java	(revision 179120)
+@@ -848,10 +848,10 @@
+         if (isVisible(mGsmButton)) {
+             if (mPhotoPosition == PhotoPosition.LEFT) {
+                 mGsmButton.layout(leftBound + leftPadding,
+-                        topBound + getPaddingTop() + mPhotoViewHeight + margin,
++                        topBound + getPaddingTop() + mNameTextViewHeight + mDataViewHeight,
+                         leftBound + mGsmButtonWidth + leftPadding,
+                         //getPaddingTop() + topBound + mPhotoViewHeight + mGsmButtonHeight);
+-                        topBound + getPaddingTop() + mPhotoViewHeight + mGsmButtonHeight);
++                        topBound + getPaddingTop() + mNameTextViewHeight + mDataViewHeight  + mGsmButtonHeight);
+                 margin += 50;
+             } else {
+             }

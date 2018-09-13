@@ -1,0 +1,14 @@
+Index: packages/apps/Settings/src/com/android/settings/Util.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/Util.java	(revision 166754)
++++ packages/apps/Settings/src/com/android/settings/Util.java	(revision 166755)
+@@ -25,7 +25,8 @@
+     public static final int FLAG_DEFAULT_VALUES                             = 0X01;
+ 
+     public static void setFlags(Context mContext, int gestureValue){
+-        int gestureSwitchValue = Settings.System.getInt(mContext.getContentResolver(), "FALG_GESTURE_CURRENT_STATE", 0);
++        int gestureSwitchValue = Settings.System.getInt(mContext.getContentResolver(), "FALG_GESTURE_CURRENT_STATE", 1);
++        gestureSwitchValue = gestureSwitchValue>1 ? gestureSwitchValue:1;
+         int value = gestureValue ^ gestureSwitchValue;
+         if (value < 2) value = 0;
+         writeFile(value);

@@ -1,0 +1,15 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/keyguard/KeyguardViewMediator.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/keyguard/KeyguardViewMediator.java	(revision 171367)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/keyguard/KeyguardViewMediator.java	(revision 171368)
+@@ -1420,8 +1420,8 @@
+         if (DEBUG) Log.d(TAG, "notifyScreenOn");
+         Message msg = mHandler.obtainMessage(NOTIFY_SCREEN_TURNING_ON, callback);
+         /** SRPD : fixbug 596284  Splash screen phenomenon @{ **/
+-        //mHandler.sendMessage(msg);
+-        mHandler.sendMessageDelayed(msg, 500);
++        mHandler.sendMessage(msg);
++        //mHandler.sendMessageDelayed(msg, 500);
+         /** @} **/
+     }
+ 

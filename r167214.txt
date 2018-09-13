@@ -1,0 +1,16 @@
+Index: vendor/google/products/gms-mandatory.mk
+===================================================================
+--- vendor/google/products/gms-mandatory.mk	(revision 167213)
++++ vendor/google/products/gms-mandatory.mk	(revision 167214)
+@@ -50,7 +50,10 @@
+     Chrome \
+     Drive \
+     Gmail2 \
+-    Hangouts \
++	Duo \
++	talkback \
++	DMAgent \
++	Hangouts \
+     Maps \
+     Music2 \
+     Photos \

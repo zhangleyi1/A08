@@ -1,0 +1,27 @@
+Index: frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java	(revision 172233)
++++ frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java	(revision 172234)
+@@ -12956,8 +12956,8 @@
+                 }
+             }
+ 
+-            final boolean onSd = (installFlags & PackageManager.INSTALL_EXTERNAL) != 0;
+-            final boolean onInt = (installFlags & PackageManager.INSTALL_INTERNAL) != 0;
++            boolean onSd = (installFlags & PackageManager.INSTALL_EXTERNAL) != 0;
++            boolean onInt = (installFlags & PackageManager.INSTALL_INTERNAL) != 0;
+             final boolean ephemeral = (installFlags & PackageManager.INSTALL_EPHEMERAL) != 0;
+             PackageInfoLite pkgLite = null;
+             /* SPRD: Add log for install apk{@ */
+@@ -13014,6 +13014,11 @@
+                     }
+                 }
+             }
++			if (pkgLite.recommendedInstallLocation == 2) {
++				onSd = true;
++				onInt = false;
++			    installFlags = PackageManager.INSTALL_EXTERNAL;
++		   }
+ 
+             if (ret == PackageManager.INSTALL_SUCCEEDED) {
+                 int loc = pkgLite.recommendedInstallLocation;

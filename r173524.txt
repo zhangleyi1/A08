@@ -1,0 +1,56 @@
+Index: frameworks/av/camera/camera2/OutputConfiguration.cpp
+===================================================================
+--- frameworks/av/camera/camera2/OutputConfiguration.cpp	(revision 173523)
++++ frameworks/av/camera/camera2/OutputConfiguration.cpp	(revision 173524)
+@@ -70,11 +70,13 @@
+         readInfo(parcel,&rotation);
+ 	}
+ 
++    int setID = INVALID_SET_ID;
+     if ((err = parcel->readInt32(&setID)) != OK) {
+         ALOGE("%s: Failed to read surface set ID from parcel", __FUNCTION__);
+         return err;
+     }
+ 
++    view::Surface surfaceShim;
+     if ((err = surfaceShim.readFromParcel(parcel)) != OK) {
+         ALOGE("%s: Failed to read surface from parcel", __FUNCTION__);
+         return err;
+Index: vendor/sprd/platform/frameworks/av/camera/CameraParametersEx.cpp
+===================================================================
+--- vendor/sprd/platform/frameworks/av/camera/CameraParametersEx.cpp	(revision 173523)
++++ vendor/sprd/platform/frameworks/av/camera/CameraParametersEx.cpp	(revision 173524)
+@@ -61,6 +61,7 @@
+ #ifdef SPRD_FEATURE_EIS
+ const char CameraParameters::KEY_EOIS[] = "EOIS";
+ #endif
++}; // namespace android
+ 
+ #ifdef SPRD_FEATURE_ZSL
+ const char CameraParameters::KEY_ZSL[] = "sprd-zsl-enabled";
+@@ -70,6 +71,4 @@
+ 
+ const char CameraParameters::KEY_SUPPORTED_SMILE_ENABLE[] = "smile-enable-values";
+ 
+-
+-}; // namespace android
+ #endif // SPRD_FRAMEWORKS_CAMERA_EX
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/PhotoModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/PhotoModule.java	(revision 173523)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/PhotoModule.java	(revision 173524)
+@@ -3501,13 +3501,7 @@
+         Log.i(TAG, "stopPreview start!mCameraDevice=" + mCameraDevice);
+         if (mCameraDevice != null && mCameraState != PREVIEW_STOPPED) {
+             Log.i(TAG, "stopPreview");
+-            /* SPRD: fix bug677344 intent capture should not stoppreview with flush @{ */
+-            if (isUseSurfaceView()) {
+-                mCameraDevice.stopPreview();
+-            } else {
+-                mCameraDevice.stopPreviewWithOutFlush();
+-            }
+-            /* @} */
++			mCameraDevice.stopPreview();
+             mFaceDetectionStarted = false;
+         }
+         setCameraState(PREVIEW_STOPPED);

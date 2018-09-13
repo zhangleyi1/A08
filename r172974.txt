@@ -1,0 +1,21 @@
+Index: packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java	(revision 172973)
++++ packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java	(revision 172974)
+@@ -86,6 +86,7 @@
+     private static SimContactQueryCookie mSC;
+     private static final String MMI_RUNIN = "*#1212#";
+     private static final String MMI_TRACE_LOG = "*#564*#";
++    private static final String MMI_CUSTOM_PORT = "*76278#";
+ 
+     /**
+      * Remembers the previous {@link QueryHandler} and cancel the operation when needed, to
+@@ -244,7 +245,7 @@
+     static boolean handleCustomCode(Context context, String input) {
+         // Secret codes are in the form #<code>#
+         int len = input.length();
+-        if (input.equals(MMI_CUSTOM_FACTORY)) {
++        if (input.equals(MMI_CUSTOM_FACTORY) || input.equals(MMI_CUSTOM_PORT)) {
+             final Intent intent = new Intent(SECRET_CODE_ACTION,
+                     Uri.parse("android_secret_code://" + input.substring(1, len - 1)));
+             context.sendBroadcast(intent);

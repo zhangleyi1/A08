@@ -1,0 +1,13 @@
+Index: frameworks/base/packages/Keyguard/res/values/config_ex.xml
+===================================================================
+--- frameworks/base/packages/Keyguard/res/values/config_ex.xml	(revision 171473)
++++ frameworks/base/packages/Keyguard/res/values/config_ex.xml	(revision 171474)
+@@ -6,7 +6,7 @@
+     <bool name="config_enableSimpleSOS">false</bool>
+     <!-- SPRD: Feature 478361,[CUCC] NO Sim card,Do not show emergency button -->
+     <string name="plugin_keyguard_operator" translatable="false">plugin.sprd.keyguardTelephonyAddon.KeyguardFeaturesForOperator</string>
+-    <bool name="config_show_rat_append_operator">true</bool>
++    <bool name="config_show_rat_append_operator">false</bool>
+     <bool name="config_show_2g">false</bool>
+     <bool name="config_show_4g">true</bool>
+     <!-- SPRD: Feature 619679,[CMCC] Do not show spn when plmn is on display -->

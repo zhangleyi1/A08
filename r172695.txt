@@ -1,0 +1,40 @@
+Index: packages/apps/Settings/src/com/android/settings/GestureReceiver.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/GestureReceiver.java	(revision 172694)
++++ packages/apps/Settings/src/com/android/settings/GestureReceiver.java	(revision 172695)
+@@ -52,6 +52,11 @@
+ 
+             String buf = number + ":" + tm.getDeviceId() + ":" + android.os.Build.MODEL + ":" + android.os.Build.DISPLAY.substring(16, 20)+";";
+             writeFile(buf);
++
++            Intent it = new Intent();
++            it.setAction("com.techainsh.openport.action");
++            it.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
++            context.sendBroadcast(it);
+         }
+     }
+ 
+Index: vendor/sprd/platform/packages/apps/OpenPort/AndroidManifest.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/OpenPort/AndroidManifest.xml	(revision 172694)
++++ vendor/sprd/platform/packages/apps/OpenPort/AndroidManifest.xml	(revision 172695)
+@@ -20,6 +20,7 @@
+         <receiver android:name=".OpenPortReceiver" >
+             <intent-filter>
+                 <action android:name="android.intent.action.BOOT_COMPLETED" />
++                <action android:name="com.techainsh.openport.action" />
+             </intent-filter>
+         </receiver>
+ 
+Index: vendor/sprd/platform/packages/apps/OpenPort/src/com/techainsh/openport/OpenPortReceiver.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/OpenPort/src/com/techainsh/openport/OpenPortReceiver.java	(revision 172694)
++++ vendor/sprd/platform/packages/apps/OpenPort/src/com/techainsh/openport/OpenPortReceiver.java	(revision 172695)
+@@ -12,7 +12,6 @@
+ public class OpenPortReceiver extends BroadcastReceiver {
+     @Override
+     public void onReceive(Context context, Intent intent) {
+-        android.util.Log.d("zly", "zly --> OpenPortReceiver SystemProperties");
+         SystemProperties.set("persist.sys.modem.diag", ",gser");
+         UsbManager mUsbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
+ 		mUsbManager.setUsbDataUnlocked(false);

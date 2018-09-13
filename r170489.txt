@@ -1,0 +1,13 @@
+Index: kernel/drivers/power/sprd_charge_helper.h
+===================================================================
+--- kernel/drivers/power/sprd_charge_helper.h	(revision 170488)
++++ kernel/drivers/power/sprd_charge_helper.h	(revision 170489)
+@@ -18,7 +18,7 @@
+ #define SPRDBAT_TEMP_TRIGGER_TIMES 2
+ 
+ #define CHG_CUR_ADJUST
+-//#define CHG_CUR_JEITA
++#define CHG_CUR_JEITA
+ //#define JEITA_DEBUG
+ 
+ void sprdchg_timer_enable(uint32_t cycles);

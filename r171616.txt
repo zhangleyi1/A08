@@ -1,0 +1,197 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardFragment.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardFragment.java	(revision 171615)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardFragment.java	(revision 171616)
+@@ -206,6 +206,7 @@
+     public float mSecondryCallInfoHeight;//SPRD:Add for bug531347
+     private boolean mShowNumAndTime = true;//SPRD: add for bug603665
+     private View mTelcelIndicator;    // SPRD: Support Telcel Operator requirement.
++    private ImageButton mVolumeBoostUpButton;
+ 
+     @Override
+     public CallCardPresenter.CallCardUi getUi() {
+@@ -386,6 +387,18 @@
+             mTelcelIndicator.setVisibility(InCallUITelcelHelper.getInstance(getActivity())
+                     .isShowTelcelIndicator() ? View.VISIBLE : View.GONE);
+         }
++        mVolumeBoostUpButton = (ImageButton) view.findViewById(
++                R.id.volume_boost_up);
++        if (mVolumeBoostUpButton != null) {
++            mVolumeBoostUpButton.setTag("OFF");
++            mVolumeBoostUpButton.setOnClickListener(new View.OnClickListener() {
++                @Override
++                public void onClick(View v) {
++                      getPresenter().onVolumeBoostButtonTouched(v);
++                }
++            });
++        }
++
+     }
+ 
+     @Override
+@@ -1509,7 +1522,12 @@
+     public boolean isCallSubjectVisible() {
+         return mCallSubject.getVisibility() == View.VISIBLE;
+     }
+-
++    @Override
++    public void showVolumeBoostButton(boolean visible) {
++        if (mVolumeBoostUpButton != null) {
++            mVolumeBoostUpButton.setVisibility(visible ? View.VISIBLE : View.GONE);
++        }
++    }
+     /**
+      * Get the overall InCallUI background colors and apply to call card.
+      */
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardPresenter.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardPresenter.java	(revision 171615)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardPresenter.java	(revision 171616)
+@@ -24,6 +24,7 @@
+ import android.content.pm.ApplicationInfo;
+ import android.content.pm.PackageManager;
+ import android.graphics.drawable.Drawable;
++import android.media.AudioManager;
+ import android.net.Uri;
+ import android.os.Bundle;
+ import android.os.SystemClock;
+@@ -39,8 +40,9 @@
+ import android.text.TextUtils;
+ import android.view.View;
+ import android.view.accessibility.AccessibilityManager;
++import android.widget.ImageButton;
+ import android.widget.ListAdapter;
+-
++import android.widget.Toast;
+ import com.android.contacts.common.ContactsUtils;
+ import com.android.contacts.common.compat.telecom.TelecomManagerCompat;
+ import com.android.contacts.common.preference.ContactsPreferences;
+@@ -98,6 +100,9 @@
+     // SPRD: FDN in dialer feature.
+     private static final int INVALID_SUBSCRIPTION_ID = -1;
+ 
++    private AudioManager mAudioManager;
++    private int mNormalCallVolume = 0;
++    int mMaxCallVolume = 0;
+     public static class ContactLookupCallback implements ContactInfoCacheCallback {
+         private final WeakReference<CallCardPresenter> mCallCardPresenter;
+         private final boolean mIsPrimary;
+@@ -146,7 +151,9 @@
+         mContext = Preconditions.checkNotNull(context);
+         mDistanceHelper = ObjectFactory.newDistanceHelper(mContext, this);
+         mContactsPreferences = ContactsPreferencesFactory.newContactsPreferences(mContext);
++        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+ 
++
+         // Call may be null if disconnect happened already.
+         if (call != null) {
+             mPrimary = call;
+@@ -345,6 +352,7 @@
+         }
+ 
+         maybeShowManageConferenceCallButton();
++        maybeShowVolumeBoostButton(mPrimary);
+ 
+         // Hide the end call button instantly if we're receiving an incoming call.
+         getUi().setEndCallButtonEnabled(shouldShowEndCallButton(mPrimary, callState),
+@@ -1249,5 +1257,35 @@
+         void sendAccessibilityAnnouncement();
+         void showNoteSentToast();
+         void showHdAudioIndicatorPlugin(Call call, Context context); // SPRD: Add incallui Hd Voice
++        void showVolumeBoostButton(boolean visible);
+     }
++    /*SPRD: add for Volume boost*/
++    public void onVolumeBoostButtonTouched(View view) {
++        ImageButton bt = (ImageButton)view;
++        String tag = (String)bt.getTag();
++        mMaxCallVolume= mAudioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL);
++        if (tag.equals("OFF")) {
++            view.setTag("ON");
++            mNormalCallVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL);
++            mAudioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, mMaxCallVolume, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
++            bt.setImageResource(R.drawable.fab_blue);
++            Toast.makeText(mContext, mContext.getString(R.string.volume_boost_on),Toast.LENGTH_SHORT).show();
++            Log.i("this", "set volume max:" + mMaxCallVolume) ;
++        }else{
++           view.setTag("OFF");
++           mAudioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, mNormalCallVolume, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
++           bt.setImageResource(R.drawable.fab_red);
++           Toast.makeText(mContext, mContext.getString(R.string.volume_boost_off),Toast.LENGTH_SHORT).show();
++           Log.i("this", "set volume normal:" + mNormalCallVolume) ;
++         }
++    }
++    private boolean shouldShowVolumeBoostButton(Call call) {
++        if (call == null  || call.isVideoCall(mContext) || call.can(android.telecom.Call.Details.CAPABILITY_MANAGE_CONFERENCE)) {
++            return false;
++        }
++        return true;
++    }
++    private void maybeShowVolumeBoostButton(Call call){
++        getUi().showVolumeBoostButton(shouldShowVolumeBoostButton(call));
++    }
+ }
+Index: packages/apps/Dialer/InCallUI/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/values-zh-rCN/strings.xml	(revision 171615)
++++ packages/apps/Dialer/InCallUI/res/values-zh-rCN/strings.xml	(revision 171616)
+@@ -207,5 +207,7 @@
+     <string name="display_preview_video">显示本端图像</string>
+     <string name="set_substitute_image">请先设置替换图片</string>
+     <!-- @} -->
++    <string name="volume_boost_on">音量提升打开</string>
++   <string name="volume_boost_off">音量提升关闭</string>
+ 
+ </resources>
+Index: packages/apps/Dialer/InCallUI/res/values/strings.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/values/strings.xml	(revision 171615)
++++ packages/apps/Dialer/InCallUI/res/values/strings.xml	(revision 171616)
+@@ -539,4 +539,6 @@
+     <string name="display_preview_video">Display Preview Video</string>
+     <string name="set_substitute_image">Please first set substitute image</string>
+     <!-- @} -->
++   <string name="volume_boost_on">Volume boost ON</string>
++   <string name="volume_boost_off">Volume boost OFF</string>
+ </resources>
+Index: packages/apps/Dialer/InCallUI/res/layout-h400dp/call_card_fragment.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/layout-h400dp/call_card_fragment.xml	(revision 171615)
++++ packages/apps/Dialer/InCallUI/res/layout-h400dp/call_card_fragment.xml	(revision 171616)
+@@ -133,6 +133,16 @@
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_below="@+id/telcel_info"/>
++                
++            <ImageButton
++                android:id="@+id/volume_boost_up"
++                android:layout_width="wrap_content"
++                android:layout_height="wrap_content"
++                android:layout_below="@id/telcel_info"
++                android:padding="@dimen/call_banner_side_padding"
++                android:src="@drawable/fab_red"
++                android:background="#00000000"
++                android:visibility="visible" />   
+ 
+             <!-- Placeholder for various fragments that are added dynamically underneath the caller info. -->
+             <FrameLayout
+Index: packages/apps/Dialer/InCallUI/res/layout/call_card_fragment.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/layout/call_card_fragment.xml	(revision 171615)
++++ packages/apps/Dialer/InCallUI/res/layout/call_card_fragment.xml	(revision 171616)
+@@ -133,6 +133,16 @@
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_below="@id/telcel_info"/>
++                
++            <ImageButton
++                android:id="@+id/volume_boost_up"
++                android:layout_width="wrap_content"
++                android:layout_height="wrap_content"
++                android:layout_below="@id/telcel_info"
++                android:padding="@dimen/call_banner_side_padding"
++                android:src="@drawable/fab_blue"
++                android:background="#00000000"
++                android:visibility="visible" />
+ 
+ 
+             <!-- Placeholder for various fragments that are added dynamically underneath the caller info. -->

@@ -1,0 +1,40 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res/values/arrays.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res/values/arrays.xml	(revision 173001)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res/values/arrays.xml	(revision 173002)
+@@ -622,7 +622,7 @@
+     <string-array name="pref_camera_ai_detect_entries">
+         <item>@string/pref_ai_detect_entry_off</item>
+         <item>@string/pref_ai_detect_entry_face</item>
+-        <item>@string/pref_ai_detect_entry_smile</item>
++        <!--<item>@string/pref_ai_detect_entry_smile</item>-->
+     </string-array>
+     <string-array name="pref_camera_ai_detect_entries_removesmile">
+         <item>@string/pref_ai_detect_entry_off</item>
+@@ -631,7 +631,7 @@
+     <string-array name="pref_camera_ai_detect_entryvalues" translatable="false">
+         <item>@string/pref_ai_detect_entry_value_off</item>
+         <item>@string/pref_ai_detect_entry_value_face</item>
+-        <item>@string/pref_ai_detect_entry_value_smile</item>
++        <!--<item>@string/pref_ai_detect_entry_value_smile</item>-->
+     </string-array>
+     <!-- }@ dev new feature face detect end -->
+ 
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/xml/dream_camera_preferences.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/xml/dream_camera_preferences.xml	(revision 173001)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/xml/dream_camera_preferences.xml	(revision 173002)
+@@ -171,11 +171,11 @@
+             android:title="@string/pref_camera_gradienter_key_title" />
+ 
+         <!-- SPRD: Add touching photograph -->
+-        <com.dream.camera.settings.DreamUIPreferenceItemSwitch
++       <!-- <com.dream.camera.settings.DreamUIPreferenceItemSwitch
+             android:defaultValue="false"
+             android:key="@string/pref_camera_touching_photograph_key"
+             android:layout="@layout/dream_ui_preference_custom"
+-            android:title="@string/pref_camera_touching_photograph_key_title" />
++            android:title="@string/pref_camera_touching_photograph_key_title" /> -->
+ 
+         <!-- SPRD: Add time stamp -->
+         <com.dream.camera.settings.DreamUIPreferenceItemSwitch

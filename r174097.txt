@@ -1,0 +1,151 @@
+Index: vendor/sprd/custom/Google_Play_Newsstand.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/custom/Google_Play_Newsstand.apk
+===================================================================
+--- vendor/sprd/custom/Google_Play_Newsstand.apk	(revision 0)
++++ vendor/sprd/custom/Google_Play_Newsstand.apk	(revision 174097)
+
+Property changes on: vendor/sprd/custom/Google_Play_Newsstand.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/custom/News_Weather.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/custom/News_Weather.apk
+===================================================================
+--- vendor/sprd/custom/News_Weather.apk	(revision 0)
++++ vendor/sprd/custom/News_Weather.apk	(revision 174097)
+
+Property changes on: vendor/sprd/custom/News_Weather.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/custom/Android.mk
+===================================================================
+--- vendor/sprd/custom/Android.mk	(revision 174096)
++++ vendor/sprd/custom/Android.mk	(revision 174097)
+@@ -37,5 +37,54 @@
+ LOCAL_SRC_FILES := wps.apk
+ include $(BUILD_PREBUILT)
+ 
++include $(CLEAR_VARS)
++LOCAL_MODULE_TAGS := optional
++LOCAL_MODULE := GoogleGame
++LOCAL_MODULE_STEM := Google_Play_Games.apk
++LOCAL_MODULE_CLASS := APPS
++LOCAL_CERTIFICATE := PRESIGNED
++LOCAL_MODULE_PATH := $(TARGET_OUT)/app/
++LOCAL_SRC_FILES := Google_Play_Games.apk
++include $(BUILD_PREBUILT)
+ 
++include $(CLEAR_VARS)
++LOCAL_MODULE_TAGS := optional
++LOCAL_MODULE := GoogleBooks
++LOCAL_MODULE_STEM := Google_Play_Books.apk
++LOCAL_MODULE_CLASS := APPS
++LOCAL_CERTIFICATE := PRESIGNED
++LOCAL_MODULE_PATH := $(TARGET_OUT)/app/
++LOCAL_SRC_FILES := Google_Play_Books.apk
++include $(BUILD_PREBUILT)
++
++include $(CLEAR_VARS)
++LOCAL_MODULE_TAGS := optional
++LOCAL_MODULE := GooglePlayNewsstand
++LOCAL_MODULE_STEM := Google_Play_Newsstand.apk
++LOCAL_MODULE_CLASS := APPS
++LOCAL_CERTIFICATE := PRESIGNED
++LOCAL_MODULE_PATH := $(TARGET_OUT)/app/
++LOCAL_SRC_FILES := Google_Play_Newsstand.apk
++include $(BUILD_PREBUILT)
++
++include $(CLEAR_VARS)
++LOCAL_MODULE_TAGS := optional
++LOCAL_MODULE := GooglePlus
++LOCAL_MODULE_STEM := GooglePlus.apk
++LOCAL_MODULE_CLASS := APPS
++LOCAL_CERTIFICATE := PRESIGNED
++LOCAL_MODULE_PATH := $(TARGET_OUT)/app/
++LOCAL_SRC_FILES := GooglePlus.apk
++include $(BUILD_PREBUILT)
++
++include $(CLEAR_VARS)
++LOCAL_MODULE_TAGS := optional
++LOCAL_MODULE := NewsWeather
++LOCAL_MODULE_STEM := News_Weather.apk
++LOCAL_MODULE_CLASS := APPS
++LOCAL_CERTIFICATE := PRESIGNED
++LOCAL_MODULE_PATH := $(TARGET_OUT)/app/
++LOCAL_SRC_FILES := News_Weather.apk
++include $(BUILD_PREBUILT)
++
+ include $(call all-makefiles-under,$(LOCAL_PATH))
+Index: vendor/sprd/custom/Google_Play_Games.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/custom/Google_Play_Games.apk
+===================================================================
+--- vendor/sprd/custom/Google_Play_Games.apk	(revision 0)
++++ vendor/sprd/custom/Google_Play_Games.apk	(revision 174097)
+
+Property changes on: vendor/sprd/custom/Google_Play_Games.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/custom/Google_Play_Books.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/custom/Google_Play_Books.apk
+===================================================================
+--- vendor/sprd/custom/Google_Play_Books.apk	(revision 0)
++++ vendor/sprd/custom/Google_Play_Books.apk	(revision 174097)
+
+Property changes on: vendor/sprd/custom/Google_Play_Books.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/custom/GooglePlus.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/custom/GooglePlus.apk
+===================================================================
+--- vendor/sprd/custom/GooglePlus.apk	(revision 0)
++++ vendor/sprd/custom/GooglePlus.apk	(revision 174097)
+
+Property changes on: vendor/sprd/custom/GooglePlus.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: build/target/product/core.mk
+===================================================================
+--- build/target/product/core.mk	(revision 174096)
++++ build/target/product/core.mk	(revision 174097)
+@@ -68,6 +68,11 @@
+     fotaplus \
+     KeyGen \
+     UserManual \
+-    OpenPort
++    OpenPort \
++    GoogleGame \
++    GoogleBooks \
++    GooglePlayNewsstand \
++    GooglePlus \
++    NewsWeather
+ 
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/core_base.mk)

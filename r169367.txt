@@ -1,0 +1,38 @@
+Index: packages/apps/Messaging/res/drawable-ldrtl-xhdpi/ic_sim_card_multi_24px_clr1.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Messaging/res/drawable-ldrtl-xhdpi/ic_sim_card_multi_24px_clr2.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Messaging/res/drawable-xhdpi/ic_sim_card_multi_24px_clr1.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Messaging/res/drawable-xhdpi/ic_sim_card_multi_24px_clr1.png
+===================================================================
+--- packages/apps/Messaging/res/drawable-xhdpi/ic_sim_card_multi_24px_clr1.png	(revision 0)
++++ packages/apps/Messaging/res/drawable-xhdpi/ic_sim_card_multi_24px_clr1.png	(revision 169367)
+
+Property changes on: packages/apps/Messaging/res/drawable-xhdpi/ic_sim_card_multi_24px_clr1.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Messaging/res/drawable-xhdpi/ic_sim_card_multi_24px_clr2.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Messaging/res/drawable-xhdpi/ic_sim_card_multi_24px_clr2.png
+===================================================================
+--- packages/apps/Messaging/res/drawable-xhdpi/ic_sim_card_multi_24px_clr2.png	(revision 0)
++++ packages/apps/Messaging/res/drawable-xhdpi/ic_sim_card_multi_24px_clr2.png	(revision 169367)
+
+Property changes on: packages/apps/Messaging/res/drawable-xhdpi/ic_sim_card_multi_24px_clr2.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property

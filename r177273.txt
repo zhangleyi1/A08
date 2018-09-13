@@ -1,0 +1,10 @@
+Index: packages/services/Telephony/res/values-in/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values-in/strings.xml	(revision 177272)
++++ packages/services/Telephony/res/values-in/strings.xml	(revision 177273)
+@@ -566,4 +566,5 @@
+     <string name="network_mode_dialog_content">Pada mode LTE Saja, Panggilan Suara dan SMS akan melalui Jaringan LTE.</string>
+     <string name="network_mode_dialog_ok">OK</string>
+     <string name="network_mode_dialog_cancel">CANCEL</string>
++    <string name="headset_auto_answer_title">Headset otomatis jawab</string>
+ 	</resources>

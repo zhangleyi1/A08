@@ -1,0 +1,13 @@
+Index: packages/apps/Messaging/src/com/android/messaging/util/PhoneUtils.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/util/PhoneUtils.java	(revision 166646)
++++ packages/apps/Messaging/src/com/android/messaging/util/PhoneUtils.java	(revision 166647)
+@@ -999,7 +999,7 @@
+      * Returns whether the given destination is valid for sending SMS/MMS message.
+      */
+     public static boolean isValidSmsMmsDestination(final String destination) {
+-        return (PhoneNumberUtils.isWellFormedSmsAddress(destination) && MmsSmsUtils.isPhoneNumber(destination))||
++        return (PhoneNumberUtils.isWellFormedSmsAddress(destination) /* && MmsSmsUtils.isPhoneNumber(destination)*/)||
+                 MmsSmsUtils.isEmailAddress(destination);
+     }
+ 

@@ -1,0 +1,67 @@
+Index: frameworks/base/core/java/com/android/internal/app/LocaleStore.java
+===================================================================
+--- frameworks/base/core/java/com/android/internal/app/LocaleStore.java	(revision 166728)
++++ frameworks/base/core/java/com/android/internal/app/LocaleStore.java	(revision 166729)
+@@ -375,6 +375,7 @@
+         return result;
+     }
+ 	
++	//add for bug 92026 by zhangchi {//
+ 	public static List<LocaleStore.LocaleInfo> getUserDefultLocaleList(Context context) {
+          final List<LocaleStore.LocaleInfo> result = new ArrayList<>();
+ 
+@@ -389,5 +390,5 @@
+ 		}
+          return result;
+     }
+-	
++	//add for bug 92026 by zhangchi  //}
+ }
+
+Property changes on: frameworks/base/core/java/com/android/internal/app/LocaleStore.java
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/frameworks/base/core/java/com/android/internal/app/LocaleStore.java:r165629
+Index: packages/apps/Settings/src/com/android/settings/localepicker/LocaleListEditor.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/localepicker/LocaleListEditor.java	(revision 166728)
++++ packages/apps/Settings/src/com/android/settings/localepicker/LocaleListEditor.java	(revision 166729)
+@@ -220,6 +220,7 @@
+     }
+ 
+     private static List<LocaleStore.LocaleInfo> getUserLocaleList(Context context) {
++		//fix for bug 92026 by zhangchi start
+     /*    final List<LocaleStore.LocaleInfo> result = new ArrayList<>();
+ 
+         final LocaleList localeList = LocalePicker.getLocales();
+@@ -230,6 +231,7 @@
+ 
+         return result;
+ 	*/
++		//fix for bug 92026 by zhangchi end
+ 		return LocaleStore.getUserDefultLocaleList(context);
+     }
+ 
+@@ -244,6 +246,7 @@
+         list.setAdapter(mAdapter);
+ 
+         mAddLanguage = view.findViewById(R.id.add_language);
++		mAddLanguage.setVisibility(View.INVISIBLE);
+         mAddLanguage.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View v) {
+@@ -276,7 +279,8 @@
+         if (menuItemRemove != null) {
+             //menuItemRemove.setShowAsAction(
+                     //mRemoveMode ? MenuItem.SHOW_AS_ACTION_ALWAYS : MenuItem.SHOW_AS_ACTION_NEVER);
+-            menuItemRemove.setVisible(mAdapter.getItemCount() > 1);
++          //  menuItemRemove.setVisible(mAdapter.getItemCount() > 1);
++		   menuItemRemove.setVisible(false);
+         }
+     }
+ }
+
+Property changes on: packages/apps/Settings/src/com/android/settings/localepicker/LocaleListEditor.java
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Settings/src/com/android/settings/localepicker/LocaleListEditor.java:r165629

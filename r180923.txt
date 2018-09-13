@@ -1,0 +1,15 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-in/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-in/strings.xml	(revision 180922)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-in/strings.xml	(revision 180923)
+@@ -15,8 +15,8 @@
+ <string name="camera_mode_qrcode">"Kode QR"</string>
+ <string name="mode_timelapse">"Selang Waktu"</string>
+ <string name="camera_mode_slowmotion">"Gerak lambat"</string>
+-<string name="slide_panel_capture">"Menangkap"</string>
+-<string name="slide_panel_capture_video">"Menangkap"</string>
++<string name="slide_panel_capture">"Foto"</string>
++<string name="slide_panel_capture_video">"Video"</string>
+ <string name="slide_panel_mode">"Mode"</string>
+ <string name="slide_panel_filter">"Filter"</string>
+ <string name="extend_panel_exposure">"Pencahayaan"</string>

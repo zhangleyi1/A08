@@ -1,0 +1,34 @@
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/ServiceStateTracker.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/ServiceStateTracker.java	(revision 175204)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/ServiceStateTracker.java	(revision 175205)
+@@ -160,6 +160,7 @@
+     private boolean mPendingRadioPowerOffAfterDataOff = false;
+     private int mPendingRadioPowerOffAfterDataOffTag = 0;
+ 	private boolean mRoamingDialog = true;
++	private String lastOperatorNumeric = null;
+     /** Signal strength poll rate. */
+     private static final int POLL_PERIOD_MILLIS = 20 * 1000;
+ 
+@@ -2762,6 +2763,11 @@
+             tm.setNetworkRoamingForPhone(mPhone.getPhoneId(), mSS.getVoiceRoaming());
+ 
+             setRoamingType(mSS);
++			String newOperatorNumeric = mSS.getVoiceOperatorNumeric();
++            if (lastOperatorNumeric != null && newOperatorNumeric != null
++                    && !lastOperatorNumeric.equals(newOperatorNumeric)) {
++                mRoamingDialog = true;
++            }
+             final String SHOW_SMARTFREN_ROAMING_DIALOG = "android.intent.action.SHOW_SMARTFREN_ROAMING_DIALOG";
+             if(mSS.getVoiceRoamingType() == ServiceState.ROAMING_TYPE_INTERNATIONAL &&
+                     !operatorNumeric.equals("51009") && !operatorNumeric.equals("51028")&& mRoamingDialog){
+@@ -2769,8 +2775,7 @@
+                 Intent intent = new Intent(SHOW_SMARTFREN_ROAMING_DIALOG);
+                 intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+                 mPhone.getContext().sendBroadcast(intent);
+-            }else {
+-				mRoamingDialog = true;
++				lastOperatorNumeric = mSS.getVoiceOperatorNumeric();
+ 			}
+ 
+             log("Broadcasting ServiceState : " + mSS);

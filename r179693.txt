@@ -1,0 +1,68 @@
+Index: u-boot64/board/spreadtrum/sp9832a_2h11_volte/sprd_kp.c
+===================================================================
+--- u-boot64/board/spreadtrum/sp9832a_2h11_volte/sprd_kp.c	(revision 179692)
++++ u-boot64/board/spreadtrum/sp9832a_2h11_volte/sprd_kp.c	(revision 179693)
+@@ -25,7 +25,7 @@
+ 	int gpio_volumedown = -1;
+ 
+     sprd_eic_request(EIC_KEY2_7S_RST_EXT_RSTN_ACTIVE);
+-    udelay(3000);
++    //udelay(3000);
+     gpio_volumeup = sprd_eic_get(EIC_KEY2_7S_RST_EXT_RSTN_ACTIVE);
+     if(gpio_volumeup < 0)
+         printf("[eic keys] volumeup : sprd_eic_get return ERROR!\n");
+Index: u-boot64/common/cmd_cboot.c
+===================================================================
+--- u-boot64/common/cmd_cboot.c	(revision 179692)
++++ u-boot64/common/cmd_cboot.c	(revision 179693)
+@@ -191,7 +191,7 @@
+ 	uint32_t key_code = 0;
+ 	volatile int i;
+ 	if (boot_pwr_check() >= PWR_KEY_DETECT_CNT) {
+-		mdelay(50);
++		//mdelay(50);
+ 		for (i = 0; i < 10; i++) {
+ 			key_code = board_key_scan();
+ 			if(key_code != KEY_RESERVED)
+Index: u-boot64/drivers/video/sprdfb/sprdfb_panel.c
+===================================================================
+--- u-boot64/drivers/video/sprdfb/sprdfb_panel.c	(revision 179692)
++++ u-boot64/drivers/video/sprdfb/sprdfb_panel.c	(revision 179693)
+@@ -491,12 +491,12 @@
+ static int32_t panel_reset_dispc(struct panel_spec *self)
+ {
+ 	dispc_write(1, DISPC_RSTN);
+-	mdelay(20);
++	mdelay(5);
+ 	dispc_write(0, DISPC_RSTN);
+-	mdelay(20);
++	mdelay(5);
+ 	dispc_write(1, DISPC_RSTN);
+ 	/* wait 10ms util the lcd is stable */
+-	mdelay(120);
++	mdelay(20);
+ 	return 0;
+ }
+ 
+Index: u-boot64/drivers/misc/otp_helper.c
+===================================================================
+--- u-boot64/drivers/misc/otp_helper.c	(revision 179692)
++++ u-boot64/drivers/misc/otp_helper.c	(revision 179693)
+@@ -93,7 +93,7 @@
+ 	unsigned short adc_temp;
+ 
+ #if defined(CONFIG_ADIE_SC2723) || defined(CONFIG_ADIE_SC2723S)
+-	__adie_efuse_block_dump(); /* dump a-die efuse */
++	//__adie_efuse_block_dump(); /* dump a-die efuse */
+ 
+ 	/* verify the otp data of ememory written or not */
+ 	adc_temp = (__adie_efuse_read(0) & (1 << 7));
+@@ -102,7 +102,7 @@
+ 
+ 	deta = __adie_efuse_read_bits(BLK_ADC_DETA_ABC_OTP * BLK_WIDTH_OTP_EMEMORY, 16);
+ #elif defined(CONFIG_SPX30G) || defined(CONFIG_ARCH_SCX35L)
+-    	__ddie_efuse_block_dump(); /* dump d-die efuse */
++    	//__ddie_efuse_block_dump(); /* dump d-die efuse */
+ 
+ 	deta = __ddie_efuse_read(BLK_ADC_DETA);
+ #else

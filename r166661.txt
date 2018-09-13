@@ -1,0 +1,19 @@
+Index: device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 166660)
++++ device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 166661)
+@@ -182,6 +182,7 @@
+ $(call inherit-product, vendor/sprd/modules/wcn/connconfig/device-sprd-wcn.mk)
+ endif 
+ 
++$(call inherit-product, vendor/google/products/gms-mandatory.mk)
+ 
+ 
+ WCN_EXTENSION := true
+
+Property changes on: device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk:r163436
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk:r165584
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk:r163738

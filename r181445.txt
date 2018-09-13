@@ -1,0 +1,103 @@
+Index: packages/apps/Dialer/src/com/android/dialer/calllog/CallDetailHistoryAdapter.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/calllog/CallDetailHistoryAdapter.java	(revision 181444)
++++ packages/apps/Dialer/src/com/android/dialer/calllog/CallDetailHistoryAdapter.java	(revision 181445)
+@@ -151,20 +151,22 @@
+         } else {
+             /* SPRD: Add for volte and vowifi icon for Bug645018. @{*/
+             Log.d(TAG, "isVoLTECallEnable: " + (ImsManager.isVolteEnabledByPlatform(mContext)));
+-			volteCallIcon.setVisibility(View.GONE);
+-            /*if (isVolteCall && ImsManager.isVolteEnabledByPlatform(mContext)) {
++//			volteCallIcon.setVisibility(View.GONE);
++/*
++            if (isVolteCall && ImsManager.isVolteEnabledByPlatform(mContext)) {
+                 volteCallIcon.setImageResource(R.drawable.ic_voltecall);
+             } else {
+                 volteCallIcon.setVisibility(View.GONE);
+-            }*/
++            }
+ 
+             Log.d(TAG, "isWifiCallEnable: " + (ImsManager.isWfcEnabledByPlatform(mContext)));
+ 			vowifiCallIcon.setVisibility(View.GONE);
+-            /*if (isVoWifiCall && ImsManager.isWfcEnabledByPlatform(mContext)) {
++            if (isVoWifiCall && ImsManager.isWfcEnabledByPlatform(mContext)) {
+                 vowifiCallIcon.setImageResource(R.drawable.ic_vowificall);
+             } else {
+                 vowifiCallIcon.setVisibility(View.GONE);
+-            }*/
++            }
++            */
+             /* @} */
+         }
+         callTypeIconView.clear();
+Index: packages/apps/Dialer/src/com/android/dialer/calllog/PhoneCallDetailsHelper.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/calllog/PhoneCallDetailsHelper.java	(revision 181444)
++++ packages/apps/Dialer/src/com/android/dialer/calllog/PhoneCallDetailsHelper.java	(revision 181445)
+@@ -45,7 +45,13 @@
+ import java.util.ArrayList;
+ import java.util.Calendar;
+ import java.util.concurrent.TimeUnit;
++import android.graphics.Bitmap;
++import android.graphics.drawable.Drawable;
++import android.graphics.PorterDuff;
++import android.graphics.BitmapFactory;
++import android.graphics.drawable.BitmapDrawable;
+ 
++
+ /**
+  * Helper class to fill in the views in {@link PhoneCallDetailsViews}.
+  */
+@@ -215,20 +221,28 @@
+         } else {
+             /* SPRD: Add for volte and vowifi icon for Bug645018. @{*/
+             Log.d(TAG, "isVoLTECallEnable: " + (ImsManager.isVolteEnabledByPlatform(mContext)));
+-			views.volteIcon.setVisibility(View.GONE);
+-			views.videoIcon.setVisibility(View.GONE);
+-			views.voWifiIcon.setVisibility(View.GONE);
+-           /* if (isVolteCall && ImsManager.isVolteEnabledByPlatform(mContext)) {
++            /*
++            views.volteIcon.setVisibility(View.GONE);
++            views.videoIcon.setVisibility(View.GONE);
++            views.voWifiIcon.setVisibility(View.GONE);
++
++            if (isVolteCall && ImsManager.isVolteEnabledByPlatform(mContext)) {
+                 views.volteIcon.setVisibility(View.VISIBLE);
+             } else {
+                 views.volteIcon.setVisibility(View.GONE);
+             }
+-			if (isVideoCall && ImsManager.isVolteEnabledByPlatform(mContext)) {
++            */
++
++            if (isVideoCall && ImsManager.isVolteEnabledByPlatform(mContext)) {
+                 views.volteIcon.setVisibility(View.GONE);
++                Drawable videoCall = getScaledBitmap(mContext, R.drawable.ic_videocam_24dp);
++                videoCall.setColorFilter(mContext.getResources().getColor(R.color.dialtacts_secondary_text_color),
++                    PorterDuff.Mode.MULTIPLY);
++                views.videoIcon.setImageDrawable(videoCall);
+                 views.videoIcon.setVisibility(View.VISIBLE);
+             } else {
+                 views.videoIcon.setVisibility(View.GONE);
+-            }*/
++            }
+ 
+             Log.d(TAG, "isWifiCallEnable: " + (ImsManager.isWfcEnabledByPlatform(mContext)));
+             /*if (isVoWifiCall && ImsManager.isWfcEnabledByPlatform(mContext)) {
+@@ -248,6 +262,17 @@
+                 R.color.call_log_detail_color : R.color.call_log_unread_text_color));
+     }
+ 
++    private Drawable getScaledBitmap(Context context, int resourceId) {
++        Bitmap icon = BitmapFactory.decodeResource(context.getResources(), resourceId);
++        int scaledHeight =
++                context.getResources().getDimensionPixelSize(R.dimen.call_type_icon_size);
++        int scaledWidth = (int) ((float) icon.getWidth()
++                * ((float) scaledHeight / (float) icon.getHeight()));
++        Bitmap scaledIcon = Bitmap.createScaledBitmap(icon, scaledWidth, scaledHeight, false);
++        return new BitmapDrawable(context.getResources(), scaledIcon);
++    }
++
++
+     /**
+      * Builds a string containing the call location and date. For voicemail logs only the call date
+      * is returned because location information is displayed in the call action button

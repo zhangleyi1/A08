@@ -1,0 +1,112 @@
+Index: frameworks/base/services/core/java/com/android/server/BatteryService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/BatteryService.java	(revision 172201)
++++ frameworks/base/services/core/java/com/android/server/BatteryService.java	(revision 172202)
+@@ -57,8 +57,8 @@
+ import java.io.FileOutputStream;
+ import java.io.IOException;
+ import java.io.PrintWriter;
++import android.widget.Toast;
+ 
+-
+ /**
+  * <p>BatteryService monitors the charging status, and charge level of the device
+  * battery.  When these values change this service broadcasts the new values
+@@ -149,6 +149,8 @@
+ 
+     private boolean mSentLowBatteryBroadcast = false;
+ 
++    private int mStopChargeBatteryTemperature;
++
+     public BatteryService(Context context) {
+         super(context);
+ 
+@@ -165,6 +167,8 @@
+                 com.android.internal.R.integer.config_lowBatteryCloseWarningBump);
+         mShutdownBatteryTemperature = mContext.getResources().getInteger(
+                 com.android.internal.R.integer.config_shutdownBatteryTemperature);
++        mStopChargeBatteryTemperature = mContext.getResources().getInteger(
++                com.android.internal.R.integer.config_stopChargeBatteryTemperature);
+ 
+         // watch for invalid charger messages if the invalid_charger switch exists
+         if (new File("/sys/devices/virtual/switch/invalid_charger/state").exists()) {
+@@ -329,6 +333,19 @@
+         }
+     }
+ 
++    private void stopChargeInfOverTempNotify () {
++        Log.d(TAG, "Battery over-temperature stop charge, batteryTemperature : "
++                  + mBatteryProps.batteryTemperature + " mStopChargeBatteryTemperature:" + mStopChargeBatteryTemperature);
++        if (mBatteryProps.batteryTemperature > mStopChargeBatteryTemperature) {
++            mHandler.post(new Runnable() {
++                @Override
++                public void run() {
++                    Toast.makeText(mContext, mContext.getResources().getString(com.android.internal.R.string.tempNofity), Toast.LENGTH_SHORT).show();
++                }
++            });
++        }
++    }
++
+     private void update(BatteryProperties props) {
+         synchronized (mLock) {
+             if (!mUpdatesStopped) {
+@@ -386,6 +403,7 @@
+ 
+         shutdownIfNoPowerLocked();
+         shutdownIfOverTempLocked();
++        stopChargeInfOverTempNotify();
+ 
+         if (force || (mBatteryProps.batteryStatus != mLastBatteryStatus ||
+                 mBatteryProps.batteryHealth != mLastBatteryHealth ||
+Index: frameworks/base/core/res/res/values-zh-rCN/strings.xml
+===================================================================
+--- frameworks/base/core/res/res/values-zh-rCN/strings.xml	(revision 172201)
++++ frameworks/base/core/res/res/values-zh-rCN/strings.xml	(revision 172202)
+@@ -1655,4 +1655,5 @@
+     <string name="audit_safemode_notification" msgid="6416076898350685856">"恢复出厂设置即可正常使用此设备，不受任何限制"</string>
+     <string name="audit_safemode_notification_details" msgid="1860601176690176413">"触摸即可了解详情。"</string>
+     <string name="suspended_widget_accessibility" msgid="6712143096475264190">"已停用的<xliff:g id="LABEL">%1$s</xliff:g>"</string>
++    <string name="tempNofity">温度过高，停止充电</string>
+ </resources>
+Index: frameworks/base/core/res/res/values/config.xml
+===================================================================
+--- frameworks/base/core/res/res/values/config.xml	(revision 172201)
++++ frameworks/base/core/res/res/values/config.xml	(revision 172202)
+@@ -904,7 +904,8 @@
+     <integer name="config_criticalBatteryWarningLevel">5</integer>
+ 
+     <!-- Shutdown if the battery temperature exceeds (this value * 0.1) Celsius. -->
+-    <integer name="config_shutdownBatteryTemperature">680</integer>
++    <integer name="config_shutdownBatteryTemperature">650</integer>
++    <integer name="config_stopChargeBatteryTemperature">550</integer>
+ 
+     <!-- Display low battery warning when battery level dips to this value -->
+     <integer name="config_lowBatteryWarningLevel">15</integer>
+Index: frameworks/base/core/res/res/values/symbols.xml
+===================================================================
+--- frameworks/base/core/res/res/values/symbols.xml	(revision 172201)
++++ frameworks/base/core/res/res/values/symbols.xml	(revision 172202)
+@@ -1750,6 +1750,7 @@
+   <java-symbol type="integer" name="config_screenBrightnessDim" />
+   <java-symbol type="integer" name="config_screenBrightnessDoze" />
+   <java-symbol type="integer" name="config_shutdownBatteryTemperature" />
++  <java-symbol type="integer" name="config_stopChargeBatteryTemperature" />
+   <java-symbol type="integer" name="config_undockedHdmiRotation" />
+   <java-symbol type="integer" name="config_virtualKeyQuietTimeMillis" />
+   <java-symbol type="integer" name="config_brightness_ramp_rate_fast" />
+@@ -2646,4 +2647,5 @@
+   <!-- modify for Bug#618149 end -->
+   <!-- SPRD: Bug 635939 Telcel Query USSD Balance -->
+   <java-symbol type="bool" name="config_telcel_operator" />
++  <java-symbol type="string" name="tempNofity" />
+ </resources>
+Index: frameworks/base/core/res/res/values/strings.xml
+===================================================================
+--- frameworks/base/core/res/res/values/strings.xml	(revision 172201)
++++ frameworks/base/core/res/res/values/strings.xml	(revision 172202)
+@@ -4380,4 +4380,5 @@
+ 
+     <!-- Accessibilty string added to a widget that has been suspended [CHAR LIMIT=20] -->
+     <string name="suspended_widget_accessibility">Disabled <xliff:g id="label" example="Calendar">%1$s</xliff:g></string>
++    <string name="tempNofity">It\'s too hot to charge</string>
+ </resources>

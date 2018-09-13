@@ -1,0 +1,15 @@
+Index: frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java	(revision 178924)
++++ frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java	(revision 178925)
+@@ -20258,7 +20258,9 @@
+     private void initLmkWhiteList() {
+         mLmkWhiteList.add("com.whatsapp");
+         mLmkWhiteList.add("com.bitsmedia.android.muslimpro");
+-        }
++        mLmkWhiteList.add("jp.naver.line.android");
++    }
++
+     private void increaseAppAdjLocked(ProcessRecord app) {
+         if(app.info == null) {
+             return;

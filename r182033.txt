@@ -1,0 +1,21 @@
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/dataconnection/DcTracker.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/dataconnection/DcTracker.java	(revision 182032)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/dataconnection/DcTracker.java	(revision 182033)
+@@ -1623,6 +1623,7 @@
+                 mPhone.getSubId(), mPhone.getServiceState().getDataRoaming())));
+ 
+         //Limited SimData according by mccmnc
++/*
+         TelephonyManager tm = TelephonyManager.getDefault();
+         String numeric = tm.getSimOperator();
+         log("trySetupData limited sim mccmnc = "  + numeric);
+@@ -1635,6 +1636,8 @@
+         log("trySetupData limited sim bLimitedSimData = "  + bLimitedSimData);
+ 
+         if (!bLimitedSimData && apnContext.isConnectable() && (isEmergencyApn ||
++*/
++        if (apnContext.isConnectable() && (isEmergencyApn ||
+                 (isDataAllowed && isDataAllowedForApn(apnContext) &&
+                 isDataEnabled(checkUserDataEnabled) && !isEmergency())) && !mColdSimDetected ) {
+             if (apnContext.getState() == DctConstants.State.FAILED) {

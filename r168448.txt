@@ -1,0 +1,57 @@
+Index: packages/apps/Dialer/res/values-in/strings.xml
+===================================================================
+--- packages/apps/Dialer/res/values-in/strings.xml	(revision 168447)
++++ packages/apps/Dialer/res/values-in/strings.xml	(revision 168448)
+@@ -271,4 +271,5 @@
+     <string name="toast_cannot_write_system_settings" msgid="5614246168296606709">"Aplikasi telepon tidak memiliki izin untuk menulis ke setelan sistem."</string>
+     <string name="blocked_number_call_log_label" msgid="8912042441473014712">"Diblokir"</string>
+     <string name="accessibility_call_is_active" msgid="2297282583928508760">"<xliff:g id="NAMEORNUMBER">^1</xliff:g> aktif"</string>
++	<string name="call_using_gsm">Memanggil dengan GSM	</string>
+ </resources>
+Index: packages/apps/Dialer/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/apps/Dialer/res/values-zh-rCN/strings.xml	(revision 168447)
++++ packages/apps/Dialer/res/values-zh-rCN/strings.xml	(revision 168448)
+@@ -277,4 +277,5 @@
+     <!-- SPRD: add for bug616290 -->
+     <string name="location_permission_message">"要允许电话获取此设备的位置信息吗？"</string>
+     <string name="version_title">"版本号"</string>
++	<string name="call_using_gsm">使用GSM网络</string>
+ </resources>
+Index: packages/apps/Dialer/res/values/strings.xml
+===================================================================
+--- packages/apps/Dialer/res/values/strings.xml	(revision 168447)
++++ packages/apps/Dialer/res/values/strings.xml	(revision 168448)
+@@ -639,6 +639,7 @@
+ 
+     <!-- Shortcut item used to add a number directly to a new contact from search.
+          [CHAR LIMIT=25] -->
++	<string name="call_using_gsm">Call using GSM</string>
+     <string name="search_shortcut_create_new_contact">Create new contact</string>
+ 
+     <!-- Shortcut item used to add a number to an existing contact directly from search.
+Index: packages/apps/Dialer/res/layout/call_log_list_item_actions.xml
+===================================================================
+--- packages/apps/Dialer/res/layout/call_log_list_item_actions.xml	(revision 168447)
++++ packages/apps/Dialer/res/layout/call_log_list_item_actions.xml	(revision 168448)
+@@ -73,6 +73,20 @@
+ 
+     </LinearLayout>
+ 
++	 <LinearLayout
++        android:id="@+id/call_using_GSM"
++        style="@style/CallLogActionStyle">
++
++        <ImageView
++            style="@style/CallLogActionIconStyle"
++            android:src="@drawable/ic_phone_24dp" />
++
++        <TextView
++            style="@style/CallLogActionTextStyle"
++            android:text="@string/call_using_gsm" />
++
++    </LinearLayout>
++	
+     <LinearLayout
+         android:id="@+id/create_new_contact_action"
+         style="@style/CallLogActionStyle">

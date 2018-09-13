@@ -1,0 +1,20 @@
+Index: vendor/sprd/platform/packages/apps/SprdContacts/plugins/addons/ContactsDefaultContactAddon/src/plugin/sprd/contactsdefaultcontact/PreDefineContactsService.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/plugins/addons/ContactsDefaultContactAddon/src/plugin/sprd/contactsdefaultcontact/PreDefineContactsService.java	(revision 166762)
++++ vendor/sprd/platform/packages/apps/SprdContacts/plugins/addons/ContactsDefaultContactAddon/src/plugin/sprd/contactsdefaultcontact/PreDefineContactsService.java	(revision 166763)
+@@ -160,7 +160,9 @@
+         }
+ 
+         protected void execute() {
+-            executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void[]) null);
++		//fix for bug 92592 by zhangchi start	
++            //executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void[]) null);
++		//fix for bug 92592 by zhangchi end	
+         }
+     }
+ }
+
+Property changes on: vendor/sprd/platform/packages/apps/SprdContacts/plugins/addons/ContactsDefaultContactAddon/src/plugin/sprd/contactsdefaultcontact/PreDefineContactsService.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/platform/packages/apps/SprdContacts/plugins/addons/ContactsDefaultContactAddon/src/plugin/sprd/contactsdefaultcontact/PreDefineContactsService.java:r165650

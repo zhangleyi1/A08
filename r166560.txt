@@ -1,0 +1,129 @@
+Index: vendor/sprd/modules/libcamera/oem2v0/src/cmr_oem.c
+===================================================================
+--- vendor/sprd/modules/libcamera/oem2v0/src/cmr_oem.c	(revision 166559)
++++ vendor/sprd/modules/libcamera/oem2v0/src/cmr_oem.c	(revision 166560)
+@@ -4214,7 +4214,8 @@
+ 	struct setting_cmd_parameter    setting_param;
+ 	cmr_int                        flash_status;
+ 
+-	if (0 == camera_id || 1 == camera_id) {
++	//if(camera_id == 0)/**add frontflash*/
++	{
+ 		setting_param.camera_id = camera_id;
+ 		ret = cmr_setting_ioctl(cxt->setting_cxt.setting_handle, SETTING_GET_HW_FLASH_STATUS, &setting_param);
+ 		if (ret) {
+@@ -4347,7 +4348,8 @@
+ 		goto exit;
+ 	}
+ 
+-	if (0 == camera_id) {
++	//if (0 == camera_id) /**add frontflash*/
++	{
+ 		setting_param.camera_id = camera_id;
+ 		ret = cmr_setting_ioctl(cxt->setting_cxt.setting_handle, SETTING_GET_HW_FLASH_STATUS, &setting_param);
+ 		if (ret) {
+@@ -4355,7 +4357,7 @@
+ 			//goto exit;
+ 		}
+ 		flash_status = setting_param.cmd_type_value;
+-		CMR_LOGI("HW flash_status=%ld", flash_status);
++		CMR_LOGI("HW flash_status=%ld,camera_id = %d", flash_status,camera_id);
+ 	}
+ 
+ 	CMR_LOGI("start");
+Index: vendor/sprd/modules/libcamera/oem2v0/src/sensor_cfg.c
+===================================================================
+--- vendor/sprd/modules/libcamera/oem2v0/src/sensor_cfg.c	(revision 166559)
++++ vendor/sprd/modules/libcamera/oem2v0/src/sensor_cfg.c	(revision 166560)
+@@ -99,7 +99,7 @@
+ extern SENSOR_INFO_T g_ov5648_darling_mipi_raw_info;
+ extern SENSOR_INFO_T g_ov8858_mipi_raw_info;
+ extern SENSOR_INFO_T g_ov2680_mipi_raw_info;
+-extern SENSOR_INFO_T g_s5k3m2xxm3_mipi_raw_info;
++//extern SENSOR_INFO_T g_s5k3m2xxm3_mipi_raw_info;
+ extern SENSOR_INFO_T g_imx132_mipi_raw_info;
+ extern SENSOR_INFO_T g_imx214_mipi_raw_info;
+ extern SENSOR_INFO_T g_c2590_mipi_raw_info;
+@@ -107,6 +107,9 @@
+ extern SENSOR_INFO_T g_autotest_ov13850_mipi_raw_info;
+ extern SENSOR_INFO_T g_at_ov5648_mipi_raw_info;
+ extern SENSOR_INFO_T g_at_ov5670_mipi_raw_info;
++extern SENSOR_INFO_T g_s5k5e2ya_mipi_raw_info;
++extern SENSOR_INFO_T g_sp2509_mipi_raw_info;
++extern SENSOR_INFO_T g_ov5695_mipi_raw_info;
+ 
+ #define AUTO_TEST_CAMERA 1
+ 
+@@ -118,19 +121,20 @@
+ #ifdef CONFIG_BACK_CAMERA_MIPI
+ #if defined(CONFIG_CAMERA_ISP_VERSION_V3) || defined(CONFIG_CAMERA_ISP_VERSION_V4)
+ //
+-	{"s5k3l2xx_mipi", &g_s5k3l2xx_mipi_raw_info},
+-	{"s5k4h5yc_mipi", &g_s5k4h5yc_mipi_raw_info},
+-	{"s5k4h5yc_mipi", &g_s5k4h5yc_jsl_mipi_raw_info},
+-	{"ov8825_mipi_raw", &g_ov8825_mipi_raw_info},
+-	{"hi544_mipi_raw", &g_hi544_mipi_raw_info},
+-	{"ov5640_mipi_yuv", &g_ov5640_mipi_yuv_info},
+-	{"ov5640_mipi_raw", &g_ov5640_mipi_raw_info},
+-	{"ov5670_mipi_raw", &g_ov5670_mipi_raw_info},
+-	{"ov5675_mipi_raw", &g_ov5675_mipi_raw_info},
+-	{"ov13850r2a_mipi_raw", &g_ov13850r2a_mipi_raw_info},
+-	{"ov8858_mipi_raw", &g_ov8858_mipi_raw_info},
+-	{"s5k3m2xxm3_mipi_raw", &g_s5k3m2xxm3_mipi_raw_info},
+-	{"imx214_mipi_raw", &g_imx214_mipi_raw_info},
++//	{"s5k3l2xx_mipi", &g_s5k3l2xx_mipi_raw_info},
++//	{"s5k4h5yc_mipi", &g_s5k4h5yc_mipi_raw_info},
++//	{"s5k4h5yc_mipi", &g_s5k4h5yc_jsl_mipi_raw_info},
++//	{"ov8825_mipi_raw", &g_ov8825_mipi_raw_info},
++//	{"hi544_mipi_raw", &g_hi544_mipi_raw_info},
++//	{"ov5640_mipi_yuv", &g_ov5640_mipi_yuv_info},
++//	{"ov5640_mipi_raw", &g_ov5640_mipi_raw_info},
++//	{"ov5670_mipi_raw", &g_ov5670_mipi_raw_info},
++//	{"ov13850_mipi_raw", &g_ov13850_mipi_raw_info},
++//	{"ov13850r2a_mipi_raw", &g_ov13850r2a_mipi_raw_info},
++//	{"ov8858_mipi_raw", &g_ov8858_mipi_raw_info},
++//	{"s5k3m2xxm3_mipi_raw", &g_s5k3m2xxm3_mipi_raw_info},
++//	{"imx214_mipi_raw", &g_imx214_mipi_raw_info},
++    {"ov5695_mipi", &g_ov5695_mipi_raw_info},
+ #else
+ 	{"ov8825_mipi_raw", &g_ov8825_mipi_raw_info},
+ 	{"hi544_mipi_raw", &g_hi544_mipi_raw_info},
+@@ -185,15 +189,16 @@
+ 
+ #ifdef CONFIG_FRONT_CAMERA_MIPI
+ #if (defined(CONFIG_CAMERA_ISP_VERSION_V3) || defined(CONFIG_CAMERA_ISP_VERSION_V4))
+-	{"s5k5e3yx_mipi", &g_s5k5e3yx_mipi_raw_info},
+-	{"ov5648_mipi_raw", &g_ov5648_mipi_raw_info},
+-	{"ov5648_darling_mipi_raw", &g_ov5648_darling_mipi_raw_info},
+-	{"ov2680_mipi_raw", &g_ov2680_mipi_raw_info},
+-	{"c2590_mipi_raw", &g_c2590_mipi_raw_info},
++//	{"s5k5e3yx_mipi", &g_s5k5e3yx_mipi_raw_info},
++//	{"ov5648_mipi_raw", &g_ov5648_mipi_raw_info},
++//	{"ov5648_darling_mipi_raw", &g_ov5648_darling_mipi_raw_info},
++//	{"ov2680_mipi_raw", &g_ov2680_mipi_raw_info},
++//	{"c2590_mipi_raw", &g_c2590_mipi_raw_info},
++    {"s5k5e2ya_mipi", &g_s5k5e2ya_mipi_raw_info},  
+ #endif
+-	{"hi255_yuv", &g_hi255_yuv_info},
+-	{"GC2155_MIPI_yuv", &g_GC2155_MIPI_yuv_info},
+-	{"GC0310_MIPI_yuv", &g_GC0310_MIPI_yuv_info},
++	//{"hi255_yuv", &g_hi255_yuv_info},
++	//{"GC2155_MIPI_yuv", &g_GC2155_MIPI_yuv_info},
++	//{"GC0310_MIPI_yuv", &g_GC0310_MIPI_yuv_info},
+ #if !(defined(CONFIG_CAMERA_ISP_VERSION_V3) || defined(CONFIG_CAMERA_ISP_VERSION_V4))
+ 	{"GC0310_MIPI_yuv", &g_GC0310_MIPI_yuv_info},
+ 	{"sr030pc50_yuv", &g_sr030pc50_yuv_info},
+Index: vendor/sprd/modules/libcamera/oem2v0/inc/sensor_drv_u.h
+===================================================================
+--- vendor/sprd/modules/libcamera/oem2v0/inc/sensor_drv_u.h	(revision 166559)
++++ vendor/sprd/modules/libcamera/oem2v0/inc/sensor_drv_u.h	(revision 166560)
+@@ -934,6 +934,9 @@
+ 
+ cmr_int Sensor_SetFlash(uint32_t is_open);
+ 
++/* add af_pwdn pin control interface */
++cmr_int Sensor_af_enable(cmr_u32 power_level);
++
+ //utest refer
+ cmr_int Sensor_set_calibration(cmr_u32 value);
+ #ifdef	 __cplusplus

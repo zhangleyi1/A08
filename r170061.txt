@@ -1,0 +1,12 @@
+Index: device/sprd/scx35l/sp9832a_2h11/system.prop
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/system.prop	(revision 170060)
++++ device/sprd/scx35l/sp9832a_2h11/system.prop	(revision 170061)
+@@ -88,7 +88,6 @@
+ 
+ persist.sys.cam.gps=true
+ 
+-persist.sys.language=in 
+ debug.hwui.use_partial_updates=false
+ 
+ # verified boot config

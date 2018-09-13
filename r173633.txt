@@ -1,0 +1,173 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 173632)
++++ packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 173633)
+@@ -239,7 +239,7 @@
+     // don't modify!!!, this value need flow AudioManager.RINGER_MODE_OUTDOOR
+     private static final int RINGER_MODE_OUTDOOR = 3;
+ 
+-    private PredictedAppController mPredictedAppController;
++    public PredictedAppController mPredictedAppController;
+     private MediaPlayer mMotionSound;
+     private SensorManager mSensorManager;
+     private AudioManager mAudioManager;
+@@ -457,9 +457,7 @@
+ 
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+-        if(FeatureOption.SPRD_CUSTOM_CONTENT_SUPPORT) {
+-            setLauncherCallbacks(new LauncherExtCallbacks(this));
+-        }
++        setLauncherCallbacks(new LauncherExtCallbacks(this));
+         if (DEBUG_STRICT_MODE) {
+             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                     .detectDiskReads()
+@@ -1363,7 +1361,7 @@
+         if (mLauncherCallbacks != null) {
+             return mLauncherCallbacks.hasSettings();
+         } else {
+-            return true;
++            return false;
+         }
+     }
+ 
+@@ -3131,12 +3129,6 @@
+         if (LOGD) Log.d(TAG, "onClickSettingsButton");
+         if (mLauncherCallbacks != null) {
+             mLauncherCallbacks.onClickSettingsButton(v);
+-        } else {
+-            if(FeatureOption.SPRD_SETTINGS_ACTIVITY_SUPPORT){
+-                startActivity(new Intent(this, SprdSettingsActivity.class));
+-            }else{
+-                startActivity(new Intent(Settings.ACTION_SETTINGS));
+-            }
+         }
+     }
+ 
+@@ -3943,13 +3935,6 @@
+             if (apps != null) {
+                 mAppsView.setPredictedApps(apps);
+             }
+-        } else {
+-            if (mPredictedAppController !=  null) {
+-                List<ComponentKey> apps = mPredictedAppController.getCurrentPredictedList();
+-                if (apps != null && !apps.isEmpty()) {
+-                    mAppsView.setPredictedApps(apps);
+-                }
+-            }
+         }
+     }
+ 
+Index: packages/apps/Launcher3/ext/src/com/sprd/ext/LauncherExtCallbacks.java
+===================================================================
+--- packages/apps/Launcher3/ext/src/com/sprd/ext/LauncherExtCallbacks.java	(revision 173632)
++++ packages/apps/Launcher3/ext/src/com/sprd/ext/LauncherExtCallbacks.java	(revision 173633)
+@@ -3,6 +3,7 @@
+ import android.content.Intent;
+ import android.graphics.Rect;
+ import android.os.Bundle;
++import android.provider.Settings;
+ import android.view.LayoutInflater;
+ import android.view.Menu;
+ import android.view.View;
+@@ -119,8 +120,10 @@
+ 
+     @Override
+     public void finishBindingItems(boolean upgradePath) {
+-        mLauncher.getWorkspace().createCustomContentContainer();
+-        populateCustomContentContainer();
++        if (hasCustomContentToLeft()) {
++            mLauncher.getWorkspace().createCustomContentContainer();
++            populateCustomContentContainer();
++        }
+     }
+ 
+     @Override
+@@ -149,6 +152,11 @@
+ 
+     @Override
+     public void onClickSettingsButton(View v) {
++        if(FeatureOption.SPRD_SETTINGS_ACTIVITY_SUPPORT){
++            mLauncher.startActivity(new Intent(mLauncher, SprdSettingsActivity.class));
++        }else{
++            mLauncher.startActivity(new Intent(Settings.ACTION_SETTINGS));
++        }
+     }
+ 
+     @Override
+@@ -224,28 +232,26 @@
+ 
+     @Override
+     public void populateCustomContentContainer() {
+-        if(FeatureOption.SPRD_CUSTOM_CONTENT_SUPPORT) {
+-            FrameLayout customContent = null;
+-            try {
+-                WebView webView;
+-                LayoutInflater inflater = LayoutInflater.from(mLauncher);
+-                customContent = (FrameLayout) inflater.inflate(R.layout.custom_content, null);
+-                webView = (WebView) customContent.findViewById(R.id.web_view);
+-                webView.loadUrl("https://www.google.com");
+-                webView.setWebViewClient(new WebViewClient() {
+-                    @Override
+-                    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+-                        view.loadUrl(url);
+-                        return true;
+-                    }
+-                });
+-            } catch (Exception e) {
+-                e.printStackTrace();
+-            }
+-            if (customContent != null) {
+-                mLauncher.addToCustomContentPage(customContent, mCustomContentCallbacks, "");
+-            }
++        FrameLayout customContent = null;
++        try {
++            WebView webView;
++            LayoutInflater inflater = LayoutInflater.from(mLauncher);
++            customContent = (FrameLayout) inflater.inflate(R.layout.custom_content, null);
++            webView = (WebView) customContent.findViewById(R.id.web_view);
++            webView.loadUrl("https://www.google.com");
++            webView.setWebViewClient(new WebViewClient() {
++                @Override
++                public boolean shouldOverrideUrlLoading(WebView view, String url) {
++                    view.loadUrl(url);
++                    return true;
++                }
++            });
++        } catch (Exception e) {
++            e.printStackTrace();
+         }
++        if (customContent != null) {
++            mLauncher.addToCustomContentPage(customContent, mCustomContentCallbacks, "");
++        }
+     }
+ 
+     @Override
+@@ -285,7 +291,7 @@
+ 
+     @Override
+     public boolean hasSettings() {
+-        return false;
++        return true;
+     }
+ 
+     @Override
+@@ -300,6 +306,9 @@
+ 
+     @Override
+     public List<ComponentKey> getPredictedApps() {
++        if (mLauncher.mPredictedAppController != null) {
++            return mLauncher.mPredictedAppController.getCurrentPredictedList();
++        }
+         return new ArrayList<>();
+     }
+ 
+@@ -310,7 +319,7 @@
+ 
+     @Override
+     public boolean isLauncherPreinstalled() {
+-        return false;
++        return true;
+     }
+ 
+     @Override

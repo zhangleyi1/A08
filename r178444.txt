@@ -1,0 +1,32 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/ChargeAlertDialog.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/ChargeAlertDialog.java	(revision 178443)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/ChargeAlertDialog.java	(revision 178444)
+@@ -17,8 +17,10 @@
+     requestWindowFeature(Window.FEATURE_NO_TITLE);
+     setContentView(R.layout.chargealertdialog);
+     ChargeAlertDialog = this;
+-    this.setFinishOnTouchOutside(false);
++    //this.setFinishOnTouchOutside(false);
+   }
++
++/*
+   @Override
+   public boolean onKeyUp(int keyCode, KeyEvent event) {
+     switch (keyCode) {
+@@ -27,12 +29,14 @@
+     
+      case KeyEvent.KEYCODE_APP_SWITCH:
+        return true;
+-      
++
+      case KeyEvent.KEYCODE_BACK:
+        return true;
+     }
+     return super.onKeyUp(keyCode, event);
+   }
++*/
++
+   @Override
+   public boolean onKeyDown(int keyCode, KeyEvent event) {
+     switch (keyCode) {

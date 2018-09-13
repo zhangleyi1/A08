@@ -1,0 +1,40 @@
+Index: device/sprd/scx35l/common/rootdir/system/etc/media_profiles.xml
+===================================================================
+--- device/sprd/scx35l/common/rootdir/system/etc/media_profiles.xml	(revision 170022)
++++ device/sprd/scx35l/common/rootdir/system/etc/media_profiles.xml	(revision 170023)
+@@ -340,7 +340,7 @@
+                    bitRate="190000"
+                    width="176"
+                    height="144"
+-                   frameRate="15" />
++                   frameRate="30" />
+             <Audio codec="amrnb"
+                    bitRate="12200"
+                    sampleRate="8000"
+@@ -352,7 +352,7 @@
+                    bitRate="190000"
+                    width="176"
+                    height="144"
+-                   frameRate="15" />
++                   frameRate="30" />
+             <!-- audio setting is ignored -->
+             <Audio codec="amrnb"
+                    bitRate="12200"
+@@ -365,7 +365,7 @@
+                    bitRate="512000"
+                    width="352"
+                    height="288"
+-                   frameRate="15" />
++                   frameRate="30" />
+             <Audio codec="amrnb"
+                    bitRate="12200"
+                    sampleRate="8000"
+@@ -377,7 +377,7 @@
+                    bitRate="512000"
+                    width="352"
+                    height="288"
+-                   frameRate="15" />
++                   frameRate="30" />
+             <!-- audio setting is ignored -->
+             <Audio codec="amrnb"
+                    bitRate="12200"

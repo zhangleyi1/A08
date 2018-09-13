@@ -1,0 +1,13 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/volume/VolumeDialog.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/volume/VolumeDialog.java	(revision 175310)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/volume/VolumeDialog.java	(revision 175311)
+@@ -266,7 +266,7 @@
+             addRow(AudioManager.STREAM_SYSTEM,
+                     R.drawable.ic_volume_system, R.drawable.ic_volume_system_mute, false);
+             /*SPRD:bugfix 595702 @{*/
+-            addRow(AudioManager.STREAM_NOTIFICATION,R.drawable.ic_volume_notification_general_sprd, R.drawable.ic_volume_notification_silent_sprd, false);
++            addRow(AudioManager.STREAM_NOTIFICATION,R.drawable.ic_volume_notification_general_sprd, R.drawable.ic_volume_notification_silent_sprd, true);
+             /*SPRD:bugfix 595702 @}*/
+         } else {
+             addExistingRows();

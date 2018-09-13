@@ -1,0 +1,13 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 168167)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 168168)
+@@ -541,7 +541,7 @@
+         mFloatingActionButtonController.setVisible(flag);
+         mGsmCallBtn.setVisibility(flag ? View.GONE:View.VISIBLE);
+ 
+-        if (ImsManager.isVolteEnabledByPlatform(getActivity())) {
++        if (ImsManager.isVolteEnabledByPlatform(getActivity()) && flag) {
+             if (CallUtil.isVideoEnabled(getActivity())) {
+                 mVideoCallBtn.setVisibility(flag ? View.VISIBLE:View.GONE);
+             }

@@ -1,0 +1,99 @@
+Index: frameworks/base/telephony/java/android/telephony/SignalStrength.java
+===================================================================
+--- frameworks/base/telephony/java/android/telephony/SignalStrength.java	(revision 166772)
++++ frameworks/base/telephony/java/android/telephony/SignalStrength.java	(revision 166773)
+@@ -40,11 +40,12 @@
+     public static final int SIGNAL_STRENGTH_GOOD = 3;
+     /** @hide */
+     public static final int SIGNAL_STRENGTH_GREAT = 4;
++	public static final int SIGNAL_STRENGTH_HIGHEST = 5;
+     /** @hide */
+-    public static final int NUM_SIGNAL_STRENGTH_BINS = 5;
++    public static final int NUM_SIGNAL_STRENGTH_BINS = 6;
+     /** @hide */
+     public static final String[] SIGNAL_STRENGTH_NAMES = {
+-        "none", "poor", "moderate", "good", "great"
++        "none", "poor", "moderate", "good", "great","highest"
+     };
+ 
+     /** @hide */
+@@ -620,17 +621,23 @@
+      */
+     public int getGsmLevel() {
+         int level;
+-
++				int dBm = getGsmDbm();  
++				if (dBm < -109) level = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;
++				else if (dBm >= -90) level = SIGNAL_STRENGTH_HIGHEST;
++				else if (dBm >= -95&&dBm < -90) level = SIGNAL_STRENGTH_GREAT;
++				else if (dBm >= -100&&dBm < -95)  level = SIGNAL_STRENGTH_GOOD;
++				else if (dBm >= -105&&dBm < -100)  level = SIGNAL_STRENGTH_MODERATE;
++				else   level = SIGNAL_STRENGTH_POOR;
+         // ASU ranges from 0 to 31 - TS 27.007 Sec 8.5
+         // asu = 0 (-113dB or less) is very weak
+         // signal, its better to show 0 bars to the user in such cases.
+         // asu = 99 is a special case, where the signal strength is unknown.
+-        int asu = getGsmSignalStrength();
++      /*  int asu = getGsmSignalStrength();
+         if (asu <= 2 || asu == 99) level = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;
+         else if (asu >= 12) level = SIGNAL_STRENGTH_GREAT;
+         else if (asu >= 8)  level = SIGNAL_STRENGTH_GOOD;
+         else if (asu >= 5)  level = SIGNAL_STRENGTH_MODERATE;
+-        else level = SIGNAL_STRENGTH_POOR;
++        else level = SIGNAL_STRENGTH_POOR;*/
+         if (DBG) log("getGsmLevel=" + level);
+         return level;
+     }
+@@ -799,6 +806,13 @@
+         } else {
+             threshRsrp = RSRP_THRESH_LENIENT;
+         }
++		if(mLteRsrp > -44) rsrpIconLevel = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;
++        else if (mLteRsrp >= -97) rsrpIconLevel = SIGNAL_STRENGTH_HIGHEST;
++        else if (mLteRsrp >= -105) rsrpIconLevel = SIGNAL_STRENGTH_GREAT;
++        else if (mLteRsrp >= -110) rsrpIconLevel = SIGNAL_STRENGTH_GOOD;
++        else if (mLteRsrp >= -115) rsrpIconLevel = SIGNAL_STRENGTH_MODERATE;
++        else if (mLteRsrp >= -120) rsrpIconLevel = SIGNAL_STRENGTH_POOR;
++        else rsrpIconLevel = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;
+ 
+         // SPRD Add For Feature Bug 474988:
+         // Support carrier customized RSRP threshold.
+@@ -812,12 +826,12 @@
+             if (DBG) Rlog.e(LOG_TAG, "config_LTE_RSRP_threshold_overlay cannot be found.");
+         }
+ 
+-        if (mLteRsrp > threshRsrp[5]) rsrpIconLevel = -1;
++      /*  if (mLteRsrp > threshRsrp[5]) rsrpIconLevel = -1;
+         else if (mLteRsrp >= threshRsrp[4]) rsrpIconLevel = SIGNAL_STRENGTH_GREAT;
+         else if (mLteRsrp >= threshRsrp[3]) rsrpIconLevel = SIGNAL_STRENGTH_GOOD;
+         else if (mLteRsrp >= threshRsrp[2]) rsrpIconLevel = SIGNAL_STRENGTH_MODERATE;
+         else if (mLteRsrp >= threshRsrp[1]) rsrpIconLevel = SIGNAL_STRENGTH_POOR;
+-        else if (mLteRsrp >= threshRsrp[0]) rsrpIconLevel = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;
++        else if (mLteRsrp >= threshRsrp[0]) rsrpIconLevel = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;*/
+ 
+         /*
+          * Values are -200 dB to +300 (SNR*10dB) RS_SNR >= 13.0 dB =>4 bars 4.5
+
+Property changes on: frameworks/base/telephony/java/android/telephony/SignalStrength.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/frameworks/base/telephony/java/android/telephony/SignalStrength.java:r166591
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/policy/AccessibilityContentDescriptions.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/policy/AccessibilityContentDescriptions.java	(revision 166772)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/policy/AccessibilityContentDescriptions.java	(revision 166773)
+@@ -15,7 +15,8 @@
+         R.string.accessibility_phone_one_bar,
+         R.string.accessibility_phone_two_bars,
+         R.string.accessibility_phone_three_bars,
+-        R.string.accessibility_phone_signal_full
++        R.string.accessibility_phone_signal_full,
++		R.string.accessibility_phone_signal_full
+     };
+ 
+     static final int[] DATA_CONNECTION_STRENGTH = {
+
+Property changes on: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/policy/AccessibilityContentDescriptions.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/policy/AccessibilityContentDescriptions.java:r166591

@@ -1,0 +1,16 @@
+Index: packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java	(revision 166463)
++++ packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java	(revision 166464)
+@@ -418,8 +418,10 @@
+                             "getDeviceId", Integer.TYPE)) {
+                 for (int slot = 0; slot < telephonyManager.getPhoneCount(); slot++) {
+                     String deviceId = telephonyManager.getDeviceId(slot);
++					int sort=0;
+                     if (!TextUtils.isEmpty(deviceId)) {
+-                        deviceIds.add(deviceId);
++						sort=slot+1;
++                        deviceIds.add("MEI"+sort+": "+deviceId);
+                     }
+                 }
+             } else {

@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/system/vold/src/PublicVolumeEx.cpp
+===================================================================
+--- vendor/sprd/platform/system/vold/src/PublicVolumeEx.cpp	(revision 173799)
++++ vendor/sprd/platform/system/vold/src/PublicVolumeEx.cpp	(revision 173800)
+@@ -225,6 +225,8 @@
+         DeleteSymlink(StringPrintf("/mnt/runtime/default/%s", getLinkName().c_str()));
+         DeleteSymlink(StringPrintf("/mnt/runtime/read/%s", getLinkName().c_str()));
+         DeleteSymlink(StringPrintf("/mnt/runtime/write/%s", getLinkName().c_str()));
++        property_set(StringPrintf("vold.%s.path", getLinkName().c_str()).c_str(),StringPrintf("/storage/%s", getLinkName().c_str()).c_str());
++
+     }
+     /* @* } */
+ }

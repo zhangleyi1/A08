@@ -1,0 +1,51 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 177651)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 177652)
+@@ -212,7 +212,7 @@
+     getTestReport();
+ 
+     autotestButton = (Button)this.findViewById(R.id.main_bt_autotest);
+-    reportButton  = (Button)this.findViewById(R.id.main_bt_report);
++    //reportButton  = (Button)this.findViewById(R.id.main_bt_report);
+     autoreportButton = (Button)this.findViewById(R.id.main_auto_report);
+     autoreportButton.setText(getReportText());
+     autotestButton.setOnClickListener(new Button.OnClickListener() {
+@@ -224,7 +224,7 @@
+         TestSelectedItem(testitem[currenttestitem]);
+       }
+     });
+-    reportButton.setOnClickListener(new Button.OnClickListener() {
++    /*reportButton.setOnClickListener(new Button.OnClickListener() {
+       @Override
+       public void onClick(View v) {
+         Intent intent2 = new Intent();
+@@ -231,7 +231,7 @@
+         intent2.setClass(FactoryMode.this, Report.class);
+         startActivity(intent2);
+       }
+-    });
++    });*/
+     autoreportButton.setOnClickListener(new Button.OnClickListener() {
+       @Override
+       public void onClick(View v) {
+Index: packages/apps/FactoryMode/res/layout/main.xml
+===================================================================
+--- packages/apps/FactoryMode/res/layout/main.xml	(revision 177651)
++++ packages/apps/FactoryMode/res/layout/main.xml	(revision 177652)
+@@ -24,13 +24,13 @@
+ 		android:stretchMode="columnWidth"
+ 		android:verticalSpacing="0.0dip" />
+ 		
+-	<Button 
++	<!--<Button 
+ 		android:textSize="16.0dip" 
+ 		android:id="@+id/main_bt_report" 
+ 		android:layout_width="fill_parent" 
+ 		android:layout_height="wrap_content" 
+ 		android:text="@string/SingleTestReport" 
+-		android:layout_weight="0.4" />
++		android:layout_weight="0.4" />-->
+ 		
+ 	<Button 
+ 		android:textSize="16.0dip" 

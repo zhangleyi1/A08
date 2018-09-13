@@ -1,0 +1,12 @@
+Index: vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/editor/ContactEditorBaseFragment.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/editor/ContactEditorBaseFragment.java	(revision 172501)
++++ vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/editor/ContactEditorBaseFragment.java	(revision 172502)
+@@ -1179,6 +1179,7 @@
+         for (int i = 0; i < size; i++) {
+             menu.getItem(i).setEnabled(mEnabled);
+         }
++        ringToneMenu.setVisible(false);
+     }
+ 
+     @Override

@@ -1,0 +1,215 @@
+Index: u-boot64/common/loader/fastboot.c
+===================================================================
+--- u-boot64/common/loader/fastboot.c	(revision 172063)
++++ u-boot64/common/loader/fastboot.c	(revision 172064)
+@@ -1048,7 +1048,7 @@
+ 	ImageInfo.max_size = (uint64_t) CONFIG_SYS_TEXT_BASE - CONFIG_SYS_SDRAM_BASE;
+ 	ImageInfo.data_size = 0;
+ 
+-	fastboot_register("getvar:", fb_cmd_getvar);
++	fastboot_register("showvar:", fb_cmd_getvar);
+ 	/*when you input cmd"flash" in host, we will rcv cmd"download" first,then the "flash",
+ 	   so even if we can't see cmd"download" in host fastboot cmd list,it is also used */
+ 	fastboot_register("download:", fb_cmd_download);
+@@ -1055,14 +1055,14 @@
+ 	fastboot_publish("version", "1.0");
+ 
+ 	fastboot_register("burn:", fb_cmd_flash);
+-	fastboot_register("wipe:", fb_cmd_erase);
+-	fastboot_register("guide", fb_cmd_boot);
++	fastboot_register("clean:", fb_cmd_erase);
++	fastboot_register("dlkernel", fb_cmd_boot);
+ 	fastboot_register("restart", fb_cmd_reboot);
+-	fastboot_register("ac_dump", fb_cmd_powerdown);
+-	fastboot_register("go_on", fb_cmd_continue);
+-	fastboot_register("restart_guide", fb_cmd_reboot_bootloader);
++	fastboot_register("powerdown", fb_cmd_powerdown);
++	fastboot_register("goon", fb_cmd_continue);
++	fastboot_register("restart-uboot", fb_cmd_reboot_bootloader);
+ 	fastboot_register("burning", fb_cmd_setlockflag);
+-	fastboot_register("getmark", fb_cmd_getlockflag);
++	fastboot_register("getflag", fb_cmd_getlockflag);
+ 
+ 	fastboot_handler(0);
+ 
+Index: system/core/fastboot/fastboot.cpp
+===================================================================
+--- system/core/fastboot/fastboot.cpp	(revision 172063)
++++ system/core/fastboot/fastboot.cpp	(revision 172064)
+@@ -1414,11 +1414,11 @@
+     }
+ 
+     while (argc > 0) {
+-        if (!strcmp(*argv, "getvar")) {
++        if (!strcmp(*argv, "showvar")) {
+             require(2);
+             fb_queue_display(argv[1], argv[1]);
+             skip(2);
+-        } else if(!strcmp(*argv, "erase")) {
++        } else if(!strcmp(*argv, "clean")) {
+             require(2);
+ 
+             auto erase = [&](const std::string &partition) {
+@@ -1477,7 +1477,7 @@
+             fb_queue_download("signature", data, sz);
+             fb_queue_command("signature", "installing signature");
+             skip(2);
+-        } else if(!strcmp(*argv, "reboot")) {
++        } else if(!strcmp(*argv, "restart")) {
+             wants_reboot = true;
+             skip(1);
+             if (argc > 0) {
+@@ -1488,13 +1488,13 @@
+                 }
+             }
+             require(0);
+-        } else if(!strcmp(*argv, "reboot-bootloader")) {
++        } else if(!strcmp(*argv, "restart-uboot")) {
+             wants_reboot_bootloader = true;
+             skip(1);
+-        } else if (!strcmp(*argv, "continue")) {
+-            fb_queue_command("continue", "resuming boot");
++        } else if (!strcmp(*argv, "goon")) {
++            fb_queue_command("goon", "resuming boot");
+             skip(1);
+-        } else if(!strcmp(*argv, "boot")) {
++        } else if(!strcmp(*argv, "dlkernel")) {
+             char *kname = 0;
+             char *rname = 0;
+             char *sname = 0;
+@@ -1514,8 +1514,8 @@
+             data = load_bootable_image(kname, rname, sname, &sz, cmdline);
+             if (data == 0) return 1;
+             fb_queue_download("boot.img", data, sz);
+-            fb_queue_command("boot", "booting");
+-        } else if(!strcmp(*argv, "flash")) {
++            fb_queue_command("dlkernel", "booting");
++        } else if(!strcmp(*argv, "burn")) {
+             char *pname = argv[1];
+             char *fname = 0;
+             require(2);
+@@ -1575,7 +1575,7 @@
+             skip(2);
+         } else if(!strcmp(*argv, "oem")) {
+             argc = do_oem_command(argc, argv);
+-        } else if(!strcmp(*argv, "flashing")) {
++        } else if(!strcmp(*argv, "burning")) {
+             if (argc == 2 && (!strcmp(*(argv+1), "unlock") ||
+                               !strcmp(*(argv+1), "lock") ||
+                               !strcmp(*(argv+1), "unlock_critical") ||
+@@ -1626,7 +1626,7 @@
+         fb_queue_reboot();
+         fb_queue_wait_for_disconnect();
+     } else if (wants_reboot_bootloader) {
+-        fb_queue_command("reboot-bootloader", "rebooting into bootloader");
++        fb_queue_command("restart-uboot", "rebooting into bootloader");
+         fb_queue_wait_for_disconnect();
+     }
+ 
+Index: system/core/fastboot/engine.cpp
+===================================================================
+--- system/core/fastboot/engine.cpp	(revision 172063)
++++ system/core/fastboot/engine.cpp	(revision 172064)
+@@ -76,7 +76,7 @@
+ 
+ 
+ bool fb_getvar(Transport* transport, const std::string& key, std::string* value) {
+-    std::string cmd = "getvar:";
++    std::string cmd = "showvar:";
+     cmd += key;
+ 
+     char buf[FB_RESPONSE_SZ + 1];
+@@ -140,7 +140,7 @@
+ void fb_queue_erase(const char *ptn)
+ {
+     Action *a;
+-    a = queue_action(OP_COMMAND, "erase:%s", ptn);
++    a = queue_action(OP_COMMAND, "clean:%s", ptn);
+     a->msg = mkmsg("erasing '%s'", ptn);
+ }
+ 
+@@ -153,7 +153,7 @@
+     a->size = sz;
+     a->msg = mkmsg("sending '%s' (%d KB)", ptn, sz / 1024);
+ 
+-    a = queue_action(OP_COMMAND, "flash:%s", ptn);
++    a = queue_action(OP_COMMAND, "burn:%s", ptn);
+     a->msg = mkmsg("writing '%s'", ptn);
+ }
+ 
+@@ -166,7 +166,7 @@
+     a->size = 0;
+     a->msg = mkmsg("sending sparse '%s' %zu/%zu (%d KB)", ptn, current, total, sz / 1024);
+ 
+-    a = queue_action(OP_COMMAND, "flash:%s", ptn);
++    a = queue_action(OP_COMMAND, "burn:%s", ptn);
+     a->msg = mkmsg("writing '%s' %zu/%zu", ptn, current, total);
+ }
+ 
+@@ -248,7 +248,7 @@
+                       bool invert, size_t nvalues, const char **value)
+ {
+     Action *a;
+-    a = queue_action(OP_QUERY, "getvar:%s", var);
++    a = queue_action(OP_QUERY, "showvar:%s", var);
+     a->prod = prod;
+     a->data = value;
+     a->size = nvalues;
+@@ -269,7 +269,7 @@
+ void fb_queue_display(const char *var, const char *prettyname)
+ {
+     Action *a;
+-    a = queue_action(OP_QUERY, "getvar:%s", var);
++    a = queue_action(OP_QUERY, "showvar:%s", var);
+     a->data = strdup(prettyname);
+     if (a->data == nullptr) die("out of memory");
+     a->func = cb_display;
+@@ -287,7 +287,7 @@
+ void fb_queue_query_save(const char *var, char *dest, unsigned dest_size)
+ {
+     Action *a;
+-    a = queue_action(OP_QUERY, "getvar:%s", var);
++    a = queue_action(OP_QUERY, "showvar:%s", var);
+     a->data = (void *)dest;
+     a->size = dest_size;
+     a->func = cb_save;
+@@ -300,7 +300,7 @@
+ 
+ void fb_queue_reboot(void)
+ {
+-    Action *a = queue_action(OP_COMMAND, "reboot");
++    Action *a = queue_action(OP_COMMAND, "restart");
+     a->func = cb_do_nothing;
+     a->msg = "rebooting";
+ }
+Index: system/core/fastboot/tcp_test.cpp
+===================================================================
+--- system/core/fastboot/tcp_test.cpp	(revision 172063)
++++ system/core/fastboot/tcp_test.cpp	(revision 172064)
+@@ -174,11 +174,11 @@
+ 
+ // Tests a few sample fastboot protocol commands.
+ TEST_F(TcpTest, TestFastbootProtocolSuccess) {
+-    mock_->ExpectSend(std::string{0, 0, 0, 0, 0, 0, 0, 14} + "getvar:version");
++    mock_->ExpectSend(std::string{0, 0, 0, 0, 0, 0, 0, 14} + "showvar:version");
+     mock_->AddReceive(std::string{0, 0, 0, 0, 0, 0, 0, 7});
+     mock_->AddReceive("OKAY0.4");
+ 
+-    mock_->ExpectSend(std::string{0, 0, 0, 0, 0, 0, 0, 10} + "getvar:all");
++    mock_->ExpectSend(std::string{0, 0, 0, 0, 0, 0, 0, 10} + "showvar:all");
+     mock_->AddReceive(std::string{0, 0, 0, 0, 0, 0, 0, 16});
+     mock_->AddReceive("INFOversion: 0.4");
+     mock_->AddReceive(std::string{0, 0, 0, 0, 0, 0, 0, 12});
+@@ -186,10 +186,10 @@
+     mock_->AddReceive(std::string{0, 0, 0, 0, 0, 0, 0, 4});
+     mock_->AddReceive("OKAY");
+ 
+-    EXPECT_TRUE(Write("getvar:version"));
++    EXPECT_TRUE(Write("showvar:version"));
+     EXPECT_TRUE(Read("OKAY0.4"));
+ 
+-    EXPECT_TRUE(Write("getvar:all"));
++    EXPECT_TRUE(Write("showvar:all"));
+     EXPECT_TRUE(Read("INFOversion: 0.4"));
+     EXPECT_TRUE(Read("INFOfoo: bar"));
+     EXPECT_TRUE(Read("OKAY"));

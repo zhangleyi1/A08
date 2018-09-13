@@ -1,0 +1,13 @@
+Index: packages/apps/Dialer/src/com/android/dialer/CallDetailActivity.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/CallDetailActivity.java	(revision 169241)
++++ packages/apps/Dialer/src/com/android/dialer/CallDetailActivity.java	(revision 169242)
+@@ -683,7 +683,7 @@
+             isIpEnabled = true;
+         }
+         if (mNumber != null && isIpEnabled) {
+-            ipCallIcon.setVisibility(View.VISIBLE);
++            ipCallIcon.setVisibility(View.GONE);
+             ipCallIcon.setOnClickListener(mActionListener);
+         } else {
+             ipCallIcon.setVisibility(View.GONE);

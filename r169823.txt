@@ -1,0 +1,16 @@
+Index: system/core/init/builtins.cpp
+===================================================================
+--- system/core/init/builtins.cpp	(revision 169822)
++++ system/core/init/builtins.cpp	(revision 169823)
+@@ -648,9 +648,11 @@
+     if (strncmp(command, "shutdown", 8) == 0) {
+         cmd = ANDROID_RB_POWEROFF;
+         len = 8;
++        NOTICE("through sys.powerctl do shutdown , reason is %s", command);
+     } else if (strncmp(command, "reboot", 6) == 0) {
+         cmd = ANDROID_RB_RESTART2;
+         len = 6;
++        NOTICE("through sys.powerctl do reboot , reason is %s", command);
+     } else {
+         ERROR("powerctl: unrecognized command '%s'\n", command);
+         return -EINVAL;

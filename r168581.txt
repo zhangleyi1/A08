@@ -1,0 +1,13 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/headset/HeadSet.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/headset/HeadSet.java	(revision 168580)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/headset/HeadSet.java	(revision 168581)
+@@ -158,7 +158,7 @@
+ 		//File file = new File("/sdcard/"+ "YY"+ new DateFormat().format("yyyyMMdd_hhmmss",Calendar.getInstance(Locale.CHINA)) + ".amr");
+ 		File folder;
+ 		if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){  
+-        	File dirPath = EnvironmentEx.getExternalStoragePath();
++        	File dirPath = Environment.getExternalStorageDirectory();
+ 			Log.v("HeadSet", "----------dirPath" +dirPath.getPath());
+ 			folder=new File(dirPath.getAbsolutePath()+"//Test");
+ 			folder.mkdirs();

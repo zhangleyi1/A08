@@ -1,0 +1,12 @@
+Index: vendor/sprd/platform/packages/apps/SprdContacts/AndroidManifest.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/AndroidManifest.xml	(revision 169551)
++++ vendor/sprd/platform/packages/apps/SprdContacts/AndroidManifest.xml	(revision 169552)
+@@ -313,6 +313,7 @@
+             android:theme="@style/Theme.QuickContact"
+             android:launchMode="singleTop"
+             android:excludeFromRecents="true"
++		    android:screenOrientation="portrait"
+             android:taskAffinity=""
+             android:windowSoftInputMode="stateUnchanged">
+ 

@@ -1,0 +1,23 @@
+Index: packages/apps/Messaging/src/com/android/messaging/datamodel/action/ReceiveSmsMessageAction.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/datamodel/action/ReceiveSmsMessageAction.java	(revision 180954)
++++ packages/apps/Messaging/src/com/android/messaging/datamodel/action/ReceiveSmsMessageAction.java	(revision 180955)
+@@ -54,6 +54,7 @@
+ import android.preference.PreferenceManager;
+ import android.telephony.SmsManager;
+ import android.util.Log;
++import com.sprd.messaging.util.Utils;
+ 
+ import com.android.messaging.R;
+ import com.android.messaging.util.PendingIntentConstants;
+@@ -233,7 +234,9 @@
+                 resources.getBoolean(R.bool.sms_save_to_sim_pref_default));
+ 
+         if (getSimCapLeft(context, subId) <= 0) {
+-            postSimFullNotification();
++            if(!Utils.isVowifiSmsEnable(subId)){
++                postSimFullNotification();
++            }
+             return;
+         }
+         if (saveToSim) {

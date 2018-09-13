@@ -1,0 +1,83 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/lteinfo/LteInfo.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/lteinfo/LteInfo.java	(revision 175749)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/lteinfo/LteInfo.java	(revision 175750)
+@@ -353,13 +353,14 @@
+ 					}else if(i==2){
+ 						values[5]=str2[i];
+ 					}else if(i==3){
+-						values[9]=str2[i].replace("+", "-").trim()+" "+"dBm";
++						temp = Integer.parseInt(str2[i].replace("+","-").trim())/100;
++						values[9]=String.valueOf(temp) + " dBm";
+ 					}else if(i==4){
+-						values[10]=str2[i].replace("+", "-").trim()+" "+"dB";//str2[i].replace("+", "-").trim()
+-						values[12]=str2[i].replace("+", "-").trim()+" "+"dBm";
+-					}/*else if(i==5){
+-						values[13] = str2[i].replace("+", "-").trim()+" "+"dBm";
+-					}*/else if(i==6){
++						temp = Integer.parseInt(str2[i].replace("+","-").trim())/100;
++						values[10]=String.valueOf(temp) + " dBm";
++						values[12]=(temp==0 ? 0 : Integer.parseInt((values[9].substring(0,values[9].indexOf("d"))).replace("-","+").trim())/temp)+" dBm";
++						
++					}else if(i==6){
+ 						if(Integer.parseInt(str2[i])==0){
+ 							values[4]="FDD";
+ 						}else{
+@@ -389,8 +390,10 @@
+                 for (int i = 0; i < str2.length; i++) {
+                      if (i==2) {
+                          //Log.d(TAG,"i="+num+" "+str2[i].replace("+", "-"));
+-                         values[11] = str2[i]+" "+"dB";
+-                     }
++                         values[11] = str2[i].replace("+", "-")+" "+"dB";
++                     }else if(i==8){
++						values[13] =  str2[i].replace("+", "-")+" "+"dBm";
++					 }
+                 }
+                 
+             } else {
+@@ -406,13 +409,17 @@
+                 String[] str2 = str1[0].split("-");//0-0-0-0-0-0-0-0
+                 Log.d(TAG, "str2: " + Arrays.toString(str2));
+                 for (int i = 0; i < str2.length; i++) {
+-                  if (str2[i].contains(",") && !str2[i].contains("0,0,0")) {
++                  if (str2[i].contains(",") && !str2[i].contains("0,0,0,0")) {
+ 							String v="";
+                             String[] str3 = str2[i].split(",");
+                             int[] tempArray = new int[str3.length];
+ 							Log.d(TAG, "tempArray: " + Arrays.toString(tempArray));
+                             for (int j = 0; j < str3.length-1; j++) {
+-                                tempArray[j] = Integer.parseInt(str3[j].replace("+", "-").trim());
++								if(j==2 || j==3){
++									tempArray[j] = Integer.parseInt(str3[j].replace("+", "-").trim())/100;
++								}else{
++                                	tempArray[j] = Integer.parseInt(str3[j].replace("+", "-").trim());
++								}
+                                 v =v+" "+String.valueOf(tempArray[j]);
+                             }
+ 							values[16]= "earfcn-pic-rsrp-rsrq"+"\n"+v;
+@@ -425,24 +432,6 @@
+                 
+             }
+ 
+-			result = IATUtils.sendATCmd("AT+SPENGMD=0,0,0", SaveName);
+-            Log.d(TAG, "AT+SPENGMD=0,0,0: " + result);
+-            if (result.contains(IATUtils.AT_OK)) {
+-                result = result.replaceAll(",-", ",+");
+-                result = result.replaceAll("--", "-+");//0-0-0-0-0-0-0-0 ok
+-                String[] str1 = result.split("\n");
+-                String[] str2 = str1[0].split("-");//0-0-0-0-0-0-0-0
+-                Log.d(TAG, "str2: " + Arrays.toString(str2));
+-                for (int i = 0; i < str2.length; i++) {
+-                     if (i==6) {
+-                         //Log.d(TAG,"i="+num+" "+str2[i].replace("+", "-"));
+-                         values[13] =  str2[i]+" "+"dBm";
+-                     }
+-                }
+-                
+-            } else {
+-                
+-            }
+             mUiThread.post(new Runnable() {
+                 @Override
+                 public void run() {

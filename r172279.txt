@@ -1,0 +1,15 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/vibratortest/Vibratortest.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/vibratortest/Vibratortest.java	(revision 172278)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/vibratortest/Vibratortest.java	(revision 172279)
+@@ -26,8 +26,8 @@
+ 	  getWindow().getDecorView().setSystemUiVisibility(View.STATUS_BAR_DISABLE_EXPAND);
+ 		setContentView(R.layout.vibrator);
+ 		vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+-		long[] pattern = { 2000, 2000, 2000, 2000}; // OFF/ON/OFF/ON...
+-		vibrator.vibrate(pattern, 2);
++		long[] pattern = { 0, 2000, 2000, 0}; // OFF/ON/OFF/ON...
++		vibrator.vibrate(pattern, 0);
+ 		//vibrator.vibrate(30000);
+ 		succesButton = (Button)this.findViewById(R.id.vibrator_bt_ok);
+ 		failButton = (Button)this.findViewById(R.id.vibrator_bt_failed);

@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/Settings/res/values-in/strings_wifi.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Settings/res/values-in/strings_wifi.xml	(revision 177356)
++++ vendor/sprd/platform/packages/apps/Settings/res/values-in/strings_wifi.xml	(revision 177357)
+@@ -69,7 +69,7 @@
+ <string name="hotspot_wps_pin">"Silahkan masukkan PIN"</string>
+ <string name="hotspot_pin_error">"Tidak dapat menghubungkan, masukkan format PIN yang benar"</string>
+ <string name="hotspot_pin_success">"Silahkan tekan tombol menghubung"</string>
+-<string name="soft_ap_sleep_policy_title">"Menjaga hotspot Wi-fi aktif"</string>
++<string name="soft_ap_sleep_policy_title">"Menjaga hotspot Wi-Fi aktif"</string>
+ <string name="hotspot_hidden_ssid_title">"Menyembunyikan SSID"</string>
+ <string name="hotspot_hidden_ssid_summary">"Untuk menyembunyikan ssid"</string>
+ <string name="hotspot_hidden_ssid_and_disable_wps_summary">"Menyembunyikan SSID dan tidak aktifkan wps"</string>

@@ -1,0 +1,53 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/KeyCode.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/KeyCode.java	(revision 167100)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/KeyCode.java	(revision 167101)
+@@ -55,7 +55,7 @@
+ //	HashMap<String, Object> map_search = new HashMap<String, Object>();
+ 	HashMap<String, Object> map_vldown = new HashMap<String, Object>();
+ 	HashMap<String, Object> map_vlup = new HashMap<String, Object>();
+-	HashMap<String, Object> map_headset = new HashMap<String, Object>();
++	//HashMap<String, Object> map_headset = new HashMap<String, Object>();
+ 	@Override
+ 	protected void onCreate(Bundle savedInstanceState) {
+ 		// TODO Auto-generated method stub
+@@ -84,8 +84,8 @@
+ 		lstImageItem.add(map_vldown);
+ 		map_vlup.put("imageView", R.drawable.vlup);
+ 		lstImageItem.add(map_vlup);
+-		map_headset.put("imageView", R.drawable.headset);
+-		lstImageItem.add(map_headset);
++		//map_headset.put("imageView", R.drawable.headset);
++		//lstImageItem.add(map_headset);
+ 		gridview.setAdapter(saImageItems);
+ 		succesButton = (Button)this.findViewById(R.id.keycode_bt_ok);
+ 		failButton = (Button)this.findViewById(R.id.keycode_bt_failed);
+@@ -179,7 +179,7 @@
+ 			break;
+ 		case KeyEvent.KEYCODE_HEADSETHOOK:
+ 			if(!keyheadsettest){
+-				lstImageItem.remove(map_headset);
++				//lstImageItem.remove(map_headset);
+ 				keyheadsettest=true;
+ 				keyheadsetFlag=true;
+ 			}
+@@ -189,8 +189,8 @@
+ 	 		keyhomeFlag == true &&
+ 	 		keybackFlag == true && 
+ 	 		keyupFlag == true && 
+-	 		keydownFlag == true &&
+-	 		keyheadsetFlag==true){
++	 		keydownFlag == true /*&&
++	 		keyheadsetFlag==true*/){
+ 	 	succesButton.setEnabled(true);
+ 	 	Intent intent = new Intent(KeyCode.this, FactoryMode.class);
+ 	 	setResult(FactoryMode.TEST_OK,intent);
+@@ -221,7 +221,7 @@
+ 		case KeyEvent.KEYCODE_SEARCH:
+ 		case KeyEvent.KEYCODE_VOLUME_DOWN:
+ 		case KeyEvent.KEYCODE_VOLUME_UP:
+-		case KeyEvent.KEYCODE_HEADSETHOOK:
++		//case KeyEvent.KEYCODE_HEADSETHOOK:
+ 			return true;
+ 		}
+ 		return super.onKeyUp(keyCode, event);

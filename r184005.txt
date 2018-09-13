@@ -1,0 +1,21 @@
+Index: packages/services/Telephony/src/com/android/phone/CallFeaturesSetting.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/CallFeaturesSetting.java	(revision 184004)
++++ packages/services/Telephony/src/com/android/phone/CallFeaturesSetting.java	(revision 184005)
+@@ -175,7 +175,7 @@
+            if (isVowifiEnable) {
+                return false;
+            }
+-
++/*
+             if (isAirplaneModeOn(getBaseContext())) {
+                 log("the phone airplane mode is opened");
+                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
+@@ -185,6 +185,7 @@
+                 .show();
+                 return true;
+             }
++*/
+             /* @} */
+             /* SPRD: add for bug619789 and 629656 @{ */
+             if (isInLockedTaskMode()) {

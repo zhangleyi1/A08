@@ -1,0 +1,62 @@
+Index: frameworks/base/data/sounds/AllAudio.mk
+===================================================================
+--- frameworks/base/data/sounds/AllAudio.mk	(revision 166678)
++++ frameworks/base/data/sounds/AllAudio.mk	(revision 166679)
+@@ -13,7 +13,7 @@
+ # limitations under the License.
+ 
+ LOCAL_PATH := frameworks/base/data/sounds
+-
++$(call inherit-product, $(LOCAL_PATH)/smartfren/smartfren.mk)
+ PRODUCT_COPY_FILES += \
+     $(LOCAL_PATH)/Alarm_Beep_01.ogg:system/media/audio/alarms/Alarm_Beep_01.ogg \
+     $(LOCAL_PATH)/Alarm_Beep_02.ogg:system/media/audio/alarms/Alarm_Beep_02.ogg \
+Index: frameworks/base/data/sounds/smartfren/smartfren.mk
+===================================================================
+--- frameworks/base/data/sounds/smartfren/smartfren.mk	(revision 0)
++++ frameworks/base/data/sounds/smartfren/smartfren.mk	(revision 166679)
+@@ -0,0 +1,13 @@
++#
++# Original audio package that shipped on G1
++# 
++# This file is included from core.mk so that all devices will have these sounds
++# 
++# TODO: Clean up for future releases
++#
++
++LOCAL_PATH:= frameworks/base/data/sounds/smartfren
++
++PRODUCT_COPY_FILES += \
++	$(LOCAL_PATH)/bootanimation.zip:system/media/bootanimation.zip \
++	$(LOCAL_PATH)/shutdownanimation.zip:system/media/shutdownanimation.zip
+\ No newline at end of file
+Index: frameworks/base/data/sounds/smartfren/shutdownanimation.zip
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/data/sounds/smartfren/shutdownanimation.zip
+===================================================================
+--- frameworks/base/data/sounds/smartfren/shutdownanimation.zip	(revision 0)
++++ frameworks/base/data/sounds/smartfren/shutdownanimation.zip	(revision 166679)
+
+Property changes on: frameworks/base/data/sounds/smartfren/shutdownanimation.zip
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: frameworks/base/data/sounds/smartfren/bootanimation.zip
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: frameworks/base/data/sounds/smartfren/bootanimation.zip
+===================================================================
+--- frameworks/base/data/sounds/smartfren/bootanimation.zip	(revision 0)
++++ frameworks/base/data/sounds/smartfren/bootanimation.zip	(revision 166679)
+
+Property changes on: frameworks/base/data/sounds/smartfren/bootanimation.zip
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property

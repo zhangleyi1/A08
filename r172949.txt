@@ -1,0 +1,228 @@
+Index: vendor/google/frameworks/GoogleMediaEffects/lib/arm/libfilterpack_facedetect.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/frameworks/GoogleMediaEffects/lib/arm/libfilterpack_facedetect.so
+===================================================================
+--- vendor/google/frameworks/GoogleMediaEffects/lib/arm/libfilterpack_facedetect.so	(revision 0)
++++ vendor/google/frameworks/GoogleMediaEffects/lib/arm/libfilterpack_facedetect.so	(revision 172949)
+
+Property changes on: vendor/google/frameworks/GoogleMediaEffects/lib/arm/libfilterpack_facedetect.so
+___________________________________________________________________
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/google/frameworks/GoogleMediaEffects/lib/x86/libfilterpack_facedetect.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/frameworks/GoogleMediaEffects/lib/x86/libfilterpack_facedetect.so
+===================================================================
+--- vendor/google/frameworks/GoogleMediaEffects/lib/x86/libfilterpack_facedetect.so	(revision 0)
++++ vendor/google/frameworks/GoogleMediaEffects/lib/x86/libfilterpack_facedetect.so	(revision 172949)
+
+Property changes on: vendor/google/frameworks/GoogleMediaEffects/lib/x86/libfilterpack_facedetect.so
+___________________________________________________________________
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/google/frameworks/GoogleMediaEffects/lib/arm64/libfilterpack_facedetect.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/frameworks/GoogleMediaEffects/lib/arm64/libfilterpack_facedetect.so
+===================================================================
+--- vendor/google/frameworks/GoogleMediaEffects/lib/arm64/libfilterpack_facedetect.so	(revision 0)
++++ vendor/google/frameworks/GoogleMediaEffects/lib/arm64/libfilterpack_facedetect.so	(revision 172949)
+
+Property changes on: vendor/google/frameworks/GoogleMediaEffects/lib/arm64/libfilterpack_facedetect.so
+___________________________________________________________________
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/google/frameworks/GoogleMediaEffects/lib/x86_64/libfilterpack_facedetect.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/frameworks/GoogleMediaEffects/lib/x86_64/libfilterpack_facedetect.so
+===================================================================
+--- vendor/google/frameworks/GoogleMediaEffects/lib/x86_64/libfilterpack_facedetect.so	(revision 0)
++++ vendor/google/frameworks/GoogleMediaEffects/lib/x86_64/libfilterpack_facedetect.so	(revision 172949)
+
+Property changes on: vendor/google/frameworks/GoogleMediaEffects/lib/x86_64/libfilterpack_facedetect.so
+___________________________________________________________________
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/google/apps/FaceLock/lib/arm64/libfacenet.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/FaceLock/lib/arm64/libfacenet.so
+===================================================================
+--- vendor/google/apps/FaceLock/lib/arm64/libfacenet.so	(revision 0)
++++ vendor/google/apps/FaceLock/lib/arm64/libfacenet.so	(revision 172949)
+
+Property changes on: vendor/google/apps/FaceLock/lib/arm64/libfacenet.so
+___________________________________________________________________
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/google/apps/FaceLock/lib/arm64/libfrsdk.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/FaceLock/lib/arm64/libfrsdk.so
+===================================================================
+--- vendor/google/apps/FaceLock/lib/arm64/libfrsdk.so	(revision 0)
++++ vendor/google/apps/FaceLock/lib/arm64/libfrsdk.so	(revision 172949)
+
+Property changes on: vendor/google/apps/FaceLock/lib/arm64/libfrsdk.so
+___________________________________________________________________
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/google/apps/FaceLock/lib/x86_64/libfacenet.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/FaceLock/lib/x86_64/libfacenet.so
+===================================================================
+--- vendor/google/apps/FaceLock/lib/x86_64/libfacenet.so	(revision 0)
++++ vendor/google/apps/FaceLock/lib/x86_64/libfacenet.so	(revision 172949)
+
+Property changes on: vendor/google/apps/FaceLock/lib/x86_64/libfacenet.so
+___________________________________________________________________
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/google/apps/FaceLock/lib/x86_64/libfrsdk.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/FaceLock/lib/x86_64/libfrsdk.so
+===================================================================
+--- vendor/google/apps/FaceLock/lib/x86_64/libfrsdk.so	(revision 0)
++++ vendor/google/apps/FaceLock/lib/x86_64/libfrsdk.so	(revision 172949)
+
+Property changes on: vendor/google/apps/FaceLock/lib/x86_64/libfrsdk.so
+___________________________________________________________________
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/google/apps/FaceLock/lib/arm/libfacenet.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/FaceLock/lib/arm/libfacenet.so
+===================================================================
+--- vendor/google/apps/FaceLock/lib/arm/libfacenet.so	(revision 0)
++++ vendor/google/apps/FaceLock/lib/arm/libfacenet.so	(revision 172949)
+
+Property changes on: vendor/google/apps/FaceLock/lib/arm/libfacenet.so
+___________________________________________________________________
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/google/apps/FaceLock/lib/arm/libfrsdk.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/FaceLock/lib/arm/libfrsdk.so
+===================================================================
+--- vendor/google/apps/FaceLock/lib/arm/libfrsdk.so	(revision 0)
++++ vendor/google/apps/FaceLock/lib/arm/libfrsdk.so	(revision 172949)
+
+Property changes on: vendor/google/apps/FaceLock/lib/arm/libfrsdk.so
+___________________________________________________________________
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/google/apps/FaceLock/lib/x86/libfacenet.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/FaceLock/lib/x86/libfacenet.so
+===================================================================
+--- vendor/google/apps/FaceLock/lib/x86/libfacenet.so	(revision 0)
++++ vendor/google/apps/FaceLock/lib/x86/libfacenet.so	(revision 172949)
+
+Property changes on: vendor/google/apps/FaceLock/lib/x86/libfacenet.so
+___________________________________________________________________
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/google/apps/FaceLock/lib/x86/libfrsdk.so
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/google/apps/FaceLock/lib/x86/libfrsdk.so
+===================================================================
+--- vendor/google/apps/FaceLock/lib/x86/libfrsdk.so	(revision 0)
++++ vendor/google/apps/FaceLock/lib/x86/libfrsdk.so	(revision 172949)
+
+Property changes on: vendor/google/apps/FaceLock/lib/x86/libfrsdk.so
+___________________________________________________________________
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property

@@ -1,0 +1,91 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/util/QuickActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/util/QuickActivity.java	(revision 172972)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/util/QuickActivity.java	(revision 172973)
+@@ -137,6 +137,7 @@
+         //        and set mSkippedFirstOnResume to false
+ 
+         Log.v(TAG, "onResume(): isKeyguardLocked() = " + isKeyguardLocked());
++        onResumeTasksFactoryMode();
+         mMainHandler.removeCallbacks(mOnResumeTasks);
+         if (isKeyguardLocked() && mSkippedFirstOnResume == false) {
+             // Skipping onResumeTasks; set to true.
+@@ -248,6 +249,9 @@
+     protected void onResumeTasks() {
+     }
+ 
++    protected void onResumeTasksFactoryMode() {
++    }
++
+     /**
+      * Subclasses should override this in place of {@link Activity#onPause}.
+      */
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/PhotoModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/PhotoModule.java	(revision 172972)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/PhotoModule.java	(revision 172973)
+@@ -646,14 +646,10 @@
+          * 
+          * @{
+          */
++        int cameraId = DataModuleManager
++                .getInstance(mAppController.getAndroidContext())
++                .getDataModuleCamera().getInt(Keys.KEY_CAMERA_ID);
+ 
+-        Intent intent = mActivity.getIntent();
+-        boolean isFactoryMode = intent.getBooleanExtra("IsInFactoryModeTest", false);
+-        int cameraId = isFactoryMode ? 
+-                       intent.getIntExtra("FactoryModeTestCameraId", 0) : 
+-                       DataModuleManager.getInstance(mAppController.getAndroidContext())
+-                                        .getDataModuleCamera()
+-                                        .getInt(Keys.KEY_CAMERA_ID);
+         DataStructSetting dataSetting = new DataStructSetting(
+                 DreamUtil.intToString(getMode()), DreamUtil.isFrontCamera(
+                         mAppController.getAndroidContext(), cameraId),
+@@ -690,9 +686,8 @@
+             settingsManager.setToDefault(SettingsManager.SCOPE_GLOBAL,
+                     Keys.KEY_CAMERA_ID);
+         }
+-        mCameraId = isFactoryMode ? 
+-                    intent.getIntExtra("FactoryModeTestCameraId", 0) :
+-                    mDataModule.getInt(Keys.KEY_CAMERA_ID);
++        mCameraId = mDataModule.getInt(Keys.KEY_CAMERA_ID);
++
+         Log.i(TAG, " init " + mAppController.getModuleScope() + ","
+                 + mCameraId);
+         mContentResolver = mActivity.getContentResolver();
+@@ -1118,10 +1113,8 @@
+          * mCameraId will not be the latest one. Which will cause the switch
+          * camera function can not be used. @{
+          */
+-        Intent intent = mActivity.getIntent();
+-        boolean isFactoryMode = intent.getBooleanExtra("IsInFactoryModeTest", false);
+         SettingsManager settingsManager = mActivity.getSettingsManager();
+-        if (mCameraId != mDataModule.getInt(Keys.KEY_CAMERA_ID) && !isFactoryMode) {
++        if (mCameraId != mDataModule.getInt(Keys.KEY_CAMERA_ID)) {
+             mCameraId = mDataModule.getInt(Keys.KEY_CAMERA_ID);
+         }
+         /* @} */
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java	(revision 172972)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java	(revision 172973)
+@@ -2894,6 +2894,18 @@
+     }
+ 
+     @Override
++    protected void onResumeTasksFactoryMode() {
++        Intent intent = getIntent();
++        boolean isFactoryMode = intent.getBooleanExtra("IsInFactoryModeTest", false);
++        Log.i(TAG, "isFactoryMode = " + isFactoryMode);
++        if(isFactoryMode) {
++            int cameraId = intent.getIntExtra("FactoryModeTestCameraId", 0);
++            mDataModule.set(Keys.KEY_CAMERA_ID, cameraId);
++            Log.i(TAG, "factorymode mCameraId = " + mCameraId);
++        }
++    }
++
++    @Override
+     public void onResumeTasks() {
+ 
+         Log.i(TAG, "onResumeTasks start!");

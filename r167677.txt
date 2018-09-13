@@ -1,0 +1,25 @@
+Index: vendor/sprd/plugins/packages/apps/Launcher3/addons/CustomizeAppSort/res/xml/app_positions.xml
+===================================================================
+--- vendor/sprd/plugins/packages/apps/Launcher3/addons/CustomizeAppSort/res/xml/app_positions.xml	(revision 167676)
++++ vendor/sprd/plugins/packages/apps/Launcher3/addons/CustomizeAppSort/res/xml/app_positions.xml	(revision 167677)
+@@ -1,14 +1,14 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <!-- SPRD: bug375748 2014-12-01 Feature customize app icon sort. -->
+ <apps xmlns:appsort="http://schemas.android.com/apk/res-auto/addon.sprd.launcher3.appsort" >
+-	
+-	<app
+-        appsort:pkgName="wanzhen.android.flashlight"
++		
++    <app
++        appsort:pkgName="com.smartfren"
+         appsort:position="0" />
+-	<app
+-        appsort:pkgName="com.smartfren"
++    <app
++        appsort:pkgName="qualcomm.android.LEDFlashlight"
+         appsort:position="1" />
+-	<app
++    <app
+         appsort:pkgName="cn.wps.moffice_eng"
+         appsort:position="2" />
+     <app

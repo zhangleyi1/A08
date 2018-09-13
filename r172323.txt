@@ -1,0 +1,13 @@
+Index: frameworks/base/telephony/java/android/telephony/SignalStrength.java
+===================================================================
+--- frameworks/base/telephony/java/android/telephony/SignalStrength.java	(revision 172322)
++++ frameworks/base/telephony/java/android/telephony/SignalStrength.java	(revision 172323)
+@@ -623,7 +623,7 @@
+     public int getGsmLevel() {
+         int level;
+ 				int dBm = getGsmDbm();  
+-				if (dBm <= -106) level = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;
++				if (dBm <= -106 || dBm == -1) level = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;
+ 				else if (dBm > -86) level = SIGNAL_STRENGTH_HIGHEST;
+ 				else if (dBm > -91&&dBm < -86) level = SIGNAL_STRENGTH_GREAT;
+ 				else if (dBm > -96&&dBm <= -91)  level = SIGNAL_STRENGTH_GOOD;

@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/SprdEmail/UnifiedEmail/src/com/android/mail/browse/MessageFooterView.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdEmail/UnifiedEmail/src/com/android/mail/browse/MessageFooterView.java	(revision 167710)
++++ vendor/sprd/platform/packages/apps/SprdEmail/UnifiedEmail/src/com/android/mail/browse/MessageFooterView.java	(revision 167711)
+@@ -192,7 +192,7 @@
+                 if (AttachmentTile.isTiledAttachment(attachment)) {
+                     tiledAttachments.add(attachment);
+                 /* SPRD: modify for bug 515795 @{ */
+-                } else if (attachment.size != 0) {
++                } else if (attachment.size != 0 || (attachment.flags & Attachment.FLAG_DUMMY_ATTACHMENT) != 0) {
+                     barAttachments.add(attachment);
+                 } else {
+                     LogUtils.e(LOG_TAG, "Error adding attachment");

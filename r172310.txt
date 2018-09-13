@@ -1,0 +1,24 @@
+Index: packages/apps/Provision/res/values/strings.xml
+===================================================================
+--- packages/apps/Provision/res/values/strings.xml	(revision 172309)
++++ packages/apps/Provision/res/values/strings.xml	(revision 172310)
+@@ -1,6 +1,6 @@
+ <resources>
+     <string name="fota_title">Andromax Firmware Upgrade</string>
+-    <string name="fota_content">Dear Customer,\nThank You for using Andromax as your trusted Smartphone device.To ensure your Andromax always in optimal performance, the device will conduct Software Patch or Firmware Download Automaticaly whenever a new release is available, therefore the process is seemless and hassle-free. This process will not deduct or consume data package or kuota whenever You are in or goes through Smartphone Cellular network.</string>
++    <string name="fota_content">Dear Customer,\nThank You for using Andromax as your trusted Smartphone device.To ensure your Andromax always in optimal performance,the device will conduct Software Patch or Firmware Download Automaticaly whenever a new release is available,therefore the process is seemless and hassle-free.This process will not deduct or consume data package or kuota whenever You are in or goes through Smartphone Cellular network.</string>
+     <string name="fota_end">Please click next to agree and continue</string>
+     <string name="nextStr">Next</string>
+ </resources>
+Index: packages/apps/Provision/res/values-in-rID/strings.xml
+===================================================================
+--- packages/apps/Provision/res/values-in-rID/strings.xml	(revision 172309)
++++ packages/apps/Provision/res/values-in-rID/strings.xml	(revision 172310)
+@@ -1,6 +1,6 @@
+ <resources>
+     <string name="fota_title">Andromax Firmware Upgrade</string>
+-    <string name="fota_content">Terima Kasih atas kepercayaan Anda untuk menggunakan perangkat Smartphone Andromax.Agar kinerja Andromax Anda dapat selalu berfungsi dengan optimal,maka perangkat Andromax Anda akan melakukan Download Software Patch atau Firmware secara otomatis saat ada software patch atau firmware terbaru yang di terbitkan, sehingga proses lebih mudah dan praktis. Proses ini tidak akan mengurangi atau mengkonsumsi paket data atau kuota yang Anda miliki saat berada atau melalui jaringan seluler Smartphone.</string>
++    <string name="fota_content">Terima Kasih atas kepercayaan Anda untuk menggunakan perangkat Smartphone Andromax.Agar kinerja Andromax Anda dapat selalu berfungsi dengan optimal,maka perangkat Andromax Anda akan melakukan Download Software Patch atau Firmware secara otomatis saat ada software patch atau firmware terbaru yang di terbitkan,sehingga proses lebih mudah dan praktis.Proses ini tidak akan mengurangi atau mengkonsumsi paket data atau kuota yang Anda miliki saat berada atau melalui jaringan seluler Smartphone.</string>
+     <string name="fota_end">Klik lanjut untuk setuju dan melanjutkan</string>
+     <string name="nextStr">Lanjut</string>
+ </resources>

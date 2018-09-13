@@ -1,0 +1,14 @@
+Index: vendor/sprd/platform/packages/apps/SprdContacts/res/layout/expanding_entry_card_item.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/res/layout/expanding_entry_card_item.xml	(revision 174895)
++++ vendor/sprd/platform/packages/apps/SprdContacts/res/layout/expanding_entry_card_item.xml	(revision 174896)
+@@ -117,7 +117,8 @@
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:orientation="horizontal"
+-        android:layout_below="@+id/text" >
++        android:layout_below="@+id/text"
++        android:layout_marginLeft="30dp" >
+ 
+     <ImageView
+         android:id="@+id/icon_2g"

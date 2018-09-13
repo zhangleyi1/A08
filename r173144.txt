@@ -1,0 +1,65 @@
+Index: external/icu/icu4c/source/data/locales/id.txt
+===================================================================
+--- external/icu/icu4c/source/data/locales/id.txt	(revision 173143)
++++ external/icu/icu4c/source/data/locales/id.txt	(revision 173144)
+@@ -864,10 +864,10 @@
+                 "PM",
+             }
+             DateTimePatterns{
+-                "HH.mm.ss zzzz",
+-                "HH.mm.ss z",
+-                "HH.mm.ss",
+-                "HH.mm",
++                "HH:mm:ss zzzz",
++                "HH:mm:ss z",
++                "HH:mm:ss",
++                "HH:mm",
+                 "EEEE, dd MMMM y",
+                 "d MMMM y",
+                 "d MMM y",
+@@ -883,20 +883,20 @@
+             }
+             availableFormats{
+                 E{"ccc"}
+-                EHm{"E HH.mm"}
+-                EHms{"E HH.mm.ss"}
++                EHm{"E HH:mm"}
++                EHms{"E HH:mm:ss"}
+                 Ed{"E, d"}
+-                Ehm{"E h.mm a"}
+-                Ehms{"E h.mm.ss a"}
++                Ehm{"E h:mm a"}
++                Ehms{"E h:mm:ss a"}
+                 Gy{"y G"}
+                 GyMMM{"MMM y G"}
+                 GyMMMEd{"E, d MMM y G"}
+                 GyMMMd{"d MMM y G"}
+                 H{"HH"}
+-                Hm{"HH.mm"}
+-                Hms{"HH.mm.ss"}
+-                Hmsv{"HH.mm.ss v"}
+-                Hmv{"HH.mm v"}
++                Hm{"HH:mm"}
++                Hms{"HH:mm:ss"}
++                Hmsv{"HH:mm:ss v"}
++                Hmv{"HH:mm v"}
+                 M{"L"}
+                 MEd{"E, d/M"}
+                 MMM{"LLL"}
+@@ -907,11 +907,11 @@
+                 Md{"d/M"}
+                 d{"d"}
+                 h{"h a"}
+-                hm{"h.mm a"}
+-                hms{"h.mm.ss a"}
+-                hmsv{"h.mm.ss. a v"}
+-                hmv{"h.mm a v"}
+-                ms{"mm.ss"}
++                hm{"h:mm a"}
++                hms{"h:mm:ss a"}
++                hmsv{"h:mm:ss: a v"}
++                hmv{"h:mm a v"}
++                ms{"mm:ss"}
+                 y{"y"}
+                 yM{"M/y"}
+                 yMEd{"E, d/M/y"}

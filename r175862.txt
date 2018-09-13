@@ -1,0 +1,216 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/InCallActivity.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/InCallActivity.java	(revision 175861)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/InCallActivity.java	(revision 175862)
+@@ -404,6 +404,7 @@
+         mIsInMultiWindowMode = isInMultiWindowMode();
+         /*@}*/
+ 
++        adjustCallCardViewVisible();
+     }
+ 
+     // onPause is guaranteed to be called when the InCallActivity goes
+@@ -498,8 +499,8 @@
+             Log.i(this, String.format(
+                     "Recreate activity due to resize beyond threshold: %d dp",
+                     SCREEN_HEIGHT_RESIZE_THRESHOLD));
+-            recreate();
+         }
++        recreate();
+ 
+         //SPRD:modify by bug599653 and bug604304 &609533 &610757 &610349
+         if (isVisible() && mIsInMultiWindowModeOld && !isInMultiWindowMode()
+Index: packages/apps/Dialer/InCallUI/res/values/dimens.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/values/dimens.xml	(revision 175861)
++++ packages/apps/Dialer/InCallUI/res/values/dimens.xml	(revision 175862)
+@@ -39,6 +39,7 @@
+     <dimen name="call_banner_primary_call_container_top_padding">16dp</dimen>
+     <dimen name="secondary_call_info_horizontal_padding">24dp</dimen>
+     <dimen name="secondary_call_info_vertical_padding">24dp</dimen>
++    <dimen name="secondary_call_info_vertical_padding_ex">10dp</dimen>
+     <dimen name="secondary_call_info_text_size">16sp</dimen>
+ 
+     <!-- Padding at the top and bottom edges of the "provider information" -->
+Index: packages/apps/Dialer/InCallUI/res/layout/dialpad_key_zero_incallui.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/layout/dialpad_key_zero_incallui.xml	(revision 175861)
++++ packages/apps/Dialer/InCallUI/res/layout/dialpad_key_zero_incallui.xml	(revision 175862)
+@@ -7,10 +7,7 @@
+     android:id="@+id/zero"
+     style="@style/DialpadKeyButtonStyle" >
+ 
+-    <LinearLayout style="@style/DialpadKeyInternalLayoutStyle"
+-        android:orientation="horizontal"
+-        android:baselineAligned="false"
+-        android:layout_gravity="center|center_vertical">
++    <LinearLayout style="@style/DialpadKeyInternalLayoutStyle">
+ 
+         <!-- Note in the referenced styles that we assign hard widths to these components
+              because we want them to line up vertically when we arrange them in an MxN grid -->
+@@ -17,14 +14,10 @@
+ 
+         <com.android.phone.common.dialpad.DialpadTextView
+             android:id="@+id/dialpad_key_number"
+-            android:layout_marginRight="@dimen/dialpad_key_margin_right_incallui"
+-            android:layout_marginBottom="0dp"
+-            style="@style/DialpadBottomKeyNumberStyle"
+-            android:textSize="@dimen/dialpad_key_numbers_default_size_incallui" />
++            style="@style/DialpadBottomKeyNumberStyle" />
+ 
+         <TextView
+             android:id="@+id/dialpad_key_letters"
+-            android:layout_width="@dimen/dialpad_key_text_width_incallui"
+             style="@style/DialpadKeyLettersStyle" />
+     </LinearLayout>
+ </com.android.phone.common.dialpad.DialpadKeyButton>
+\ No newline at end of file
+Index: packages/apps/Dialer/InCallUI/res/layout/dialpad_key_incallui.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/layout/dialpad_key_incallui.xml	(revision 175861)
++++ packages/apps/Dialer/InCallUI/res/layout/dialpad_key_incallui.xml	(revision 175862)
+@@ -5,10 +5,7 @@
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     style="@style/DialpadKeyButtonStyle" >
+ 
+-    <LinearLayout style="@style/DialpadKeyInternalLayoutStyle"
+-        android:orientation="horizontal"
+-        android:baselineAligned="false"
+-        android:layout_gravity="center|center_vertical" >
++    <LinearLayout style="@style/DialpadKeyInternalLayoutStyle">
+ 
+         <!-- Note in the referenced styles that we assign hard widths to these components
+              because we want them to line up vertically when we arrange them in an MxN grid -->
+@@ -15,16 +12,10 @@
+ 
+         <com.android.phone.common.dialpad.DialpadTextView
+             android:id="@+id/dialpad_key_number"
+-            style="@style/DialpadKeyNumberStyle"
+-            android:textSize="@dimen/dialpad_key_numbers_default_size_incallui"
+-            android:layout_gravity="center"
+-            android:layout_marginBottom="0dp"
+-            android:layout_marginRight="@dimen/dialpad_key_margin_right_incallui" />
++            style="@style/DialpadKeyNumberStyle" />
+ 
+         <TextView
+             android:id="@+id/dialpad_key_letters"
+-            style="@style/DialpadKeyLettersStyle"
+-            android:layout_width="@dimen/dialpad_key_text_width_incallui"
+-            android:layout_gravity="right|center" />
++            style="@style/DialpadKeyLettersStyle" />
+     </LinearLayout>
+ </com.android.phone.common.dialpad.DialpadKeyButton>
+\ No newline at end of file
+Index: packages/apps/Dialer/InCallUI/res/layout/dialpad_key_one_incallui.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/layout/dialpad_key_one_incallui.xml	(revision 175861)
++++ packages/apps/Dialer/InCallUI/res/layout/dialpad_key_one_incallui.xml	(revision 175862)
+@@ -4,29 +4,25 @@
+     android:id="@+id/one"
+     style="@style/DialpadKeyButtonStyle">
+     <LinearLayout
+-        style="@style/DialpadKeyInternalLayoutStyle"
+-        android:orientation="horizontal"
+-        android:baselineAligned="false"
+-        android:layout_gravity="center|center_vertical" >
++        style="@style/DialpadKeyInternalLayoutStyle">
+         <com.android.phone.common.dialpad.DialpadTextView
+             android:id="@+id/dialpad_key_number"
+             style="@style/DialpadKeyNumberStyle"
+-            android:textSize="@dimen/dialpad_key_numbers_default_size_incallui"
+-            android:layout_gravity="center"
+-            android:layout_marginBottom="0dp"
+-            android:layout_marginRight="@dimen/dialpad_key_one_margin_right_incallui" />
+-        <FrameLayout
+-            android:layout_width="@dimen/dialpad_key_text_width_incallui"
+-            android:layout_height="wrap_content"
+-            android:layout_gravity="left|center" >
++            android:textColor= "#FF0000" />
++        <RelativeLayout
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content" >
+             <ImageView
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+-                android:layout_gravity="right|center"
++                android:paddingTop="@dimen/dialpad_voicemail_icon_padding_top"
+                 android:id="@+id/dialpad_key_voicemail"
+                 android:src="@drawable/ic_dialpad_voicemail"
+                 android:scaleType="fitCenter"
+-                android:tint="@color/dialpad_voicemail_tint" />
+-        </FrameLayout>
++                android:layout_centerInParent="true"
++                android:tint="?attr/dialpad_voicemail_tint" />
++            <!-- Place empty text view so vertical height is same as other dialpad keys. -->
++            <TextView style="@style/DialpadKeyLettersStyle" />
++        </RelativeLayout>
+     </LinearLayout>
+ </com.android.phone.common.dialpad.DialpadKeyButton>
+\ No newline at end of file
+Index: packages/apps/Dialer/InCallUI/res/layout/dialpad_key_pound_incallui.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/layout/dialpad_key_pound_incallui.xml	(revision 175861)
++++ packages/apps/Dialer/InCallUI/res/layout/dialpad_key_pound_incallui.xml	(revision 175862)
+@@ -4,19 +4,9 @@
+     android:id="@+id/pound"
+     style="@style/DialpadKeyButtonStyle">
+     <LinearLayout
+-        android:orientation="horizontal"
+-        android:layout_gravity="center_vertical|center"
+         style="@style/DialpadKeyInternalLayoutStyle" >
+         <com.android.phone.common.dialpad.DialpadTextView
+             android:id="@id/dialpad_key_number"
+-            android:layout_width="@dimen/dialpad_key_number_width_incallui"
+-            android:layout_marginRight="@dimen/dialpad_key_margin_right_incallui"
+-            style="@style/DialpadKeyPoundStyle"
+-            android:paddingLeft="@dimen/dialpad_key_number_padding_left_incallui"
+-            android:layout_marginBottom="@dimen/dialpad_symbol_margin_bottom_incallui"
+-            android:textSize="@dimen/dialpad_key_pound_size_incallui" />
+-        <View
+-            android:layout_width="@dimen/dialpad_key_text_width_incallui"
+-            style="@style/DialpadKeyLettersStyle" />
++            style="@style/DialpadKeyPoundStyle"/>
+     </LinearLayout>
+ </com.android.phone.common.dialpad.DialpadKeyButton>
+\ No newline at end of file
+Index: packages/apps/Dialer/InCallUI/res/layout/secondary_call_info.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/layout/secondary_call_info.xml	(revision 175861)
++++ packages/apps/Dialer/InCallUI/res/layout/secondary_call_info.xml	(revision 175862)
+@@ -36,8 +36,8 @@
+         android:orientation="horizontal"
+         android:paddingStart="@dimen/secondary_call_info_horizontal_padding"
+         android:paddingEnd="@dimen/secondary_call_info_horizontal_padding"
+-        android:paddingTop="@dimen/secondary_call_info_vertical_padding"
+-        android:paddingBottom="@dimen/secondary_call_info_vertical_padding"
++        android:paddingTop="@dimen/secondary_call_info_vertical_padding_ex"
++        android:paddingBottom="@dimen/secondary_call_info_vertical_padding_ex"
+         android:background="?android:attr/selectableItemBackground">
+ 
+         <ImageView android:id="@+id/secondaryCallVideoCallIcon"
+Index: packages/apps/Dialer/InCallUI/res/layout/dialpad_key_star_incallui.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/layout/dialpad_key_star_incallui.xml	(revision 175861)
++++ packages/apps/Dialer/InCallUI/res/layout/dialpad_key_star_incallui.xml	(revision 175862)
+@@ -4,19 +4,9 @@
+     android:id="@+id/star"
+     style="@style/DialpadKeyButtonStyle">
+     <LinearLayout
+-        android:orientation="horizontal"
+-        android:layout_gravity="center_vertical|center"
+         style="@style/DialpadKeyInternalLayoutStyle" >
+         <com.android.phone.common.dialpad.DialpadTextView
+-            android:id="@id/dialpad_key_number"
+-            android:layout_width="@dimen/dialpad_key_number_width_incallui"
+-            android:layout_marginRight="@dimen/dialpad_key_margin_right_incallui"
+-            style="@style/DialpadKeyStarStyle"
+-            android:paddingLeft="@dimen/dialpad_key_number_padding_left_incallui"
+-            android:layout_marginBottom="@dimen/dialpad_symbol_margin_bottom_incallui"
+-            android:textSize="@dimen/dialpad_key_star_size_incallui" />
+-        <View
+-            android:layout_width="@dimen/dialpad_key_text_width_incallui"
+-            style="@style/DialpadKeyLettersStyle" />
++            android:id="@+id/dialpad_key_number"
++            style="@style/DialpadKeyStarStyle" />
+     </LinearLayout>
+ </com.android.phone.common.dialpad.DialpadKeyButton>

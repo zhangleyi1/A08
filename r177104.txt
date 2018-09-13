@@ -1,0 +1,41 @@
+Index: packages/services/Telephony/res/values-in/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values-in/strings.xml	(revision 177103)
++++ packages/services/Telephony/res/values-in/strings.xml	(revision 177104)
+@@ -560,8 +560,8 @@
+ 	<string name="roaming_mode">Mode roaming</string>
+ 	<string name="roaming_cancle">Membatalkan</string>
+ 	<string name="roaming_ok">Baik</string>
+-	<string name="roaming_info">Modus jaringan perangkat akan beralih ke mode LTE/GMS dan perangkat
+-		Akan didorong untuk berkelana di jaringan mitra roaming Smartfren LTE/GMS. Biaya panggilan mungkin dikenakan!</string>
++	<string name="roaming_info">Modus jaringan perangkat akan beralih ke mode LTE/GSM dan perangkat
++		Akan didorong untuk berkelana di jaringan mitra roaming Smartfren LTE/GSM. Biaya panggilan mungkin dikenakan!</string>
+     <string name="network_mode_dialog_title">Attention</string>
+     <string name="network_mode_dialog_content">Pada mode LTE Saja, Panggilan Suara dan SMS akan melalui Jaringan LTE.</string>
+     <string name="network_mode_dialog_ok">OK</string>
+Index: packages/services/Telephony/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values-zh-rCN/strings.xml	(revision 177103)
++++ packages/services/Telephony/res/values-zh-rCN/strings.xml	(revision 177104)
+@@ -592,5 +592,5 @@
+ 	<string name="roaming_mode">漫游模式</string>
+ 	<string name="roaming_cancle">取消</string>
+ 	<string name="roaming_ok">确认</string>
+-	<string name="roaming_info">设备网络模式将切换到LTE/GMS模式,并在Smartfren LTE/GMS漫游伙伴网络上推动漫游。发送费用可能会产生！</string>
++	<string name="roaming_info">设备网络模式将切换到LTE/GSM模式,并在Smartfren LTE/GSM漫游伙伴网络上推动漫游。发送费用可能会产生！</string>
+ </resources>
+Index: packages/services/Telephony/res/values/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values/strings.xml	(revision 177103)
++++ packages/services/Telephony/res/values/strings.xml	(revision 177104)
+@@ -1368,8 +1368,8 @@
+ 	<string name="roaming_mode">Roaming mode</string>
+ 	<string name="roaming_cancle">CANCLE</string>
+ 	<string name="roaming_ok">OK</string>
+-	<string name="roaming_info">The device network mode will be switch to LTE/GMS mode and the device
+-	    will be pushed to roam on Smartfren LTE/GMS roaming partner networks.Roaming charges may incur!</string>
++	<string name="roaming_info">The device network mode will be switch to LTE/GSM mode and the device
++	    will be pushed to roam on Smartfren LTE/GSM roaming partner networks.Roaming charges may incur!</string>
+     <string name="network_mode_dialog_title">Attention</string>
+     <string name="network_mode_dialog_content">In LTE only mode, Voice Call and SMS will go through the LTE Network.</string>
+     <string name="network_mode_dialog_ok">OK</string>

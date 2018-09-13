@@ -1,0 +1,39 @@
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/keyguard_status_bar.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/keyguard_status_bar.xml	(revision 168074)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/keyguard_status_bar.xml	(revision 168075)
+@@ -76,7 +76,7 @@
+         android:textColor="#ffffff"
+         android:singleLine="true"
+         android:visibility= "gone"/>
+-
++<!--
+     <com.android.keyguard.CarrierTextLayout
+         android:layout_alignParentBottom= "true"
+         android:layout_marginTop = "-10dp"
+@@ -85,5 +85,6 @@
+         android:gravity="center_horizontal"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content" />
++-->
+ 
+ </com.android.systemui.statusbar.phone.KeyguardStatusBarView>
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/keyguard_bottom_area.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/keyguard_bottom_area.xml	(revision 168074)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/keyguard_bottom_area.xml	(revision 168075)
+@@ -61,6 +61,14 @@
+             android:drawablePadding="8dp"
+             android:tag="emergency_call_btn_in_keyguard"
+             android:textAllCaps="@bool/kg_use_all_caps" />
++
++        <com.android.keyguard.CarrierTextLayout
++            android:orientation="vertical"
++            android:gravity="center_horizontal"
++            android:layout_width="match_parent"
++            android:layout_gravity="bottom|center_horizontal"
++            android:layout_height="wrap_content" />
++
+     </LinearLayout>
+ 
+     <FrameLayout

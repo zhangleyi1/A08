@@ -1,0 +1,14 @@
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 169859)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 169860)
+@@ -775,7 +775,8 @@
+                 Log.i(LOG_TAG, "volteLockIntent:" + volteLockIntent);
+                 /* SPRD: add for bug 596388 @{ */
+                 if (mVolteLockPref != null && defaultDataSubId == phoneSubId) {
+-                    prefSet.addPreference(mVolteLockPref);
++                    //prefSet.addPreference(mVolteLockPref);
++					prefSet.removePreference(mVolteLockPref);
+                 }
+                 /* @} */
+             }

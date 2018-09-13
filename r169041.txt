@@ -1,0 +1,17 @@
+Index: packages/apps/Dialer/AndroidManifest.xml
+===================================================================
+--- packages/apps/Dialer/AndroidManifest.xml	(revision 169040)
++++ packages/apps/Dialer/AndroidManifest.xml	(revision 169041)
+@@ -345,10 +345,10 @@
+                   android:launchMode="singleInstance"
+                   android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboardHidden"
+                   android:exported="false"
+-                  android:screenOrientation="nosensor"
++                  android:screenOrientation="portrait"
+                   android:directBootAware="true"
+                   android:resizeableActivity="true"
+-				  android:screenOrientation="portrait">
++				 >
+         </activity>
+ 
+         <service android:name="com.android.incallui.InCallServiceImpl"

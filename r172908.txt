@@ -1,0 +1,16 @@
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 172907)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 172908)
+@@ -801,9 +801,10 @@
+                             .getBoolean(R.bool.config_show_4GLTE_button))) {
+                 prefSet.addPreference(mButton4glte);
+             }
+-			prefSet.addPreference(mButtonGsmRoaming);
++			
+              /* @} */
+                 }
++				prefSet.addPreference(mButtonGsmRoaming);
+             }
+             /* SPRD: FEATURE_PLMN_LOCK @{ */
+             SubscriptionInfoHelper subInfoHelper = new SubscriptionInfoHelper(context, getIntent());

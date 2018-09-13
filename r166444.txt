@@ -1,0 +1,34 @@
+Index: frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java	(revision 166443)
++++ frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java	(revision 166444)
+@@ -3123,6 +3123,12 @@
+         // timeout.
+         if (keyCode == KeyEvent.KEYCODE_HOME) {
+ 
++            ActivityManager activityManager = (ActivityManager)mContext.getSystemService(Context.ACTIVITY_SERVICE);
++            ComponentName topActivity = activityManager.getRunningTasks(1).get(0).topActivity;
++            if (topActivity.getPackageName().equals("com.mediatek.factorymode") || topActivity.getPackageName().equals("com.android.provision")){
++                return 0;
++            }
++
+             if (!Phykey){
+                 if (!mKeyguardDelegate.isShowing()){
+                     PMFactory.getInstance().createExtraPowerManager(mContext).scheduleButtonLightTimeout(SystemClock.uptimeMillis());
+Index: frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java	(revision 166443)
++++ frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java	(revision 166444)
+@@ -709,9 +709,9 @@
+     PowerManager mPowerManager;
+     PowerManagerInternal mPowerManagerInternal;
+ 
+-    float mWindowAnimationScaleSetting = 1.0f;
+-    float mTransitionAnimationScaleSetting = 1.0f;
+-    float mAnimatorDurationScaleSetting = 1.0f;
++    float mWindowAnimationScaleSetting = 0f;
++    float mTransitionAnimationScaleSetting = 0f;
++    float mAnimatorDurationScaleSetting = 0f;
+     boolean mAnimationsDisabled = false;
+ 
+     final InputManagerService mInputManager;

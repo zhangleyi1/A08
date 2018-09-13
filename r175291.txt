@@ -1,0 +1,13 @@
+Index: external/libxml2/xpointer.c
+===================================================================
+--- external/libxml2/xpointer.c	(revision 175290)
++++ external/libxml2/xpointer.c	(revision 175291)
+@@ -410,7 +410,7 @@
+     if (end->type != XPATH_POINT)
+ 	return(NULL);
+ 
+-    ret = = xmlXPtrNewRangeInternal(start->user, start->index, end->user,
++    ret = xmlXPtrNewRangeInternal(start->user, start->index, end->user,
+      end->index);
+     xmlXPtrRangeCheckOrder(ret);
+     return(ret);

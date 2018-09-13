@@ -1,0 +1,283 @@
+Index: system/sepolicy/app.te
+===================================================================
+--- system/sepolicy/app.te	(revision 175653)
++++ system/sepolicy/app.te	(revision 175654)
+@@ -278,7 +278,8 @@
+ neverallow { appdomain -bluetooth } self:capability2 *;
+ 
+ # Block device access.
+-neverallow appdomain dev_type:blk_file { read write };
++#neverallow appdomain dev_type:blk_file { read write };
++neverallow { appdomain -system_app } dev_type:blk_file { read write };
+ 
+ # Access to any of the following character devices.
+ neverallow appdomain {
+Index: device/sprd/scx35l/common/sepolicy/system_app.te
+===================================================================
+--- device/sprd/scx35l/common/sepolicy/system_app.te	(revision 175653)
++++ device/sprd/scx35l/common/sepolicy/system_app.te	(revision 175654)
+@@ -176,4 +176,6 @@
+ allow system_app tp_gesture_switch_device:chr_file { open write read getattr }; 
+ 
+ ##/dev/tp_gesture_switch
+-allow system_app power_supply_online_device:chr_file { open write read getattr }; 
+\ No newline at end of file
++allow system_app power_supply_online_device:chr_file { open write read getattr }; 
++
++allow system_app mmcblk_device:blk_file { read write };
+Index: device/sprd/scx35l/common/sepolicy/radio.te
+===================================================================
+--- device/sprd/scx35l/common/sepolicy/radio.te	(revision 175653)
++++ device/sprd/scx35l/common/sepolicy/radio.te	(revision 175654)
+@@ -1,6 +1,6 @@
+ allow radio tty_device:chr_file rw_file_perms;
+ 
+-allow radio system_app_data_file:dir search;
++allow radio system_app_data_file:dir { search getattr };
+ allow radio system_app_data_file:file { read getattr open };
+ allow radio gensecure_service:service_manager find;
+ allow radio node:rawip_socket {node_bind};
+Index: device/sprd/scx35l/common/sepolicy/phasecheckserver.te
+===================================================================
+--- device/sprd/scx35l/common/sepolicy/phasecheckserver.te	(revision 175653)
++++ device/sprd/scx35l/common/sepolicy/phasecheckserver.te	(revision 175654)
+@@ -17,6 +17,6 @@
+ allow phasecheckserver phasecheck_service:service_manager add;
+ allow phasecheckserver block_device:dir search;
+ allow phasecheckserver tmpfs:dir { write add_name };
+-allow phasecheckserver mmcblk_device:blk_file { open read write };
++allow phasecheckserver mmcblk_device:blk_file { open read write getattr };
+ allow phasecheckserver phasecheckserver_tmpfs:file create;
+ 
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/IATUtils.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/IATUtils.java	(revision 175653)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/IATUtils.java	(revision 175654)
+@@ -1,59 +0,0 @@
+-package com.mediatek.factorymode;
+-
+-import android.os.RemoteException;
+-import android.os.ServiceManager;
+-import android.util.Log;
+-import android.telephony.TelephonyManager;
+-
+-public class IATUtils {
+-    private static final String TAG = "IATUtils";
+-    private static String strTmp = null;
+-    public static String AT_FAIL = "AT FAILED";
+-    public static String AT_OK = "OK";
+-    public static String AT_CONNECT = "CONNECT";
+-    public static int mPhoneCount = 0;
+-    private static TelephonyManager mTelephonyManager;
+-    private static int phoneId = 0;
+-
+-    public static synchronized String sendATCmd(String cmd, String serverName) {
+-        strTmp = "error service can't get";
+-        String[] oemReq = new String[1];
+-        String[] oemResp = new String[1];
+-        oemReq[0] = cmd;
+-        mTelephonyManager = TelephonyManager.getDefault();
+-        mPhoneCount = mTelephonyManager.getPhoneCount();
+-        if (mPhoneCount == 1) {
+-            Log.d(TAG, "phone count is 1");
+-            serverName = "atchannel";
+-        }
+-        if (serverName.contains("atchannel0")) {
+-            phoneId = 0;
+-            Log.d(TAG, "<0> mAtChannel = " + phoneId + " , and cmd = " + cmd);
+-        } else if (serverName.contains("atchannel1")) {
+-            phoneId = 1;
+-            Log.d(TAG, "<1> mAtChannel = " + phoneId + " , and cmd = " + cmd);
+-        } else {
+-            phoneId = 0;
+-            Log.d(TAG, "<atchannel> mAtChannel = " + phoneId + " , and cmd = "
+-                    + cmd);
+-        }
+-        /*int oemResplength = mTelephonyManager.invokeOemRilRequestStrings(phoneId, oemReq, oemResp);
+-        if (oemResplength < 0) {
+-            Log.d(TAG, "AT cmd send fail");
+-            strTmp = "AT cmd send fail";
+-        } else if (oemResplength == 0) {
+-            Log.d(TAG, "the return value of AT is null");
+-            strTmp = "the return value of AT is null";
+-        } else {
+-            strTmp = oemResp[0];
+-            if (serverName.contains("atchannel0")) {
+-                Log.d(TAG, "<0> AT response " + strTmp);
+-            } else if (serverName.contains("atchannel1")) {
+-                Log.d(TAG, "<1> AT response " + strTmp);
+-            } else {
+-                Log.d(TAG, "<atchannel> AT response " + strTmp);
+-            }
+-        }*/
+-        return strTmp;
+-    }
+-}
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 175653)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 175654)
+@@ -55,6 +55,7 @@
+ import com.mediatek.factorymode.sleeporwake.SleepOrWake;
+ import com.mediatek.factorymode.tptest.TPTest;
+ import com.mediatek.factorymode.lteinfo.LteInfo;
++import com.mediatek.factorymode.utils.IATUtils;
+ 
+ import java.io.File;
+ import java.io.FileNotFoundException;
+@@ -423,6 +424,7 @@
+ 
+   public void saveTestReport(boolean bSaveResult){
+     File targetFile = new File(NV_DB_PATH);
++    Log.d(TAG, "saveTestReport: bSaveResult = " + bSaveResult);
+     if (!targetFile.exists()) {
+       Log.w(TAG, "saveTestReport: file not exist!");
+       try {
+@@ -473,10 +475,12 @@
+         break;
+       }
+       resultStr = resultStr + ":" + resultBuilder.toString();
+-      if(autotestResult[i] != FactoryMode.TEST_OK){
++      if(autotestResult[i] != FactoryMode.TEST_OK && i < (testitem.length - 2)){
+         pass = false;
+       }
+     }
++    Log.d(TAG, "saveTestReport: resultStr = " + resultStr);
++    Log.d(TAG, "saveTestReport: pass = " + pass);
+     if(bSaveResult) {
+       saveTestResult(pass);
+       Log.i("ttttttttttttttttttttttttttt","MMI_STATION =" + MMI_STATION);
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/rfcali/RFCali.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/rfcali/RFCali.java	(revision 175653)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/rfcali/RFCali.java	(revision 175654)
+@@ -13,7 +13,7 @@
+ import com.mediatek.factorymode.FactoryMode;
+ import com.mediatek.factorymode.R;
+ import com.mediatek.factorymode.engconstents;
+-import com.mediatek.factorymode.IATUtils;
++import com.mediatek.factorymode.utils.IATUtils;
+ 
+ import android.util.Log;
+ import android.view.KeyEvent;
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/PhaseCheckParse.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/PhaseCheckParse.java	(revision 175653)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/PhaseCheckParse.java	(revision 175654)
+@@ -156,7 +156,7 @@
+             Parcel data = Parcel.obtain();
+             data.writeInt(station);
+             binder.transact(TYPE_WRITE_STATION_TESTED, data, null, 0);
+-            Log.e(TAG, "data = " + data.readString() + " SUCESS!!");
++            Log.e(TAG, "writeStationTested: data = " + data.readString() + " SUCESS!!");
+             data.recycle();
+             return true;
+         }catch (Exception ex) {
+@@ -170,7 +170,7 @@
+             Parcel data = Parcel.obtain();
+             data.writeInt(station);
+             binder.transact(TYPE_WRITE_STATION_PASS, data, null, 0);
+-            Log.e(TAG, "data = " + data.readString() + " SUCESS!!");
++            Log.e(TAG, "writeStationPass: data = " + data.readString() + " SUCESS!!");
+             data.recycle();
+             return true;
+         }catch (Exception ex) {
+@@ -184,7 +184,7 @@
+             Parcel data = Parcel.obtain();
+             data.writeInt(station);
+             binder.transact(TYPE_WRITE_STATION_FAIL, data, null, 0);
+-            Log.e(TAG, "data = " + data.readString() + " SUCESS!!");
++            Log.e(TAG, "writeStationFail: data = " + data.readString() + " SUCESS!!");
+             data.recycle();
+             return true;
+         }catch (Exception ex) {
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/version/Version.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/version/Version.java	(revision 175653)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/version/Version.java	(revision 175654)
+@@ -47,7 +47,7 @@
+ import android.widget.TextView;
+ import android.os.IBinder;
+ import com.mediatek.factorymode.PhaseCheckParse;
+-import com.mediatek.factorymode.IATUtils;
++import com.mediatek.factorymode.utils.IATUtils;
+ import android.widget.Toast;
+ import android.text.TextUtils;
+ 
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/Check_Flag.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/Check_Flag.java	(revision 175653)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/Check_Flag.java	(revision 175654)
+@@ -43,7 +43,7 @@
+ import android.widget.TextView;
+ import android.os.IBinder;
+ import com.mediatek.factorymode.PhaseCheckParse;
+-import com.mediatek.factorymode.IATUtils;
++import com.mediatek.factorymode.utils.IATUtils;
+ import android.widget.Toast;
+ import android.text.TextUtils;
+ 
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/IATUtils.java.back
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/IATUtils.java.back	(revision 0)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/IATUtils.java.back	(revision 175654)
+@@ -0,0 +1,59 @@
++package com.mediatek.factorymode;
++
++import android.os.RemoteException;
++import android.os.ServiceManager;
++import android.util.Log;
++import android.telephony.TelephonyManager;
++
++public class IATUtils {
++    private static final String TAG = "IATUtils";
++    private static String strTmp = null;
++    public static String AT_FAIL = "AT FAILED";
++    public static String AT_OK = "OK";
++    public static String AT_CONNECT = "CONNECT";
++    public static int mPhoneCount = 0;
++    private static TelephonyManager mTelephonyManager;
++    private static int phoneId = 0;
++
++    public static synchronized String sendATCmd(String cmd, String serverName) {
++        strTmp = "error service can't get";
++        String[] oemReq = new String[1];
++        String[] oemResp = new String[1];
++        oemReq[0] = cmd;
++        mTelephonyManager = TelephonyManager.getDefault();
++        mPhoneCount = mTelephonyManager.getPhoneCount();
++        if (mPhoneCount == 1) {
++            Log.d(TAG, "phone count is 1");
++            serverName = "atchannel";
++        }
++        if (serverName.contains("atchannel0")) {
++            phoneId = 0;
++            Log.d(TAG, "<0> mAtChannel = " + phoneId + " , and cmd = " + cmd);
++        } else if (serverName.contains("atchannel1")) {
++            phoneId = 1;
++            Log.d(TAG, "<1> mAtChannel = " + phoneId + " , and cmd = " + cmd);
++        } else {
++            phoneId = 0;
++            Log.d(TAG, "<atchannel> mAtChannel = " + phoneId + " , and cmd = "
++                    + cmd);
++        }
++        /*int oemResplength = mTelephonyManager.invokeOemRilRequestStrings(phoneId, oemReq, oemResp);
++        if (oemResplength < 0) {
++            Log.d(TAG, "AT cmd send fail");
++            strTmp = "AT cmd send fail";
++        } else if (oemResplength == 0) {
++            Log.d(TAG, "the return value of AT is null");
++            strTmp = "the return value of AT is null";
++        } else {
++            strTmp = oemResp[0];
++            if (serverName.contains("atchannel0")) {
++                Log.d(TAG, "<0> AT response " + strTmp);
++            } else if (serverName.contains("atchannel1")) {
++                Log.d(TAG, "<1> AT response " + strTmp);
++            } else {
++                Log.d(TAG, "<atchannel> AT response " + strTmp);
++            }
++        }*/
++        return strTmp;
++    }
++}

@@ -1,0 +1,50 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 172447)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 172448)
+@@ -500,14 +500,14 @@
+         }
+         getSlotState();
+         if (ImsManager.isVolteEnabledByPlatform(getActivity())) {
+-            //if (CallUtil.isVideoEnabled(getActivity())) {
+-               boolean ret = Settings.System.getInt(getActivity().getContentResolver(), "show_video_call_status", 0) != 0;
++           if (CallUtil.isVideoEnabled(getActivity())) {
++               boolean ret = Settings.System.getInt(getActivity().getContentResolver(), "show_video_call_status", 0) == 1;
+                 if (ret) {
+                     mVideoCallBtn.setVisibility(View.VISIBLE);
+                 } else {
+                     mVideoCallBtn.setVisibility(View.GONE);
+                 }
+-            //}
++           }
+         }
+ 
+         mSwitchBtn = (ImageButton)fragmentView.findViewById(R.id.switchBtn);
+@@ -587,18 +587,16 @@
+         mFloatingActionButtonController.setVisible(flag);
+         mGsmCallBtn.setVisibility(flag ? View.GONE:View.VISIBLE);
+ 
+-        if (ImsManager.isVolteEnabledByPlatform(getActivity()) && flag) {
+-            boolean ret = Settings.System.getInt(getActivity().getContentResolver(), "show_video_call_status", 0) != 0;
+-            if (ret) {
+-            //if (CallUtil.isVideoEnabled(getActivity())) {
+-                mVideoCallBtn.setVisibility(View.VISIBLE);
+-            //}
+-            }
++        if (ImsManager.isVolteEnabledByPlatform(getActivity())) {
++           if (CallUtil.isVideoEnabled(getActivity())) {
++               boolean ret = Settings.System.getInt(getActivity().getContentResolver(), "show_video_call_status", 0) == 1;
++                if (ret) {
++                    mVideoCallBtn.setVisibility(View.VISIBLE);
++                } else {
++                    mVideoCallBtn.setVisibility(View.GONE);
++                }
++           }
+         }
+-        if (!flag) {
+-            mVideoCallBtn.setVisibility(View.GONE);
+-        }
+-
+         defaultSimSlot = flag ? 1:2;
+     }
+     //Added by zhangleyi for 20170321 end

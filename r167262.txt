@@ -1,0 +1,244 @@
+Index: vendor/sprd/modules/libcamera/sensor/af_dw9714.c
+===================================================================
+--- vendor/sprd/modules/libcamera/sensor/af_dw9714.c	(revision 167261)
++++ vendor/sprd/modules/libcamera/sensor/af_dw9714.c	(revision 167262)
+@@ -12,8 +12,12 @@
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+- ver: 1.0
++ * V2.0
+  */
++ /*History
++ *Date                  Modification                                 Reason
++ *
++ */
+ 
+ #include <utils/Log.h>
+ #include "sensor.h"
+@@ -20,14 +24,49 @@
+ #include "af_dw9714.h"
+ 
+ #define DW9714_VCM_SLAVE_ADDR (0x18 >> 1)
+-#define MOVE_CODE_STEP_MAX 20
+-#define WAIT_STABLE_TIME  10    //ms
+ 
+-static int32_t m_cur_dac_code =0;
++/*==============================================================================
++ * Description:
++ * calculate vcm driver dac code and write to vcm driver;
++ * you can change this function according to your spec if it's necessary
++ * pos: dac code for vcm driver
++ *============================================================================*/
++uint32_t dw9714_set_pos(uint16_t pos)
++{
++	uint32_t ret_value = SENSOR_SUCCESS;
++	uint8_t cmd_val[5] = { 0x00 };
++	uint16_t slave_addr = DW9714_VCM_SLAVE_ADDR;
++	uint16_t cmd_len = 0;
++	uint16_t target_code=pos&0x3ff;
++	uint16_t step_4bit = 0x09;
+ 
++	SENSOR_PRINT("target_code=%d", target_code);
++	
++	cmd_val[0] = (target_code & 0xfff0) >> 4;
++	cmd_val[1] = ((target_code & 0x0f) << 4) | step_4bit;
++	cmd_len = 2;
++	ret_value = Sensor_WriteI2C(slave_addr, (uint8_t *) & cmd_val[0], cmd_len);
++	
++	return ret_value;
++}
++
++
+ /*==============================================================================
+  * Description:
+- * init vcm driver
++ * read vcm ic register,get current position;
++ * 
++ * Param: current position, return value
++ *============================================================================*/
++uint32_t dw9714_get_motor_pos(uint16_t *pos)
++{	
++       /*TODO*/
++	   
++	return 0;
++}
++
++/*==============================================================================
++ * Description:
++ * init vcm driver 
+  * you can change this function acording your spec if it's necessary
+  * mode:
+  * 1: Direct Mode
+@@ -34,9 +73,9 @@
+  * 2: Dual Level Control Mode
+  * 3: Linear Slope Cntrol Mode
+  *============================================================================*/
+-uint32_t dw9714_init(uint32_t mode)
++uint32_t dw9714_set_motor_bestmode(uint16_t mode)
+ {
+-	uint8_t cmd_val[2] = { 0x00 };
++	uint8_t cmd_val[5] = { 0x00 };
+ 	uint16_t slave_addr = 0;
+ 	uint16_t cmd_len = 0;
+ 	uint32_t ret_value = SENSOR_SUCCESS;
+@@ -104,74 +143,82 @@
+ 
+ 	return ret_value;
+ }
+-/*==============================================================================
+- * Description:
+- * write code to vcm driver
+- * you can change this function acording your spec if it's necessary
+- * code: Dac code for vcm driver
+- *============================================================================*/
+-uint32_t dw9714_write_dac_code(int32_t code)
+-{
+-	uint32_t ret_value = SENSOR_SUCCESS;
+-	uint8_t cmd_val[2] = { 0x00 };
+-	uint16_t slave_addr = DW9714_VCM_SLAVE_ADDR;
+-	uint16_t cmd_len = 0;
+-	uint16_t step_4bit = 0x09;
+ 
+-	SENSOR_PRINT("%d", code);
+-
+-	cmd_val[0] = (code & 0xfff0) >> 4;
+-	cmd_val[1] = ((code & 0x0f) << 4) | step_4bit;
+-	cmd_len = 2;
+-	ret_value = Sensor_WriteI2C(slave_addr, (uint8_t *) & cmd_val[0], cmd_len);
+-
+-	return ret_value;
+-}
+ /*==============================================================================
+  * Description:
+- * calculate vcm driver dac code and write to vcm driver;
+- *
+- * Param: ISP write dac code
++ * test vcm performance, to get best mode;
++ * DVT test, optional
++ * Param: 
+  *============================================================================*/
+-uint32_t dw9714_write_af(uint32_t param)
++uint32_t dw9714_get_test_vcm_mode()
+ {
+-	uint32_t ret_value = SENSOR_SUCCESS;
+-	int32_t target_code=param&0x3FF;
++	uint16_t A_code=80,B_code=90,C_code=0;
++	uint8_t rf=0x0F,slew_rate=0x02,stt=0x01,str=0x02;
++	uint8_t cmd_val[2];
+ 
+-	SENSOR_PRINT("%d", target_code);
++	FILE* fp = NULL;
++	fp = fopen("/data/misc/media/cur_vcm_info.txt","wb");
++	
++	//TODO*/
++	
++	
++	CMR_LOGI("VCM A_code B_code rf slew_rate stt str pos,%d %d %d %d %d %d %d",A_code,B_code,rf,slew_rate,stt,str,C_code);
+ 
+-	while((m_cur_dac_code-target_code)>=MOVE_CODE_STEP_MAX){
+-		m_cur_dac_code=m_cur_dac_code-MOVE_CODE_STEP_MAX;
+-		dw9714_write_dac_code(m_cur_dac_code);
+-		usleep(WAIT_STABLE_TIME*1000);
+-	}
+-
+-	while((target_code-m_cur_dac_code)>=MOVE_CODE_STEP_MAX){
+-		m_cur_dac_code=m_cur_dac_code+MOVE_CODE_STEP_MAX;
+-		dw9714_write_dac_code(m_cur_dac_code);
+-		usleep(WAIT_STABLE_TIME*1000);
+-	}
+-
+-	if(m_cur_dac_code!=target_code){
+-		m_cur_dac_code=target_code;
+-		dw9714_write_dac_code(m_cur_dac_code);
+-	}
+-
+-	return ret_value;
++	fprintf(fp,"VCM A_code B_code rf slew_rate stt str pos,%d %d %d %d %d %d %d",A_code,B_code,rf,slew_rate,stt,str,C_code);
++	fflush(fp);
++	fclose(fp);
++	return 0;
+ }
+ 
+ /*==============================================================================
+  * Description:
+- * deinit vcm driver DRV201  PowerOff DRV201
+- * you can change this function acording your Module spec if it's necessary
+- * mode:
+- * 1: PWM Mode
+- * 2: Linear Mode
++ * test vcm performance, to get best mode;
++ * DVT test, optional
++ * Param: 
+  *============================================================================*/
+-uint32_t dw9714_deinit(uint32_t mode)
++uint32_t dw9714_set_test_vcm_mode(char* mode)
+ {
+-	dw9714_write_af(0);
++	uint16_t A_code=80,B_code=90;
++	uint8_t rf=0x0F,slew_rate=0x02,stt=0x01,str=0x02;
++	uint8_t cmd_val[2];
++	char* p1 = mode;
+ 
++	while( *p1!='~'  && *p1!='\0' )
++		p1++;
++	*p1++ = '\0';
++	A_code = atoi(mode);
++	mode = p1;
++	while( *p1!='~'  && *p1!='\0' )
++		p1++;
++	*p1++ = '\0';
++	B_code = atoi(mode);
++	mode = p1;
++	while( *p1!='~'  && *p1!='\0' )
++		p1++;
++	*p1++ = '\0';
++	rf = atoi(mode);
++	mode = p1;
++	while( *p1!='~'  && *p1!='\0' )
++		p1++;
++	*p1++ = '\0';
++	slew_rate = atoi(mode);
++	mode = p1;
++	while( *p1!='~'  && *p1!='\0' )
++		p1++;
++	*p1++ = '\0';
++	stt = atoi(mode);
++	mode = p1;
++	while( *p1!='~'  && *p1!='\0' )
++		p1++;
++	*p1++ = '\0';
++	str = atoi(mode);
++	CMR_LOGI("VCM A_code B_code rf slew_rate stt str 1nd,%d %d %d %d %d %d",A_code,B_code,rf,slew_rate,stt,str);
++	
++	//TODO*/
++	
++	
++	CMR_LOGI("VCM A_code B_code rf slew_rate stt str 2nd,%d %d %d %d %d %d",A_code,B_code,rf,slew_rate,stt,str);
+ 	return 0;
+ }
+ 
++
+Index: vendor/sprd/modules/libcamera/sensor/af_dw9714.h
+===================================================================
+--- vendor/sprd/modules/libcamera/sensor/af_dw9714.h	(revision 167261)
++++ vendor/sprd/modules/libcamera/sensor/af_dw9714.h	(revision 167262)
+@@ -12,8 +12,15 @@
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
++ * V2.0
+  */
++ /*History
++ *Date                  Modification                                 Reason
++ *
++ */
+ 
+-uint32_t dw9714_init(uint32_t mode);
+-uint32_t dw9714_write_af(uint32_t param);
+-uint32_t dw9714_deinit(uint32_t mode);
++uint32_t dw9714_set_pos(uint16_t pos);
++uint32_t dw9714_get_motor_pos(uint16_t *pos);
++uint32_t dw9714_set_motor_bestmode(uint16_t mode);
++uint32_t dw9714_get_test_vcm_mode();
++uint32_t dw9714_set_test_vcm_mode(char* mode);

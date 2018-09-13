@@ -1,0 +1,50 @@
+Index: packages/apps/Dialer/res/layout-land/dialpad_fragment.xml
+===================================================================
+--- packages/apps/Dialer/res/layout-land/dialpad_fragment.xml	(revision 166709)
++++ packages/apps/Dialer/res/layout-land/dialpad_fragment.xml	(revision 166710)
+@@ -77,7 +77,7 @@
+                     android:layout_height="match_parent"
+                     android:background="@drawable/floating_action_button"
+                     android:contentDescription="@string/description_dial_button"
+-                    android:src="@drawable/fab_ic_call"/>
++                    android:src="@drawable/ic_lte_call"/>
+ 
+             </FrameLayout>
+ 
+@@ -84,4 +84,36 @@
+         </RelativeLayout>
+ 
+     </LinearLayout>
++
++    <ImageButton
++        android:id="@+id/dialpad_floating_action_gsm_button"
++        android:layout_width="@dimen/floating_action_button_width_ex"
++        android:layout_height="@dimen/floating_action_button_height_ex"
++        android:background="@drawable/fab_green_ex"
++        android:layout_above="@id/dialpad_floating_action_button_margin_bottom"
++        android:layout_centerHorizontal="true"
++        android:src="@drawable/ic_gsm_call"
++        android:visibility="gone" />
++
++    <ImageButton
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:src="@drawable/ic_video_call"
++        android:layout_alignParentLeft="true"
++        android:layout_above="@id/dialpad_floating_action_button_margin_bottom"
++        android:visibility="gone"
++        android:layout_marginLeft="20dp"
++        android:background="@drawable/fab_blue_ex"
++        android:id="@+id/videoCallBtn"/>
++
++    <ImageButton
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_marginRight="20dp"
++        android:src="@drawable/ic_switch_lte_gsm"
++        android:layout_alignParentRight="true"
++        android:background="@drawable/fab_yellow_ex"
++        android:layout_above="@id/dialpad_floating_action_button_margin_bottom"
++        android:visibility="gone"
++        android:id="@+id/switchBtn"/>
+ </view>

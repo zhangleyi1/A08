@@ -1,0 +1,22 @@
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/ServiceStateTracker.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/ServiceStateTracker.java	(revision 173188)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/ServiceStateTracker.java	(revision 173189)
+@@ -2294,6 +2294,17 @@
+                 intent.putExtra(TelephonyIntents.EXTRA_SHOW_SPN, false);
+                 intent.putExtra(TelephonyIntents.EXTRA_SPN, "");
+                 intent.putExtra(TelephonyIntents.EXTRA_SHOW_PLMN, showPlmn);
++				String currenOperatorNumeric = mSS.getOperatorNumeric();
++				if (TextUtils.equals("51009", currenOperatorNumeric)
++                        || TextUtils.equals("51028", currenOperatorNumeric)) {
++                    intent.putExtra(TelephonyIntents.EXTRA_SHOW_PLMN, false);
++               	}
++				String numeric = ((TelephonyManager) mPhone.getContext().getSystemService(Context.TELEPHONY_SERVICE)).
++					getSimOperatorNumericForPhone(mPhone.getPhoneId());
++				 //add SmartFren card's mcc+mnc
++				if("51009".equals(numeric)){
++					showPlmn = false ;
++				} 
+                 intent.putExtra(TelephonyIntents.EXTRA_PLMN, plmn);
+                 SubscriptionManager.putPhoneIdAndSubIdExtra(intent, mPhone.getPhoneId());
+                 mPhone.getContext().sendStickyBroadcastAsUser(intent, UserHandle.ALL);

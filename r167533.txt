@@ -1,0 +1,315 @@
+Index: packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java	(revision 167532)
++++ packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java	(revision 167533)
+@@ -92,6 +92,11 @@
+ import com.sprd.messaging.drm.MessagingDrmSession;
+ import com.android.messaging.util.PhoneUtils;
+ import com.sprd.messaging.util.Utils;
++import android.telephony.SubscriptionInfo;
++import com.android.messaging.datamodel.DatabaseWrapper;
++import com.android.messaging.datamodel.DataModel;
++import com.android.messaging.datamodel.BugleDatabaseOperations;
++import com.sprd.messaging.util.SystemAdapter;
+ 
+ /**
+  * This view contains the UI required to generate and send messages.
+@@ -144,9 +149,15 @@
+     private int selectionStart;
+     private int selectionEnd;
+     private TextView mCharCounter;
++	private TextView mCharCounter1;
+     private TextView mMmsIndicator;
+     private SimIconView mSelfSendIcon;
+     private ImageButton mSendButton;
++	private ImageButton mSelectSIMButton;
++	private ImageButton mSendSMSButton;
++	private LinearLayout mTwoSimLL;
++	private LinearLayout mOneSimLL;
++	private boolean isOne = true;
+     private View mSubjectView;
+     private ImageButton mDeleteSubjectButton;
+     private AttachmentPreview mAttachmentPreview;
+@@ -178,7 +189,9 @@
+     // Add by SPRD for bug 563344
+     private boolean mEnableTextLengthLimitation = false;
+     private boolean mIsDraftLoadDone = false;
+-
++	String firstSimSelfId;
++	String secondSimSelfId;
++	List<SubscriptionInfo> subIdList; 
+     private final ConversationDataListener mDataListener = new SimpleConversationDataListener() {
+         @Override
+         public void onConversationMetadataUpdated(ConversationData data) {
+@@ -204,11 +217,52 @@
+         super(new ContextThemeWrapper(context, R.style.ColorAccentBlueOverrideStyle), attrs);
+         mOriginalContext = context;
+         mBinding = BindingBase.createBinding(this);
++	    subIdList = SystemAdapter.getInstance().getActiveSubInfoList();
++		setSelfId();
+     }
+-
+-    /**
+-     * Host calls this to bind view to DraftMessageData object
+-     */
++	
++	
++	 private String getSelfId(int subId){ 
++		DatabaseWrapper db = DataModel.get().getDatabase();
++		final ParticipantData self = ParticipantData.getSelfParticipant(subId); 
++		String selfId; 
++		db.beginTransaction(); 
++		try { 
++			selfId = BugleDatabaseOperations.getOrCreateParticipantInTransaction(db, self); 
++			db.setTransactionSuccessful(); 
++		} finally { 
++			db.endTransaction(); 
++		} 
++		return selfId; 
++    } 
++	
++	private void setSelfId(){
++		if(subIdList != null && subIdList.size() > 1){
++			for (SubscriptionInfo subInfo : subIdList) { 
++				if (subInfo.getSimSlotIndex() == 0) {
++					firstSimSelfId = getSelfId(subInfo.getSubscriptionId());
++				}else{
++					secondSimSelfId = getSelfId(subInfo.getSubscriptionId());
++				}
++			}
++		}
++	}
++	
++	private void setSimCard(boolean isFirstSim){
++		if(isFirstSim){
++			if(firstSimSelfId != null && !firstSimSelfId.equals("")){
++				Assert.notNull(firstSimSelfId);
++				updateConversationSelfId(firstSimSelfId, true);
++			}
++		}else{
++			if(secondSimSelfId != null && !secondSimSelfId.equals("")){
++				Assert.notNull(secondSimSelfId);
++				updateConversationSelfId(secondSimSelfId, true);
++			}
++		}
++	}
++	
++	
+     public void bind(final DraftMessageData data, final IComposeMessageViewHost host) {
+         mHost = host;
+         mBinding.bind(data);
+@@ -333,7 +387,41 @@
+         });
+ 
+         mSubjectView = findViewById(R.id.subject_view);
+-
++		
++		mTwoSimLL = (LinearLayout) findViewById(R.id.ll_two_sim);
++		mOneSimLL = (LinearLayout) findViewById(R.id.ll_one_sim);
++		if(subIdList != null && subIdList.size() > 1){
++			mTwoSimLL.setVisibility(View.VISIBLE);
++			mOneSimLL.setVisibility(View.GONE);
++		}else{
++			mTwoSimLL.setVisibility(View.GONE);
++			mOneSimLL.setVisibility(View.VISIBLE);
++		}
++		mSelectSIMButton = (ImageButton) findViewById(R.id.select_sim_button);
++		mSelectSIMButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_switch_send));
++		mSelectSIMButton.setOnClickListener(new OnClickListener() {
++            @Override
++            public void onClick(final View clickView) {
++				boolean toFirstSim = !getConversationSelfId().equals(firstSimSelfId);
++                setSimCard(toFirstSim);
++				mSendSMSButton.setImageDrawable(toFirstSim? getResources().getDrawable(R.drawable.sim1) : getResources().getDrawable(R.drawable.sim2));
++				
++            }
++        });
++		
++		mSendSMSButton = (ImageButton) findViewById(R.id.send_sms_button);
++		if(getConversationSelfId().equals(firstSimSelfId)){
++			mSendSMSButton.setImageDrawable(getResources().getDrawable(R.drawable.sim1));
++		}else{
++			mSendSMSButton.setImageDrawable(getResources().getDrawable(R.drawable.sim2));
++		}
++		mSendSMSButton.setOnClickListener(new OnClickListener() {
++            @Override
++            public void onClick(final View clickView) {
++                sendMessageIgnoreMessageSizeLimit();
++            }
++        });
++		
+         mSendButton = (ImageButton) findViewById(R.id.send_message_button);
+         mSendButton.setOnClickListener(new OnClickListener() {
+             @Override
+@@ -395,6 +483,7 @@
+         mAttachmentPreview.setComposeMessageView(this);
+ 
+         mCharCounter = (TextView) findViewById(R.id.char_counter);
++		mCharCounter1 = (TextView) findViewById(R.id.char_counter1);
+         mMmsIndicator = (TextView) findViewById(R.id.mms_indicator);
+ 
+         /*SPRD: add for Bug 489231--new feature,enable signature text append to a message. begin*/
+@@ -1053,10 +1142,16 @@
+             // Update the remaining characters and number of messages required.
+             final String counterText = messageCount > 1 ? codePointsRemaining + " / " +
+                     messageCount : String.valueOf(codePointsRemaining);
+-            mCharCounter.setText(counterText);
+-            mCharCounter.setVisibility(View.VISIBLE);
++           if(subIdList != null && subIdList.size() > 1){
++				mCharCounter1.setText(counterText);
++				mCharCounter1.setVisibility(View.VISIBLE);
++			}else{
++				mCharCounter.setText(counterText);
++				mCharCounter.setVisibility(View.VISIBLE);
++			}
+         } else {
+             mCharCounter.setVisibility(View.INVISIBLE);
++			mCharCounter1.setVisibility(View.INVISIBLE);
+         }
+ 
+         // Update the send message button. Self icon uri might be null if self participant data
+@@ -1468,6 +1563,11 @@
+         try {
+             if (visibility==View.VISIBLE) {
+                 DraftMessageData draft = mBinding.getData();
++				if(getConversationSelfId().equals(firstSimSelfId)){
++					mSendSMSButton.setImageDrawable(getResources().getDrawable(R.drawable.sim1));
++				}else{
++					mSendSMSButton.setImageDrawable(getResources().getDrawable(R.drawable.sim2));
++				}
+                 boolean hasDrmData = false;
+                 for (MessagePartData part : draft.getAttachments()) {
+                     if (ContentType.isDrmType(part.getContentType())) {
+Index: packages/apps/Messaging/res/drawable-hdpi/ic_switch_send.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Messaging/res/drawable-hdpi/ic_switch_send.png
+===================================================================
+--- packages/apps/Messaging/res/drawable-hdpi/ic_switch_send.png	(revision 0)
++++ packages/apps/Messaging/res/drawable-hdpi/ic_switch_send.png	(revision 167533)
+
+Property changes on: packages/apps/Messaging/res/drawable-hdpi/ic_switch_send.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Messaging/res/drawable-hdpi/sim2.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Messaging/res/drawable-hdpi/sim2.png
+===================================================================
+--- packages/apps/Messaging/res/drawable-hdpi/sim2.png	(revision 0)
++++ packages/apps/Messaging/res/drawable-hdpi/sim2.png	(revision 167533)
+
+Property changes on: packages/apps/Messaging/res/drawable-hdpi/sim2.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Messaging/res/drawable-hdpi/sim1.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Messaging/res/drawable-hdpi/sim1.png
+===================================================================
+--- packages/apps/Messaging/res/drawable-hdpi/sim1.png	(revision 0)
++++ packages/apps/Messaging/res/drawable-hdpi/sim1.png	(revision 167533)
+
+Property changes on: packages/apps/Messaging/res/drawable-hdpi/sim1.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Messaging/res/layout/compose_message_view.xml
+===================================================================
+--- packages/apps/Messaging/res/layout/compose_message_view.xml	(revision 167532)
++++ packages/apps/Messaging/res/layout/compose_message_view.xml	(revision 167533)
+@@ -147,8 +147,58 @@
+                     </LinearLayout>
+ 
+                 </LinearLayout>
+-
+-                <TextView
++				
++				<LinearLayout
++					android:id="@+id/ll_two_sim"
++					android:orientation="horizontal"
++					android:layout_width="match_parent"
++					android:layout_height="wrap_content"
++					android:paddingTop="16dp">	
++					<RelativeLayout
++						android:orientation="horizontal"
++						android:layout_width="0dp"
++						android:layout_height="wrap_content"
++						android:layout_weight="1">
++						<ImageButton
++							android:id="@+id/select_sim_button"
++							android:layout_centerInParent="true"
++							android:layout_width="72dp"
++							android:layout_height="46dp"
++							android:layout_weight="1"
++							android:background="@drawable/button_click"/>
++					</RelativeLayout>	
++					<View  
++						android:layout_width="1dip" 
++						android:layout_height="@dimen/conversation_message_contact_icon_size"
++						android:background="#969696"
++						android:layout_gravity="center_horizontal"/>
++						
++					<RelativeLayout
++						android:orientation="horizontal"
++						android:layout_width="0dp"
++						android:layout_height="wrap_content"
++						android:layout_weight="1">	
++					
++						<TextView
++							android:id="@+id/char_counter1"
++							style="@style/ComposeMessageViewTextCounterStyle"
++							android:layout_width="wrap_content"
++							android:layout_height="wrap_content"
++							android:singleLine="true"
++							android:maxLines="1"
++							android:paddingLeft="8dp"
++							android:visibility="gone" />
++					
++						<ImageButton
++							android:id="@+id/send_sms_button"
++							android:layout_centerInParent="true"
++							android:layout_width="72dp"
++							android:layout_height="46dp"
++							android:background="@drawable/button_click"
++							android:contentDescription="@string/sendButtonContentDescription"/>
++					</RelativeLayout>
++				</LinearLayout>
++				<TextView
+                     android:id="@+id/char_counter"
+                     style="@style/ComposeMessageViewTextCounterStyle"
+                     android:layout_width="wrap_content"
+@@ -155,10 +205,11 @@
+                     android:layout_height="wrap_content"
+                     android:singleLine="true"
+                     android:maxLines="1"
+-                    android:visibility="invisible" />
++                    android:visibility="gone" />
+             </LinearLayout>
+ 
+             <LinearLayout
++				android:id="@+id/ll_one_sim"
+                 android:orientation="vertical"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content">
+Index: packages/apps/Messaging/res/drawable/button_click.xml
+===================================================================
+--- packages/apps/Messaging/res/drawable/button_click.xml	(revision 0)
++++ packages/apps/Messaging/res/drawable/button_click.xml	(revision 167533)
+@@ -0,0 +1,4 @@
++<?xml version="1.0" encoding="utf-8"?> 
++<selector xmlns:android="http://schemas.android.com/apk/res/android"> 
++ <item android:state_pressed="true" android:drawable="@android:color/darker_gray"/>
++</selector> 
+\ No newline at end of file

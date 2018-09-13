@@ -1,0 +1,18 @@
+Index: vendor/sprd/platform/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/SignalClusterViewEx.java
+===================================================================
+--- vendor/sprd/platform/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/SignalClusterViewEx.java	(revision 166766)
++++ vendor/sprd/platform/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/SignalClusterViewEx.java	(revision 166767)
+@@ -986,7 +986,7 @@
+             setTint(mMobileRoam, StatusBarIconController.getTint(tintArea, mMobileType, tint));
+             setTint(mWifiOut, StatusBarIconController.getTint(tintArea, mMobileType, tint));
+             setTint(mWifiIn, StatusBarIconController.getTint(tintArea, mMobileType, tint));
+-            setTint(mVolte, StatusBarIconController.getTint(tintArea, mMobileType, tint));
++            //setTint(mVolte, StatusBarIconController.getTint(tintArea, mMobileType, tint));
+             setTint(mHdVoice, StatusBarIconController.getTint(tintArea, mMobileType, tint));
+         }
+         /* @} */
+
+Property changes on: vendor/sprd/platform/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/SignalClusterViewEx.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/platform/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/SignalClusterViewEx.java:r166031

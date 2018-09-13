@@ -1,0 +1,145 @@
+Index: packages/apps/Launcher3/res/xml/default_workspace_4x4.xml
+===================================================================
+--- packages/apps/Launcher3/res/xml/default_workspace_4x4.xml	(revision 177502)
++++ packages/apps/Launcher3/res/xml/default_workspace_4x4.xml	(revision 177503)
+@@ -29,11 +29,11 @@
+ 
+     <appwidget
+         launcher:packageName="com.android.deskclock"
+-        launcher:className="com.android.alarmclock.AnalogAppWidgetProvider"
++        launcher:className="com.android.alarmclock.DigitalAppWidgetProvider"
+         launcher:screen="0"
+-        launcher:x="1"
++        launcher:x="0"
+         launcher:y="1"
+-        launcher:spanX="2"
++        launcher:spanX="4"
+         launcher:spanY="2" />
+     <!-- Bottom row -->
+     <resolve
+Index: packages/apps/Launcher3/ext/res/values/strings.xml
+===================================================================
+--- packages/apps/Launcher3/ext/res/values/strings.xml	(revision 177502)
++++ packages/apps/Launcher3/ext/res/values/strings.xml	(revision 177503)
+@@ -45,4 +45,5 @@
+     <string name="tv_content_four_text">Andromax Anda telah di Root atau dibuka Bootloader-nya,segala jenis perubahan pada software ataupun hardware melalui software dapat menyebabkan kerusakan pada perangkat dan membahayakan pengguna.\n\nSmartfren tidak bertanggung jawab atas resiko yang ditimbulkan.</string>
+     <string name="tv_content_five_text">Garansi Anda sudah tidak beriaku!</string>
+     <string name="tv_content_six_text">Perangkat akan menyala dalam 5 detik.</string>
++	<string name="default_folder_tools">Google</string>
+ </resources>
+Index: packages/apps/Launcher3/ext/res/xml/dw_base_customize.xml
+===================================================================
+--- packages/apps/Launcher3/ext/res/xml/dw_base_customize.xml	(revision 177502)
++++ packages/apps/Launcher3/ext/res/xml/dw_base_customize.xml	(revision 177503)
+@@ -16,7 +16,7 @@
+ 
+ <favorites xmlns:launcher="http://schemas.android.com/apk/res-auto/com.android.launcher3">
+ 
+-    <appwidget
++    <!--<appwidget
+         launcher:screen="0"
+         launcher:x="0"
+         launcher:y="0"
+@@ -23,20 +23,82 @@
+         launcher:spanX="4"
+         launcher:spanY="2"
+         launcher:packageName="com.android.deskclock"
+-        launcher:className="com.android.alarmclock.DigitalAppWidgetProvider" />
++        launcher:className="com.android.alarmclock.DigitalAppWidgetProvider" />-->
+ 
+-    <!--<favorite
++    <favorite
+         launcher:screen="0"
+         launcher:x="-2"
+         launcher:y="-1"
+         launcher:packageName="com.android.music"
+-        launcher:className="com.android.music.MusicBrowserActivity" />-->
++        launcher:className="com.android.music.MusicBrowserActivity" />
+ 
+     <favorite
+         launcher:screen="0"
+-        launcher:x="-1"
++        launcher:x="-3"
+         launcher:y="-1"
+-        launcher:packageName="com.android.settings"
+-        launcher:className="com.android.settings.Settings" />
+-
++        launcher:packageName="com.smartfren"
++        launcher:className="com.smartfren.SplashActivity" />
++	
++    <folder
++        launcher:screen="0"
++        launcher:x="-4"
++        launcher:y="-1"
++        launcher:title="@string/default_folder_tools" >
++	
++		<favorite
++			   launcher:screen="0"
++               launcher:x="-4"
++               launcher:y="-1"
++               launcher:packageName="com.google.android.googlequicksearchbox"
++               launcher:className="com.google.android.googlequicksearchbox.SearchActivity" />
++    	
++		<favorite
++		       launcher:screen="0"
++               launcher:x="-4"
++               launcher:y="-1"
++               launcher:packageName="com.google.android.gm"
++               launcher:className="com.google.android.gm.welcome.WelcomeTourActivity" />
++	       
++		<favorite
++			   launcher:screen="0"
++               launcher:x="-4"
++               launcher:y="-1"
++               launcher:packageName="com.google.android.apps.maps"
++               launcher:className="com.google.android.maps.MapsActivity" />
++	       
++		<favorite
++		       launcher:screen="0"
++               launcher:x="-4"
++               launcher:y="-1"
++               launcher:packageName="com.google.android.youtube"
++               launcher:className="com.google.android.apps.youtube.app.WatchWhileActivity" />
++	       
++		<favorite
++		       launcher:screen="0"
++               launcher:x="-4"
++               launcher:y="-1"
++               launcher:packageName="com.google.android.apps.docs"
++               launcher:className="com.google.android.apps.docs.app.NewMainProxyActivity" />
++	       
++		<favorite
++			   launcher:screen="0"
++               launcher:x="-4"
++               launcher:y="-1"
++               launcher:packageName="com.google.android.music"
++               launcher:className="com.android.music.activitymanagement.TopLevelActivity" />
++	
++		<favorite
++		       launcher:screen="0"
++               launcher:x="-4"
++               launcher:y="-1"
++               launcher:packageName="com.google.android.talk"
++               launcher:className="com.google.android.talk.SigningInActivity" />
++	       
++		<favorite
++		       launcher:screen="0"
++               launcher:x="-4"
++               launcher:y="-1"
++               launcher:packageName="com.google.android.apps.photos"
++               launcher:className="com.google.android.apps.photos.home.HomeActivity" />
++    </folder>
+ </favorites>
+Index: packages/apps/DeskClock/res/values/dimens.xml
+===================================================================
+--- packages/apps/DeskClock/res/values/dimens.xml	(revision 177502)
++++ packages/apps/DeskClock/res/values/dimens.xml	(revision 177503)
+@@ -156,7 +156,7 @@
+     <!-- Digital Widget settings (keyguard|home_screen) -->
+     <!-- Clock and world clock sizes -->
+     <!-- Use dp on purpose to ensure consistency across multiple screen sizes. -->
+-    <dimen name="widget_big_font_size">75dp</dimen>
++    <dimen name="widget_big_font_size">100dp</dimen>
+     <dimen name="widget_medium_font_size">32sp</dimen>
+     <dimen name="widget_24_medium_font_size">40sp</dimen>
+ 

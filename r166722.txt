@@ -1,0 +1,13 @@
+Index: kernel/arch/arm/boot/dts/sprd-scx35l_sp9832a_2h11_volte.dts
+===================================================================
+--- kernel/arch/arm/boot/dts/sprd-scx35l_sp9832a_2h11_volte.dts	(revision 166721)
++++ kernel/arch/arm/boot/dts/sprd-scx35l_sp9832a_2h11_volte.dts	(revision 166722)
+@@ -1105,7 +1105,7 @@
+ 	relax-current = <50>;
+ 	fgu-cal-ajust = <0>;
+ 	ocv-tab-size = <21>;
+-	ocv-tab-vol = <4318 4254 4198 4145 4094 4052 3987 3955 3902 3865 3838 3817 3800 3785 3769 3752 3733 3706 3691 3588 3400>;
++	ocv-tab-vol = <4317 4268 4213 4148 4095 4047 3996 3953 3908 3859 3831 3808 3790 3774 3757 3745 3729 3706 3677 3663 3400>;
+ 	ocv-tab-cap = <100  95   90   85   80   75   70   65   60   55   50   45   40   35   30   25   20   15   10   5    0>;
+ };
+ &vddrf{

@@ -1,0 +1,68 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res/values/arrays.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res/values/arrays.xml	(revision 174913)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res/values/arrays.xml	(revision 174914)
+@@ -622,7 +622,7 @@
+     <string-array name="pref_camera_ai_detect_entries">
+         <item>@string/pref_ai_detect_entry_off</item>
+         <item>@string/pref_ai_detect_entry_face</item>
+-        <!--<item>@string/pref_ai_detect_entry_smile</item>-->
++        <item>@string/pref_ai_detect_entry_smile</item>
+     </string-array>
+     <string-array name="pref_camera_ai_detect_entries_removesmile">
+         <item>@string/pref_ai_detect_entry_off</item>
+@@ -631,7 +631,7 @@
+     <string-array name="pref_camera_ai_detect_entryvalues" translatable="false">
+         <item>@string/pref_ai_detect_entry_value_off</item>
+         <item>@string/pref_ai_detect_entry_value_face</item>
+-        <!--<item>@string/pref_ai_detect_entry_value_smile</item>-->
++        <item>@string/pref_ai_detect_entry_value_smile</item>
+     </string-array>
+     <!-- }@ dev new feature face detect end -->
+ 
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DreamUISettingPartBasic.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DreamUISettingPartBasic.java	(revision 174913)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DreamUISettingPartBasic.java	(revision 174914)
+@@ -253,6 +253,13 @@
+         DataStorageStruct data = (DataStorageStruct) mDataModule
+                 .getSupportSettingsList().get(key);
+         if(data != null){
++			if("pref_camera_ai_detect_key".equals(key)){	
++				CharSequence[] mEntryValues=new CharSequence[2];
++				for(int i=0;i<2;i++){
++					mEntryValues[i]=data.mEntries[i];
++				}
++				return  mEntryValues;
++			}
+             return data.mEntries;
+         }
+         return new CharSequence[]{};
+@@ -262,6 +269,13 @@
+         DataStorageStruct data = (DataStorageStruct) mDataModule
+                 .getSupportSettingsList().get(key);
+         if(data != null){
++			if("pref_camera_ai_detect_key".equals(key)){	
++				CharSequence[] mEntryValues=new CharSequence[2];
++				for(int i=0;i<2;i++){
++					mEntryValues[i]=data.mEntryValues[i];
++				}
++				return  mEntryValues;
++			}
+             return data.mEntryValues;
+         }
+         return new CharSequence[]{};
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModulePhoto.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModulePhoto.java	(revision 174913)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DataModulePhoto.java	(revision 174914)
+@@ -657,7 +657,8 @@
+             originalAIDetectDataStorageStruct.copy(data);
+             data.mEntries = struct.mEntries;
+             data.mEntryValues = struct.mEntryValues;
+-            data.mDefaultValue = struct.mDefaultValue;
++            //data.mDefaultValue = struct.mDefaultValue;
++			data.mDefaultValue=data.mEntryValues[1].toString();
+             return;
+         }
+ 

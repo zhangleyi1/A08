@@ -1,0 +1,52 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 166764)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 166765)
+
+Property changes on: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java:r163736
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java:r163267
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java:r165654
+Index: packages/apps/Dialer/src/com/android/dialer/list/SearchFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/list/SearchFragment.java	(revision 166764)
++++ packages/apps/Dialer/src/com/android/dialer/list/SearchFragment.java	(revision 166765)
+@@ -332,9 +332,11 @@
+                 if (itemTypeIndex != -1) {
+                     itemType = item.getLong(itemTypeIndex);
+                 }
++                /*
+                 if (itemType == 1) {
+                     super.onItemClick(position, id);
+                 } else {
++                */
+                     String callNumber = item.getString(3);
+ 
+                     //Added by zhangleyi for 20170323 begin
+@@ -387,7 +389,7 @@
+                         }
+ 
+                         adapter.notifyDataSetChanged();
+-                        return;
++                        break;
+                     }
+                     //Added by zhangleyi for 20170323 end
+                     listener = getOnPhoneNumberPickerListener();
+@@ -395,7 +397,7 @@
+                         listener.onPickPhoneNumber(callNumber, false /* isVideoCall */,
+                                 getCallInitiationType(false /* isRemoteDirectory */));
+                     }
+-                }
++               // }
+                 break;
+             /* @} */
+             case DialerPhoneNumberListAdapter.SHORTCUT_DIRECT_CALL:
+
+Property changes on: packages/apps/Dialer/src/com/android/dialer/list/SearchFragment.java
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Dialer/src/com/android/dialer/list/SearchFragment.java:r163267
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Dialer/src/com/android/dialer/list/SearchFragment.java:r165654
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Dialer/src/com/android/dialer/list/SearchFragment.java:r163736

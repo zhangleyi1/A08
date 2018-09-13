@@ -1,0 +1,53 @@
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/ServiceStateTracker.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/ServiceStateTracker.java	(revision 176176)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/ServiceStateTracker.java	(revision 176177)
+@@ -2178,7 +2178,10 @@
+             boolean showSpn = !TextUtils.isEmpty(spn)
+                     && ((rule & SIMRecords.SPN_RULE_SHOW_SPN)
+                     == SIMRecords.SPN_RULE_SHOW_SPN);
+-
++			
++			String numeric = ((TelephonyManager) mPhone.getContext().getSystemService(Context.TELEPHONY_SERVICE)).
++					getSimOperatorNumericForPhone(mPhone.getPhoneId());
++			
+             if (!TextUtils.isEmpty(spn)
+                     && mPhone.getImsPhone() != null
+                     && mPhone.getImsPhone().isWifiCallingEnabled()) {
+@@ -2213,11 +2216,21 @@
+                 showPlmn = false;
+             } else if (mSS.getVoiceRegState() == ServiceState.STATE_POWER_OFF
+                     || (showPlmn && TextUtils.equals(spn, plmn))) {
++                
++			    if("51009".equals(numeric)){
++					showPlmn = false ;
++					log("51009 showSpn = " + showSpn + " spn = " +spn);
++				} else {
+                 // airplane mode or spn equals plmn, do not show spn
+-                spn = null;
+-                showSpn = false;
++                    spn = null;
++                    showSpn = false;
++				}
+             }
+ 
++				 //add SmartFren card's mcc+mnc
++				if("51009".equals(numeric)){
++					showPlmn = false ;
++				} 
+             // SPRD Add: EE Wifi Calling Feature
+             if(plmn!= null && plmn.equals("EE") && mPhone.getImsPhone() != null
+                     && mPhone.getImsPhone().isWifiCallingEnabled()) {
+@@ -2257,12 +2270,6 @@
+                         || TextUtils.equals("51028", currenOperatorNumeric)) {
+                     intent.putExtra(TelephonyIntents.EXTRA_SHOW_PLMN, false);
+                	}
+-				String numeric = ((TelephonyManager) mPhone.getContext().getSystemService(Context.TELEPHONY_SERVICE)).
+-					getSimOperatorNumericForPhone(mPhone.getPhoneId());
+-				 //add SmartFren card's mcc+mnc
+-				if("51009".equals(numeric)){
+-					showPlmn = false ;
+-				} 
+                 intent.putExtra(TelephonyIntents.EXTRA_PLMN, plmn);
+                 SubscriptionManager.putPhoneIdAndSubIdExtra(intent, mPhone.getPhoneId());
+                 mPhone.getContext().sendStickyBroadcastAsUser(intent, UserHandle.ALL);

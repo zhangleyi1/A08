@@ -1,0 +1,179 @@
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/SIMRecords.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/SIMRecords.java	(revision 175106)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/SIMRecords.java	(revision 175107)
+@@ -1360,7 +1360,13 @@
+         switch (refreshResponse.refreshResult) {
+             case IccRefreshResponse.REFRESH_RESULT_FILE_UPDATE:
+                 if (DBG) log("handleSimRefresh with SIM_FILE_UPDATED");
+-                handleFileUpdate(refreshResponse.efId);
++                if(refreshResponse.efId != null){
++                    for (int i = 0; i < refreshResponse.efId.length; i++) {
++                        log("handleSimRefresh with SIM_FILE_UPDATED" + refreshResponse.efId[i]);
++                        handleFileUpdate(refreshResponse.efId[i]);
++                    }
++                }
++                //handleFileUpdate(refreshResponse.efId);
+                 break;
+             case IccRefreshResponse.REFRESH_RESULT_INIT:
+                 if (DBG) log("handleSimRefresh with SIM_REFRESH_INIT");
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/UiccController.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/UiccController.java	(revision 175106)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/UiccController.java	(revision 175107)
+@@ -339,7 +339,7 @@
+             if (requirePowerOffOnSimRefreshReset) {
+                 mCis[index].setRadioPower(false, null);
+             } else {
+-                mCis[index].getIccCardStatus(obtainMessage(EVENT_GET_ICC_STATUS_DONE));
++                mCis[index].getIccCardStatus(obtainMessage(EVENT_GET_ICC_STATUS_DONE, index));
+             }
+             mIccChangedRegistrants.notifyRegistrants(new AsyncResult(null, index, null));
+         }
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/IsimUiccRecords.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/IsimUiccRecords.java	(revision 175106)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/IsimUiccRecords.java	(revision 175107)
+@@ -359,7 +359,13 @@
+         switch (refreshResponse.refreshResult) {
+             case IccRefreshResponse.REFRESH_RESULT_FILE_UPDATE:
+                 if (DBG) log("handleIsimRefresh with REFRESH_RESULT_FILE_UPDATE");
+-                handleFileUpdate(refreshResponse.efId);
++                if(refreshResponse.efId != null){
++                    for (int i = 0; i < refreshResponse.efId.length; i++) {
++                        log("handleSimRefresh with SIM_FILE_UPDATED" + refreshResponse.efId[i]);
++                        handleFileUpdate(refreshResponse.efId[i]);
++                    }
++                }
++                //handleFileUpdate(refreshResponse.efId);
+                 break;
+ 
+             case IccRefreshResponse.REFRESH_RESULT_INIT:
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/IccRefreshResponse.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/IccRefreshResponse.java	(revision 175106)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/IccRefreshResponse.java	(revision 175107)
+@@ -29,7 +29,7 @@
+     public static final int REFRESH_RESULT_RESET = 2;       /* The Icc was reset */
+ 
+     public int             refreshResult;      /* Sim Refresh result */
+-    public int             efId;               /* EFID */
++    public int[]           efId;               /* EFID */
+     public String          aid;                /* null terminated string, e.g.,
+                                                   from 0xA0, 0x00 -> 0x41,
+                                                   0x30, 0x30, 0x30 */
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/RIL.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/RIL.java	(revision 175106)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/RIL.java	(revision 175107)
+@@ -3680,8 +3680,33 @@
+     responseSimRefresh(Parcel p) {
+         IccRefreshResponse response = new IccRefreshResponse();
+ 
++        int filesNum = 0;
++        String[] files = null;
++
+         response.refreshResult = p.readInt();
+-        response.efId   = p.readInt();
++        String filesPath = p.readString();
++        riljLog("filesPath: " + filesPath);
++
++        if(TextUtils.isEmpty(filesPath)){
++            response.efId = null;
++            response.aid = p.readString();
++            return response;
++        }
++
++        files = filesPath.split(",");
++        filesNum = files.length;
++        response.efId = new int[filesNum];
++        riljLog("filesNum: " + filesNum);
++
++        int startIdx = 8;
++        if (null != files) {
++            for (int i = 0; i < filesNum; i++) {
++                String efidStr = files[i].substring(startIdx, files[i].length());
++                response.efId[i] = (Integer.valueOf(efidStr, 16)).intValue();
++                riljLog("EFId " + i + ":" + response.efId[i]);
++            }
++        }
++
+         response.aid = p.readString();
+         return response;
+     }
+Index: vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/SIMRecordsEx.java
+===================================================================
+--- vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/SIMRecordsEx.java	(revision 175106)
++++ vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/SIMRecordsEx.java	(revision 175107)
+@@ -108,7 +108,13 @@
+         switch (refreshResponse.refreshResult) {
+             case IccRefreshResponse.REFRESH_RESULT_FILE_UPDATE:
+                 log("handleSimRefresh with SIM_FILE_UPDATED");
+-                handleFileUpdate(refreshResponse.efId);
++                //handleFileUpdate(refreshResponse.efId);
++                if(refreshResponse.efId != null){
++                    for (int i = 0; i < refreshResponse.efId.length; i++) {
++                        log("handleSimRefresh with SIM_FILE_UPDATED" + refreshResponse.efId[i]);
++                        handleFileUpdate(refreshResponse.efId[i]);
++                    }
++                }
+                 break;
+             case IccRefreshResponse.REFRESH_RESULT_INIT:
+                 log("handleSimRefresh with SIM_REFRESH_INIT");
+Index: vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/ExtraIccRecords.java
+===================================================================
+--- vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/ExtraIccRecords.java	(revision 175106)
++++ vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/ExtraIccRecords.java	(revision 175107)
+@@ -10,8 +10,8 @@
+ import com.android.internal.telephony.TeleUtils;
+ import com.android.internal.telephony.uicc.IccCardApplicationStatus.AppType;
+ import com.android.sprd.telephony.RadioInteractor;
+-import com.android.internal.telephony.plugin.TelephonyForTelcelPluginsUtils;
+ 
++
+ import android.content.Context;
+ import android.os.AsyncResult;
+ import android.os.Handler;
+@@ -643,14 +643,14 @@
+         switch (refreshResponse.refreshResult) {
+             case IccRefreshResponse.REFRESH_RESULT_FILE_UPDATE:
+                 if (DBG)
+-                    log("handleSimRefresh with SIM_FILE_UPDATED");
+-                handleFileUpdate(refreshResponse.efId);
+-            /* SPRD: add for Telcel feature @{ */
+-            case IccRefreshResponse.REFRESH_RESULT_RESET:
+-                if (DBG)
+-                    log("Telcel feature handleSimRefresh with SIM_REFRESH_RESET");
+-                TelephonyForTelcelPluginsUtils.getInstance().needRebootPhone();
+-            /* @} */
++             //handleFileUpdate(refreshResponse.efId);
++                if(refreshResponse.efId != null){
++                    for (int i = 0; i < refreshResponse.efId.length; i++) {
++                        log("handleSimRefresh with SIM_FILE_UPDATED" + refreshResponse.efId[i]);
++                        handleFileUpdate(refreshResponse.efId[i]);
++                    }
++                }
++                break;
+             default:
+                 // UiccController and SIMRecords will handler the other refresh operations.
+                 if (DBG)
+Index: vendor/sprd/platform/frameworks/base/core/res/res/values-es-rES/strings_ex.xml
+===================================================================
+--- vendor/sprd/platform/frameworks/base/core/res/res/values-es-rES/strings_ex.xml	(revision 175106)
++++ vendor/sprd/platform/frameworks/base/core/res/res/values-es-rES/strings_ex.xml	(revision 175107)
+@@ -18,4 +18,5 @@
+ <string name="sim_ready_title_for_usb">"Advertencia"</string>
+ <string name="usb_ok">"OK"</string>
+ <string name="station_state_msg">"%1$s conectado, %2$s bloqueado"</string>
++<string name="stk_refresh_sim_init_message">"Actualizando SIM Card"</string>
+ </resources>
+Index: vendor/sprd/platform/frameworks/base/core/res/res/values-es-rUS/strings_ex.xml
+===================================================================
+--- vendor/sprd/platform/frameworks/base/core/res/res/values-es-rUS/strings_ex.xml	(revision 175106)
++++ vendor/sprd/platform/frameworks/base/core/res/res/values-es-rUS/strings_ex.xml	(revision 175107)
+@@ -18,4 +18,5 @@
+ <string name="sim_ready_title_for_usb">"Atención"</string>
+ <string name="usb_ok">"Aceptar"</string>
+ <string name="station_state_msg">"%1$s conectado, %2$s bloqueado"</string>
++<string name="stk_refresh_sim_init_message">"Actualizando SIM Card"</string>
+ </resources>

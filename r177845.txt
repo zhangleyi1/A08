@@ -1,0 +1,220 @@
+Index: frameworks/base/packages/SystemUI/AndroidManifest.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/AndroidManifest.xml	(revision 177844)
++++ frameworks/base/packages/SystemUI/AndroidManifest.xml	(revision 177845)
+@@ -167,6 +167,8 @@
+     <uses-permission android:name="android.permission.SUBSTITUTE_NOTIFICATION_APP_NAME" />
+ 
+     <uses-permission android:name="android.permission.INTERNET" />
++	<uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
++    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+ 
+     <!--SPR: Bug 535100 customize protected broadcast -->
+     <protected-broadcast android:name = "com.action.hide_navigationbar"/>
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/qs/tiles/AccountsSnycDataTile.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/qs/tiles/AccountsSnycDataTile.java	(revision 0)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/qs/tiles/AccountsSnycDataTile.java	(revision 177845)
+@@ -0,0 +1,134 @@
++package com.android.systemui.qs.tiles;
++
++import android.content.ContentResolver;
++import android.database.ContentObserver;
++import android.content.Intent;
++import android.os.Handler;
++import android.os.UserHandle;
++import android.provider.Settings;
++import android.util.Log;
++import com.android.systemui.R;
++import android.os.Process;
++
++import android.widget.Switch;
++import com.android.internal.logging.MetricsLogger;
++import com.android.internal.logging.MetricsProto.MetricsEvent;
++
++import com.android.systemui.qs.QSTile;
++import com.android.systemui.qs.QSTile.BooleanState;
++
++public class AccountsSnycDataTile extends QSTile<QSTile.BooleanState> {
++	private final AnimationIcon mEnable = new AnimationIcon(
++			R.drawable.ic_signal_flashlight_enable_animation,
++			R.drawable.ic_signal_flashlight_disable);
++	private final AnimationIcon mDisable = new AnimationIcon(
++			R.drawable.ic_signal_flashlight_disable_animation,
++			R.drawable.ic_signal_flashlight_enable);
++
++    private static final String SYNC_STATUS_CHANGED = "sync_status_changed";
++    public AccountsSnycDataTile(Host host) {
++		super(host);
++		// TODO Auto-generated constructor stub
++		mContext.getContentResolver().registerContentObserver(
++				Settings.System.getUriFor(SYNC_STATUS_CHANGED),
++                false,
++                mSyncStatusChangedObserver);
++                
++	}
++
++    @Override
++    protected void handleDestroy() {
++        super.handleDestroy();
++        mContext.getContentResolver().unregisterContentObserver(mSyncStatusChangedObserver);
++
++    }
++	@Override
++	public BooleanState newTileState() {
++		// TODO Auto-generated method stub
++		return new BooleanState();
++	}
++
++	@Override
++	protected void handleClick() {
++		// TODO Auto-generated method stub
++
++               MetricsLogger.action(mContext, getMetricsCategory(), !mState.value);
++               boolean newState = !mState.value;
++               refreshState(newState);
++               Log.d(TAG, "mState.value ="+mState.value+"newState ="+newState);
++
++               ContentResolver.setMasterSyncAutomaticallyAsUser(newState,Process.myUserHandle().getIdentifier());
++               Settings.System.putInt(mContext.getContentResolver(), SYNC_STATUS_CHANGED, newState? 1:0);
++               mContext.sendBroadcastAsUser(ContentResolver.ACTION_SYNC_CONN_STATUS_CHANGED,Process.myUserHandle());
++	}
++
++	@Override
++	protected void handleUpdateState(BooleanState state, Object arg) {
++		// TODO Auto-generated method stub
++		state.label = mHost.getContext().getString(R.string.quick_settings_syncdata_label);
++		if (ContentResolver.getMasterSyncAutomaticallyAsUser(Process.myUserHandle().getIdentifier())) {
++			state.icon = mEnable;
++			state.value = true;
++		}else {
++			state.icon = mDisable;
++			state.value = false;
++		}
++		final AnimationIcon icon = state.value ? mEnable : mDisable;
++                state.icon = icon;
++                state.contentDescription = mContext.getString(R.string.quick_settings_flashlight_label);
++                state.minimalAccessibilityClassName = state.expandedAccessibilityClassName
++                      = Switch.class.getName();
++	}
++
++	@Override
++	protected String composeChangeAnnouncement() {
++		if (mState.value) {
++			return mContext.getString(R.string.accessibility_quick_settings_flashlight_changed_on);
++		} else {
++			return mContext.getString(R.string.accessibility_quick_settings_flashlight_changed_off);
++		}
++	}
++	@Override
++	public int getMetricsCategory() {
++		// TODO Auto-generated method stub
++	      return MetricsEvent.QS_FLASHLIGHT;
++	}
++
++	@Override
++	public Intent getLongClickIntent() {
++		// TODO Auto-generated method stub
++		return null;
++	}
++
++       @Override
++       protected void handleLongClick() {
++            handleClick();
++        }
++    
++	@Override
++	protected void setListening(boolean listening) {
++		// TODO Auto-generated method stub
++
++	}
++
++	@Override
++	public CharSequence getTileLabel() {
++		// TODO Auto-generated method stub
++        return mContext.getString(R.string.quick_settings_syncdata_label);
++	}
++
++	private final ContentObserver mSyncStatusChangedObserver = new ContentObserver(
++			new Handler()) {
++		@Override
++		public void onChange(boolean selfChange) {
++			boolean isSyncStatusChanged = (Settings.System.getInt(
++					mContext.getContentResolver(), SYNC_STATUS_CHANGED, 0) == 1);
++			Log.d(TAG, "onChange isSyncStatusChanged = " + isSyncStatusChanged);
++			if (!mState.value == isSyncStatusChanged) {
++				refreshState(isSyncStatusChanged);
++				return;
++			}
++			refreshState();
++		}
++	};
++  }
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/QSTileHost.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/QSTileHost.java	(revision 177844)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/QSTileHost.java	(revision 177845)
+@@ -462,6 +462,7 @@
+         //<-- Support the cutting function of WCN(WLAN,BT,GPS) END
+         else if (tileSpec.equals("user")) return new UserTile(this);
+         else if (tileSpec.equals("battery")) return new BatteryTile(this);
++		else if (tileSpec.equals("syncdata")) return new AccountsSnycDataTile(this);
+         /* SPRD: add for bug650402 @{ */
+         else if (tileSpec.equals("saver")) {
+             if (!SystemuiFeatureUtil.getInstance().isCMCC()) {
+Index: frameworks/base/packages/SystemUI/res/values-zh-rCN/strings.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values-zh-rCN/strings.xml	(revision 177844)
++++ frameworks/base/packages/SystemUI/res/values-zh-rCN/strings.xml	(revision 177845)
+@@ -318,6 +318,7 @@
+     <string name="quick_settings_cellular_detail_data_limit" msgid="56011158504994128">"上限为<xliff:g id="DATA_LIMIT">%s</xliff:g>"</string>
+     <string name="quick_settings_cellular_detail_data_warning" msgid="2440098045692399009">"<xliff:g id="DATA_LIMIT">%s</xliff:g>警告"</string>
+     <string name="quick_settings_work_mode_label" msgid="6244915274350490429">"工作模式"</string>
++	<string name="quick_settings_syncdata_label">同步</string>
+     <string name="recents_empty_message" msgid="808480104164008572">"近期没有任何内容"</string>
+     <string name="recents_empty_message_dismissed_all" msgid="2791312568666558651">"您已清除所有内容"</string>
+     <string name="recents_app_info_button_label" msgid="2890317189376000030">"应用信息"</string>
+Index: frameworks/base/packages/SystemUI/res/values/strings.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 177844)
++++ frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 177845)
+@@ -751,7 +751,7 @@
+     <string name="quick_settings_cellular_detail_data_warning"><xliff:g id="data_limit" example="2.0 GB">%s</xliff:g> warning</string>
+     <!-- QuickSettings: Work mode [CHAR LIMIT=NONE] -->
+     <string name="quick_settings_work_mode_label">Work mode</string>
+-
++	<string name="quick_settings_syncdata_label">SYNC</string>
+     <!-- Recents: The empty recents string. [CHAR LIMIT=NONE] -->
+     <string name="recents_empty_message">No recent items</string>
+     <!-- Recents: The empty recents string after dismissing all tasks. [CHAR LIMIT=NONE] -->
+@@ -1732,4 +1732,5 @@
+     <string name="ok_text">OK</string>
+     <string name="charger_info_content_text">This charger, cable or accessory may not work properly with your Andromax.</string>
+     <string name="charge_ok_btn_text">OK</string>
++	
+ </resources>
+Index: frameworks/base/packages/SystemUI/res/values/config.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/config.xml	(revision 177844)
++++ frameworks/base/packages/SystemUI/res/values/config.xml	(revision 177845)
+@@ -100,7 +100,7 @@
+ 
+     <!-- The default tiles to display in QuickSettings -->
+     <string name="quick_settings_tiles_default" translatable="false">
+-        wifi,bt,flashlight,airplane,hotspot,location,data,vowifi,rotation,dnd,battery
++        wifi,bt,flashlight,airplane,hotspot,location,data,vowifi,rotation,dnd,battery,syncdata
+     </string>
+ 
+     <!-- The tiles to display in QuickSettings -->
+Index: frameworks/base/packages/SystemUI/res/values-in/strings.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values-in/strings.xml	(revision 177844)
++++ frameworks/base/packages/SystemUI/res/values-in/strings.xml	(revision 177845)
+@@ -316,6 +316,7 @@
+     <string name="quick_settings_cellular_detail_data_used" msgid="1476810587475761478">"<xliff:g id="DATA_USED">%s</xliff:g> digunakan"</string>
+     <string name="quick_settings_cellular_detail_data_limit" msgid="56011158504994128">"Batas <xliff:g id="DATA_LIMIT">%s</xliff:g>"</string>
+     <string name="quick_settings_cellular_detail_data_warning" msgid="2440098045692399009">"Peringatan <xliff:g id="DATA_LIMIT">%s</xliff:g>"</string>
++	<string name="quick_settings_syncdata_label">SINKRON</string>
+     <string name="quick_settings_work_mode_label" msgid="6244915274350490429">"Mode kerja"</string>
+     <string name="recents_empty_message" msgid="808480104164008572">"Tidak ada item baru-baru ini"</string>
+     <string name="recents_empty_message_dismissed_all" msgid="2791312568666558651">"Anda sudah menghapus semua"</string>

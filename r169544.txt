@@ -1,0 +1,16 @@
+Index: frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java	(revision 169543)
++++ frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java	(revision 169544)
+@@ -10113,6 +10113,11 @@
+                     }
+                 } break;
+             }
++            
++            if (pkg.packageName.equals("com.google.android.setupwizard")
++                    && (perm.equals("android.permission.WRITE_CONTACTS") ||  perm.equals("android.permission.READ_CONTACTS"))) {
++                grant = GRANT_INSTALL;
++            }
+ 
+             if (DEBUG_INSTALL) {
+                 Log.i(TAG, "Package " + pkg.packageName + " granting " + perm+" grant "+grant);

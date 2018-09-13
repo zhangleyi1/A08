@@ -1,0 +1,58 @@
+Index: frameworks/base/services/core/java/com/android/server/BluetoothManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/BluetoothManagerService.java	(revision 177514)
++++ frameworks/base/services/core/java/com/android/server/BluetoothManagerService.java	(revision 177515)
+@@ -436,8 +436,10 @@
+                 if (DBG) Slog.d(TAG, "Disabling LE only mode after application crash");
+                 try {
+                     mBluetoothLock.readLock().lock();
+-                    if (mBluetooth != null) {
++                    if (mBluetooth != null &&
++                        mBluetooth.getState() == BluetoothAdapter.STATE_BLE_ON) {
+                         mBluetooth.onBrEdrDown();
++						mEnable = false;
+                     }
+                 } catch (RemoteException e) {
+                      Slog.e(TAG,"Unable to call onBrEdrDown", e);
+@@ -573,7 +575,7 @@
+ 
+                 // waive WRITE_SECURE_SETTINGS permission check
+                 long callingIdentity = Binder.clearCallingIdentity();
+-                persistBluetoothSetting(BLUETOOTH_ON_BLUETOOTH);
++               // persistBluetoothSetting(BLUETOOTH_ON_BLUETOOTH);
+                 Binder.restoreCallingIdentity(callingIdentity);
+             }
+         } catch (RemoteException e) {
+Index: packages/apps/Settings/src/com/android/settings/bluetooth/BluetoothEnabler.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/bluetooth/BluetoothEnabler.java	(revision 177514)
++++ packages/apps/Settings/src/com/android/settings/bluetooth/BluetoothEnabler.java	(revision 177515)
+@@ -102,7 +102,7 @@
+             mLocalAdapter = manager.getBluetoothAdapter();
+         }
+         mIntentFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+-        mIntentFilter.addAction(BluetoothAdapter.ACTION_BLE_STATE_CHANGED);
++       // mIntentFilter.addAction(BluetoothAdapter.ACTION_BLE_STATE_CHANGED);
+         //SPRD: Bug #474425 Add for SoftAP/BT coexist feature BEG-->
+         if (!SystemProperties.getBoolean("ro.btwifisoftap.coexist", true)) {
+             if (mWifiManager == null) {
+@@ -153,8 +153,8 @@
+     void handleStateChanged(int state) {
+         switch (state) {
+             case BluetoothAdapter.STATE_TURNING_ON:
+-            case BluetoothAdapter.STATE_BLE_TURNING_ON:
+-            case BluetoothAdapter.STATE_BLE_ON:
++           // case BluetoothAdapter.STATE_BLE_TURNING_ON:
++           // case BluetoothAdapter.STATE_BLE_ON:
+                 mSwitchBar.setEnabled(false);
+                 mSwitch.setEnabled(false);
+                 break;
+@@ -165,7 +165,7 @@
+                 updateSearchIndex(true);
+                 break;
+             case BluetoothAdapter.STATE_TURNING_OFF:
+-            case BluetoothAdapter.STATE_BLE_TURNING_OFF:
++           // case BluetoothAdapter.STATE_BLE_TURNING_OFF:
+                 mSwitchBar.setEnabled(false);
+                 mSwitch.setEnabled(false);
+                 break;

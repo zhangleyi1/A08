@@ -1,0 +1,117 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/ui/DetailsDialog.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/ui/DetailsDialog.java	(revision 182439)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/ui/DetailsDialog.java	(revision 182440)
+@@ -41,11 +41,15 @@
+ import java.util.Locale;
+ import java.util.Map.Entry;
+ 
++import java.io.File;
++
++
+ /**
+  * Displays details (such as Exif) of a local media item.
+  */
+ public class DetailsDialog {
+ 
++    private static final String TAG = "DetailsDialog";
+     /**
+      * Creates a dialog for showing media data.
+      *
+@@ -160,18 +164,21 @@
+                         // as a separate section and interpret it for what it
+                         // is, rather than trying to make it RTL (which messes
+                         // up the path).
+-                        
+-                       	value = "\n" + detail.getValue().toString();
+-						Log.e("DetailsDialog", "value(1) = "+value);
+-                       	path = detail.getValue().toString();
+-                       	String[] directory = value.split("/");
+-                       	if (!directory[2].equals("emulated")) {
+-                           	value = value.replace(directory[2], "sdcard0");
+-							Log.e("DetailsDialog", "value(2) = "+value);
+-                        }else{
+-							value=value.replace("emulated/0","sdcard1");	
+-							Log.e("DetailsDialog", "value(2) = "+value);
+-						}
++
++                        value = "\n" + detail.getValue().toString();
++                        Log.d(TAG, "value(1) = " + value);
++                        path = detail.getValue().toString();
++                        String[] directory = value.split("/");
++
++                        if (checkSDCard()) {
++                            if (!directory[2].equals("emulated")) {
++                                value = value.replace(directory[2], "sdcard0");
++                            } else {
++                                value = value.replace("emulated/0", "sdcard1");
++                            }
++                        } else {
++                            value = value.replace("/emulated/0/", "/");
++                        }
+                         break;
+                     case MediaDetails.INDEX_ORIENTATION:
+                         value = toLocalInteger(detail.getValue());
+@@ -210,6 +217,15 @@
+             }
+         }
+ 
++        private boolean checkSDCard() {
++            File sdCardFilePath = new File("/storage/sdcard0");
++            if (sdCardFilePath.exists()) {
++                return true;
++            }
++
++            return false;
++        }
++
+         public void resolveResolution(String path) {
+             Bitmap bitmap = BitmapFactory.decodeFile(path);
+             if (bitmap == null)
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/ui/DialogDetailsView.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/ui/DialogDetailsView.java	(revision 182439)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/ui/DialogDetailsView.java	(revision 182440)
+@@ -47,6 +47,9 @@
+ import java.util.Map.Entry;
+ import android.os.storage.StorageManager;
+ 
++import java.io.File;
++
++
+ public class DialogDetailsView implements DetailsViewContainer {
+     @SuppressWarnings("unused")
+     private static final String TAG = "DialogDetailsView";
+@@ -256,12 +259,14 @@
+                                 value = "\n" + expath;
+                             } else {
+                                 value = "\n" + detail.getValue().toString();
++                                value = value.replace("/emulated/0/", "/");
+                             }
++
+                             path = detail.getValue().toString();
+-                            } else {
++                        } else {
+                             value = "\n" + "";
+                             path = "";
+-                            }
++                        }
+                         /* @} */
+                         break;
+                     case MediaDetails.INDEX_ISO:
+@@ -317,6 +322,15 @@
+             }
+         }
+ 
++        private boolean checkSDCard() {
++            File sdCardFilePath = new File("/storage/sdcard0");
++            if (sdCardFilePath.exists()) {
++                return true;
++            }
++
++            return false;
++        }
++
+         @Override
+         public boolean areAllItemsEnabled() {
+             return false;

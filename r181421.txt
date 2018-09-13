@@ -1,0 +1,23 @@
+Index: packages/apps/Settings/src/com/sprd/settings/wifi/WifiSoftApSleepPolicy.java
+===================================================================
+--- packages/apps/Settings/src/com/sprd/settings/wifi/WifiSoftApSleepPolicy.java	(revision 181420)
++++ packages/apps/Settings/src/com/sprd/settings/wifi/WifiSoftApSleepPolicy.java	(revision 181421)
+@@ -115,7 +115,8 @@
+ 
+     private static boolean checkAndSendMsg(){
+         int value = Settings.System.getInt(mContext.getContentResolver(),WIFI_SOFT_AP_SLEEP_POLICY,
+-                          WifiSoftApSleepPolicy.WIFI_SOFT_AP_SLEEP_POLICY_NEVER);
++                          WifiSoftApSleepPolicy.WIFI_SOFT_AP_SLEEP_POLICY_15_MINS);
++
+         if (value == WIFI_SOFT_AP_SLEEP_POLICY_NEVER) {
+             Log.e(TAG,"always! and return");
+             return false;
+@@ -129,7 +130,7 @@
+             mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+TEN_MINS, mPendingIntent);
+             isAlarmRunning = true;
+         } else if (value == WIFI_SOFT_AP_SLEEP_POLICY_15_MINS) {
+-            Log.e(TAG,"Set Alarm WIFI_SOFT_AP_SLEEP_POLICY_10_MINS");
++            Log.e(TAG,"Set Alarm WIFI_SOFT_AP_SLEEP_POLICY_15_MINS");
+             mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+FIFTEEN_MINS, mPendingIntent);
+             isAlarmRunning = true;
+         }

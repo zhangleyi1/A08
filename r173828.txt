@@ -1,0 +1,31 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/BatteryLog.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/BatteryLog.java	(revision 173827)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/BatteryLog.java	(revision 173828)
+@@ -306,7 +306,7 @@
+ 			successButton.setEnabled(false);
+ 			resultString = getResources().getString(
+ 					R.string.charger_retry_tips, countdown, 4 - counter);
+-			mcharger_result.setTextColor(Color.WHITE);
++			mcharger_result.setTextColor(Color.YELLOW);
+ 			break;
+ 		case TEST_RESULT_CHARGE_TIPS:
+ 			successButton.setEnabled(false);
+@@ -317,14 +317,14 @@
+ 			successButton.setEnabled(false);
+ 			resultString = getResources()
+ 					.getString(R.string.charger_start_tips);
+-			mcharger_result.setTextColor(Color.WHITE);
++			mcharger_result.setTextColor(Color.YELLOW);
+ 			break;
+ 		case TEST_RESULT_TEMPERATURE_ERROR:
+ 			successButton.setEnabled(false);
+ 			resultString = getResources().getString(R.string.charger_temperature_error);
+ 			mcharger_result.setTextColor(Color.RED);
+-			break;	
+-			
++			break;
++
+ 		}
+ 		if((electronic >= 400 && BatteryLogService.mVoltage < 4100) || (electronic >= 100 && BatteryLogService.mVoltage >= 4100)) {
+ 			melectronic.setText(electronic + "mA");

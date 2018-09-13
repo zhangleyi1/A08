@@ -1,0 +1,91 @@
+Index: packages/apps/FactoryMode/AndroidManifest.xml
+===================================================================
+--- packages/apps/FactoryMode/AndroidManifest.xml	(revision 172726)
++++ packages/apps/FactoryMode/AndroidManifest.xml	(revision 172727)
+@@ -33,6 +33,7 @@
+     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/>
+     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
++	<uses-feature android:name="android.hardware.camera.flash" />
+ 
+     <application
+         android:icon="@drawable/ic_launcher"
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/flashlight/FlashLight.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/flashlight/FlashLight.java	(revision 172726)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/flashlight/FlashLight.java	(revision 172727)
+@@ -59,8 +59,9 @@
+ 		
+ 		succesButton = (Button)this.findViewById(R.id.flashlight_bt_ok);
+ 		failButton = (Button)this.findViewById(R.id.flashlight_bt_failed);
++		succesButton.setEnabled(false);
+ 		succesButton.setOnClickListener(new Button.OnClickListener(){
+-
++		
+ 			@Override
+ 			public void onClick(View v) {
+ 				// TODO Auto-generated method stub
+@@ -93,21 +94,23 @@
+ 		public void handleMessage(Message msg) {
+ 			switch (msg.what) {
+ 			case OPEN_CAMERA:
+-				camera = Camera.open();
+-				mParams = camera.getParameters();
+-				
+-				List<String> list = mParams.getSupportedFlashModes();
+-				if (list.contains(Parameters.FLASH_MODE_TORCH)) {
+-					mParams.setFlashMode(Parameters.FLASH_MODE_TORCH);
+-				} else {
++				try {
++					camera = Camera.open();
++					mParams = camera.getParameters();
++					List<String> list = mParams.getSupportedFlashModes();
++					if (list.contains(Parameters.FLASH_MODE_TORCH)) {
++						mParams.setFlashMode(Parameters.FLASH_MODE_TORCH);
++					} else {
+ 					Intent intent = new Intent(FlashLight.this, FactoryMode.class);
+ 					setResult(FactoryMode.TEST_CANCEL,intent);
+ 					finish();
++					}
++					camera.setParameters(mParams);
++				
++				    camera.setPreviewTexture(mSurfaceTexture);
++				} catch (Exception e) {
++					e.printStackTrace();
+ 				}
+-				camera.setParameters(mParams);
+-				try {
+-				    camera.setPreviewTexture(mSurfaceTexture);
+-				} catch (Exception e) {}
+ 				camera.startPreview();
+ 				isOpen = true;
+ 				count++;
+@@ -121,15 +124,23 @@
+ 				break;
+ 			case CLOSE_LIGHT:
+ 				if (isOpen) {
+-					mParams.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+-					camera.setParameters(mParams);
+-					camera.stopPreview();
+-					camera.release();
+-					isOpen = false;
++					try{
++						mParams.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
++						camera.setParameters(mParams);
++						camera.stopPreview();
++						camera.release();
++						isOpen = false;
++					}catch (Exception e) {
++						e.printStackTrace();
++					}
++					
+ 					// sendEmptyMessage(OPEN_CAMERA);
+ 					if(0 < count && count < 6){
+                        handler.sendEmptyMessageDelayed(OPEN_CAMERA , 600);  
+                     }
++					if(count==6){
++						succesButton.setEnabled(true);
++					}
+ 				}
+ 				break;
+ 			default:

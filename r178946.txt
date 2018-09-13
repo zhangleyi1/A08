@@ -1,0 +1,62 @@
+Index: vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmMainActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmMainActivity.java	(revision 178945)
++++ vendor/sprd/platform/packages/apps/DreamFMRadio/src/com/android/fmradio/FmMainActivity.java	(revision 178946)
+@@ -1272,7 +1272,7 @@
+         /* SPRD : bug568587, new feature FM new UI */
+         //mMenuItemStartRecord = menu.findItem(R.id.fm_start_record);
+         //mMenuItemRecord = menu.findItem(R.id.item_fm_record);
+-        mMenuItemRecordList = menu.findItem(R.id.fm_record_list);
++        //mMenuItemRecordList = menu.findItem(R.id.fm_record_list);
+         mMenuItemRegularlyPoweroff = menu.findItem(R.id.fm_regularly_poweroff);
+         timerTextUpdate();
+         /* @} */
+@@ -1643,9 +1643,8 @@
+                // }
+                // break;
+             /* @} */
+-
++			/*
+             case R.id.fm_record_list:
+-                /* new feature,FM new UI @{ */
+                 refreshImageButton(false);
+                 refreshActionMenuItem(false);
+                 refreshPopupMenuItem(false);
+@@ -1652,8 +1651,9 @@
+                 refreshPlayButton(false);
+                 // Show RecordList activity.
+                 enterRecordList();
+-                /* @} */
+-                break;
++                /* @} 
++                      break;
++                      */
+             /* SPRD: bug568587, Regularly power off.@{ */
+             case R.id.fm_regularly_poweroff:
+                 if (mService.mIsStartTimeCount) {
+@@ -1950,7 +1950,7 @@
+         if (null != mMenuItemStationlList) {
+             /* SPRD: bug568587, Regularly power off, FM new UI @{ */
+             // mMenuItemStartRecord.setEnabled(enabled);
+-            mMenuItemRecord.setEnabled(enabled);
++            //mMenuItemRecord.setEnabled(enabled);
+             mMenuItemRegularlyPoweroff.setEnabled(enabled);
+             /* @} */
+         }
+Index: vendor/sprd/platform/packages/apps/DreamFMRadio/res/menu/fm_action_bar.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamFMRadio/res/menu/fm_action_bar.xml	(revision 178945)
++++ vendor/sprd/platform/packages/apps/DreamFMRadio/res/menu/fm_action_bar.xml	(revision 178946)
+@@ -47,10 +47,10 @@
+         </menu>
+     </item>
+ 
+-    <item
++   <!--<item
+         android:id="@+id/fm_record_list"
+         android:showAsAction="never"
+-        android:title="@string/fm_over_record_list"/>
++        android:title="@string/fm_over_record_list"/>-->
+ 
+     <!-- bug568587, Regularly power off. -->
+     <item

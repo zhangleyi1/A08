@@ -1,0 +1,12 @@
+Index: u-boot64/common/loader/boot_mode.c
+===================================================================
+--- u-boot64/common/loader/boot_mode.c	(revision 176796)
++++ u-boot64/common/loader/boot_mode.c	(revision 176797)
+@@ -8,6 +8,7 @@
+ {
+ 	vibrator_hw_init();
+ 
++	set_backlight(BACKLIGHT_ON);
+ 	set_vibrator(1);
+ 	mdelay(350);
+ 	set_vibrator(0);

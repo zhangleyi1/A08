@@ -1,0 +1,15 @@
+Index: frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+===================================================================
+--- frameworks/base/packages/SettingsProvider/res/values/defaults.xml	(revision 169974)
++++ frameworks/base/packages/SettingsProvider/res/values/defaults.xml	(revision 169975)
+@@ -53,7 +53,9 @@
+          user opt-in via Setup Wizard or Settings.
+     -->
+     <!-- SPRD:set default GPS status is off @{ -->
+-    <string name="def_location_providers_allowed" translatable="false"></string>
++    <!--<string name="def_location_providers_allowed" translatable="false"></string>-->
++	<string name="def_location_providers_allowed" translatable="false">gps,network</string>
++    <!--<string name="def_location_providers_allowed" translatable="false">gps</string>	-->
+     <!-- @} -->
+     <bool name="assisted_gps_enabled">true</bool>
+     <bool name="def_netstats_enabled">true</bool>

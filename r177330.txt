@@ -1,0 +1,19 @@
+Index: device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 177329)
++++ device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 177330)
+@@ -94,7 +94,13 @@
+         persist.sys.cam.hascamkey=false \
+         use_brcm_fm_chip=true \
+         ro.wcn.gpschip=ge2 \
+-        persist.sys.csvt=false
++        persist.sys.csvt=false \
++        ro.com.google.clientidbase=android-haier \
++        ro.com.google.clientidbase.ms=android-haier \
++        ro.com.google.clientidbase.yt=android-haier \
++        ro.com.google.clientidbase.am=android-haier \
++        ro.com.google.clientidbase.gmm=android-haier
++
+ ifeq ($(strip $(VOLTE_SERVICE_ENABLE)), true)
+ PRODUCT_PROPERTY_OVERRIDES += persist.sys.volte.enable=true
+ endif

@@ -1,0 +1,13 @@
+Index: device/sprd/scx35l/common/sepolicy/system_app.te
+===================================================================
+--- device/sprd/scx35l/common/sepolicy/system_app.te	(revision 168373)
++++ device/sprd/scx35l/common/sepolicy/system_app.te	(revision 168374)
+@@ -173,4 +173,7 @@
+ allow system_app alsps_cali_device:chr_file { open write read getattr }; 
+ 
+ ##/dev/tp_gesture_switch
++allow system_app tp_gesture_switch_device:chr_file { open write read getattr }; 
++
++##/dev/tp_gesture_switch
+ allow system_app power_supply_online_device:chr_file { open write read getattr }; 
+\ No newline at end of file

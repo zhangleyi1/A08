@@ -1,0 +1,13 @@
+Index: art/runtime/runtime_options.def
+===================================================================
+--- art/runtime/runtime_options.def	(revision 177281)
++++ art/runtime/runtime_options.def	(revision 177282)
+@@ -134,6 +134,7 @@
+                                                                           // We don't call abort(3) by default; see
+                                                                           // Runtime::Abort.
+ RUNTIME_OPTIONS_KEY (void (*)(),          HookAbort,                      nullptr)
+-RUNTIME_OPTIONS_KEY (std::string,         OatFileManagerCompilerFilter,   "speed")
++//RUNTIME_OPTIONS_KEY (std::string,         OatFileManagerCompilerFilter,   "speed")
++RUNTIME_OPTIONS_KEY (std::string,         OatFileManagerCompilerFilter,   "interpret-only")
+ 
+ #undef RUNTIME_OPTIONS_KEY

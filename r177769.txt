@@ -1,0 +1,4 @@
+Index: device/sprd/scx35l/sp9832a_2h11/modem/SC9600_sharkls_3593.dat
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream

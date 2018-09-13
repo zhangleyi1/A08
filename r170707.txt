@@ -1,0 +1,38 @@
+Index: packages/apps/Dialer/src/com/android/dialer/calllog/CallDetailHistoryAdapter.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/calllog/CallDetailHistoryAdapter.java	(revision 170706)
++++ packages/apps/Dialer/src/com/android/dialer/calllog/CallDetailHistoryAdapter.java	(revision 170707)
+@@ -133,11 +133,11 @@
+                 // SPRD: modify for bug608003
+                 // && CallUtil.isVideoEnabled(mContext)
+         if (mShowCallLogEx) {
+-            if (isVideoCall) {
++            /*if (isVideoCall) {
+                 callTypeExIcon.setImageDrawable(mContext.getResources().getDrawable(
+                         R.drawable.ic_phone_video_reliance));
+                 callTypeExIcon.setVisibility(View.VISIBLE);
+-            } else if (isVolteCall) {
++            } else */if (isVolteCall) {
+                 callTypeExIcon.setImageDrawable(mContext.getResources().getDrawable(
+                         R.drawable.ic_phone_volte_reliance));
+                 callTypeExIcon.setVisibility(View.VISIBLE);
+Index: vendor/sprd/platform/packages/apps/Dialer/res/drawable-xxhdpi/ic_voltecall.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/Dialer/res/drawable-xhdpi/ic_voltecall.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/Dialer/res/drawable-mdpi/ic_voltecall.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/Dialer/res/drawable-hdpi/ic_voltecall.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/Dialer/res/drawable-xxxhdpi/ic_voltecall.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream

@@ -1,0 +1,19 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/policy/MobileSignalController.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/policy/MobileSignalController.java	(revision 175140)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/policy/MobileSignalController.java	(revision 175141)
+@@ -385,7 +385,13 @@
+         showDataIcon &= mCurrentState.isDefault
+                 || mCurrentState.iconGroup == TelephonyIcons.ROAMING
+                 || dataDisabled;
+-        int typeIcon = (showDataIcon || (mConfig.alwaysShowRAT && hasService()))
++
++		 boolean isFineVoiceDataRegState = false;
++        if(mServiceState != null && mServiceState.getVoiceRegState() == ServiceState.STATE_IN_SERVICE) {
++			isFineVoiceDataRegState = true;               
++		 }
++		
++        int typeIcon = ((showDataIcon && isFineVoiceDataRegState ) || (mConfig.alwaysShowRAT && hasService()))
+                 ? icons.mDataType : 0;
+         /* SPRD: FEATURE_SHOW_SPREADTRUM_SIGNAL_CLUSTER_VIEW @{ */
+        if (DEBUG) {

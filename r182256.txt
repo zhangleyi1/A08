@@ -1,0 +1,18 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/SystemUIService.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/SystemUIService.java	(revision 182255)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/SystemUIService.java	(revision 182256)
+@@ -164,11 +164,11 @@
+                     * intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0)
+                     / intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100));
+                 if (mLevel != mLastLevel) {
+-                    mLastLevel = mLevel;
+-                    if (mLevel == 100) {
++                    if (mLevel == 100 && 0 != mLastLevel) {
+                         Intent chargetFullIntent = new Intent(context, ChargerFullActivity.class);
+                         context.startActivity(chargetFullIntent);
+                     }
++                    mLastLevel = mLevel;
+                 }
+ 
+             } else if (intent.getAction().equals(Intent.ACTION_DATE_CHANGED)) {

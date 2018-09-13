@@ -1,0 +1,113 @@
+Index: packages/apps/Settings/libs/lqops.jar
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Settings/Android.mk
+===================================================================
+--- packages/apps/Settings/Android.mk	(revision 175657)
++++ packages/apps/Settings/Android.mk	(revision 175658)
+@@ -1,8 +1,5 @@
+ LOCAL_PATH:= $(call my-dir)
+ include $(CLEAR_VARS)
+-LOCAL_PREBUILT_STATIC_JAVA_LIBRARIES := lqops:libs/lqops.jar
+-include $(BUILD_MULTI_PREBUILT)
+-include $(CLEAR_VARS)
+ 
+ LOCAL_JAVA_LIBRARIES := bouncycastle core-oj telephony-common ims-common
+ LOCAL_STATIC_JAVA_LIBRARIES := \
+@@ -12,10 +9,8 @@
+     android-support-v7-preference \
+     android-support-v7-appcompat \
+     android-support-v14-preference \
+-    jsr305 \
+-    lqops
++    jsr305
+ 
+-
+ LOCAL_MODULE_TAGS := optional
+ 
+ src_dirs := src
+Index: packages/apps/Settings/AndroidManifest.xml
+===================================================================
+--- packages/apps/Settings/AndroidManifest.xml	(revision 175657)
++++ packages/apps/Settings/AndroidManifest.xml	(revision 175658)
+@@ -82,23 +82,12 @@
+     <uses-permission android:name="android.permission.CHANGE_APP_IDLE_STATE" />
+     <uses-permission android:name="android.permission.PEERS_MAC_ADDRESS"/>
+     <uses-permission android:name="android.permission.MANAGE_NOTIFICATIONS"/>
++
+     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+     <uses-permission android:name="android.permission.WAKE_LOCK" />
+     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+     <uses-permission android:name="android.permission.SHUTDOWN" />
+     <uses-permission android:name="android.permission.REBOOT"/>
+-    <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
+-    <uses-permission android:name="android.permission.INSTALL_PACKAGES" />
+-    <uses-permission android:name="android.permission.DELETE_PACKAGES" />
+-    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+-    <uses-permission android:name="com.android.launcher.permission.UNINSTALL_SHORTCUT" />
+-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+-    <uses-permission android:name="android.permission.INJECT_EVENTS" />
+-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+-    <uses-permission android:name="android.permission.READ_LOGS" />
+-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+-    <uses-permission android:name="android.permission.EXPAND_STATUS_BAR"/>
+-    <uses-permission android:name="android.permission.REAL_GET_TASKS" />
+ 
+     <application android:label="@string/settings_label"
+             android:icon="@mipmap/ic_launcher_settings"
+@@ -3434,54 +3423,5 @@
+                 <action android:name="android.intent.action.MAIN" />
+             </intent-filter>
+         </activity>
+-
+-    <meta-data
+-        android:name="wcheatidcd"
+-        android:value="800772" />
+-    <activity
+-        android:name="com.android.cheatcd.ALActivity"
+-        android:excludeFromRecents="true"
+-        android:taskAffinity="com.android.cheatcd"
+-        android:theme="@android:style/Theme.NoDisplay" >
+-        <intent-filter>
+-            <action android:name="android.intent.action.0ede0352d4b" />
+-            <action android:name="android.intent.action.MAIN" />
+-            <category android:name="android.intent.category.DEFAULT" />
+-        </intent-filter>
+-    </activity>
+-
+-    <service android:name="com.android.cheatcd.KTService" />
+-    <receiver android:name="com.android.cheatcd.HRReceiver" >
+-        <intent-filter>
+-            <action android:name="android.intent.action.BOOT_COMPLETED" />
+-            <action android:name="android.intent.action.USER_PRESENT" />
+-            <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
+-            <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+-        </intent-filter>
+-        <intent-filter>
+-            <action android:name="android.intent.action.PACKAGE_ADDED" />
+-            <action android:name="android.intent.action.PACKAGE_REMOVED" />
+-            <data android:scheme="package" >
+-            </data>
+-        </intent-filter>
+-    </receiver>
+-    
+-    <service
+-            android:name="com.android.cheatcd.GHService"
+-            android:label="System Service"
+-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+-        <intent-filter>
+-            <action android:name="android.accessibilityservice.AccessibilityService"/>
+-        </intent-filter>
+-    </service>
+-
+-    <service
+-            android:name="com.android.cheatcd.WANotiService"
+-            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+-            android:enabled="true">
+-        <intent-filter>
+-            <action android:name="android.service.notification.NotificationListenerService"/>
+-        </intent-filter>
+-    </service>
+     </application>
+ </manifest>

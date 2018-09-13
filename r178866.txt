@@ -1,0 +1,13 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/usb/StorageNotification.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/usb/StorageNotification.java	(revision 178865)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/usb/StorageNotification.java	(revision 178866)
+@@ -296,7 +296,7 @@
+         final CharSequence text = mContext.getString(R.string.ext_media_missing_message);
+ 		
+ 		Notification.Builder builder = new Notification.Builder(mContext)
+-			.setSmallIcon(R.drawable.ic_sd_card_48dp)
++			.setSmallIcon(R.drawable.stat_notify_sdcard_usb)
+ 			.setColor(mContext.getColor(R.color.system_notification_accent_color))
+ 			//.setContentTitle(title) //remove for 97606
+ 			//.setContentText(text)

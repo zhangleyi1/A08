@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/SprdContacts/res/values-in/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/res/values-in/strings.xml	(revision 177310)
++++ vendor/sprd/platform/packages/apps/SprdContacts/res/values-in/strings.xml	(revision 177311)
+@@ -499,7 +499,7 @@
+      <string name="merge_inprocess">"Penggabungan silahkan tunggu"</string>
+      <string name="groupcheck_empty_done">Selesai</string>
+      <string name="no_duplicate_contact">"Tidak ada kontak duplikat"</string>
+-     <string name="clearup_contacts">"Mengahapus kontak"</string>
++     <string name="clearup_contacts">"Membersihkan kontak"</string>
+      <string name="dup_phone_number_type">"Tidak dapat menyimpan nomor dengan tipe yang sama, silahkan periksa nomor."</string>
+      <string name="anr_is_full">"Nomor tetap SIM kebesaran"</string>
+      <string name="join_fail_for_usim">"Kontak USIM tidak ikut mendukung"</string>

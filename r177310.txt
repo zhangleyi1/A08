@@ -1,0 +1,12 @@
+Index: kernel/security/rootrecorder/root_recorder.c
+===================================================================
+--- kernel/security/rootrecorder/root_recorder.c	(revision 177309)
++++ kernel/security/rootrecorder/root_recorder.c	(revision 177310)
+@@ -63,6 +63,7 @@
+ 
+ 
+ static struct root_record kill_process_table[] = {
++    {"connmgr", "init", 1, 1000, 1000, 0},
+ 	{"zygote", "init", 1, 0, 0, 0},
+ 	{"vold", "init", 1, 0, 0, 0},
+ 	{"debuggerd", "init", 1, 0, 0, 0},

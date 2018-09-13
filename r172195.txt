@@ -1,0 +1,281 @@
+Index: vendor/sprd/platform/packages/apps/SprdEmail/Email/emailcommon/src/com/android/emailcommon/provider/HostAuth.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdEmail/Email/emailcommon/src/com/android/emailcommon/provider/HostAuth.java	(revision 172194)
++++ vendor/sprd/platform/packages/apps/SprdEmail/Email/emailcommon/src/com/android/emailcommon/provider/HostAuth.java	(revision 172195)
+@@ -383,7 +383,7 @@
+         if (mPort == PORT_UNKNOWN) {
+             boolean useSSL = ((mFlags & FLAG_SSL) != 0);
+             if (LEGACY_SCHEME_SMTP.equals(mProtocol)) {
+-                mPort = useSSL ? 465 : /*587*/25;  //SPRD:bug471289 add account guide function.
++                mPort = 587;  //SPRD:bug471289 add account guide function.
+             }
+         }
+ 
+Index: vendor/sprd/platform/packages/apps/SprdEmail/Email/src/com/android/email/activity/setup/AccountSetupOutgoingFragment.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdEmail/Email/src/com/android/email/activity/setup/AccountSetupOutgoingFragment.java	(revision 172194)
++++ vendor/sprd/platform/packages/apps/SprdEmail/Email/src/com/android/email/activity/setup/AccountSetupOutgoingFragment.java	(revision 172195)
+@@ -65,8 +65,8 @@
+ 
+     private final static String STATE_KEY_LOADED = "AccountSetupOutgoingFragment.loaded";
+ 
+-    private static final int SMTP_PORT_NORMAL = /*587*/25;  //SPRD:bug471289 add account guide function.
+-    private static final int SMTP_PORT_SSL    = 465;
++    private static final int SMTP_PORT_NORMAL = 587;  //SPRD:bug471289 add account guide function.
++    private static final int SMTP_PORT_SSL    = 587;
+ 
+     private EditText mUsernameView;
+     private AuthenticationView mAuthenticationView;
+Index: vendor/sprd/platform/packages/apps/SprdEmail/Email/src/com/sprd/email/omacp/EmailOmacpService.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdEmail/Email/src/com/sprd/email/omacp/EmailOmacpService.java	(revision 172194)
++++ vendor/sprd/platform/packages/apps/SprdEmail/Email/src/com/sprd/email/omacp/EmailOmacpService.java	(revision 172195)
+@@ -47,7 +47,7 @@
+ 
+     public static final int IMAP_DEFAULT_SSL_PORT = 993;
+     public static final int POP3_DEFAULT_SSL_PORT = 995;
+-    public static final int SMTP_DEFAULT_SSL_PORT = 465;
++    public static final int SMTP_DEFAULT_SSL_PORT = 587;
+     public static final int EAS_DEFAULT_SSL_PORT = 443;
+ 
+     private static final String SMTP_APPID = String.valueOf(SMTP_DEFAULT_PORT);
+Index: vendor/sprd/platform/packages/apps/SprdEmail/Email/res/xml/providers.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdEmail/Email/res/xml/providers.xml	(revision 172194)
++++ vendor/sprd/platform/packages/apps/SprdEmail/Email/res/xml/providers.xml	(revision 172195)
+@@ -129,23 +129,23 @@
+     <!-- Gmail variants -->
+     <provider id="gmail" label="Gmail" domain="gmail.com">
+         <incoming uri="imap+ssl+://imap.gmail.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://smtp.gmail.com" username="$email" />
++        <outgoing uri="smtp+tls+://smtp.gmail.com" username="$email" />
+     </provider>
+     <provider id="googlemail" label="Google Mail" domain="googlemail.com">
+         <incoming uri="imap+ssl+://imap.googlemail.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://smtp.googlemail.com" username="$email" />
++        <outgoing uri="smtp+tls+://smtp.googlemail.com" username="$email" />
+     </provider>
+     <provider id="google" label="Google" domain="google.com">
+         <incoming uri="imap+ssl+://imap.gmail.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://smtp.gmail.com" username="$email" />
++        <outgoing uri="smtp+tls+://smtp.gmail.com" username="$email" />
+     </provider>
+     <provider id="android" label="Android" domain="android.com">
+         <incoming uri="imap+ssl+://imap.gmail.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://smtp.gmail.com" username="$email" />
++        <outgoing uri="smtp+tls+://smtp.gmail.com" username="$email" />
+     </provider>
+     <provider id="chromium" label="Chromium" domain="chromium.org" oauth="google">
+         <incoming uri="imap+ssl+://imap.gmail.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://smtp.gmail.com" username="$email" />
++        <outgoing uri="smtp+tls+://smtp.gmail.com" username="$email" />
+     </provider>
+ 
+     <!-- USA -->
+@@ -159,12 +159,12 @@
+     <!-- Note, AOL appears to support SSL on both sides, as well -->
+     <provider id="aim" label="AIM" domain="aim.com">
+         <incoming uri="imap+ssl+://imap.aim.com" label="IMAP" username="$email" />
+-        <outgoing uri="smtp+ssl+://smtp.aim.com" username="$email" />
++        <outgoing uri="smtp+tls+://smtp.aim.com" username="$email" />
+     </provider>
+     <!-- Note, AOL appears to support SSL on both sides, as well -->
+     <provider id="aol" label="AOL" domain="aol.com">
+         <incoming uri="imap+ssl+://imap.aol.com" label="IMAP" username="$email" />
+-        <outgoing uri="smtp+ssl+://smtp.aol.com" username="$email" />
++        <outgoing uri="smtp+tls+://smtp.aol.com" username="$email" />
+     </provider>
+ 
+     <!-- MobileMe and variants -->
+@@ -247,59 +247,59 @@
+     <!-- Yahoo! Mail variants -->
+     <provider id="yahoo" label="Yahoo!" domain="yahoo.*">
+         <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
++        <outgoing uri="smtp+tls+://android.smtp.mail.yahoo.com" username="$email" />
+     </provider>
+     <provider id="yahoo1" label="Yahoo!" domain="yahoo.*.*">
+         <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
++        <outgoing uri="smtp+tls+://android.smtp.mail.yahoo.com" username="$email" />
+     </provider>
+     <provider id="rocketmail" label="Yahoo! RocketMail" domain="rocketmail.com">
+         <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
++        <outgoing uri="smtp+tls+://android.smtp.mail.yahoo.com" username="$email" />
+     </provider>
+     <provider id="ymail" label="Yahoo!" domain="ymail.com">
+         <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
++        <outgoing uri="smtp+tls+://android.smtp.mail.yahoo.com" username="$email" />
+     </provider>
+     <provider id="bellsouth" label="AT&amp;T Bell South" domain="bellsouth.net">
+         <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
++        <outgoing uri="smtp+tls+://android.smtp.mail.yahoo.com" username="$email" />
+     </provider>
+     <provider id="att" label="AT&amp;T" domain="att.net">
+         <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
++        <outgoing uri="smtp+tls+://android.smtp.mail.yahoo.com" username="$email" />
+     </provider>
+     <provider id="pacbell" label="AT&amp;T Pacific Bell" domain="pacbell.net">
+         <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
++        <outgoing uri="smtp+tls+://android.smtp.mail.yahoo.com" username="$email" />
+     </provider>
+     <provider id="sbcglobal" label="AT&amp;T SBC Global" domain="sbcglobal.net">
+         <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
++        <outgoing uri="smtp+tls+://android.smtp.mail.yahoo.com" username="$email" />
+     </provider>
+     <provider id="swbell" label="AT&amp;T Southwest Bell" domain="swbell.net">
+         <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
++        <outgoing uri="smtp+tls+://android.smtp.mail.yahoo.com" username="$email" />
+     </provider>
+     <provider id="btinternet" label="BT Internet" domain="btinternet.com">
+         <incoming uri="imap+ssl+://mail.btinternet.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://mail.btinternet.com" username="$email" />
++        <outgoing uri="smtp+tls+://mail.btinternet.com" username="$email" />
+     </provider>
+     <provider id="btopenworld" label="BT Open World" domain="btopenworld.com">
+         <incoming uri="imap+ssl+://mail.btinternet.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://mail.btinternet.com" username="$email" />
++        <outgoing uri="smtp+tls+://mail.btinternet.com" username="$email" />
+     </provider>
+     <provider id="talk21" label="BT Talk 21" domain="talk21.com">
+         <incoming uri="imap+ssl+://mail.btinternet.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://mail.btinternet.com" username="$email" />
++        <outgoing uri="smtp+tls+://mail.btinternet.com" username="$email" />
+     </provider>
+     <provider id="rogers" label="Rogers" domain="rogers.com">
+         <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
++        <outgoing uri="smtp+tls+://android.smtp.mail.yahoo.com" username="$email" />
+     </provider>
+     <provider id="rogers-nl" label="Rogers" domain="nl.rogers.com">
+         <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
++        <outgoing uri="smtp+tls+://android.smtp.mail.yahoo.com" username="$email" />
+     </provider>
+ 
+     <!-- Roadrunner variants -->
+@@ -315,7 +315,7 @@
+     <!-- USA (other)-->
+     <provider id="comcast" label="Comcast" domain="comcast.net">
+         <incoming uri="pop3+ssl+://mail.comcast.net" username="$user" />
+-        <outgoing uri="smtp+ssl+://smtp.comcast.net" username="$user" />
++        <outgoing uri="smtp+tls+://smtp.comcast.net" username="$user" />
+     </provider>
+     <provider id="compuserve" label="CompuServe" domain="cs.com">
+         <incoming uri="imap://imap.cs.com" username="$user" />
+@@ -323,7 +323,7 @@
+     </provider>
+     <provider id="cox" label="Cox" domain="cox.net">
+         <incoming uri="pop3+ssl+://pop.east.cox.net" username="$user" />
+-        <outgoing uri="smtp+ssl+://smtp.east.cox.net" username="$user" />
++        <outgoing uri="smtp+tls+://smtp.east.cox.net" username="$user" />
+     </provider>
+     <provider id="earthlink" label="Earthlink" domain="earthlink.net">
+         <incoming uri="pop3://pop.earthlink.net" username="$email" />
+@@ -347,7 +347,7 @@
+     <!-- UK -->
+     <provider id="aol-uk" label="AOL" domain="aol.co.uk">
+         <incoming uri="imap+ssl+://imap.uk.aol.com" label="IMAP" username="$user" />
+-        <outgoing uri="smtp+ssl+://smtp.uk.aol.com" username="$user" />
++        <outgoing uri="smtp+tls+://smtp.uk.aol.com" username="$user" />
+     </provider>
+ 
+     <!-- France -->
+@@ -382,7 +382,7 @@
+     </provider>
+     <provider id="wirtualna" label="Wirtualna Polska" domain="wp.pl">
+         <incoming uri="imap+ssl+://imap.wp.pl" username="$user" />
+-        <outgoing uri="smtp+ssl+://smtp.wp.pl" username="$user" />
++        <outgoing uri="smtp+tls+://smtp.wp.pl" username="$user" />
+     </provider>
+     <provider id="interia" label="Interia" domain="interia.pl">
+         <incoming uri="pop3+ssl://poczta.interia.pl" username="$user" />
+@@ -396,13 +396,13 @@
+     <!-- Russia -->
+     <provider id="mail.ru" label="Mail.ru" domain="mail.ru">
+         <incoming uri="imap+tls+://imap.mail.ru" username="$email" />
+-        <outgoing uri="smtp+ssl+://smtp.mail.ru" username="$email" />
++        <outgoing uri="smtp+tls+://smtp.mail.ru" username="$email" />
+     </provider>
+ 
+     <!-- Korea -->
+     <provider id="daum" label="Daum Hanmail" domain="hanmail.net">
+         <incoming uri="imap+ssl+://imap.hanmail.net" username="$user" />
+-        <outgoing uri="smtp+ssl+://smtp.hanmail.net" username="$user" />
++        <outgoing uri="smtp+tls+://smtp.hanmail.net" username="$user" />
+     </provider>
+     <provider id="naver" label="NAVER" domain="naver.com">
+         <incoming uri="imap+ssl+://imap.naver.com" username="$user" />
+@@ -410,39 +410,39 @@
+     </provider>
+     <provider id="paran" label="Paran" domain="paran.com">
+         <incoming uri="imap+ssl+://imap.paran.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://smtp.paran.com" username="$email" />
++        <outgoing uri="smtp+tls+://smtp.paran.com" username="$email" />
+     </provider>
+ 
+     <!-- Yahoo! country-specific email domains -->
+     <provider id="yahoo-y7" label="Yahoo!7" domain="y7mail.com">
+         <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
++        <outgoing uri="smtp+tls+://android.smtp.mail.yahoo.com" username="$email" />
+     </provider>
+     <provider id="kimo" label="Yahoo! Taiwan" domain="kimo.com">
+         <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
++        <outgoing uri="smtp+tls+://android.smtp.mail.yahoo.com" username="$email" />
+     </provider>
+     <!-- Note: Yahoo! Japan's ne.jp and co.jp domains do not yet support open IMAP -->
+     <provider id="yahoo-jp-ybb" label="Yahoo! Japan" domain="ybb.ne.jp">
+         <incoming uri="pop3+ssl+://android.ybbpop.mail.yahoo.co.jp" username="$email" />
+-        <outgoing uri="smtp+ssl+://android.ybbsmtp.mail.yahoo.co.jp" username="$email" />
++        <outgoing uri="smtp+tls+://android.ybbsmtp.mail.yahoo.co.jp" username="$email" />
+     </provider>
+     <!-- Note: Yahoo! Japan's co.jp domain requires $user rather than the usual $email -->
+     <provider id="yahoo-jp" label="Yahoo! Japan" domain="yahoo.co.jp">
+         <incoming uri="pop3+ssl+://android.pop.mail.yahoo.co.jp" username="$user" />
+-        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.co.jp" username="$user" />
++        <outgoing uri="smtp+tls+://android.smtp.mail.yahoo.co.jp" username="$user" />
+     </provider>
+     <provider id="yahoo-com-XX" label="Country specific Yahoo!" domain="yahoo.com.??">
+         <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
++        <outgoing uri="smtp+tls+://android.smtp.mail.yahoo.com" username="$email" />
+     </provider>
+     <provider id="yahoo-co-XX" label="Country specific Yahoo!" domain="yahoo.co.??">
+         <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
++        <outgoing uri="smtp+tls+://android.smtp.mail.yahoo.com" username="$email" />
+     </provider>
+     <provider id="yahoo-XX" label="Country specific Yahoo!" domain="yahoo.??">
+         <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
++        <outgoing uri="smtp+tls+://android.smtp.mail.yahoo.com" username="$email" />
+     </provider>
+ 
+     <!-- SPRD:bug471289 add account guide function {@ -->
+@@ -469,7 +469,7 @@
+     </provider>
+     <provider id="qq" label="qq" domain="qq.com">
+         <incoming uri="imap+ssl+://imap.qq.com" username="$email" />
+-        <outgoing uri="smtp+ssl+://smtp.qq.com" username="$email" />
++        <outgoing uri="smtp+tls+://smtp.qq.com" username="$email" />
+     </provider>
+     <provider id="126" label="126" domain="126.com">
+         <incoming uri="pop3://pop3.126.com" username="$email" />
+@@ -477,7 +477,7 @@
+     </provider>
+     <provider id="139" label="139" domain="139.com">
+         <incoming uri="imap+ssl+://imap.10086.cn" username="$email" />
+-        <outgoing uri="smtp+ssl+://smtp.10086.cn" username="$email" />
++        <outgoing uri="smtp+tls+://smtp.10086.cn" username="$email" />
+     </provider>
+     <!-- @} -->
+ </providers>

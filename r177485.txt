@@ -1,0 +1,13 @@
+Index: packages/apps/DeskClock/src/com/android/alarmclock/DigitalAppWidgetProvider.java
+===================================================================
+--- packages/apps/DeskClock/src/com/android/alarmclock/DigitalAppWidgetProvider.java	(revision 177484)
++++ packages/apps/DeskClock/src/com/android/alarmclock/DigitalAppWidgetProvider.java	(revision 177485)
+@@ -222,7 +222,7 @@
+         widget.setCharSequence(R.id.date, "setFormat12Hour", timeFormat);
+         widget.setCharSequence(R.id.date, "setFormat24Hour", timeFormat);
+         final float fontSize = context.getResources().getDimension(R.dimen.widget_label_font_size);
+-        widget.setTextViewTextSize(R.id.date, TypedValue.COMPLEX_UNIT_PX, fontSize * ratio);
++        widget.setTextViewTextSize(R.id.date, TypedValue.COMPLEX_UNIT_PX, 2*fontSize * ratio);
+     }
+ 
+     protected void refreshAlarm(Context context, RemoteViews widget, float ratio) {

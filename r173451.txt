@@ -1,0 +1,123 @@
+Index: device/sprd/scx35l/common/rootdir/system/etc/media_profiles.xml
+===================================================================
+--- device/sprd/scx35l/common/rootdir/system/etc/media_profiles.xml	(revision 173450)
++++ device/sprd/scx35l/common/rootdir/system/etc/media_profiles.xml	(revision 173451)
+@@ -334,12 +334,12 @@
+     </CamcorderProfiles>
+ 
+     <CamcorderProfiles cameraId="1">
+-
+-        <EncoderProfile quality="qcif" fileFormat="mp4" duration="60">
++    
++        <EncoderProfile quality="1080p" fileFormat="mp4" duration="60">
+             <Video codec="m4v"
+-                   bitRate="190000"
+-                   width="176"
+-                   height="144"
++                   bitRate="256000"
++                   width="1920"
++                   height="1080"
+                    frameRate="30" />
+             <Audio codec="amrnb"
+                    bitRate="12200"
+@@ -346,67 +346,60 @@
+                    sampleRate="8000"
+                    channels="1" />
+         </EncoderProfile>
+-
+-        <EncoderProfile quality="timelapseqcif" fileFormat="mp4" duration="60">
++        <EncoderProfile quality="timelapse1080p" fileFormat="mp4" duration="60">
+             <Video codec="m4v"
+-                   bitRate="190000"
+-                   width="176"
+-                   height="144"
++                   bitRate="256000"
++                   width="1920"
++                   height="1080"
+                    frameRate="30" />
+-            <!-- audio setting is ignored -->
+             <Audio codec="amrnb"
+                    bitRate="12200"
+                    sampleRate="8000"
+                    channels="1" />
+         </EncoderProfile>
+-
+-        <EncoderProfile quality="cif" fileFormat="mp4" duration="60">
++        
++		 <EncoderProfile quality="720p" fileFormat="mp4" duration="60">
+             <Video codec="m4v"
+-                   bitRate="512000"
+-                   width="352"
+-                   height="288"
++                   bitRate="8000000"
++                   width="1280"
++                   height="720"
+                    frameRate="30" />
+-            <Audio codec="amrnb"
+-                   bitRate="12200"
+-                   sampleRate="8000"
++            <Audio codec="aac"
++                   bitRate="96000"
++                   sampleRate="44100"
+                    channels="1" />
+         </EncoderProfile>
+-
+-        <EncoderProfile quality="timelapsecif" fileFormat="mp4" duration="60">
++        <EncoderProfile quality="timelapse720p" fileFormat="mp4" duration="60">
+             <Video codec="m4v"
+-                   bitRate="512000"
+-                   width="352"
+-                   height="288"
++                   bitRate="8000000"
++                   width="1280"
++                   height="720"
+                    frameRate="30" />
+-            <!-- audio setting is ignored -->
+-            <Audio codec="amrnb"
+-                   bitRate="12200"
+-                   sampleRate="8000"
++            <Audio codec="aac"
++                   bitRate="96000"
++                   sampleRate="44100"
+                    channels="1" />
+         </EncoderProfile>
+-
+-        <EncoderProfile quality="480p" fileFormat="mp4" duration="60">
++		<EncoderProfile quality="qvga" fileFormat="mp4" duration="60">
+             <Video codec="m4v"
+-                   bitRate="4000000"
+-                   width="720"
+-                   height="480"
++                   bitRate="256000"
++                   width="320"
++                   height="240"
+                    frameRate="30" />
+-            <Audio codec="aac"
+-                   bitRate="64000"
+-                   sampleRate="44100"
++            <Audio codec="amrnb"
++                   bitRate="12200"
++                   sampleRate="8000"
+                    channels="1" />
+         </EncoderProfile>
+-
+-        <EncoderProfile quality="timelapse480p" fileFormat="mp4" duration="60">
++        <EncoderProfile quality="timelapseqvga" fileFormat="mp4" duration="60">
+             <Video codec="m4v"
+-                   bitRate="4000000"
+-                   width="720"
+-                   height="480"
++                   bitRate="256000"
++                   width="320"
++                   height="240"
+                    frameRate="30" />
+-            <!-- audio setting is ignored -->
+-            <Audio codec="aac"
+-                   bitRate="64000"
+-                   sampleRate="44100"
++            <Audio codec="amrnb"
++                   bitRate="12200"
++                   sampleRate="8000"
+                    channels="1" />
+         </EncoderProfile>
+ 

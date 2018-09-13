@@ -1,0 +1,105 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/settings/BrightnessController.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/settings/BrightnessController.java	(revision 170797)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/settings/BrightnessController.java	(revision 170798)
+@@ -34,10 +34,14 @@
+ import com.android.internal.logging.MetricsProto.MetricsEvent;
+ 
+ import java.util.ArrayList;
++import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE;
++import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC;
++import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL;
++import android.view.View;
+ 
+ public class BrightnessController implements ToggleSlider.Listener {
+     private static final String TAG = "StatusBar.BrightnessController";
+-    private static final boolean SHOW_AUTOMATIC_ICON = false;
++    private static final boolean SHOW_AUTOMATIC_ICON = true;
+ 
+     /**
+      * {@link android.provider.Settings.System#SCREEN_AUTO_BRIGHTNESS_ADJ} uses the range [-1, 1].
+@@ -153,6 +157,25 @@
+         mAutomaticAvailable = context.getResources().getBoolean(
+                 com.android.internal.R.bool.config_automatic_brightness_available);
+         mPower = IPowerManager.Stub.asInterface(ServiceManager.getService("power"));
++        mIcon.setOnClickListener(new View.OnClickListener(){
++           public void onClick(View v){
++                boolean automatic = Settings.System.getIntForUser(mContext.getContentResolver(),
++                    Settings.System.SCREEN_BRIGHTNESS_MODE,
++                    Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL,
++                    UserHandle.USER_CURRENT) != Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL; 
++                if (automatic){
++                    Settings.System.putInt(mContext.getContentResolver(), SCREEN_BRIGHTNESS_MODE,
++                    SCREEN_BRIGHTNESS_MODE_MANUAL);
++                    automatic = false;
++                }else {
++                    Settings.System.putInt(mContext.getContentResolver(), SCREEN_BRIGHTNESS_MODE,
++                    SCREEN_BRIGHTNESS_MODE_AUTOMATIC);
++                   
++                }
++                updateIcon(automatic);
++                
++            }
++        });
+     }
+ 
+     public void addStateChangedCallback(BrightnessStateChangeCallback cb) {
+Index: frameworks/base/packages/SystemUI/res/layout/quick_settings_brightness_dialog.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/layout/quick_settings_brightness_dialog.xml	(revision 170797)
++++ frameworks/base/packages/SystemUI/res/layout/quick_settings_brightness_dialog.xml	(revision 170798)
+@@ -20,6 +20,12 @@
+     android:paddingLeft="16dp"
+     android:paddingRight="16dp"
+     style="@style/BrightnessDialogContainer">
++	
++   <LinearLayout android:id="@+id/display"
++       android:layout_width="wrap_content"
++       android:layout_gravity="center_vertical"
++       android:layout_height="wrap_content"
++       android:orientation="vertical" >
+ 
+     <ImageView
+         android:id="@+id/brightness_icon"
+@@ -29,7 +35,15 @@
+         android:layout_marginEnd="8dp"
+         android:src="@drawable/ic_qs_brightness_auto_off"
+         android:contentDescription="@null"
+-        android:visibility="gone" />
++        android:visibility="visible" />
++	
++	<TextView android:id="@+id/tv"
++        android:layout_width="wrap_content"
++        android:layout_gravity="center_vertical"
++        android:layout_height="wrap_content"
++        android:text="@string/brightness_auto"
++      />
++     </LinearLayout>
+ 
+     <com.android.systemui.settings.ToggleSlider
+         android:id="@+id/brightness_slider"
+Index: frameworks/base/packages/SystemUI/res/values-zh-rCN/strings.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values-zh-rCN/strings.xml	(revision 170797)
++++ frameworks/base/packages/SystemUI/res/values-zh-rCN/strings.xml	(revision 170798)
+@@ -170,6 +170,7 @@
+     <!-- no translation found for accessibility_casting (6887382141726543668) -->
+     <skip />
+     <string name="accessibility_work_mode" msgid="2478631941714607225">"工作模式"</string>
++	<string name="brightness_auto">自动</string>
+     <string name="accessibility_recents_item_will_be_dismissed" msgid="395770242498031481">"移除<xliff:g id="APP">%s</xliff:g>。"</string>
+     <string name="accessibility_recents_item_dismissed" msgid="6803574935084867070">"已删除<xliff:g id="APP">%s</xliff:g>"</string>
+     <string name="accessibility_recents_all_items_dismissed" msgid="4464697366179168836">"已关闭所有最近用过的应用。"</string>
+Index: frameworks/base/packages/SystemUI/res/values/strings.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 170797)
++++ frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 170798)
+@@ -425,6 +425,8 @@
+ 
+     <!-- Content description of the work mode icon in the notification panel for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
+     <string name="accessibility_work_mode">Work mode</string>
++	
++	<string name="brightness_auto">Auto</string>
+ 
+     <!-- Content description to tell the user that this button will remove an application from recents -->
+     <string name="accessibility_recents_item_will_be_dismissed">Dismiss <xliff:g id="app" example="Calendar">%s</xliff:g>.</string>

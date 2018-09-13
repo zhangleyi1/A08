@@ -1,0 +1,27 @@
+Index: vendor/sprd/platform/packages/apps/SprdStk/src/com/android/stk/StkLauncherActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdStk/src/com/android/stk/StkLauncherActivity.java	(revision 168053)
++++ vendor/sprd/platform/packages/apps/SprdStk/src/com/android/stk/StkLauncherActivity.java	(revision 168054)
+@@ -199,8 +199,9 @@
+                         CatLog.d(LOG_TAG, "stkItemName:" + stkItemName + " add to menu.");
+                     }
+                 } else {
+-                    stkItemName = new StringBuilder(appName).append(" ")
+-                            .append(Integer.toString(i + 1)).toString();
++                    /*stkItemName = new StringBuilder(appName).append(" ")
++                            .append(Integer.toString(i + 1)).toString();*/
++                    stkItemName=(i==0 ? mContext.getResources().getString(R.string.sim_card1_menu) : mContext.getResources().getString(R.string.sim_card2_menu));  
+                 }
+                 /* @} */
+                 Item item = new Item(i + 1, stkItemName, mBitMap);
+Index: vendor/sprd/platform/packages/apps/SprdStk/res/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdStk/res/values/strings.xml	(revision 168053)
++++ vendor/sprd/platform/packages/apps/SprdStk/res/values/strings.xml	(revision 168054)
+@@ -62,4 +62,6 @@
+     <string name="stk_dialog_accept">YES</string>
+     <string name="stk_dialog_reject">NO</string>
+     <string name="no_sim_card_inserted">Please insert SIM to launch SIM Toolkit.</string>
++	<string name="sim_card1_menu">Smartfren</string>
++	<string name="sim_card2_menu">GSM</string>
+ </resources>

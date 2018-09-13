@@ -1,0 +1,14 @@
+Index: device/sprd/scx35l/sp9832a_2h11/BoardConfig.mk
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/BoardConfig.mk	(revision 176025)
++++ device/sprd/scx35l/sp9832a_2h11/BoardConfig.mk	(revision 176026)
+@@ -17,8 +17,8 @@
+ # secure boot
+ BOARD_SECURE_BOOT_ENABLE := true
+ SECURE_BOOT_SIGNAL_KEY := false
++BOARD_SECURE_BOOT_ENABLE4CP := true
+ 
+-
+ include $(PLATCOMM)/BoardConfigCommon.mk
+ include $(PLATCOMM)/emmc/BoardConfigEmmc.mk
+ 

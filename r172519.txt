@@ -1,0 +1,12 @@
+Index: u-boot64/include/loader_common.h
+===================================================================
+--- u-boot64/include/loader_common.h	(revision 172518)
++++ u-boot64/include/loader_common.h	(revision 172519)
+@@ -134,6 +134,7 @@
+ 	uint32_t version;
+ } nv_header_t;
+ 
++void fastboot_lcd_printf(void);
+ void set_vibrator(int on);
+ void vibrator_hw_init(void);
+ void vlx_entry(void);

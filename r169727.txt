@@ -1,0 +1,92 @@
+Index: vendor/sprd/platform/packages/providers/SprdContactsProvider/AndroidManifest.xml
+===================================================================
+--- vendor/sprd/platform/packages/providers/SprdContactsProvider/AndroidManifest.xml	(revision 169726)
++++ vendor/sprd/platform/packages/providers/SprdContactsProvider/AndroidManifest.xml	(revision 169727)
+@@ -160,6 +160,7 @@
+                 <action android:name="android.intent.action.PHONE_START" />
+                 <action android:name="android.intent.action.ACTION_SUBINFO_RECORD_UPDATED"/>
+                 <action android:name="com.android.contacts.provider.action.permission"/>
++				<action android:name="android.intent.action.AIRPLANE_MODE"/>
+             </intent-filter>
+ 	    <intent-filter>
+                 <action android:name="android.accounts.AccountAuthenticator" />
+Index: vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/sprd/providers/contacts/SyncSimAccountsReceiver.java
+===================================================================
+--- vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/sprd/providers/contacts/SyncSimAccountsReceiver.java	(revision 169726)
++++ vendor/sprd/platform/packages/providers/SprdContactsProvider/src/com/sprd/providers/contacts/SyncSimAccountsReceiver.java	(revision 169727)
+@@ -42,6 +42,8 @@
+ import android.provider.ContactsContract.ProviderStatus;
+ import android.provider.ContactsContract.RawContacts;
+ import android.provider.Telephony;
++import android.provider.Settings;
++
+ import android.telephony.ServiceState;
+ import android.telephony.TelephonyManager;
+ import android.telephony.TelephonyManagerEx;
+@@ -339,6 +341,10 @@
+                 syncable = 0;
+                 removeAccount();
+             }
++			final boolean isAirplaneModeOn = Settings.System.getInt(mContext.getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
++			if (isAirplaneModeOn) {
++				syncable = 0;       
++			}
+             if (DEBUG)
+                 log("setIsSyncable: " + mAccount + " " + syncable);
+             cr.setIsSyncable(mAccount, ContactsContract.AUTHORITY, syncable);
+@@ -656,6 +662,7 @@
+ 
+     private static final String TAG = SyncSimAccountsReceiver.class.getSimpleName();
+     private static final boolean DEBUG = true;//Debug.isDebug();sprdPorting
++    private static String AIRPLANE_CHANGE = "android.intent.action.AIRPLANE_MODE";
+     static boolean[] mIccLoaded = {false,false};
+     private static boolean isPermissionSatisfied = false;
+     private static String[] PERMISSIONS = new String[] {
+@@ -856,8 +863,46 @@
+             int phoneId = intent.getIntExtra("phone_id", 0);
+             int subId = intent.getIntExtra(PhoneConstants.SUBSCRIPTION_KEY, 0);
+             FSA.getInstance(context, phoneId, subId).onAction(FSA.Action.BOOTSTRAP);
+-        }
++        }else if(action.equals(AIRPLANE_CHANGE)){
++			new AirplaneChangeSyncSimThread(context).start();
++		}
+     }
++	public class AirplaneChangeSyncSimThread extends Thread {
++		Context context;
++		public AirplaneChangeSyncSimThread(Context context) {
++			this.context = context;
++		}
++
++		@Override
++		public void run() {
++			super.run();
++			Account mAccount1 = ContactAccountManager.getInstance(context)
++					.getSimAccount(0);
++			Account mAccount2 = ContactAccountManager.getInstance(context)
++					.getSimAccount(1);
++
++			syncsimchange(context, mAccount1);
++			syncsimchange(context, mAccount2);
++		}
++
++		void syncsimchange(Context context, Account mAccount) {
++			ContentResolver cr = context.getContentResolver();
++			if (mAccount != null) {
++				int syncable = 1;
++
++				final boolean isAirplaneModeOn = Settings.System.getInt(
++						context.getContentResolver(),
++						Settings.System.AIRPLANE_MODE_ON, 0) != 0;
++
++				if (isAirplaneModeOn) {
++					syncable = 0;
++				}
++
++				cr.setIsSyncable(mAccount, ContactsContract.AUTHORITY, syncable);
++			}
++		}
++
++	}
+ }
+ /**
+  * @}

@@ -1,0 +1,22 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java	(revision 177679)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java	(revision 177680)
+@@ -222,7 +222,7 @@
+         Log.d(TAG, "handleGesture: mRoot = " + mRoot + ", mGestureView = " + mGestureView);
+ 
+         showAllView();
+-
++/*
+         int count = mKeyCodeAndGesture.size();
+         mComponentName = null;
+         for(int i = 0; i < count; i++) {
+@@ -234,7 +234,7 @@
+         }
+ 
+         showGestureAnimation(resourceId);
+-
++*/
+         int value = Settings.System.getInt(mContext.getContentResolver(), Settings.System.KEY_GESTURE_TYPE_VIBRATE, 0);
+         /*
+         if(value == 1) {

@@ -1,0 +1,25 @@
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/keyguard_bottom_area.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/keyguard_bottom_area.xml	(revision 178904)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/keyguard_bottom_area.xml	(revision 178905)
+@@ -64,12 +64,19 @@
+             android:textAllCaps="@bool/kg_use_all_caps" />
+ 
+         <com.android.keyguard.CarrierTextLayout
+-            android:orientation="vertical"
++            android:orientation="horizontal"
+             android:gravity="center_horizontal"
+             android:layout_width="match_parent"
+             android:layout_gravity="bottom|center_horizontal"
+             android:layout_height="wrap_content" />
+ 
++      
++      <LinearLayout
++            android:layout_width="match_parent"
++            android:layout_height="18dp">
++        </LinearLayout>
++      
++
+     </LinearLayout>
+ 
+     <FrameLayout

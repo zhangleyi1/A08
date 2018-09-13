@@ -1,0 +1,13 @@
+Index: kernel/arch/arm/boot/dts/sprd-scx35l_sp9832a_2h11_volte.dts
+===================================================================
+--- kernel/arch/arm/boot/dts/sprd-scx35l_sp9832a_2h11_volte.dts	(revision 172126)
++++ kernel/arch/arm/boot/dts/sprd-scx35l_sp9832a_2h11_volte.dts	(revision 172127)
+@@ -633,7 +633,7 @@
+ 		compatible  = "sprd,usb";
+ 		interrupts = <0 55 0x0>;
+ 		vbus-gpios = <&a_eic_gpio 0 0>;
+-		id-gpios = <&d_gpio_gpio 126 0>;
++		id-gpios = <&d_eic_gpio 4 0>;
+ 		reg = <0x20200000 0x1000>;
+ 		tune_value = <0x078e33>;
+ 		usb-supply = <&vddusb>;

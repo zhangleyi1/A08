@@ -1,0 +1,13 @@
+Index: kernel/drivers/usb/gadget/android.c
+===================================================================
+--- kernel/drivers/usb/gadget/android.c	(revision 175256)
++++ kernel/drivers/usb/gadget/android.c	(revision 175257)
+@@ -1807,7 +1807,7 @@
+ 		value = composite_setup_func(gadget, c);
+ 
+ 	spin_lock_irqsave(&cdev->lock, flags);
+-	if (!dev->connected) {
++	if (!dev->connected && !dev->sw_connected) {
+ 		dev->connected = 1;
+ 		schedule_work(&dev->work);
+ 	} else if (c->bRequest == USB_REQ_SET_CONFIGURATION &&

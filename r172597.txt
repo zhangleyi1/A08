@@ -1,0 +1,25 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/PageIndicator.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/PageIndicator.java	(revision 172596)
++++ packages/apps/Launcher3/src/com/android/launcher3/PageIndicator.java	(revision 172597)
+@@ -39,6 +39,8 @@
+             new ArrayList<PageIndicatorMarker>();
+     private int mActiveMarkerIndex;
+ 
++    private static boolean mFlag = true;
++
+     public static class PageMarkerResources {
+         int activeId;
+         int inactiveId;
+@@ -166,7 +168,10 @@
+             (PageIndicatorMarker) mLayoutInflater.inflate(R.layout.page_indicator_marker,
+                     this, false);
+         m.setMarkerDrawables(marker.activeId, marker.inactiveId);
+-
++        if (Launcher.SUPPORT_PIFLOW && (0 == index) && mFlag) {
++            m.setVisibility(View.GONE);
++            mFlag = false;
++        }
+         mMarkers.add(index, m);
+         offsetWindowCenterTo(mActiveMarkerIndex, allowAnimations);
+     }

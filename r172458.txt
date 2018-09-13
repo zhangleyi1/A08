@@ -1,0 +1,80 @@
+Index: frameworks/opt/net/wifi/service/java/com/android/server/wifi/WifiNotificationController.java
+===================================================================
+--- frameworks/opt/net/wifi/service/java/com/android/server/wifi/WifiNotificationController.java	(revision 172457)
++++ frameworks/opt/net/wifi/service/java/com/android/server/wifi/WifiNotificationController.java	(revision 172458)
+@@ -37,7 +37,9 @@
+ import java.io.FileDescriptor;
+ import java.io.PrintWriter;
+ import java.util.List;
++import android.util.Log;
+ 
++
+ /* Takes care of handling the "open wi-fi network available" notification @hide */
+ final class WifiNotificationController {
+     /**
+@@ -46,6 +48,7 @@
+      */
+     private static final int ICON_NETWORKS_AVAILABLE =
+             com.android.internal.R.drawable.stat_notify_wifi_in_range;
++	private static final String TAG = "WifiNotificationController";
+     /**
+      * When a notification is shown, we wait this amount before possibly showing it again.
+      */
+@@ -157,6 +160,7 @@
+         // TODO: unregister broadcast so we do not have to check here
+         // If we shouldn't place a notification on available networks, then
+         // don't bother doing any of the following
++        Log.i(TAG, "checkAndSetNotification mNotificationEnabled = " + mNotificationEnabled + " mWifiState = " + mWifiState);
+         if (!mNotificationEnabled) return;
+         if (mWifiState != WifiManager.WIFI_STATE_ENABLED) return;
+ 
+@@ -163,7 +167,8 @@
+         NetworkInfo.State state = NetworkInfo.State.DISCONNECTED;
+         if (networkInfo != null)
+             state = networkInfo.getState();
+-
++		
++		Log.i(TAG, "checkAndSetNotification state = " + state);
+         if ((state == NetworkInfo.State.DISCONNECTED)
+                 || (state == NetworkInfo.State.UNKNOWN)) {
+             if (scanResults != null) {
+@@ -173,12 +178,13 @@
+ 
+                     //A capability of [ESS] represents an open access point
+                     //that is available for an STA to connect
++                    Log.i(TAG, "checkAndSetNotification ssid = " + scanResult.SSID + " capabilities = " + scanResult.capabilities);
+                     if (scanResult.capabilities != null &&
+                             scanResult.capabilities.equals("[ESS]")) {
+                         numOpenNetworks++;
+                     }
+                 }
+-
++				Log.i(TAG, "checkAndSetNotification numOpenNetworks = " + numOpenNetworks);
+                 if (numOpenNetworks > 0) {
+                     if (++mNumScansSinceNetworkStateChange >= NUM_SCANS_BEFORE_ACTUALLY_SCANNING) {
+                         /*
+@@ -204,6 +210,7 @@
+      * shown recently and clears the current notification.
+      */
+     private synchronized void resetNotification() {
++        Log.i(TAG, "resetNotification");
+         mNotificationRepeatTime = 0;
+         mNumScansSinceNetworkStateChange = 0;
+         setNotificationVisible(false, 0, false, 0);
+@@ -240,6 +247,7 @@
+ 
+             // Not enough time has passed to show the notification again
+             if (System.currentTimeMillis() < mNotificationRepeatTime) {
++				Log.i(TAG, "setNotificationVisible, Not enough time to show notification");
+                 return;
+             }
+ 
+@@ -266,7 +274,7 @@
+             mNotificationBuilder.setContentText(details);
+ 
+             mNotificationRepeatTime = System.currentTimeMillis() + NOTIFICATION_REPEAT_DELAY_MS;
+-
++			Log.i(TAG, "setNotificationVisible, show notification");
+             notificationManager.notifyAsUser(null, ICON_NETWORKS_AVAILABLE,
+                     mNotificationBuilder.build(), UserHandle.ALL);
+         } else {

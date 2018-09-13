@@ -1,0 +1,46 @@
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/UiccCarrierPrivilegeRules.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/UiccCarrierPrivilegeRules.java	(revision 168771)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/UiccCarrierPrivilegeRules.java	(revision 168772)
+@@ -460,11 +460,7 @@
+                           if (isDataComplete()) {
+                               mAccessRules = parseRules(mRules);
+                               updateState(STATE_LOADED, "Success!");
+-<<<<<<< .working
+ 							  mLe = 0x00;
+-=======
+-                              mLe = 0x00;
+->>>>>>> .merge-right.r168585
+                           } else {
+                               mUiccCard.iccTransmitApduLogicalChannel(mChannelId, CLA, COMMAND, P1, P2_EXTENDED_DATA, mLe, DATA,
+                                   obtainMessage(EVENT_TRANSMIT_LOGICAL_CHANNEL_DONE, new Integer(mChannelId)));
+@@ -475,7 +471,6 @@
+                       } catch (IndexOutOfBoundsException ex) {
+                           updateState(STATE_ERROR, "Error parsing rules: " + ex);
+                       }
+-<<<<<<< .working
+ 					     } else if (response.sw1 == 0x61) {
+                       // SPRD Add: ISO/IEC 7816-4 to deal with "61xx"
+                        // ‘xx’ bytes of data are available and can be requested using GET RESPONSE.
+@@ -489,21 +484,10 @@
+                        mUiccCard.iccTransmitApduLogicalChannel(mChannelId, CLA, COMMAND, P1, P2, mLe, DATA,
+                                obtainMessage(EVENT_TRANSMIT_LOGICAL_CHANNEL_DONE, new Integer(mChannelId)));
+                        break;
+-=======
+-                   } else if (response.sw1 == 0x61) {
+                        // SPRD Add: ISO/IEC 7816-4 to deal with "61xx"
+                        // ‘xx’ bytes of data are available and can be requested using GET RESPONSE.
+-                       mUiccCard.iccTransmitApduLogicalChannel(mChannelId, CLA, 0xC0, 0x00, 0x00, response.sw2, "",
+-                               obtainMessage(EVENT_TRANSMIT_LOGICAL_CHANNEL_DONE, new Integer(mChannelId)));
+-                       break;
+-                   } else if (response.sw1 == 0x6C) {
+                        // SPRD Add: to deal "6Cxx"
+                        // Bad length value in Le; ‘xx’ is the correct length.
+-                       mLe = response.sw2;
+-                       mUiccCard.iccTransmitApduLogicalChannel(mChannelId, CLA, COMMAND, P1, P2, mLe, DATA,
+-                               obtainMessage(EVENT_TRANSMIT_LOGICAL_CHANNEL_DONE, new Integer(mChannelId)));
+-                       break;
+->>>>>>> .merge-right.r168585
+                    } else {
+                       String errorMsg = "Invalid response: payload=" + response.payload +
+                               " sw1=" + response.sw1 + " sw2=" + response.sw2;

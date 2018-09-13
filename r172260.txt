@@ -1,0 +1,56 @@
+Index: packages/apps/Settings/src/com/android/settings/ApnEditor.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/ApnEditor.java	(revision 172259)
++++ packages/apps/Settings/src/com/android/settings/ApnEditor.java	(revision 172260)
+@@ -26,6 +26,7 @@
+ import android.content.ContentValues;
+ import android.content.Intent;
+ import android.content.res.Resources;
++import android.content.ContentResolver;
+ import android.database.Cursor;
+ import android.net.Uri;
+ import android.os.Bundle;
+@@ -112,6 +113,10 @@
+     private boolean mAllowEmptyApn = false;
+     // SPRD: FEATURE_ADD_APN_EDITABLE_FIELD
+     private boolean mIsEditable = true;
++	public static final String APN_ID = "apn_id";
++    public static final String PREFERRED_APN_URI =
++            "content://telephony/carriers/preferapn";
++    private static final Uri PREFERAPN_URI = Uri.parse(PREFERRED_APN_URI);
+ 
+     /**
+      * Standard projection for the interesting columns of a normal note.
+@@ -839,9 +844,31 @@
+ 
+         values.put(Telephony.Carriers.CARRIER_ENABLED, mCarrierEnabled.isChecked() ? 1 : 0);
+         getContentResolver().update(mUri, values, null, null);
+-
++		if (mNewApn && mUri != null) {
++			setSelectedApnKey(mUri);
++		}
+         return true;
+     }
++	private void setSelectedApnKey(Uri result) {
++		ContentResolver resolver = getContentResolver();
++		long apnId;
++		apnId = ContentUris.parseId(result);
++		ContentValues values = new ContentValues();
++		Log.d("zhangheng", "apnId = " + apnId);
++		if (apnId >= 0) {
++			values.put(APN_ID, apnId);
++			resolver.update(getUriFor(PREFERAPN_URI), values, null, null);
++		}
++	}
++	
++	private Uri getUriFor(Uri uri) {
++		if (SubscriptionManager.isValidSubscriptionId(mSubId)) {
++			return Uri.withAppendedPath(uri, "subId/" + String.valueOf(mSubId));
++		} else {
++				 // fall back to default uri
++			return uri;
++		}
++	}
+ 
+     private String getErrorMsg() {
+         String errorMsg = null;

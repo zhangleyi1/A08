@@ -1,0 +1,52 @@
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/dataconnection/DcTracker.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/dataconnection/DcTracker.java	(revision 181640)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/dataconnection/DcTracker.java	(revision 181641)
+@@ -1622,7 +1622,19 @@
+                 !(ApnSetting.isMeteredApnType(apnContext.getApnType(), mPhone.getContext(),
+                 mPhone.getSubId(), mPhone.getServiceState().getDataRoaming())));
+ 
+-        if (apnContext.isConnectable() && (isEmergencyApn ||
++        //Limited SimData according by mccmnc
++        TelephonyManager tm = TelephonyManager.getDefault();
++        String numeric = tm.getSimOperator();
++        log("trySetupData limited sim mccmnc = "  + numeric);
++        boolean bLimitedSimData = false;
++        if(mPhone.getPhoneId() == 1) {
++            if(apnContext.getApnType().equals(PhoneConstants.APN_TYPE_DEFAULT)) {
++                bLimitedSimData = true;
++            }
++        }
++        log("trySetupData limited sim bLimitedSimData = "  + bLimitedSimData);
++
++        if (!bLimitedSimData && apnContext.isConnectable() && (isEmergencyApn ||
+                 (isDataAllowed && isDataAllowedForApn(apnContext) &&
+                 isDataEnabled(checkUserDataEnabled) && !isEmergency())) && !mColdSimDetected ) {
+             if (apnContext.getState() == DctConstants.State.FAILED) {
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/SubscriptionInfoUpdater.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/SubscriptionInfoUpdater.java	(revision 181640)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/SubscriptionInfoUpdater.java	(revision 181641)
+@@ -680,9 +680,21 @@
+         // CMCC new case:Mobile card priority strategy,see bug636909
+ //        mSubscriptionManager.setDefaultDataSubId(
+ //                mSubscriptionManager.getDefaultDataSubscriptionId());
++
++        int[] subIds = SubscriptionManager.getSubId(0);
++        int subId = SubscriptionManager.INVALID_SUBSCRIPTION_ID;
++        if (subIds != null && subIds.length > 0) {
++            subId = subIds[0];
++        } else {
++            return;
++        }
++
+         TeleFrameworkFactory.getInstance().setDefaultDataSubId(
++                mContext, subId);
++/*
++        TeleFrameworkFactory.getInstance().setDefaultDataSubId(
+                 mContext,mSubscriptionManager.getDefaultDataSubscriptionId());
+-
++*/
+         SubscriptionController.getInstance().notifySubscriptionInfoChanged();
+         logd("updateSubscriptionInfoByIccId:- SsubscriptionInfo update complete");
+     }

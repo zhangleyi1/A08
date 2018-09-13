@@ -1,0 +1,25 @@
+Index: vendor/sprd/platform/frameworks/base/packages/Keyguard/src/com/android/keyguard/CarrierTextLayout.java
+===================================================================
+--- vendor/sprd/platform/frameworks/base/packages/Keyguard/src/com/android/keyguard/CarrierTextLayout.java	(revision 168067)
++++ vendor/sprd/platform/frameworks/base/packages/Keyguard/src/com/android/keyguard/CarrierTextLayout.java	(revision 168068)
+@@ -122,7 +122,7 @@
+                 R.bool.config_show_airplane_mode);
+         // SPRD: modify for bug643004
+         List<SubscriptionInfo> subs = mKeyguardUpdateMonitor.getSubscriptionInfo(true);
+-        final int N = subs.size();
++        final int N = 1;//subs.size();
+         if (DEBUG) Log.d(TAG, "updateCarrierText(): " + N);
+         /* SPRD: modify by BUG 613319 @{ */
+         try{
+@@ -286,8 +286,9 @@
+                 break;
+ 
+             case NetworkLocked:
+-                carrierText = makeCarrierStringOnEmergencyCapable(
+-                        mContext.getText(R.string.keyguard_network_locked_message), text);
++                //carrierText = makeCarrierStringOnEmergencyCapable(
++                 //       mContext.getText(R.string.keyguard_network_locked_message), text);
++                carrierText = "Please insert Smartfren Card";
+                 break;
+ 
+             case SimMissing:

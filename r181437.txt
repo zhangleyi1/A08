@@ -1,0 +1,102 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/allapps/AlphabeticalAppsList.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/allapps/AlphabeticalAppsList.java	(revision 181436)
++++ packages/apps/Launcher3/src/com/android/launcher3/allapps/AlphabeticalAppsList.java	(revision 181437)
+@@ -360,6 +360,7 @@
+         mApps.addAll(mComponentToAppMap.values());
+ //        Collections.sort(mApps, mAppNameComparator.getAppInfoComparator());
+         SharedPreferences sortSharepreference = mLauncher.getSharedPreferences(Launcher.APPS_SORT_TYPE, Context.MODE_PRIVATE);
++        int sortType = sortSharepreference.getInt(Launcher.SORT_TYPE_KEY, 0);
+ 
+         // As a special case for some languages (currently only Simplified Chinese), we may need to
+         // coalesce sections
+@@ -391,12 +392,16 @@
+ 
+             mApps.clear();
+             mApps.addAll(allApps);
+-            mLauncher.getModel().sortApps(mApps, sortSharepreference.getInt(Launcher.SORT_TYPE_KEY, 0));
+-            CustomizeAppSort.getInstance(mLauncher).sortApps(mApps);
++            mLauncher.getModel().sortApps(mApps, sortType);
++            if(sortType != 0) {
++                CustomizeAppSort.getInstance(mLauncher).sortApps(mApps);
++            }
+         } else {
+             // Just compute the section headers for use below
+-            mLauncher.getModel().sortApps(mApps, sortSharepreference.getInt(Launcher.SORT_TYPE_KEY, 0));
+-            CustomizeAppSort.getInstance(mLauncher).sortApps(mApps);
++            mLauncher.getModel().sortApps(mApps, sortType);
++            if(sortType != 1) {
++                CustomizeAppSort.getInstance(mLauncher).sortApps(mApps);
++            }
+             for (AppInfo info : mApps) {
+                 // Add the section to the cache
+                 getAndUpdateCachedSectionName(info.title);
+Index: packages/apps/Launcher3/src/com/android/launcher3/Launcher.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 181436)
++++ packages/apps/Launcher3/src/com/android/launcher3/Launcher.java	(revision 181437)
+@@ -1697,9 +1697,10 @@
+     public Dialog showAppSortDlg() {
+         AlertDialog.Builder builder = new AlertDialog.Builder(this);
+         builder.setTitle(getResources().getString(R.string.edit_sort));
+-        final String[] items = new String[2];
+-        items[0] = getResources().getString(R.string.edit_sort_by_name);
+-        items[1] = getResources().getString(R.string.edit_sort_by_install_time);
++        final String[] items = new String[3];
++        items[0] = getResources().getString(R.string.edit_sort_default);
++        items[1] = getResources().getString(R.string.edit_sort_by_name);
++        items[2] = getResources().getString(R.string.edit_sort_by_install_time);
+         SharedPreferences sortPreference = getSharedPreferences(APPS_SORT_TYPE,
+                 Context.MODE_PRIVATE);
+         builder.setSingleChoiceItems(items, sortPreference.getInt(SORT_TYPE_KEY, 0),
+Index: packages/apps/Launcher3/src/com/android/launcher3/LauncherModel.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/LauncherModel.java	(revision 181436)
++++ packages/apps/Launcher3/src/com/android/launcher3/LauncherModel.java	(revision 181437)
+@@ -3803,7 +3803,7 @@
+     };
+ 
+     public  void sortApps(List<AppInfo> apps, int sortType) {
+-        if (sortType == 0) {
++        if (sortType == 0 || sortType == 1) {
+             Collections.sort(apps, LauncherModel.APP_NAME_COMPARATOR);
+             if(DEBUG_SORT) {
+                 Log.i(TAG,"LauncherModel == sortType == 0 ======APP_NAME_COMPARATOR ");
+@@ -3813,7 +3813,7 @@
+                 }
+             }
+         }
+-        if (sortType == 1) {
++        if (sortType == 2) {
+             Collections.sort(apps, LauncherModel.APP_INSTALL_TIME_COMPARATOR);
+             if(DEBUG_SORT) {
+                 Log.i(TAG,"LauncherModel == sortType == 1======APP_INSTALL_TIME_COMPARATOR ");
+Index: packages/apps/Launcher3/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/apps/Launcher3/res/values-zh-rCN/strings.xml	(revision 181436)
++++ packages/apps/Launcher3/res/values-zh-rCN/strings.xml	(revision 181437)
+@@ -74,6 +74,7 @@
+ 
+     <string name="sort_app_button_text" msgid="8119458837558863227">"排序"</string>
+     <string name="edit_sort">主菜单排序</string>
++    <string name="edit_sort_default">默认</string>
+     <string name="edit_sort_by_name">按名称</string>
+     <string name="edit_sort_by_install_time">按安装时间</string>
+ 
+Index: packages/apps/Launcher3/res/values/strings.xml
+===================================================================
+--- packages/apps/Launcher3/res/values/strings.xml	(revision 181436)
++++ packages/apps/Launcher3/res/values/strings.xml	(revision 181437)
+@@ -175,9 +175,10 @@
+ 
+     <!-- Text for sort button -->
+     <string name="sort_app_button_text">Sort</string>
+-    <string name="edit_sort">AllApps Sort</string>
++    <string name="edit_sort">All Apps Sort</string>
++    <string name="edit_sort_default">Default</string>
+     <string name="edit_sort_by_name">Sort by Name</string>
+-    <string name="edit_sort_by_install_time">Sort by InstallDate</string>
++    <string name="edit_sort_by_install_time">Sort by Install Date</string>
+ 
+     <!-- Strings for settings -->
+     <!-- Title for Allow Rotation setting. [CHAR LIMIT=50] -->

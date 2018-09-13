@@ -1,0 +1,39 @@
+Index: vendor/sprd/platform/packages/apps/Dialer/InCallUI/res/values/strings_ex.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Dialer/InCallUI/res/values/strings_ex.xml	(revision 172321)
++++ vendor/sprd/platform/packages/apps/Dialer/InCallUI/res/values/strings_ex.xml	(revision 172322)
+@@ -3,7 +3,7 @@
+     <string name="onscreenSMSText">Send message</string>
+     <!-- SPRD: show main/vice card feature @{ -->
+     <string name="main_card_slot">Main Card :</string>
+-    <string name="vice_card_slot">Vice Card :</string>
++    <string name="vice_card_slot">SIM-2 Card :</string>
+     <!-- @} -->
+     <!-- SPRD: Explicit Transfer Call @{ -->
+     <string name="onscreenTransferCallText">Transfer</string>
+Index: vendor/sprd/platform/packages/apps/Dialer/InCallUI/res/values-in/strings_ex.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Dialer/InCallUI/res/values-in/strings_ex.xml	(revision 172321)
++++ vendor/sprd/platform/packages/apps/Dialer/InCallUI/res/values-in/strings_ex.xml	(revision 172322)
+@@ -2,7 +2,7 @@
+ <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+ <string name="onscreenSMSText">"Mengirim surat"</string>
+ <string name="main_card_slot">"Kartu Utama :"</string>
+-<string name="vice_card_slot">"Wakil kartu :"</string>
++<string name="vice_card_slot">"SIM-2 kartu :"</string>
+ <string name="onscreenTransferCallText">"Memindahkan"</string>
+ <string name="incomingcall_flipping_silence_title">"Lipat untuk panggilan diam"</string>
+ <string name="fade_in_title">"Dering Fade-in"</string>
+Index: vendor/sprd/platform/packages/apps/Dialer/InCallUI/res/values-zh-rCN/strings_ex.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Dialer/InCallUI/res/values-zh-rCN/strings_ex.xml	(revision 172321)
++++ vendor/sprd/platform/packages/apps/Dialer/InCallUI/res/values-zh-rCN/strings_ex.xml	(revision 172322)
+@@ -3,7 +3,7 @@
+     <string name="onscreenSMSText">"发送信息"</string>
+     <!-- SPRD: show main/vice card feature @{ -->
+     <string name="main_card_slot">"主卡 :"</string>
+-    <string name="vice_card_slot">"副卡 :"</string>
++    <string name="vice_card_slot">"SIM-2卡 :"</string>
+     <!-- @} -->
+     <!-- SPRD: Explicit Transfer Call @{ -->
+     <string name="onscreenTransferCallText">"转移"</string>

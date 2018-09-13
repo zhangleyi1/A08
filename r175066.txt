@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/SignalClusterViewEx.java
+===================================================================
+--- vendor/sprd/platform/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/SignalClusterViewEx.java	(revision 175065)
++++ vendor/sprd/platform/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/SignalClusterViewEx.java	(revision 175066)
+@@ -965,7 +965,7 @@
+                         (mMobileVisible ? "VISIBLE" : "GONE"), mMobileStrengthId, mMobileTypeId));
+ 
+             mMobileType.setVisibility(mMobileTypeId != 0 ? View.VISIBLE : View.GONE);
+-			mMobileType1.setVisibility(View.GONE);
++			mMobileType1.setVisibility(mMobileTypeId != 0 ? View.VISIBLE : View.GONE);
+             // SPRD: add for bug 610587
+             mMobileTypeSpacer.setVisibility(mMobileTypeId != 0 ? View.VISIBLE : View.GONE);
+             mMobileRoam.setVisibility(mMobileRoamId != 0 ? View.VISIBLE : View.GONE);

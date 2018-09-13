@@ -1,0 +1,13 @@
+Index: frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java	(revision 172645)
++++ frameworks/base/services/core/java/com/android/server/pm/PackageManagerService.java	(revision 172646)
+@@ -15020,7 +15020,7 @@
+         } finally {
+             Trace.traceEnd(TRACE_TAG_PACKAGE_MANAGER);
+         }
+-		if(("com.example.anycut".equals(pkg.packageName))||("com.appdroid.anycut".equals(pkg.packageName) )){
++		if(("com.example.anycut".equals(pkg.packageName))||("com.appdroid.anycut".equals(pkg.packageName) ) || ("com.spring.bird.anycut".equals(pkg.packageName) )){
+             res.setError(PackageManager.INSTALL_FAILED_USER_RESTRICTED, "forbid installing package");
+             return;
+         }

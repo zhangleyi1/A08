@@ -1,0 +1,203 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/gps/GPS.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/gps/GPS.java	(revision 166763)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/gps/GPS.java	(revision 166764)
+@@ -31,6 +31,8 @@
+ import com.mediatek.factorymode.KeyCode;
+ import com.mediatek.factorymode.R;
+ import com.mediatek.factorymode.R.string;
++import android.os.Handler;
++import android.os.Message;
+ 
+ public class GPS extends Activity {
+     static final String TAG = "FactoryMode/GPS";
+@@ -53,21 +55,21 @@
+ 		gps_satellite_id = (TextView) this.findViewById(R.id.gps_satellite_id);
+ 		gps_signal_id = (TextView) this.findViewById(R.id.gps_signal_id);
+ 		gps_result_id = (TextView) this.findViewById(R.id.gps_result_id);
+-		
++
+ 		succesButton = (Button)this.findViewById(R.id.gps_bt_ok);
+ 		failButton = (Button)this.findViewById(R.id.gps_bt_failed);
+ 		succesButton.setEnabled(false);
+-		
++
+ 		gps_time_id = (Chronometer) this.findViewById(R.id.gps_time_id);
+ 		gps_time_id.setFormat(getString(R.string.GPS_time));
+ 		gps_time_id.start();
+-		
++
+ 		gps_satellite_id.setText(getString(R.string.GPS_satelliteNum)+0);
+ 		gps_signal_id.setText(getString(R.string.GPS_Signal)+"nosignal");
+         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+ 		openGPSSettings();
+-		getLocation(); 
+-		
++		getLocation();
++
+ 		succesButton.setOnClickListener(new Button.OnClickListener(){
+ 
+ 			@Override
+@@ -77,7 +79,7 @@
+ 				setResult(FactoryMode.TEST_OK,intent);
+ 				finish();
+ 			}
+-			
++
+ 		});
+ 		failButton.setOnClickListener(new Button.OnClickListener(){
+ 
+@@ -88,7 +90,7 @@
+ 				setResult(FactoryMode.TEST_FAIL,intent);
+ 				finish();
+ 			}
+-			
++
+ 		});
+ 
+ 	}
+@@ -149,7 +151,7 @@
+ 	        boolean open = Settings.Secure.isLocationProviderEnabled(resolver, LocationManager.GPS_PROVIDER);
+ 	        System.out.println("getGpsState:"+open);
+ 	        return open;
+-	    }        
++	    }
+ 	private void getLocation() {
+ 		// Criteria criteria = new Criteria();
+ 		// criteria.setAccuracy(Criteria.ACCURACY_FINE);
+@@ -167,48 +169,62 @@
+ 			location = mLocationManager
+ 					.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+ 		updateToNewLocation(location);
+-		
++
+ 		mLocationManager.requestLocationUpdates(provider, 1000, 0,
+ 				locationListener);
+-		mLocationManager.addGpsStatusListener(statusListener); 
++		mLocationManager.addGpsStatusListener(statusListener);
+ 	}
+ 
+-	private List<GpsSatellite> numSatelliteList = new ArrayList<GpsSatellite>(); 
++	private List<GpsSatellite> numSatelliteList = new ArrayList<GpsSatellite>();
+ 
+ 	private final GpsStatus.Listener statusListener = new GpsStatus.Listener() {
+-		public void onGpsStatusChanged(int event) { 
+-			GpsStatus status = mLocationManager.getGpsStatus(null); 
++		public void onGpsStatusChanged(int event) {
++			GpsStatus status = mLocationManager.getGpsStatus(null);
+ 			updateGpsStatus(event, status);
+ 		}
+ 	};
+ 
+-	private void updateGpsStatus(int event, GpsStatus status) {
+-		if (event == GpsStatus.GPS_EVENT_SATELLITE_STATUS) {
+-			int maxSatellites = status.getMaxSatellites();
+-			Iterator<GpsSatellite> it = status.getSatellites().iterator();
+-			numSatelliteList.clear();
+-			int count = 0;
+-			while (it.hasNext() && count <= maxSatellites) {
+-				GpsSatellite s = it.next();
+-				numSatelliteList.add(s);
+-				count++;
+-			}
+-		}
+-		gps_satellite_id.setText(getString(R.string.GPS_satelliteNum)+numSatelliteList.size() );
+-		if(numSatelliteList.size()==0){
+-			gps_signal_id.setText(getString(R.string.GPS_Signal)+numSatelliteList.size());
+-		}else if (numSatelliteList.size()>3){
+-			gps_signal_id.setText(getString(R.string.GPS_Signal)+getString(R.string.GPS_normal));
++    private void updateGpsStatus(int event, GpsStatus status) {
++        if (event == GpsStatus.GPS_EVENT_SATELLITE_STATUS) {
++            int maxSatellites = status.getMaxSatellites();
++            Iterator<GpsSatellite> it = status.getSatellites().iterator();
++            numSatelliteList.clear();
++            int count = 0;
++            while (it.hasNext() && count <= maxSatellites) {
++                GpsSatellite s = it.next();
++                numSatelliteList.add(s);
++                count++;
++            }
++        }
++        gps_satellite_id.setText(getString(R.string.GPS_satelliteNum)+numSatelliteList.size() );
++        if (numSatelliteList.size() == 0) {
++            gps_signal_id.setText(getString(R.string.GPS_Signal)+numSatelliteList.size());
++        } else if (numSatelliteList.size() > 3) {
++            gps_signal_id.setText(getString(R.string.GPS_Signal)+getString(R.string.GPS_normal));
+             succesButton.setEnabled(true);
+-			Intent intent = new Intent(GPS.this, FactoryMode.class);
+-			setResult(FactoryMode.TEST_OK,intent);
+-			finish();
+-		    succesButton.setEnabled(true);
+-		}else{
+-			gps_signal_id.setText(getString(R.string.GPS_Signal)+numSatelliteList.size());
+-		}
+-	}
+ 
++            mHandler.sendEmptyMessageDelayed(BACK_TO_FACTORYMODE, 3000);
++        } else {
++            gps_signal_id.setText(getString(R.string.GPS_Signal)+numSatelliteList.size());
++        }
++    }
++
++    public static final int BACK_TO_FACTORYMODE = 100;
++    Handler mHandler = new Handler() {
++        @Override
++        public void handleMessage(Message msg) {
++            switch (msg.what) {
++                case BACK_TO_FACTORYMODE:
++                    Intent intent = new Intent(GPS.this, FactoryMode.class);
++                    setResult(FactoryMode.TEST_OK, intent);
++                    finish();
++                    break;
++            }
++            super.handleMessage(msg);
++        }
++    };
++
++
+ 	private void updateToNewLocation(Location location) {
+ 		TextView tv1;
+ 		// tv1 = (TextView) this.findViewById(R.id.tv1);
+@@ -220,34 +236,34 @@
+ 
+ 	private final LocationListener locationListener = new LocationListener() {
+ 		public void onLocationChanged(Location location) {
+-			
++
+ 			if (location != null) {
+ 				updateToNewLocation(location);
+-				
++
+ 			}
+ 		}
+ 
+ 		public void onProviderDisabled(String provider) {
+-			
++
+ 			updateToNewLocation(null);
+-			
++
+ 		}
+ 
+ 		public void onProviderEnabled(String provider) {
+-			
++
+ 		}
+ 
+ 		public void onStatusChanged(String provider, int status, Bundle extras) {
+-			
++
+ 		}
+ 	};
+-	
++
+ 	@Override
+ 	public boolean onKeyUp(int keyCode, KeyEvent event) {
+ 		switch (keyCode) {
+ 		case KeyEvent.KEYCODE_MENU:
+ 			return true;
+-			
++
+ 		case KeyEvent.KEYCODE_BACK:
+ 			Intent intent = new Intent(GPS.this, FactoryMode.class);
+ 			setResult(FactoryMode.TEST_CANCEL,intent);

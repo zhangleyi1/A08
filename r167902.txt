@@ -1,0 +1,16 @@
+Index: packages/apps/Provision/src/com/android/provision/FotaInfoActivity.java
+===================================================================
+--- packages/apps/Provision/src/com/android/provision/FotaInfoActivity.java	(revision 167901)
++++ packages/apps/Provision/src/com/android/provision/FotaInfoActivity.java	(revision 167902)
+@@ -34,6 +34,11 @@
+                 finish();
+             }
+         });
++    }
++
++    @Override
++    protected void onResume() {
++        super.onResume();
+         mStatusBarManager = (StatusBarManager)getSystemService(Context.STATUS_BAR_SERVICE);
+         mStatusBarManager.disable(StatusBarManager.DISABLE_EXPAND);
+     }

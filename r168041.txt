@@ -1,0 +1,107 @@
+Index: packages/apps/Settings/src/com/android/settings/sim/SimSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/sim/SimSettings.java	(revision 168040)
++++ packages/apps/Settings/src/com/android/settings/sim/SimSettings.java	(revision 168041)
+@@ -464,6 +464,7 @@
+         }
+ 
+         public void update() {
++			final Resources res = mContext.getResources();
+             final SubscriptionInfo sir = mSubscriptionManager.getDefaultDataSubscriptionInfo();
+             final boolean dataEabled = mTelephonyManager
+                     .getDataEnabled(mSubscriptionManager.getDefaultDataSubscriptionId());
+@@ -472,8 +473,13 @@
+                 log("[update DataPreference] mSubInfoList=" + mSubInfoList);
+ 
+             if (sir != null) {
+-                setSummary(sir.getDisplayName().toString().trim().isEmpty()
+-                        ? "SIM" + (sir.getSimSlotIndex() + 1) : sir.getDisplayName());
++                /*setSummary(sir.getDisplayName().toString().trim().isEmpty()
++                        ? "SIM" + (sir.getSimSlotIndex() + 1) : sir.getDisplayName());*/
++              	if(sir.getSimSlotIndex()==0){
++					setSummary(mContext.getResources().getString(R.string.sim_card1_summary));
++				}else{
++					setSummary(mContext.getResources().getString(R.string.sim_card2_summary));
++				}
+                 updateDataSwitch(sir.getSubscriptionId());
+             } else if (sir == null) {
+                 setSummary(R.string.sim_selection_required_pref);
+@@ -680,12 +686,17 @@
+                 String subInfoMessage = (mTmEx.isSimSlotSupportLte(mSubInfoRecord.getSimSlotIndex())
+                         ? mContext.getResources().getString(R.string.main_card_slot)
+                         : mContext.getResources().getString(R.string.gsm_card_slot)) + mSubInfoRecord.getDisplayName();
+-                if (TextUtils.isEmpty(getPhoneNumber(mSubInfoRecord))) {
++               /*if (TextUtils.isEmpty(getPhoneNumber(mSubInfoRecord))) {
+                     setSummary(subInfoMessage);
+                 } else {
+                     setSummary(subInfoMessage + " - "
+                             + PhoneNumberUtils.createTtsSpannable(getPhoneNumber(mSubInfoRecord)));
+-                }
++                }*/
++                if(mSlotId==0){
++					setSummary(mContext.getResources().getString(R.string.sim_card1_summary));
++				}else{
++					setSummary(mContext.getResources().getString(R.string.sim_card2_summary));
++				}
+                 /* @} */
+                 //SPRD:add for bug 588862
+                 setEnabled(mTm.getSimState(mSlotId) == TelephonyManager.SIM_STATE_READY
+Index: packages/apps/Settings/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values-zh-rCN/strings.xml	(revision 168040)
++++ packages/apps/Settings/res/values-zh-rCN/strings.xml	(revision 168041)
+@@ -2448,7 +2448,7 @@
+     <string name="sim_slot_empty" msgid="8964505511911854688">"未插入SIM卡"</string>
+     <string name="sim_editor_name" msgid="1722945976676142029">"SIM 卡名称"</string>
+     <string name="sim_name_hint" msgid="7038643345238968930">"输入 SIM 卡名称"</string>
+-    <string name="sim_editor_title" msgid="4034301817366627870">"SIM 卡插槽 %1$d"</string>
++    <string name="sim_editor_title" msgid="4034301817366627870">"SIM卡%1$d"</string>
+     <string name="sim_editor_carrier" msgid="5684523444677746573">"运营商"</string>
+     <string name="sim_editor_number" msgid="6705955651035440667">"号码"</string>
+     <string name="sim_editor_color" msgid="2542605938562414355">"SIM卡颜色"</string>
+Index: packages/apps/Settings/res/values/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values/strings.xml	(revision 168040)
++++ packages/apps/Settings/res/values/strings.xml	(revision 168041)
+@@ -5774,7 +5774,7 @@
+     <!-- Hint for SIM name in sim name editor dialog.  [CHAR LIMIT=40] -->
+     <string name="sim_name_hint">Enter SIM name</string>
+     <!-- Title label of Sim Editor.  [CHAR LIMIT=40] -->
+-    <string name="sim_editor_title">SIM slot %1$d</string>
++    <string name="sim_editor_title">SIM %1$d</string>
+     <!-- Carrier label of Sim Editor.  [CHAR LIMIT=40] -->
+     <string name="sim_editor_carrier">Carrier</string>
+     <!-- Number label of Sim Editor.  [CHAR LIMIT=40] -->
+@@ -7714,4 +7714,6 @@
+     <string name="storage_detail_total">Total</string>
+     <string name="storage_detail_system">System</string>
+     <string name="storage_detail_free">Free</string>
++	<string name="sim_card1_summary">Smartfren</string>
++	<string name="sim_card2_summary">GSM</string>
+ </resources>
+Index: packages/apps/Settings/res/values-in/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values-in/strings.xml	(revision 168040)
++++ packages/apps/Settings/res/values-in/strings.xml	(revision 168041)
+@@ -2430,7 +2430,7 @@
+     <string name="sim_slot_empty" msgid="8964505511911854688">"SIM kosong"</string>
+     <string name="sim_editor_name" msgid="1722945976676142029">"Nama SIM"</string>
+     <string name="sim_name_hint" msgid="7038643345238968930">"Masukkan nama SIM"</string>
+-    <string name="sim_editor_title" msgid="4034301817366627870">"Slot SIM %1$d"</string>
++    <string name="sim_editor_title" msgid="4034301817366627870">"SIM %1$d"</string>
+     <string name="sim_editor_carrier" msgid="5684523444677746573">"Operator"</string>
+     <string name="sim_editor_number" msgid="6705955651035440667">"Nomor"</string>
+     <string name="sim_editor_color" msgid="2542605938562414355">"Warna SIM"</string>
+Index: packages/apps/Settings/res/values-ms-rMY/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values-ms-rMY/strings.xml	(revision 168040)
++++ packages/apps/Settings/res/values-ms-rMY/strings.xml	(revision 168041)
+@@ -2430,7 +2430,7 @@
+     <string name="sim_slot_empty" msgid="8964505511911854688">"SIM kosong"</string>
+     <string name="sim_editor_name" msgid="1722945976676142029">"Nama SIM"</string>
+     <string name="sim_name_hint" msgid="7038643345238968930">"Masukkan nama SIM"</string>
+-    <string name="sim_editor_title" msgid="4034301817366627870">"Slot SIM %1$d"</string>
++    <string name="sim_editor_title" msgid="4034301817366627870">"SIM %1$d"</string>
+     <string name="sim_editor_carrier" msgid="5684523444677746573">"Pembawa"</string>
+     <string name="sim_editor_number" msgid="6705955651035440667">"Nombor"</string>
+     <string name="sim_editor_color" msgid="2542605938562414355">"Warna SIM"</string>

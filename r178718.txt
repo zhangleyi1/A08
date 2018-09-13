@@ -1,0 +1,26 @@
+Index: vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/AdnRecordCacheEx.java
+===================================================================
+--- vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/AdnRecordCacheEx.java	(revision 178717)
++++ vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/AdnRecordCacheEx.java	(revision 178718)
+@@ -1215,6 +1215,9 @@
+                 adnRecordLoaderEx, mInsertId, adnIndex, efid, oldAdn, newAdn,
+                 iapEF, pin2, aasIndex);
+         if (updateAnrResult < 0) {
++            sendErrorResponse(response,
++                IccPhoneBookOperationException.WRITE_OPREATION_FAILED,
++                    "Adn list update fail for EF:0x" + Integer.toHexString(efid).toUpperCase());
+             return;
+         }
+         updateSubjectOfAdn(UsimPhoneBookManagerEx.USIM_SUBJCET_EMAIL, recNum,
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactEntryListFragment.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactEntryListFragment.java	(revision 178717)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactEntryListFragment.java	(revision 178718)
+@@ -566,6 +566,7 @@
+                     // We don't even know what the projection should be, so no point trying to
+                     // return an empty MatrixCursor with the correct projection here.
+                     Log.w(TAG, "RuntimeException while trying to query ContactsProvider.");
++					e.printStackTrace();
+                     return null;
+                 }
+             }

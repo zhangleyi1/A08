@@ -1,0 +1,286 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/BatteryLog.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/BatteryLog.java	(revision 170520)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/BatteryLog.java	(revision 170521)
+@@ -245,7 +245,7 @@
+ 						+ tenthsToFixedString(temperature)
+ 						+ getResources().getString(
+ 								R.string.battery_info_temperature_units));
+-				BatteryLog.this.mtechnology.setText(technology);
++				BatteryLog.this.mtechnology.setText("Li-pol");//technolgy
+ 				// BatteryLog.this.melectronic.setText(getBatteryElectronic() +
+ 				// "mA");
+ 				BatteryLog.this.mcharger_type.setText(acString);
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/wifi/WiFiTest.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/wifi/WiFiTest.java	(revision 170520)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/wifi/WiFiTest.java	(revision 170521)
+@@ -27,12 +27,14 @@
+ import com.mediatek.factorymode.R;
+ import com.mediatek.factorymode.bluetooth.Bluetooth;
+ import com.mediatek.factorymode.earphone.Earphone;
++import android.provider.Settings;
+ 
++
+ public class WiFiTest extends Activity{
+ 	private TextView wifistate;
+ 	private TextView wifiresult;
+ 	private WifiManager mWifiManager;
+-	private WifiStateReceiver mWifiStateReceiver;
++	//private WifiStateReceiver mWifiStateReceiver;
+ 	
+ 	private final int SET_WIFI_ADDRESS=1;
+ 	
+@@ -41,6 +43,7 @@
+ 	Button failButton ;
+ 	public boolean wifiFlag = false;
+ 	Handler handlerWiFi;
++	private static final Intent WIFI_SETTINGS = new Intent(Settings.ACTION_WIFI_SETTINGS);
+ 	
+ 	@Override
+ 	protected void onCreate(Bundle savedInstanceState) {
+@@ -49,13 +52,12 @@
+     getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+ 	  getWindow().getDecorView().setSystemUiVisibility(View.STATUS_BAR_DISABLE_EXPAND);
+ 		setContentView(R.layout.wifi_test);
+-		wifistate = (TextView)this.findViewById(R.id.wifi_state_id);
+-		wifiresult = (TextView)this.findViewById(R.id.wifi_result_id);
+-
+-		
++		/*wifistate = (TextView)this.findViewById(R.id.wifi_state_id);
++		wifiresult = (TextView)this.findViewById(R.id.wifi_result_id);*/
++		startActivity(WIFI_SETTINGS);
+ 		succesButton = (Button)this.findViewById(R.id.wifi_bt_ok);
+ 		failButton = (Button)this.findViewById(R.id.wifi_bt_failed);
+-		succesButton.setEnabled(false);
++		succesButton.setEnabled(true);
+ 		succesButton.setOnClickListener(new Button.OnClickListener(){
+ 
+ 			@Override
+@@ -86,18 +88,19 @@
+ 			  startActivity(intent); 
+ 		  }
+ 		}
++		
+ 	}
+ 	
+ 	@Override
+ 	protected void onDestroy() {
+ 		// TODO Auto-generated method stub
+-		mWifiManager.setWifiEnabled(false);
++		//mWifiManager.setWifiEnabled(false);
+ 		super.onDestroy();
+ 	}
+ 
+ 	@Override
+ 	protected void onStop() {
+-		if(mWifiStateReceiver != null) {
++		/*if(mWifiStateReceiver != null) {
+ 			this.unregisterReceiver(mWifiStateReceiver);
+ 			mWifiStateReceiver = null;
+ 		}
+@@ -109,12 +112,12 @@
+ 		
+ 		if(mWifiManager != null) {
+ 			mWifiManager.setWifiEnabled(false);
+-		}
++		}*/
+ 		
+ 		super.onStop();
+ 	}
+ 	
+-	class WifiStateReceiver extends BroadcastReceiver {     
++	/*class WifiStateReceiver extends BroadcastReceiver {     
+ 		   public void onReceive(Context c, Intent intent) {
+ 			  String action = intent.getAction();
+ 			  Log.d("wifi>>>>>>>>>>>>>action", action);
+@@ -189,7 +192,7 @@
+          String wifissid = info.getSSID();
+          ip_str = " (ip="+StringizeIp(ipaddr)+")";
+         }
+-	}
++	}*/
+ 	
+ 	@Override
+ 	public boolean onKeyUp(int keyCode, KeyEvent event) {
+@@ -206,7 +209,7 @@
+ 		return super.onKeyUp(keyCode, event);
+     }
+ 	
+-	private Handler mHandler = new Handler(){
++	/*private Handler mHandler = new Handler(){
+ 
+ 		@Override
+ 		public void handleMessage(Message msg) {
+@@ -230,11 +233,11 @@
+ 			super.handleMessage(msg);
+ 		}
+ 		
+-	};
++	};*/
+ 	
+ 	@Override
+ 	protected void onResume(){
+-		if((FactoryMode.isAutoTest && FactoryMode.isCharging) || !FactoryMode.isAutoTest) {
++		/*if((FactoryMode.isAutoTest && FactoryMode.isCharging) || !FactoryMode.isAutoTest) {
+ 			mWifiManager= (WifiManager)this.getSystemService(this.WIFI_SERVICE);
+ 			if(mWifiManager.isWifiEnabled())
+ 			{
+@@ -266,7 +269,7 @@
+ 					}
+ 				}
+ 			};
+-		}
++		}*/
+ 		super.onResume();
+ 	}
+ }
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/bluetooth/Bluetooth.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/bluetooth/Bluetooth.java	(revision 170520)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/bluetooth/Bluetooth.java	(revision 170521)
+@@ -29,6 +29,7 @@
+ import com.mediatek.factorymode.FactoryMode;
+ import com.mediatek.factorymode.R;
+ import com.mediatek.factorymode.vibratortest.Vibratortest;
++import android.provider.Settings;
+ 
+ public class Bluetooth extends Activity {
+ 	private TextView btstate;
+@@ -38,6 +39,7 @@
+ 	private Button succesButton ;
+ 	private Button failButton ;
+ 	Handler handlerBluetooth;
++	private static final Intent BLUETOOTH_SETTINGS = new Intent(Settings.ACTION_BLUETOOTH_SETTINGS);
+ 	@Override
+ 	protected void onCreate(Bundle savedInstanceState) {
+ 		
+@@ -46,7 +48,7 @@
+     getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+ 	  getWindow().getDecorView().setSystemUiVisibility(View.STATUS_BAR_DISABLE_EXPAND);
+ 		setContentView(R.layout.btlist);
+-		btstate = (TextView) this.findViewById(R.id.bt_state_id);
++		/*btstate = (TextView) this.findViewById(R.id.bt_state_id);
+ 		btlistview = (ListView) this.findViewById(R.id.listView1); 
+ 		adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+ 
+@@ -71,10 +73,11 @@
+ 			this.registerReceiver(receiver, intentFilter);
+ 			btadapter.startDiscovery();
+ 			
+-		}
++		}*/
++		startActivity(BLUETOOTH_SETTINGS);
+ 		succesButton = (Button)this.findViewById(R.id.bttest_ok);
+ 		failButton = (Button)this.findViewById(R.id.bttest_failed);
+-		succesButton.setEnabled(false);
++		succesButton.setEnabled(true);
+ 		succesButton.setOnClickListener(new Button.OnClickListener(){
+ 
+ 			@Override
+@@ -98,6 +101,7 @@
+ 			
+ 		});
+ // yaoming, If bluetooth is tested jumps to next item, 20130426		
++		/*
+ 		handlerBluetooth = new Handler() {
+ 			@Override
+ 			public void handleMessage(Message msg) {
+@@ -108,20 +112,20 @@
+ 						finish();
+ 				}
+ 			}
+-		};
++		};*/
+ 	}
+ 
+ 	@Override
+ 	protected void onDestroy() {
+ 		// TODO Auto-generated method stub
+-		if(btadapter !=null)
++		/*if(btadapter !=null)
+ 		{
+ 			btadapter.disable();
+-		}
++		}*/
+ 		super.onDestroy();
+ 	}
+ 
+-	private BroadcastReceiver receiver = new BroadcastReceiver() {
++	/*private BroadcastReceiver receiver = new BroadcastReceiver() {
+ 		@Override
+ 		public void onReceive(Context context, Intent intent) {
+ 			String action = intent.getAction();
+@@ -163,7 +167,7 @@
+ 				//btadapter.cancelDiscovery();
+ 			}
+ 		}
+-	};
++	};*/
+ 	
+ 	
+ 	@Override
+Index: packages/apps/FactoryMode/res/layout/wifi_test.xml
+===================================================================
+--- packages/apps/FactoryMode/res/layout/wifi_test.xml	(revision 170520)
++++ packages/apps/FactoryMode/res/layout/wifi_test.xml	(revision 170521)
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent"
+   xmlns:android="http://schemas.android.com/apk/res/android">
+-    <ScrollView android:layout_width="fill_parent" android:layout_height="250.0dip" android:fadeScrollbars="false">
++   <!-- <ScrollView android:layout_width="fill_parent" android:layout_height="250.0dip" android:fadeScrollbars="false">
+         <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent">
+             <TextView android:textSize="20.0dip" android:id="@id/wifi_state_id" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+             <TextView android:textSize="15.0dip" android:id="@id/wifi_result_id" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+@@ -8,7 +8,7 @@
+             <TextView android:textSize="15.0dip" android:id="@id/wifi_con_id" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+             <TextView android:textSize="15.0dip" android:id="@id/wifi_resinfo_id" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+         </LinearLayout>
+-    </ScrollView>
++    </ScrollView>-->
+     <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent">
+         <Button android:textSize="25.0dip" android:id="@id/wifi_bt_ok" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/Success" android:layout_weight="0.8" />
+         <Button android:textSize="25.0dip" android:id="@id/wifi_bt_failed" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/Failed" android:layout_weight="0.2" />
+Index: packages/apps/FactoryMode/res/layout/btlist.xml
+===================================================================
+--- packages/apps/FactoryMode/res/layout/btlist.xml	(revision 170520)
++++ packages/apps/FactoryMode/res/layout/btlist.xml	(revision 170521)
+@@ -7,7 +7,7 @@
+   
+-    <TextView
++    <!--<TextView
+         android:id="@+id/bt_state_id"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+@@ -21,11 +21,11 @@
+         android:layout_height="200dp"
+         android:layout_weight="0.65" >
+ 
+-    </ListView>
++    </ListView>-->
+ 
+     <LinearLayout
+         android:layout_width="fill_parent"
+-        android:layout_height="wrap_content"
++        android:layout_height="fill_parent"
+         android:orientation="vertical" >
+         <Button
+             android:id="@+id/bttest_ok"
+@@ -32,12 +32,14 @@
+             android:layout_width="fill_parent"
+             android:layout_height="91dp"
+             android:text="@string/Success"
+-            android:textSize="25.0dip" />
++            android:textSize="25.0dip" 
++            android:layout_weight="0.8"/>
+         <Button
+             android:id="@+id/bttest_failed"
+             android:layout_width="fill_parent"
+             android:layout_height="77dp"
+             android:text="@string/Failed"
+-            android:textSize="25.0dip" />
++            android:textSize="25.0dip" 
++            android:layout_weight="0.2"/>
+     </LinearLayout>
+ </LinearLayout>

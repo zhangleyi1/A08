@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml	(revision 178801)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml	(revision 178802)
+@@ -21,7 +21,7 @@
+     <string name="slide_panel_capture">Photo</string>
+     <string name="slide_panel_capture_video">Video</string>
+     <string name="slide_panel_mode">Mode</string>
+-    <string name="slide_panel_filter">filter</string>
++    <string name="slide_panel_filter">Beautify</string>
+     <string name="extend_panel_exposure">Exposure</string>
+     <string name="extend_panel_iso">ISO</string>
+     <string name="extend_panel_wb">WB</string>

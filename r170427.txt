@@ -1,0 +1,26 @@
+Index: packages/inputmethods/LatinIME/java/src/com/android/inputmethod/latin/settings/SettingsValues.java
+===================================================================
+--- packages/inputmethods/LatinIME/java/src/com/android/inputmethod/latin/settings/SettingsValues.java	(revision 170426)
++++ packages/inputmethods/LatinIME/java/src/com/android/inputmethod/latin/settings/SettingsValues.java	(revision 170427)
+@@ -315,7 +315,7 @@
+                     .putBoolean(Settings.PREF_SHOW_SUGGESTIONS, !alwaysHide)
+                     .apply();
+         }
+-        return prefs.getBoolean(Settings.PREF_SHOW_SUGGESTIONS, true);
++        return prefs.getBoolean(Settings.PREF_SHOW_SUGGESTIONS, false);
+     }
+ 
+     private static boolean readBigramPredictionEnabled(final SharedPreferences prefs,
+Index: packages/inputmethods/LatinIME/java/res/xml/prefs_screen_correction.xml
+===================================================================
+--- packages/inputmethods/LatinIME/java/res/xml/prefs_screen_correction.xml	(revision 170426)
++++ packages/inputmethods/LatinIME/java/res/xml/prefs_screen_correction.xml	(revision 170427)
+@@ -51,7 +51,7 @@
+         android:key="show_suggestions"
+         android:summary="@string/prefs_show_suggestions_summary"
+         android:title="@string/prefs_show_suggestions"
+-        android:defaultValue="true"
++        android:defaultValue="false"
+         android:persistent="true" />
+     <CheckBoxPreference
+         android:key="pref_key_use_personalized_dicts"

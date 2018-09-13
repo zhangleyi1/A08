@@ -1,0 +1,25 @@
+Index: packages/apps/Music/res/values-in/strings.xml
+===================================================================
+--- packages/apps/Music/res/values-in/strings.xml	(revision 177478)
++++ packages/apps/Music/res/values-in/strings.xml	(revision 177479)
+@@ -34,9 +34,9 @@
+     </plurals>
+     <string name="goto_start" msgid="8979658707407220934">"Pustaka"</string>
+     <string name="party_shuffle" msgid="8213359225506006168">"Acak sebagian"</string>
+-    <string name="party_shuffle_off" msgid="1828744483354711679">"Acak sebagian mati"</string>
++    <string name="party_shuffle_off" msgid="1828744483354711679">"Acak semua mati"</string>
+     <string name="delete_item" msgid="3363330144534750601">"Hapus"</string>
+-    <string name="shuffle_all" msgid="1388193611787878773">"Acak sebagian"</string>
++    <string name="shuffle_all" msgid="1388193611787878773">"Acak semua"</string>
+     <string name="play_all" msgid="6309622568869321842">"Mainkan semua"</string>
+     <string name="delete_artist_desc" msgid="8665759524898379194">"Hapus semua lagu oleh <xliff:g id="ARTIST">%s</xliff:g> secara permanen dari kartu SD?"</string>
+     <string name="delete_artist_desc_nosdcard" msgid="5729059309796497914">"Hapus semua lagu oleh <xliff:g id="ARTIST">%s</xliff:g> secara permanen dari penyimpanan USB?"</string>
+@@ -52,7 +52,7 @@
+     <string name="scanning" msgid="3529383847223198502">"Memindai kartu SD..."</string>
+     <string name="scanning_nosdcard" msgid="8105284774487360148">"Memindai penyimpanan USB..."</string>
+     <string name="nowplaying_title" msgid="8342523844307751761">"Sedang diputar"</string>
+-    <string name="partyshuffle_title" msgid="6582413231529992125">"Acak sebagian"</string>
++    <string name="partyshuffle_title" msgid="6582413231529992125">"Acak semua"</string>
+     <string name="artists_title" msgid="8490372367259160067">"Artis"</string>
+     <string name="albums_menu" msgid="5807982055590211900">"Album"</string>
+     <string name="albums_title" msgid="8773880394961378035">"Album"</string>

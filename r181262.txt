@@ -1,0 +1,39 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/ui/DetailsDialog.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/ui/DetailsDialog.java	(revision 181261)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/ui/DetailsDialog.java	(revision 181262)
+@@ -29,7 +29,9 @@
+ import android.widget.BaseAdapter;
+ import android.widget.ListView;
+ import android.widget.TextView;
++import android.util.Log;
+ 
++
+ import com.android.camera.data.MediaDetails;
+ import com.android.camera2.R;
+ 
+@@ -158,12 +160,18 @@
+                         // as a separate section and interpret it for what it
+                         // is, rather than trying to make it RTL (which messes
+                         // up the path).
+-                        value = "\n" + detail.getValue().toString();
+-                        path = detail.getValue().toString();
+-                        String[] directory = value.split("/");
+-                        if (!directory[2].equals("emulated")) {
+-                            value = value.replace(directory[2], "sdcard0");
+-                        }
++                        
++                       	value = "\n" + detail.getValue().toString();
++						Log.e("DetailsDialog", "value(1) = "+value);
++                       	path = detail.getValue().toString();
++                       	String[] directory = value.split("/");
++                       	if (!directory[2].equals("emulated")) {
++                           	value = value.replace(directory[2], "sdcard0");
++							Log.e("DetailsDialog", "value(2) = "+value);
++                        }else{
++							value=value.replace("emulated/0","sdcard1");	
++							Log.e("DetailsDialog", "value(2) = "+value);
++						}
+                         break;
+                     case MediaDetails.INDEX_ORIENTATION:
+                         value = toLocalInteger(detail.getValue());

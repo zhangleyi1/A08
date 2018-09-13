@@ -1,0 +1,12 @@
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/ServiceStateTracker.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/ServiceStateTracker.java	(revision 179065)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/ServiceStateTracker.java	(revision 179066)
+@@ -2158,6 +2158,7 @@
+                         ((rule & SIMRecords.SPN_RULE_SHOW_PLMN)
+                                 == SIMRecords.SPN_RULE_SHOW_PLMN);
+                 showPlmn = false;
++                if (DBG) log("updateSpnDisplay: "+showPlmn);
+             } else {
+                 // Power off state, such as airplane mode, show plmn as "No service"
+                 showPlmn = true;

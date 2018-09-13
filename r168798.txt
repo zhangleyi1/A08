@@ -1,0 +1,53 @@
+Index: vendor/sprd/modules/libcamera/sensor/s5k5e2ya_st55a/sensor_s5k5e2yast55a_mipi_raw.c
+===================================================================
+--- vendor/sprd/modules/libcamera/sensor/s5k5e2ya_st55a/sensor_s5k5e2yast55a_mipi_raw.c	(revision 168797)
++++ vendor/sprd/modules/libcamera/sensor/s5k5e2ya_st55a/sensor_s5k5e2yast55a_mipi_raw.c	(revision 168798)
+@@ -160,7 +160,7 @@
+ 	// Reset for operation                                                                                                                                             
+ 	{0x0100, 0x00},		//stream off
+ 
+-	{0x0101, 0x00},//03		//[1:0] mirror and vertical flip
++	{0x0101, 0x03},//03		//[1:0] mirror and vertical flip
+ 	// Clock Setting
+ 	{0x0305, 0x06},		//05 //PLLP (def:5)
+ 	{0x0306, 0x00},
+@@ -484,7 +484,7 @@
+ 	 */
+ 	SENSOR_IMAGE_FORMAT_RAW,
+ 	/*  pattern of input image form sensor */
+-	SENSOR_IMAGE_PATTERN_RAWRGB_GR,
++	SENSOR_IMAGE_PATTERN_RAWRGB_GB,
+ 	/* point to resolution table information structure */
+ 	s_s5k5e2ya_resolution_tab_raw,
+ 	/* point to ioctl function table */
+Index: vendor/sprd/modules/libcamera/sensor/gc5025/sensor_gc5025_mipi_raw.c
+===================================================================
+--- vendor/sprd/modules/libcamera/sensor/gc5025/sensor_gc5025_mipi_raw.c	(revision 168797)
++++ vendor/sprd/modules/libcamera/sensor/gc5025/sensor_gc5025_mipi_raw.c	(revision 168798)
+@@ -994,7 +994,8 @@
+ 
+ 		#ifndef CONFIG_CAMERA_AUTOFOCUS_NOT_SUPPORT
+ 		Sensor_SetMonitorVoltage(SENSOR_AVDD_2800MV);
+-		usleep(5 * 1000);
++		Sensor_af_enable(1);
++		usleep(2 * 1000);		
+ 		#else
+ 		Sensor_SetMonitorVoltage(SENSOR_AVDD_CLOSED);
+ 		#endif
+@@ -1002,6 +1003,7 @@
+ 	} else {
+ 
+ 		#ifndef CONFIG_CAMERA_AUTOFOCUS_NOT_SUPPORT
++		Sensor_af_enable(0);
+ 		Sensor_SetMonitorVoltage(SENSOR_AVDD_CLOSED);
+ 		#endif
+ 		
+@@ -1358,7 +1360,7 @@
+  * vcm init
+  * please add your VCM function to this function
+  *============================================================================*/
+-static uint32_t gc5025_set_motor_bestmode()
++static uint32_t gc5025_set_motor_bestmode(uint16_t mode)
+ {
+ 	 return dw9714_set_motor_bestmode(2); //af driver new version  use
+ 

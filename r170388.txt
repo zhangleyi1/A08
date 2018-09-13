@@ -1,0 +1,13 @@
+Index: u-boot64/drivers/power/battery/fan54015.c
+===================================================================
+--- u-boot64/drivers/power/battery/fan54015.c	(revision 170387)
++++ u-boot64/drivers/power/battery/fan54015.c	(revision 170388)
+@@ -5,7 +5,7 @@
+ #define SPRDCHG_DEBUG(format, arg...) printf("hl7059: " format, ## arg)
+ #define SLAVE_ADDR 0x6b
+ #define BUS_NUM 1
+-#define I2C_SPEED 400
++#define I2C_SPEED 400000
+ #define EN_HIZ 0x0
+ #define SYS_MIN 0x4 //Minimum system voltage 3.4V	
+ 

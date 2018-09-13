@@ -1,0 +1,17 @@
+Index: frameworks/base/telephony/java/android/telephony/SignalStrength.java
+===================================================================
+--- frameworks/base/telephony/java/android/telephony/SignalStrength.java	(revision 166777)
++++ frameworks/base/telephony/java/android/telephony/SignalStrength.java	(revision 166778)
+@@ -40,6 +40,7 @@
+     public static final int SIGNAL_STRENGTH_GOOD = 3;
+     /** @hide */
+     public static final int SIGNAL_STRENGTH_GREAT = 4;
++	/** @hide */
+ 	public static final int SIGNAL_STRENGTH_HIGHEST = 5;
+     /** @hide */
+     public static final int NUM_SIGNAL_STRENGTH_BINS = 6;
+
+Property changes on: frameworks/base/telephony/java/android/telephony/SignalStrength.java
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/frameworks/base/telephony/java/android/telephony/SignalStrength.java:r166667

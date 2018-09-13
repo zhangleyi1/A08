@@ -1,0 +1,33 @@
+Index: packages/apps/Dialer/InCallUI/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/values-zh-rCN/strings.xml	(revision 166636)
++++ packages/apps/Dialer/InCallUI/res/values-zh-rCN/strings.xml	(revision 166637)
+@@ -196,6 +196,7 @@
+     <string name="invite_call">"邀请"</string>
+     <!-- SPRD:Add pause video/resume video string for bug596458. -->
+     <string name="onscreenResumeVideoText">"恢复视频"</string>
++	 <string name="notification_action_sms_rejust">"短信拒绝"</string>
+     <!-- SPRD:add for Vowifi. -->
+     <string name="poor_voice_quality">"通话质量较差"</string>
+     <string name="fair_voice_quality">"通话质量一般"</string>
+Index: packages/apps/Dialer/AndroidManifest.xml
+===================================================================
+--- packages/apps/Dialer/AndroidManifest.xml	(revision 166636)
++++ packages/apps/Dialer/AndroidManifest.xml	(revision 166637)
+@@ -428,7 +428,15 @@
+             </intent-filter>
+         </receiver>
+         <!-- @} -->
+-
++		
++        <activity android:name="com.android.incallui.SmsRejustDialogActivity"
++                  android:theme="@style/Theme.AppCompat.Light.Dialog" >
++            <intent-filter>
++                <action android:name="android.intent.action.MAIN" />
++                <category android:name="android.intent.category.DEFAULT" />
++            </intent-filter>
++       </activity>
++	   
+         <activity
+             android:name="com.sprd.dialer.settings.PhotoSettingsActivity"
+             android:configChanges="orientation|screenSize|keyboardHidden">

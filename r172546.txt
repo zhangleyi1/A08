@@ -1,0 +1,12 @@
+Index: vendor/custom/cts/vendor/google/products/gms-mandatory.mk
+===================================================================
+--- vendor/custom/cts/vendor/google/products/gms-mandatory.mk	(revision 172545)
++++ vendor/custom/cts/vendor/google/products/gms-mandatory.mk	(revision 172546)
+@@ -55,7 +55,6 @@
+ 	Duo \
+ 	talkback \
+ 	DMAgent \
+-	Hangouts \
+     Maps \
+     Music2 \
+     Photos \

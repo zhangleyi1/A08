@@ -1,0 +1,75 @@
+Index: proprietories-sp9832a_2h11_vwf_Smartfren-user.zip
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/custom/ims.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/custom/Android.mk
+===================================================================
+--- vendor/sprd/custom/Android.mk	(revision 184005)
++++ vendor/sprd/custom/Android.mk	(revision 184006)
+@@ -98,14 +98,25 @@
+ LOCAL_SRC_FILES := GoogleMaps.apk
+ include $(BUILD_PREBUILT)
+ 
+-#include $(CLEAR_VARS)
+-#LOCAL_MODULE_TAGS := optional
+-#LOCAL_MODULE := ims
+-#LOCAL_MODULE_STEM := ims.apk
+-#LOCAL_MODULE_CLASS := APPS
+-#LOCAL_CERTIFICATE := platform
+-#LOCAL_MODULE_PATH := $(TARGET_OUT)/app/
+-#LOCAL_SRC_FILES := ims.apk
+-#include $(BUILD_PREBUILT)
++include $(CLEAR_VARS)
++LOCAL_MODULE_TAGS := optional
++LOCAL_MODULE := ims
++LOCAL_DEX_PREOPT := false
++LOCAL_MODULE_STEM := ims.apk
++LOCAL_MODULE_CLASS := APPS
++LOCAL_CERTIFICATE := platform
++LOCAL_MODULE_PATH := $(TARGET_OUT)/app/
++LOCAL_SRC_FILES := ims.apk
++include $(BUILD_PREBUILT)
+ 
++include $(CLEAR_VARS)
++LOCAL_MODULE_TAGS := optional
++LOCAL_MODULE := SprdVoWifiService
++LOCAL_MODULE_STEM := SprdVoWifiService.apk
++LOCAL_MODULE_CLASS := APPS
++LOCAL_CERTIFICATE := platform
++LOCAL_MODULE_PATH := $(TARGET_OUT)/priv-app/
++LOCAL_SRC_FILES := SprdVoWifiService.apk
++include $(BUILD_PREBUILT)
++
+ include $(call all-makefiles-under,$(LOCAL_PATH))
+Index: vendor/sprd/custom/SprdVoWifiService.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/custom/SprdVoWifiService.apk
+===================================================================
+--- vendor/sprd/custom/SprdVoWifiService.apk	(revision 0)
++++ vendor/sprd/custom/SprdVoWifiService.apk	(revision 184006)
+
+Property changes on: vendor/sprd/custom/SprdVoWifiService.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: build/target/product/core.mk
+===================================================================
+--- build/target/product/core.mk	(revision 184005)
++++ build/target/product/core.mk	(revision 184006)
+@@ -75,6 +75,7 @@
+     GooglePlus \
+     NewsWeather \
+     GoogleMaps \
+-    ims
++    ims \
++    SprdVoWifiService
+ 
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/core_base.mk)

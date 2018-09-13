@@ -1,0 +1,12 @@
+Index: packages/services/Telephony/res/xml/phone_account_settings.xml
+===================================================================
+--- packages/services/Telephony/res/xml/phone_account_settings.xml	(revision 169944)
++++ packages/services/Telephony/res/xml/phone_account_settings.xml	(revision 169945)
+@@ -27,6 +27,7 @@
+             android:title="@string/phone_accounts_make_calls_with"
+             android:defaultValue=""
+             android:persistent="false"
++			android:enabled="false"
+             android:order="1" />
+ 
+         <!-- SPRD: modify for bug589612 -->

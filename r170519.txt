@@ -1,0 +1,15 @@
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactListItemView.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactListItemView.java	(revision 170518)
++++ vendor/sprd/platform/packages/apps/SprdContactsCommon/src/com/android/contacts/common/list/ContactListItemView.java	(revision 170519)
+@@ -410,7 +410,9 @@
+      */
+     public void setShowVideoCallIcon(boolean showVideoCallIcon,
+             PhoneNumberListAdapter.Listener listener, int position) {
+-        mShowVideoCallIcon = showVideoCallIcon;
++
++        //mShowVideoCallIcon = showVideoCallIcon;
++        mShowVideoCallIcon = false; //Modify by zhangleyi for remove video call icon 20170530.
+         mPhoneNumberListAdapterListener = listener;
+         mPosition = position;
+ 

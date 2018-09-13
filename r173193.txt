@@ -1,0 +1,231 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/lteinfo/LteInfo.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/lteinfo/LteInfo.java	(revision 173192)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/lteinfo/LteInfo.java	(revision 173193)
+@@ -20,6 +20,7 @@
+ 
+ import com.mediatek.factorymode.FactoryMode;
+ import com.mediatek.factorymode.utils.IATUtils;
++import com.mediatek.factorymode.utils.MyListAdapter;
+ 
+ import android.view.KeyEvent;
+ 
+@@ -89,8 +90,8 @@
+ 	private Context mContext;
+ 	private Phone mPhone;
+ 	private IImsServiceEx mIImsServiceEx;
+-	//private ImsManager mIms;
+ 	private ArrayAdapter<String> LteAdapter;
++	private MyListAdapter mAdapter;
+ 	private String SaveName = "atchannel";
+ 	private String[] values;
+ 	String imsi;
+@@ -100,7 +101,6 @@
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+-		//mContext = this.getApplicationContext();
+         mServiceState = new ServiceState();
+ 		HandlerThread ht = new HandlerThread(TAG);
+         ht.start();
+@@ -112,66 +112,41 @@
+ 		tryRegisterImsListener();
+ 		setContentView(R.layout.lte_info);
+         SaveName = "atchannel" + mSimIndex;
+-		 mNetworkOperatorName = mTelephonyManager.getNetworkOperatorName(mSubId);
+-         mNetworkOperator = mTelephonyManager.getNetworkOperatorForPhone(mSimIndex);
+-		values = getResources().getStringArray(R.array.Lte_sering_name);
++		mNetworkOperatorName = mTelephonyManager.getNetworkOperatorName(mSubId);
++        mNetworkOperator = mTelephonyManager.getNetworkOperatorForPhone(mSimIndex);
++		imsi = mTelephonyManager.getSubscriberId();
++		values=new String[17];
+ 	   	listView = (ListView) findViewById(R.id.info_list);
+ 		imsi = mTelephonyManager.getSubscriberId();
+ 		if (mNetworkOperator != null) {
+-        	values[2] = values[2] + "\n" + mNetworkOperator;
++        	values[2] = mNetworkOperator;
+         } else {
+-            values[2] = values[2] + ": NA";
++            values[2] =  " NA";
+         }
+ 		if (imsi != null) {
+-                values[0] = values[0] + "\n" + imsi;
++                values[0] =  imsi;
+         } else {
+-                values[0] = values[0] + ": NA";
++                values[0] =  " NA";
+         }
+ 		String ipAddress=getIPAddress(this);
+ 		if(mIsNetworkAvailable){
+-			values[1] = values[1] + "\n" + "connected";
+-			values[14] = values[14] + "\n" + ipAddress ;
++			values[1] = "connected";
++			values[14] = ipAddress ;
+ 		}else{
+-			values[1] = values[1] + "\n" + "NA";
+-			values[14] = values[14] + "\n" + "NA";
++			values[1] = "NA";
++			values[14] = "NA";
+ 		}
+ 		if(mIsImsListenerRegistered){
+-			values[15]=values[15]+"\n"+"Registered";
++			values[15]="Registered";
+ 		}else{
+-			values[15]=values[15]+"\n"+"NA";
++			values[15]="NA";
+ 		}
+-
+-         Message serving = mLteHandler.obtainMessage(GET_LTE);
+-         mLteHandler.sendMessage(serving);
+-		LteAdapter = new ArrayAdapter<String>(
+-                       LteInfo.this, R.layout.array_item, values);
+-         listView.setAdapter(LteAdapter);
+-		 
+-        /*mSuccesBtn = (Button)findViewById(R.id.ok);
+-		if(mDataNetType!=NETWORK_LTE){
+-			mSuccesBtn.setEnabled(false);
+-		}
+-        mFailBtn = (Button)findViewById(R.id.fail);
+-        mSuccesBtn.setOnClickListener(new OnClickListener() {
+-            
+-            @Override
+-            public void onClick(View arg0) {
+-                Intent intent = new Intent(LteInfo.this, FactoryMode.class);
+-                setResult(FactoryMode.TEST_OK,intent);
+-                finish();
+-            }
+-        });
+-        
+-        mFailBtn.setOnClickListener(new OnClickListener() {
+-            
+-            @Override
+-            public void onClick(View arg0) {
+-                Intent intent = new Intent(LteInfo.this, FactoryMode.class);
+-                setResult(FactoryMode.TEST_FAIL,intent);
+-                finish();
+-            }
+-        });*/
+-       /*mTimer = new Timer();
++        Message serving = mLteHandler.obtainMessage(GET_LTE);
++        mLteHandler.sendMessage(serving);
++		mAdapter=new MyListAdapter(this,R.layout.array_item,values);
++		listView.setAdapter(mAdapter);
++		
++       	mTimer = new Timer();
+         mTimer.schedule(new TimerTask() {
+             @Override
+             public void run() {
+@@ -178,7 +153,7 @@
+                 Message serving = mLteHandler.obtainMessage(GET_LTE);
+                 mLteHandler.sendMessage(serving);
+             }
+-        }, 0, 200);*/
++        }, 0, 300);
+         
+     }
+ 
+@@ -359,7 +334,7 @@
+         //final String[] values;
+         int temp;
+         String strTemp = null;
+-        //values = this.getResources().getStringArray(R.array.Lte_sering_name);
++		
+         result = IATUtils.sendATCmd("AT+SPENGMD=0,6,0", SaveName);//060
+         Log.d(TAG, "AT+SPENGMD=0,6,0: " + result);
+         if (result.contains(IATUtils.AT_OK)) {
+@@ -370,29 +345,29 @@
+              String[] str1 = result.split("\n");//0-0-0-0-0-0-0-0-0-0-0-0
+              String[] str2 = str1[0].split("-");//[0,0,0,0,0,0,0,0,0,0,0,0]
+ 			 Log.d(TAG, "str2: " + Arrays.toString(str2));
+-                // 559502 modify by alisa.li 2016.05.05
+               for (int i = 0; i < str2.length; i++) {//12
+ 					if(i==0){
+-						values[3]=values[3]+"\n"+str2[i];
+-						
++						values[3]=str2[i];
+ 					}else if(i==1){
+-						values[6]=values[6]+"\n"+str2[i];
++						values[6]=str2[i];
+ 					}else if(i==2){
+-						values[5]=values[5]+"\n"+str2[i];
++						values[5]=str2[i];
+ 					}else if(i==3){
+-						values[9]=values[9]+"\n"+str2[i].replace("+", "-").trim();
++						values[9]=str2[i].replace("+", "-").trim()+" "+"dBm";
+ 					}else if(i==4){
+-						values[10]=values[10]+"\n"+str2[i].replace("+", "-").trim();//str2[i].replace("+", "-").trim()
+-						values[12]=values[12]+"\n"+str2[i].replace("+", "-").trim();
+-					}else if(i==6){
++						values[10]=str2[i].replace("+", "-").trim()+" "+"dB";//str2[i].replace("+", "-").trim()
++						values[12]=str2[i].replace("+", "-").trim()+" "+"dBm";
++					}/*else if(i==5){
++						values[13] = str2[i].replace("+", "-").trim()+" "+"dBm";
++					}*/else if(i==6){
+ 						if(Integer.parseInt(str2[i])==0){
+-							values[4]=values[4]+"\n"+"FDD";
++							values[4]="FDD";
+ 						}else{
+-							values[4]=values[4]+"\n"+"TDD";
++							values[4]="TDD";
+ 						}
+ 					}else if(i==7){
+-						values[7]=values[7]+"\n"+str2[i];
+-						values[8]=values[8]+"\n"+str2[i];
++						values[7]=str2[i];
++						values[8]=str2[i];
+ 						
+ 					}else{
+ 					 
+@@ -399,7 +374,7 @@
+ 					}
+ 				
+               	}
+-                //559502 modify by alisa.li 2016.05.05
++                
+             } else {
+             	
+             }
+@@ -414,7 +389,7 @@
+                 for (int i = 0; i < str2.length; i++) {
+                      if (i==2) {
+                          //Log.d(TAG,"i="+num+" "+str2[i].replace("+", "-"));
+-                         values[11] = values[11] + "\n"+ str2[i];
++                         values[11] = str2[i]+" "+"dB";
+                      }
+                 }
+                 
+@@ -432,7 +407,6 @@
+                 Log.d(TAG, "str2: " + Arrays.toString(str2));
+                 for (int i = 0; i < str2.length; i++) {
+                   if (str2[i].contains(",") && !str2[i].contains("0,0,0")) {
+-						//values[i] = values[i] + ": "
+ 							String v="";
+                             String[] str3 = str2[i].split(",");
+                             int[] tempArray = new int[str3.length];
+@@ -441,7 +415,7 @@
+                                 tempArray[j] = Integer.parseInt(str3[j].replace("+", "-").trim());
+                                 v =v+" "+String.valueOf(tempArray[j]);
+                             }
+-							values[16]= values[16] + "\n"+"earfcn-pic-rsrp-rsrq"+"\n"+v;
++							values[16]= "earfcn-pic-rsrp-rsrq"+"\n"+v;
+                   	}else{
+ 						//values[16]= values[16]+"\n"+"NA";
+ 					}
+@@ -462,7 +436,7 @@
+                 for (int i = 0; i < str2.length; i++) {
+                      if (i==6) {
+                          //Log.d(TAG,"i="+num+" "+str2[i].replace("+", "-"));
+-                         values[13] = values[13] + "\n"+ str2[i];
++                         values[13] =  str2[i]+" "+"dBm";
+                      }
+                 }
+                 
+@@ -472,7 +446,7 @@
+             mUiThread.post(new Runnable() {
+                 @Override
+                 public void run() {
+-                    LteAdapter.notifyDataSetChanged();
++                    mAdapter.notifyDataSetChanged();
+                 }
+             });
+ 		}

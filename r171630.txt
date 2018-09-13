@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/data/FilmstripItemUtils.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/data/FilmstripItemUtils.java	(revision 171629)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/data/FilmstripItemUtils.java	(revision 171630)
+@@ -183,7 +183,7 @@
+                 bitmap = retriever.getFrameAtTime();
+                 profile.mark("getFrameAtTime");
+             }
+-        } catch (IllegalArgumentException e) {
++        } catch (Exception e) {
+             Log.e(TAG, "MediaMetadataRetriever.setDataSource() fail:" + e.getMessage());
+         }
+         retriever.release();

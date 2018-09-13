@@ -1,0 +1,358 @@
+Index: frameworks/base/packages/SystemUI/res/values-en-rAU/strings.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values-en-rAU/strings.xml	(revision 171204)
++++ frameworks/base/packages/SystemUI/res/values-en-rAU/strings.xml	(revision 171205)
+@@ -260,23 +260,23 @@
+     <string name="dessert_case" msgid="1295161776223959221">"Dessert Case"</string>
+     <string name="start_dreams" msgid="5640361424498338327">"Screen saver"</string>
+     <string name="ethernet_label" msgid="7967563676324087464">"Ethernet"</string>
+-    <string name="quick_settings_dnd_label" msgid="8735855737575028208">"Do not disturb"</string>
++    <string name="quick_settings_dnd_label" msgid="8735855737575028208">"DO NOT DISTURB"</string>
+     <string name="quick_settings_dnd_priority_label" msgid="483232950670692036">"Priority only"</string>
+     <string name="quick_settings_dnd_alarms_label" msgid="2559229444312445858">"Alarms only"</string>
+     <string name="quick_settings_dnd_none_label" msgid="5025477807123029478">"Total silence"</string>
+-    <string name="quick_settings_bluetooth_label" msgid="6304190285170721401">"Bluetooth"</string>
++    <string name="quick_settings_bluetooth_label" msgid="6304190285170721401">"BLUETOOTH"</string>
+     <string name="quick_settings_bluetooth_multiple_devices_label" msgid="3912245565613684735">"Bluetooth (<xliff:g id="NUMBER">%d</xliff:g> Devices)"</string>
+     <string name="quick_settings_bluetooth_off_label" msgid="8159652146149219937">"Bluetooth Off"</string>
+     <string name="quick_settings_bluetooth_detail_empty_text" msgid="4910015762433302860">"No paired devices available"</string>
+     <string name="quick_settings_brightness_label" msgid="6968372297018755815">"Brightness"</string>
+-    <string name="quick_settings_rotation_unlocked_label" msgid="7305323031808150099">"Auto-rotate"</string>
++    <string name="quick_settings_rotation_unlocked_label" msgid="7305323031808150099">"AUTO-ROTATE"</string>
+     <string name="accessibility_quick_settings_rotation" msgid="4231661040698488779">"Auto-rotate screen"</string>
+     <string name="accessibility_quick_settings_rotation_value" msgid="1428962304214992318">"Set to <xliff:g id="ID_1">%s</xliff:g>"</string>
+     <string name="quick_settings_rotation_locked_label" msgid="6359205706154282377">"Rotation locked"</string>
+-    <string name="quick_settings_rotation_locked_portrait_label" msgid="5102691921442135053">"Portrait"</string>
++    <string name="quick_settings_rotation_locked_portrait_label" msgid="5102691921442135053">"PORTRAIT"</string>
+     <string name="quick_settings_rotation_locked_landscape_label" msgid="8553157770061178719">"Landscape"</string>
+     <string name="quick_settings_ime_label" msgid="7073463064369468429">"Input Method"</string>
+-    <string name="quick_settings_location_label" msgid="5011327048748762257">"Location"</string>
++    <string name="quick_settings_location_label" msgid="5011327048748762257">"LOCATION"</string>
+     <string name="quick_settings_location_off_label" msgid="7464544086507331459">"Location Off"</string>
+     <string name="quick_settings_media_device_label" msgid="1302906836372603762">"Media device"</string>
+     <string name="quick_settings_rssi_label" msgid="7725671335550695589">"RSSI"</string>
+@@ -299,7 +299,7 @@
+     <string name="quick_settings_cast_detail_empty_text" msgid="311785821261640623">"No devices available"</string>
+     <string name="quick_settings_brightness_dialog_title" msgid="8599674057673605368">"Brightness"</string>
+     <string name="quick_settings_brightness_dialog_auto_brightness_label" msgid="5064982743784071218">"AUTO"</string>
+-    <string name="quick_settings_inversion_label" msgid="8790919884718619648">"Invert colours"</string>
++    <string name="quick_settings_inversion_label" msgid="8790919884718619648">"INVERT COLOURS"</string>
+     <string name="quick_settings_color_space_label" msgid="853443689745584770">"Colour correction mode"</string>
+     <string name="quick_settings_more_settings" msgid="326112621462813682">"More settings"</string>
+     <string name="quick_settings_done" msgid="3402999958839153376">"Done"</string>
+@@ -306,9 +306,9 @@
+     <string name="quick_settings_connected" msgid="1722253542984847487">"Connected"</string>
+     <string name="quick_settings_connecting" msgid="47623027419264404">"Connecting..."</string>
+     <string name="quick_settings_tethering_label" msgid="7153452060448575549">"Tethering"</string>
+-    <string name="quick_settings_hotspot_label" msgid="6046917934974004879">"Hotspot"</string>
++    <string name="quick_settings_hotspot_label" msgid="6046917934974004879">"HOTSPOT"</string>
+     <string name="quick_settings_notifications_label" msgid="4818156442169154523">"Notifications"</string>
+-    <string name="quick_settings_flashlight_label" msgid="2133093497691661546">"Torch"</string>
++    <string name="quick_settings_flashlight_label" msgid="2133093497691661546">"TORCH"</string>
+     <string name="quick_settings_cellular_detail_title" msgid="8575062783675171695">"Mobile data"</string>
+     <string name="quick_settings_cellular_detail_data_usage" msgid="1964260360259312002">"Data usage"</string>
+     <string name="quick_settings_cellular_detail_remaining_data" msgid="722715415543541249">"Remaining data"</string>
+@@ -569,12 +569,12 @@
+     <string name="volume_and_do_not_disturb" msgid="3373784330208603030">"Do not disturb"</string>
+     <string name="volume_dnd_silent" msgid="4363882330723050727">"Volume buttons shortcut"</string>
+     <string name="volume_up_silent" msgid="7141255269783588286">"Exit Do Not Disturb on volume up"</string>
+-    <string name="battery" msgid="7498329822413202973">"Battery"</string>
++    <string name="battery" msgid="7498329822413202973">"BATTERY"</string>
+     <string name="clock" msgid="7416090374234785905">"Clock"</string>
+     <string name="headset" msgid="4534219457597457353">"Headset"</string>
+     <string name="accessibility_status_bar_headphones" msgid="9156307120060559989">"Headphones connected"</string>
+     <string name="accessibility_status_bar_headset" msgid="8666419213072449202">"Headset connected"</string>
+-    <string name="data_saver" msgid="5037565123367048522">"Data Saver"</string>
++    <string name="data_saver" msgid="5037565123367048522">"DATA SAVER"</string>
+     <string name="accessibility_data_saver_on" msgid="8454111686783887148">"Data Saver is on"</string>
+     <string name="accessibility_data_saver_off" msgid="8841582529453005337">"Data Saver is off"</string>
+     <string name="switch_bar_on" msgid="1142437840752794229">"On"</string>
+Index: frameworks/base/packages/SystemUI/res/values/strings.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 171204)
++++ frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 171205)
+@@ -638,7 +638,7 @@
+     <string name="ethernet_label">Ethernet</string>
+ 
+     <!-- QuickSettings: Do not disturb [CHAR LIMIT=NONE] -->
+-    <string name="quick_settings_dnd_label">Do not disturb</string>
++    <string name="quick_settings_dnd_label">DO NOT DISTURB</string>
+     <!-- QuickSettings: Do not disturb - Priority only [CHAR LIMIT=NONE] -->
+     <string name="quick_settings_dnd_priority_label">Priority only</string>
+     <!-- QuickSettings: Do not disturb - Alarms only [CHAR LIMIT=NONE] -->
+@@ -646,7 +646,7 @@
+     <!-- QuickSettings: Do not disturb - Total silence [CHAR LIMIT=NONE] -->
+     <string name="quick_settings_dnd_none_label">Total silence</string>
+     <!-- QuickSettings: Bluetooth [CHAR LIMIT=NONE] -->
+-    <string name="quick_settings_bluetooth_label">Bluetooth</string>
++    <string name="quick_settings_bluetooth_label">BLUETOOTH</string>
+     <!-- QuickSettings: Bluetooth (Multiple) [CHAR LIMIT=NONE] -->
+     <string name="quick_settings_bluetooth_multiple_devices_label">Bluetooth (<xliff:g id="number">%d</xliff:g> Devices)</string>
+     <!-- QuickSettings: Bluetooth (Off) [CHAR LIMIT=NONE] -->
+@@ -656,7 +656,7 @@
+     <!-- QuickSettings: Brightness [CHAR LIMIT=NONE] -->
+     <string name="quick_settings_brightness_label">Brightness</string>
+     <!-- QuickSettings: Rotation Unlocked [CHAR LIMIT=NONE] -->
+-    <string name="quick_settings_rotation_unlocked_label">Auto-rotate</string>
++    <string name="quick_settings_rotation_unlocked_label">AUTO-ROTATE</string>
+     <!-- Accessibility label for Auto-ratate QuickSettings tile [CHAR LIMIT=NONE] -->
+     <string name="accessibility_quick_settings_rotation">Auto-rotate screen</string>
+     <!-- Accessibility label for value of Auto-ratate QuickSettings tile [CHAR LIMIT=NONE] -->
+@@ -664,13 +664,13 @@
+     <!-- QuickSettings: Rotation Locked [CHAR LIMIT=NONE] -->
+     <string name="quick_settings_rotation_locked_label">Rotation locked</string>
+     <!-- QuickSettings: Locked to Portrait [CHAR LIMIT=NONE] -->
+-    <string name="quick_settings_rotation_locked_portrait_label">Portrait</string>
++    <string name="quick_settings_rotation_locked_portrait_label">PORTRAIT</string>
+     <!-- QuickSettings: Locked to Landscape [CHAR LIMIT=NONE] -->
+     <string name="quick_settings_rotation_locked_landscape_label">Landscape</string>
+     <!-- QuickSettings: IME [CHAR LIMIT=NONE] -->
+     <string name="quick_settings_ime_label">Input Method</string>
+     <!-- QuickSettings: Location [CHAR LIMIT=NONE] -->
+-    <string name="quick_settings_location_label">Location</string>
++    <string name="quick_settings_location_label">LOCATION</string>
+     <!-- QuickSettings: Location (Off) [CHAR LIMIT=NONE] -->
+     <string name="quick_settings_location_off_label">Location Off</string>
+     <!-- QuickSettings: Media device [CHAR LIMIT=NONE] -->
+@@ -690,7 +690,7 @@
+     <!-- QuickSettings: Label on the item for adding a new user [CHAR LIMIT=NONE] -->
+     <string name="quick_settings_user_new_user">New user</string>
+     <!-- QuickSettings: Wifi [CHAR LIMIT=NONE] -->
+-    <string name="quick_settings_wifi_label">Wi-Fi</string>
++    <string name="quick_settings_wifi_label">WI-FI</string>
+     <!-- QuickSettings: Wifi (Not connected) [CHAR LIMIT=NONE] -->
+     <string name="quick_settings_wifi_not_connected">Not Connected</string>
+     <!-- QuickSettings: Wifi (No network) [CHAR LIMIT=NONE] -->
+@@ -716,7 +716,7 @@
+     <!-- QuickSettings: Brightness dialog auto brightness button [CHAR LIMIT=NONE] -->
+     <string name="quick_settings_brightness_dialog_auto_brightness_label">AUTO</string>
+     <!-- QuickSettings: Label for the toggle that controls whether display inversion is enabled. [CHAR LIMIT=NONE] -->
+-    <string name="quick_settings_inversion_label">Invert colors</string>
++    <string name="quick_settings_inversion_label">INVERT COLORS</string>
+     <!-- QuickSettings: Label for the toggle that controls whether display color correction is enabled. [CHAR LIMIT=NONE] -->
+     <string name="quick_settings_color_space_label">Color correction mode</string>
+     <!-- QuickSettings: Control panel: Label for button that navigates to settings. [CHAR LIMIT=NONE] -->
+@@ -730,13 +730,13 @@
+     <!-- QuickSettings: Tethering. [CHAR LIMIT=NONE] -->
+     <string name="quick_settings_tethering_label">Tethering</string>
+     <!-- QuickSettings: Hotspot. [CHAR LIMIT=NONE] -->
+-    <string name="quick_settings_hotspot_label">Hotspot</string>
++    <string name="quick_settings_hotspot_label">HOTSPOT</string>
+     <!-- QuickSettings: Notifications [CHAR LIMIT=NONE] -->
+     <string name="quick_settings_notifications_label">Notifications</string>
+     <!-- QuickSettings: Flashlight [CHAR LIMIT=NONE] -->
+-    <string name="quick_settings_flashlight_label">Flashlight</string>
+-    <!-- QuickSettings: Cellular detail panel title [CHAR LIMIT=NONE] -->
+-    <string name="quick_settings_cellular_detail_title">Cellular data</string>
++    <string name="quick_settings_flashlight_label">FLASHLIGHT</string>
++    <!-- QuickSettings: Cellular detail panel title [CHAR LIMIT=NONE]  Cellular data  -->
++    <string name="quick_settings_cellular_detail_title">Data</string>
+     <!-- QuickSettings: Cellular detail panel, data usage title [CHAR LIMIT=NONE] -->
+     <string name="quick_settings_cellular_detail_data_usage">Data usage</string>
+     <!-- QuickSettings: Cellular detail panel, remaining data title [CHAR LIMIT=NONE] -->
+@@ -1501,7 +1501,7 @@
+     <string name="volume_up_silent">Exit do not disturb on volume up</string>
+ 
+     <!-- Name of the battery icon in status bar [CHAR LIMIT=30] -->
+-    <string name="battery">Battery</string>
++    <string name="battery">BATTERY</string>
+ 
+     <!-- Name of the clock in status bar [CHAR LIMIT=30] -->
+     <string name="clock">Clock</string>
+@@ -1516,7 +1516,7 @@
+     <string name="accessibility_status_bar_headset">Headset connected</string>
+ 
+     <!-- Label for quick settings tile for data saver [CHAR LIMIT=30] -->
+-    <string name="data_saver">Data Saver</string>
++    <string name="data_saver">DATA SAVER</string>
+ 
+     <!-- Accessibility description for data saver being on [CHAR LIMIT=NONE] -->
+     <string name="accessibility_data_saver_on">Data Saver is on</string>
+@@ -1703,7 +1703,7 @@
+     <!-- accessibility label for paging indicator in quick settings [CHAR LIMITi=NONE] -->
+     <string name="accessibility_quick_settings_page">Page <xliff:g name="current_page" example="1">%1$d</xliff:g> of <xliff:g name="num_pages" example="2">%2$d</xliff:g></string>
+     <!-- SPRD 474760 New feature add audio profile tile in QSpanel -->
+-    <string name="quick_settings_volume_label">Audio Profile</string>
++    <string name="quick_settings_volume_label">AUDIO PROFILE</string>
+ 
+     <!-- SPRD: Bug 474745 Add battery level percent feature -->
+     <string name="battery_level_template"><xliff:g id="level" example="45">%d</xliff:g>%%</string>
+Index: frameworks/base/packages/SystemUI/res/values-en-rGB/strings.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values-en-rGB/strings.xml	(revision 171204)
++++ frameworks/base/packages/SystemUI/res/values-en-rGB/strings.xml	(revision 171205)
+@@ -260,23 +260,23 @@
+     <string name="dessert_case" msgid="1295161776223959221">"Dessert Case"</string>
+     <string name="start_dreams" msgid="5640361424498338327">"Screen saver"</string>
+     <string name="ethernet_label" msgid="7967563676324087464">"Ethernet"</string>
+-    <string name="quick_settings_dnd_label" msgid="8735855737575028208">"Do not disturb"</string>
++    <string name="quick_settings_dnd_label" msgid="8735855737575028208">"DO NOT DISTURB"</string>
+     <string name="quick_settings_dnd_priority_label" msgid="483232950670692036">"Priority only"</string>
+     <string name="quick_settings_dnd_alarms_label" msgid="2559229444312445858">"Alarms only"</string>
+     <string name="quick_settings_dnd_none_label" msgid="5025477807123029478">"Total silence"</string>
+-    <string name="quick_settings_bluetooth_label" msgid="6304190285170721401">"Bluetooth"</string>
++    <string name="quick_settings_bluetooth_label" msgid="6304190285170721401">"BLUETOOTH"</string>
+     <string name="quick_settings_bluetooth_multiple_devices_label" msgid="3912245565613684735">"Bluetooth (<xliff:g id="NUMBER">%d</xliff:g> Devices)"</string>
+     <string name="quick_settings_bluetooth_off_label" msgid="8159652146149219937">"Bluetooth Off"</string>
+     <string name="quick_settings_bluetooth_detail_empty_text" msgid="4910015762433302860">"No paired devices available"</string>
+     <string name="quick_settings_brightness_label" msgid="6968372297018755815">"Brightness"</string>
+-    <string name="quick_settings_rotation_unlocked_label" msgid="7305323031808150099">"Auto-rotate"</string>
++    <string name="quick_settings_rotation_unlocked_label" msgid="7305323031808150099">"AUTO-ROTATE"</string>
+     <string name="accessibility_quick_settings_rotation" msgid="4231661040698488779">"Auto-rotate screen"</string>
+     <string name="accessibility_quick_settings_rotation_value" msgid="1428962304214992318">"Set to <xliff:g id="ID_1">%s</xliff:g>"</string>
+     <string name="quick_settings_rotation_locked_label" msgid="6359205706154282377">"Rotation locked"</string>
+-    <string name="quick_settings_rotation_locked_portrait_label" msgid="5102691921442135053">"Portrait"</string>
++    <string name="quick_settings_rotation_locked_portrait_label" msgid="5102691921442135053">"PORTRAIT"</string>
+     <string name="quick_settings_rotation_locked_landscape_label" msgid="8553157770061178719">"Landscape"</string>
+     <string name="quick_settings_ime_label" msgid="7073463064369468429">"Input Method"</string>
+-    <string name="quick_settings_location_label" msgid="5011327048748762257">"Location"</string>
++    <string name="quick_settings_location_label" msgid="5011327048748762257">"LOCATION"</string>
+     <string name="quick_settings_location_off_label" msgid="7464544086507331459">"Location Off"</string>
+     <string name="quick_settings_media_device_label" msgid="1302906836372603762">"Media device"</string>
+     <string name="quick_settings_rssi_label" msgid="7725671335550695589">"RSSI"</string>
+@@ -286,7 +286,7 @@
+     <string name="quick_settings_user_label" msgid="5238995632130897840">"Me"</string>
+     <string name="quick_settings_user_title" msgid="4467690427642392403">"User"</string>
+     <string name="quick_settings_user_new_user" msgid="9030521362023479778">"New user"</string>
+-    <string name="quick_settings_wifi_label" msgid="9135344704899546041">"Wi-Fi"</string>
++    <string name="quick_settings_wifi_label" msgid="9135344704899546041">"WI-FI"</string>
+     <string name="quick_settings_wifi_not_connected" msgid="7171904845345573431">"Not Connected"</string>
+     <string name="quick_settings_wifi_no_network" msgid="2221993077220856376">"No Network"</string>
+     <string name="quick_settings_wifi_off_label" msgid="7558778100843885864">"Wi-Fi Off"</string>
+@@ -299,7 +299,7 @@
+     <string name="quick_settings_cast_detail_empty_text" msgid="311785821261640623">"No devices available"</string>
+     <string name="quick_settings_brightness_dialog_title" msgid="8599674057673605368">"Brightness"</string>
+     <string name="quick_settings_brightness_dialog_auto_brightness_label" msgid="5064982743784071218">"AUTO"</string>
+-    <string name="quick_settings_inversion_label" msgid="8790919884718619648">"Invert colours"</string>
++    <string name="quick_settings_inversion_label" msgid="8790919884718619648">"INVERT COLOURS"</string>
+     <string name="quick_settings_color_space_label" msgid="853443689745584770">"Colour correction mode"</string>
+     <string name="quick_settings_more_settings" msgid="326112621462813682">"More settings"</string>
+     <string name="quick_settings_done" msgid="3402999958839153376">"Done"</string>
+@@ -306,9 +306,9 @@
+     <string name="quick_settings_connected" msgid="1722253542984847487">"Connected"</string>
+     <string name="quick_settings_connecting" msgid="47623027419264404">"Connecting..."</string>
+     <string name="quick_settings_tethering_label" msgid="7153452060448575549">"Tethering"</string>
+-    <string name="quick_settings_hotspot_label" msgid="6046917934974004879">"Hotspot"</string>
++    <string name="quick_settings_hotspot_label" msgid="6046917934974004879">"HOTSPOT"</string>
+     <string name="quick_settings_notifications_label" msgid="4818156442169154523">"Notifications"</string>
+-    <string name="quick_settings_flashlight_label" msgid="2133093497691661546">"Torch"</string>
++    <string name="quick_settings_flashlight_label" msgid="2133093497691661546">"TORCH"</string>
+     <string name="quick_settings_cellular_detail_title" msgid="8575062783675171695">"Mobile data"</string>
+     <string name="quick_settings_cellular_detail_data_usage" msgid="1964260360259312002">"Data usage"</string>
+     <string name="quick_settings_cellular_detail_remaining_data" msgid="722715415543541249">"Remaining data"</string>
+@@ -569,12 +569,12 @@
+     <string name="volume_and_do_not_disturb" msgid="3373784330208603030">"Do not disturb"</string>
+     <string name="volume_dnd_silent" msgid="4363882330723050727">"Volume buttons shortcut"</string>
+     <string name="volume_up_silent" msgid="7141255269783588286">"Exit Do Not Disturb on volume up"</string>
+-    <string name="battery" msgid="7498329822413202973">"Battery"</string>
++    <string name="battery" msgid="7498329822413202973">"BATTERY"</string>
+     <string name="clock" msgid="7416090374234785905">"Clock"</string>
+     <string name="headset" msgid="4534219457597457353">"Headset"</string>
+     <string name="accessibility_status_bar_headphones" msgid="9156307120060559989">"Headphones connected"</string>
+     <string name="accessibility_status_bar_headset" msgid="8666419213072449202">"Headset connected"</string>
+-    <string name="data_saver" msgid="5037565123367048522">"Data Saver"</string>
++    <string name="data_saver" msgid="5037565123367048522">"DATA SAVER"</string>
+     <string name="accessibility_data_saver_on" msgid="8454111686783887148">"Data Saver is on"</string>
+     <string name="accessibility_data_saver_off" msgid="8841582529453005337">"Data Saver is off"</string>
+     <string name="switch_bar_on" msgid="1142437840752794229">"On"</string>
+Index: frameworks/base/packages/SystemUI/res/values-en-rIN/strings.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values-en-rIN/strings.xml	(revision 171204)
++++ frameworks/base/packages/SystemUI/res/values-en-rIN/strings.xml	(revision 171205)
+@@ -260,23 +260,23 @@
+     <string name="dessert_case" msgid="1295161776223959221">"Dessert Case"</string>
+     <string name="start_dreams" msgid="5640361424498338327">"Screen saver"</string>
+     <string name="ethernet_label" msgid="7967563676324087464">"Ethernet"</string>
+-    <string name="quick_settings_dnd_label" msgid="8735855737575028208">"Do not disturb"</string>
++    <string name="quick_settings_dnd_label" msgid="8735855737575028208">"DO NOT DISTURB"</string>
+     <string name="quick_settings_dnd_priority_label" msgid="483232950670692036">"Priority only"</string>
+     <string name="quick_settings_dnd_alarms_label" msgid="2559229444312445858">"Alarms only"</string>
+     <string name="quick_settings_dnd_none_label" msgid="5025477807123029478">"Total silence"</string>
+-    <string name="quick_settings_bluetooth_label" msgid="6304190285170721401">"Bluetooth"</string>
++    <string name="quick_settings_bluetooth_label" msgid="6304190285170721401">"BLUETOOTH"</string>
+     <string name="quick_settings_bluetooth_multiple_devices_label" msgid="3912245565613684735">"Bluetooth (<xliff:g id="NUMBER">%d</xliff:g> Devices)"</string>
+     <string name="quick_settings_bluetooth_off_label" msgid="8159652146149219937">"Bluetooth Off"</string>
+     <string name="quick_settings_bluetooth_detail_empty_text" msgid="4910015762433302860">"No paired devices available"</string>
+     <string name="quick_settings_brightness_label" msgid="6968372297018755815">"Brightness"</string>
+-    <string name="quick_settings_rotation_unlocked_label" msgid="7305323031808150099">"Auto-rotate"</string>
++    <string name="quick_settings_rotation_unlocked_label" msgid="7305323031808150099">"AUTO-ROTATE"</string>
+     <string name="accessibility_quick_settings_rotation" msgid="4231661040698488779">"Auto-rotate screen"</string>
+     <string name="accessibility_quick_settings_rotation_value" msgid="1428962304214992318">"Set to <xliff:g id="ID_1">%s</xliff:g>"</string>
+     <string name="quick_settings_rotation_locked_label" msgid="6359205706154282377">"Rotation locked"</string>
+-    <string name="quick_settings_rotation_locked_portrait_label" msgid="5102691921442135053">"Portrait"</string>
++    <string name="quick_settings_rotation_locked_portrait_label" msgid="5102691921442135053">"PORTRAIT"</string>
+     <string name="quick_settings_rotation_locked_landscape_label" msgid="8553157770061178719">"Landscape"</string>
+     <string name="quick_settings_ime_label" msgid="7073463064369468429">"Input Method"</string>
+-    <string name="quick_settings_location_label" msgid="5011327048748762257">"Location"</string>
++    <string name="quick_settings_location_label" msgid="5011327048748762257">"LOCATION"</string>
+     <string name="quick_settings_location_off_label" msgid="7464544086507331459">"Location Off"</string>
+     <string name="quick_settings_media_device_label" msgid="1302906836372603762">"Media device"</string>
+     <string name="quick_settings_rssi_label" msgid="7725671335550695589">"RSSI"</string>
+@@ -286,7 +286,7 @@
+     <string name="quick_settings_user_label" msgid="5238995632130897840">"Me"</string>
+     <string name="quick_settings_user_title" msgid="4467690427642392403">"User"</string>
+     <string name="quick_settings_user_new_user" msgid="9030521362023479778">"New user"</string>
+-    <string name="quick_settings_wifi_label" msgid="9135344704899546041">"Wi-Fi"</string>
++    <string name="quick_settings_wifi_label" msgid="9135344704899546041">"WI-FI"</string>
+     <string name="quick_settings_wifi_not_connected" msgid="7171904845345573431">"Not Connected"</string>
+     <string name="quick_settings_wifi_no_network" msgid="2221993077220856376">"No Network"</string>
+     <string name="quick_settings_wifi_off_label" msgid="7558778100843885864">"Wi-Fi Off"</string>
+@@ -299,7 +299,7 @@
+     <string name="quick_settings_cast_detail_empty_text" msgid="311785821261640623">"No devices available"</string>
+     <string name="quick_settings_brightness_dialog_title" msgid="8599674057673605368">"Brightness"</string>
+     <string name="quick_settings_brightness_dialog_auto_brightness_label" msgid="5064982743784071218">"AUTO"</string>
+-    <string name="quick_settings_inversion_label" msgid="8790919884718619648">"Invert colours"</string>
++    <string name="quick_settings_inversion_label" msgid="8790919884718619648">"INVERT COLOURS"</string>
+     <string name="quick_settings_color_space_label" msgid="853443689745584770">"Colour correction mode"</string>
+     <string name="quick_settings_more_settings" msgid="326112621462813682">"More settings"</string>
+     <string name="quick_settings_done" msgid="3402999958839153376">"Done"</string>
+@@ -306,9 +306,9 @@
+     <string name="quick_settings_connected" msgid="1722253542984847487">"Connected"</string>
+     <string name="quick_settings_connecting" msgid="47623027419264404">"Connecting..."</string>
+     <string name="quick_settings_tethering_label" msgid="7153452060448575549">"Tethering"</string>
+-    <string name="quick_settings_hotspot_label" msgid="6046917934974004879">"Hotspot"</string>
++    <string name="quick_settings_hotspot_label" msgid="6046917934974004879">"HOTSPOT"</string>
+     <string name="quick_settings_notifications_label" msgid="4818156442169154523">"Notifications"</string>
+-    <string name="quick_settings_flashlight_label" msgid="2133093497691661546">"Torch"</string>
++    <string name="quick_settings_flashlight_label" msgid="2133093497691661546">"TORCH"</string>
+     <string name="quick_settings_cellular_detail_title" msgid="8575062783675171695">"Mobile data"</string>
+     <string name="quick_settings_cellular_detail_data_usage" msgid="1964260360259312002">"Data usage"</string>
+     <string name="quick_settings_cellular_detail_remaining_data" msgid="722715415543541249">"Remaining data"</string>
+@@ -569,12 +569,12 @@
+     <string name="volume_and_do_not_disturb" msgid="3373784330208603030">"Do not disturb"</string>
+     <string name="volume_dnd_silent" msgid="4363882330723050727">"Volume buttons shortcut"</string>
+     <string name="volume_up_silent" msgid="7141255269783588286">"Exit Do Not Disturb on volume up"</string>
+-    <string name="battery" msgid="7498329822413202973">"Battery"</string>
++    <string name="battery" msgid="7498329822413202973">"BATTERY"</string>
+     <string name="clock" msgid="7416090374234785905">"Clock"</string>
+     <string name="headset" msgid="4534219457597457353">"Headset"</string>
+     <string name="accessibility_status_bar_headphones" msgid="9156307120060559989">"Headphones connected"</string>
+     <string name="accessibility_status_bar_headset" msgid="8666419213072449202">"Headset connected"</string>
+-    <string name="data_saver" msgid="5037565123367048522">"Data Saver"</string>
++    <string name="data_saver" msgid="5037565123367048522">"DATA SAVER"</string>
+     <string name="accessibility_data_saver_on" msgid="8454111686783887148">"Data Saver is on"</string>
+     <string name="accessibility_data_saver_off" msgid="8841582529453005337">"Data Saver is off"</string>
+     <string name="switch_bar_on" msgid="1142437840752794229">"On"</string>
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/values/strings.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 171204)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/values/strings.xml	(revision 171205)
+@@ -5,7 +5,7 @@
+     <string name="toggle_data_error_airplane">You can\'t use Mobile data when the phone is in airplane mode.</string>
+     <string name="accessibility_quick_settings_data_on" >Data on</string>
+     <string name="accessibility_quick_settings_data_off" >Data off</string>
+-    <string name="quick_settings_data_connection_label" >Data</string>
++    <string name="quick_settings_data_connection_label" >DATA</string>
+     <string name="accessibility_quick_settings_data_changed_on" >Data turned on</string>
+     <string name="accessibility_quick_settings_data_changed_off" >Data turned off</string>
+     <string name="lte_service_error_airplane">You can\'t use LTE when the phone is in airplane mode.</string>
+@@ -28,7 +28,7 @@
+     <string name="dialog_messages_full">Some applications of this device require data connection which may involve some cost. We suggest that you order an Internet package. Contact with your operator for details.</string>
+     <!-- @} -->
+ 	<string name="qs_vowifi_off">"VOWIFI"</string>
+-        <string name="qs_vowifi_on">"Connected"</string>
+-	<string name="qs_vowifi_disconnected">"Disconnected"</string>
++        <string name="qs_vowifi_on">"CONNECTED"</string>
++	<string name="qs_vowifi_disconnected">"DISCONNECTED"</string>
+ 	
+ </resources>

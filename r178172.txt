@@ -1,0 +1,24 @@
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml
+===================================================================
+--- vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml	(revision 178171)
++++ vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/layout/mobile_signal_group.xml	(revision 178172)
+@@ -20,15 +20,17 @@
+                 android:id="@+id/mobile_data_in_out"
+                 android:layout_width="wrap_content"
+                 android:layout_height="5dp"
+-				android:scaleX="1.4"
++		android:scaleX="1.4"
+             	android:scaleY="1.4"
+                 />
++         <!--android:scaleX="1.4"
++            	android:scaleY="1.4" 3-->
+         <ImageView
+                 android:id="@+id/mobile_type"
+                 android:layout_width="10dp"
+                 android:layout_height="10dp"
+                
+-				android:layout_marginBottom="3dp"
++	        android:layout_marginBottom="-2dp"
+ 				
+ 				
+ 		 />

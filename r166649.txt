@@ -1,0 +1,69 @@
+Index: vendor/sprd/custom/wps.apk
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/custom/wps.apk
+===================================================================
+--- vendor/sprd/custom/wps.apk	(revision 0)
++++ vendor/sprd/custom/wps.apk	(revision 166649)
+
+Property changes on: vendor/sprd/custom/wps.apk
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: vendor/sprd/custom/Android.mk
+===================================================================
+--- vendor/sprd/custom/Android.mk	(revision 0)
++++ vendor/sprd/custom/Android.mk	(revision 166649)
+@@ -0,0 +1,40 @@
++LOCAL_PATH:= $(call my-dir)
++
++$(shell cp -r $(LOCAL_PATH)/bootanimation.zip $(PRODUCT_OUT)/system/media/bootanimation.zip)
++$(shell cp -r $(LOCAL_PATH)/shutdownanimation.zip $(PRODUCT_OUT)/system/media/shutdownanimation.zip)
++
++
++# MySmartfren
++include $(CLEAR_VARS)
++LOCAL_MODULE_TAGS := optional
++LOCAL_MODULE := MySmartfren
++LOCAL_MODULE_STEM := MySmartfren.apk
++LOCAL_MODULE_CLASS := APPS
++LOCAL_CERTIFICATE := PRESIGNED
++LOCAL_MODULE_PATH := $(TARGET_OUT)/app/
++LOCAL_SRC_FILES := MySmartfren.apk
++include $(BUILD_PREBUILT)
++
++# Flashlight
++include $(CLEAR_VARS)
++LOCAL_MODULE_TAGS := optional
++LOCAL_MODULE := Flashlight
++LOCAL_MODULE_STEM := Flashlight.apk
++LOCAL_MODULE_CLASS := APPS
++LOCAL_CERTIFICATE := PRESIGNED
++LOCAL_MODULE_PATH := $(TARGET_OUT)/preloadapp
++LOCAL_SRC_FILES := Flashlight.apk
++include $(BUILD_PREBUILT)
++
++# wps
++include $(CLEAR_VARS)
++LOCAL_MODULE_TAGS := optional
++LOCAL_MODULE := wps
++LOCAL_MODULE_STEM := wps.apk
++LOCAL_MODULE_CLASS := APPS
++LOCAL_CERTIFICATE := PRESIGNED
++LOCAL_MODULE_PATH := $(TARGET_OUT)/preloadapp
++LOCAL_SRC_FILES := wps.apk
++include $(BUILD_PREBUILT)
++
++include $(call all-makefiles-under,$(LOCAL_PATH))
+Index: vendor/sprd/custom
+===================================================================
+--- vendor/sprd/custom	(revision 0)
++++ vendor/sprd/custom	(revision 166649)
+
+Property changes on: vendor/sprd/custom
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/vendor/sprd/custom:r165559

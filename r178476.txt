@@ -1,0 +1,63 @@
+Index: frameworks/base/services/core/java/com/android/server/BluetoothManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/BluetoothManagerService.java	(revision 178475)
++++ frameworks/base/services/core/java/com/android/server/BluetoothManagerService.java	(revision 178476)
+@@ -230,8 +230,10 @@
+                             Slog.d(TAG, "Calling disable");
+                             sendDisableMsg();
+                         }
+-                    } else if (mEnableExternal && st != BluetoothAdapter.STATE_BLE_ON
+-                            && !isBleAppPresent()) {
++                    } else if(mEnableExternal) {
++                        if (st == BluetoothAdapter.STATE_BLE_ON && isBleAppPresent()) {
++                            return;
++                        }
+                         // enable without persisting the setting
+                         Slog.d(TAG, "Calling enable");
+                         sendEnableMsg(mQuietEnableExternal);
+@@ -575,7 +577,7 @@
+ 
+                 // waive WRITE_SECURE_SETTINGS permission check
+                 long callingIdentity = Binder.clearCallingIdentity();
+-               // persistBluetoothSetting(BLUETOOTH_ON_BLUETOOTH);
++                persistBluetoothSetting(BLUETOOTH_ON_BLUETOOTH);
+                 Binder.restoreCallingIdentity(callingIdentity);
+             }
+         } catch (RemoteException e) {
+@@ -662,10 +664,11 @@
+         synchronized(mReceiver) {
+             mQuietEnableExternal = false;
+             mEnableExternal = true;
+-            long callingIdentity = Binder.clearCallingIdentity();
+-            persistBluetoothSetting(BLUETOOTH_ON_BLUETOOTH);
+-            Binder.restoreCallingIdentity(callingIdentity);
+-            // waive WRITE_SECURE_SETTINGS permission check
++            if (!isBleFeatureSupport()) {
++                long callingIdentity = Binder.clearCallingIdentity();
++                //persistBluetoothSetting(BLUETOOTH_ON_BLUETOOTH);
++                Binder.restoreCallingIdentity(callingIdentity);
++            }
+             sendEnableMsg(false);
+         }
+         if (DBG) Slog.d(TAG, "enable returning");
+Index: packages/apps/Settings/src/com/android/settings/bluetooth/BluetoothEnabler.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/bluetooth/BluetoothEnabler.java	(revision 178475)
++++ packages/apps/Settings/src/com/android/settings/bluetooth/BluetoothEnabler.java	(revision 178476)
+@@ -133,7 +133,15 @@
+         }
+ 
+         // Bluetooth state is not sticky, so set it manually
+-        handleStateChanged(mLocalAdapter.getBluetoothState());
++        int state = mLocalAdapter.getBluetoothState();
++        if (state == BluetoothAdapter.STATE_BLE_ON) {
++            setChecked(false);
++            mSwitch.setEnabled(true);
++            mSwitchBar.setEnabled(true);
++            updateSearchIndex(false);
++        } else {
++            handleStateChanged(state);
++        }
+ 
+         mSwitchBar.addOnSwitchChangeListener(this);
+         mContext.registerReceiver(mReceiver, mIntentFilter);

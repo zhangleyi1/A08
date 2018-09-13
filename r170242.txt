@@ -1,0 +1,14 @@
+Index: vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/policy/PrimaryCardController.java
+===================================================================
+--- vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/policy/PrimaryCardController.java	(revision 170241)
++++ vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/uicc/policy/PrimaryCardController.java	(revision 170242)
+@@ -359,7 +359,8 @@
+ 
+                 // Pop up SIM settings screen to prompt users it's available to set primary card
+                 // manually.
+-                if (mIccPolicy.isNeedPromptUserSetPrimaryCard() && isAllSimLoaded()) {
++            //    if (mIccPolicy.isNeedPromptUserSetPrimaryCard() && isAllSimLoaded()) {
++				if (false) {
+                     if (DBG)
+                         Rlog.d(TAG,
+                                 "[onSetPrimaryCardPrepared] startActivity : SimSettingsActivity");

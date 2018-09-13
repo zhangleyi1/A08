@@ -1,0 +1,35 @@
+Index: frameworks/base/services/core/java/com/android/server/job/JobSchedulerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/job/JobSchedulerService.java	(revision 170163)
++++ frameworks/base/services/core/java/com/android/server/job/JobSchedulerService.java	(revision 170164)
+@@ -415,16 +415,20 @@
+                                 }
+                                 try {
+                                     final int userId = UserHandle.getUserId(pkgUid);
+-                                    IPackageManager pm = AppGlobals.getPackageManager();
+-                                    final int state = pm.getApplicationEnabledSetting(pkgName, userId);
+-                                    if (state == COMPONENT_ENABLED_STATE_DISABLED
+-                                            || state ==  COMPONENT_ENABLED_STATE_DISABLED_USER) {
+-                                        if (DEBUG) {
+-                                            Slog.d(TAG, "Removing jobs for package " + pkgName
+-                                                    + " in user " + userId);
+-                                        }
+-                                        cancelJobsForUid(pkgUid, true);
+-                                    }
++									try	{
++										IPackageManager pm = AppGlobals.getPackageManager();
++										final int state = pm.getApplicationEnabledSetting(pkgName, userId);
++										if (state == COMPONENT_ENABLED_STATE_DISABLED
++												|| state ==  COMPONENT_ENABLED_STATE_DISABLED_USER) {
++											if (DEBUG) {
++												Slog.d(TAG, "Removing jobs for package " + pkgName
++														+ " in user " + userId);
++											}
++											cancelJobsForUid(pkgUid, true);
++										}
++									} catch (IllegalArgumentException e) {
++										Slog.d(TAG, e.getMessage());
++									}
+                                 } catch (RemoteException e) { /* cannot happen */ }
+                                 break;
+                             }

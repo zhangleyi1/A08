@@ -1,0 +1,13 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/flashlight/FlashLight.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/flashlight/FlashLight.java	(revision 169558)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/flashlight/FlashLight.java	(revision 169559)
+@@ -124,7 +124,7 @@
+ 					mParams.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+ 					camera.setParameters(mParams);
+ 					camera.stopPreview();
+-					// camera.release();
++					camera.release();
+ 					isOpen = false;
+ 					// sendEmptyMessage(OPEN_CAMERA);
+ 					if(0 < count && count < 6){

@@ -1,0 +1,13 @@
+Index: packages/services/Telephony/res/values/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values/strings.xml	(revision 181159)
++++ packages/services/Telephony/res/values/strings.xml	(revision 181160)
+@@ -1366,7 +1366,7 @@
+     <!-- Gsm Roaming summary [CHAR LIMIT=80] -->
+     <string name="gsm_roaming_mode_summary">International roaming mode</string>
+ 	<string name="roaming_mode">Roaming mode</string>
+-	<string name="roaming_cancle">CANCLE</string>
++	<string name="roaming_cancle">CANCEL</string>
+ 	<string name="roaming_ok">OK</string>
+ 	<string name="roaming_info">The device network mode will be switch to LTE/GSM mode and the device
+ 	    will be pushed to roam on Smartfren LTE/GSM roaming partner networks.Roaming charges may incur!</string>

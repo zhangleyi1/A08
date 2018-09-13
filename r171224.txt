@@ -1,0 +1,46 @@
+Index: device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinTosVmmAndroid5.1.xml
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinTosVmmAndroid5.1.xml	(revision 171223)
++++ device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinTosVmmAndroid5.1.xml	(revision 171224)
+@@ -550,6 +550,18 @@
+ 				<Description>Modem_WCN image file</Description>
+ 			</File>
+ 			<File>
++				<ID>WarningLogo</ID>
++				<IDAlias>WarningLogo</IDAlias>
++				<Type>CODE2</Type>
++				<Block id="warninglogo">
++					<Base>0x0</Base>
++					<Size>0x0</Size>
++				</Block>
++				<Flag>1</Flag>
++				<CheckFlag>0</CheckFlag>
++				<Description>BootLoader boot logo</Description>
++			</File>
++			<File>
+ 				<ID>BOOT</ID>
+ 				<IDAlias>BOOT</IDAlias>
+ 				<Type>CODE2</Type>
+Index: device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinAndroid5.1.xml
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinAndroid5.1.xml	(revision 171223)
++++ device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinAndroid5.1.xml	(revision 171224)
+@@ -548,6 +548,18 @@
+ 				<Description>Modem_WCN image file</Description>
+ 			</File>
+ 			<File>
++				<ID>WarningLogo</ID>
++				<IDAlias>WarningLogo</IDAlias>
++				<Type>CODE2</Type>
++				<Block id="warninglogo">
++					<Base>0x0</Base>
++					<Size>0x0</Size>
++				</Block>
++				<Flag>1</Flag>
++				<CheckFlag>0</CheckFlag>
++				<Description>BootLoader boot logo</Description>
++			</File>
++			<File>
+ 				<ID>BOOT</ID>
+ 				<IDAlias>BOOT</IDAlias>
+ 				<Type>CODE2</Type>

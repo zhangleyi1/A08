@@ -1,0 +1,82 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/sprd/incallui/PhoneRecorderHelper.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/sprd/incallui/PhoneRecorderHelper.java	(revision 178779)
++++ packages/apps/Dialer/InCallUI/src/com/android/sprd/incallui/PhoneRecorderHelper.java	(revision 178780)
+@@ -758,7 +758,7 @@
+                 && call.getDetails().getAccountHandle() != null) {
+             String iccId = call.getDetails().getAccountHandle().getId();
+             List<SubscriptionInfo> result = DialerUtils
+-                    .getActiveSubscriptionInfoList();
++                    .getActiveSubscriptionInfoList(mContext);
+ 
+             if (result != null) {
+                 for (SubscriptionInfo subInfo : result) {
+Index: packages/apps/Dialer/InCallUI/src/com/android/sprd/incallui/InCallUiUtils.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/sprd/incallui/InCallUiUtils.java	(revision 178779)
++++ packages/apps/Dialer/InCallUI/src/com/android/sprd/incallui/InCallUiUtils.java	(revision 178780)
+@@ -55,7 +55,7 @@
+      */
+     public static int getSubIdForPhoneAccountHandle(Context context, PhoneAccountHandle handle) {
+         List<SubscriptionInfo> result = DialerUtils
+-                .getActiveSubscriptionInfoList();
++                .getActiveSubscriptionInfoList(context);
+ 
+         if (result != null) {
+             String iccId = handle.getId();
+@@ -92,9 +92,9 @@
+ //                .isSimSlotForPrimaryCard(subId, defaultDataSubId, phoneId, context);
+         android.util. Log.d("zwj",android.util. Log.getStackTraceString(new Throwable()));
+         int phoneId = getPhoneIdBySubId(context, subId);
+-        boolean isPrimaryCard = SubscriptionManager.isValidPhoneId(phoneId) || phoneId <= 0;
+-       android.util.Log.e("zwj", "getSlotInfoBySubId isPrimaryCard " + isPrimaryCard);
+-       android.util.Log.e("zwj", "getSlotInfoBySubId phoneId " + phoneId);
++        boolean isPrimaryCard = SubscriptionManager.isValidPhoneId(phoneId) && phoneId == 0;
++       android.util.Log.e("zwj", "getSlotInfoBySubId isPrimaryCard "+isPrimaryCard);
++       android.util.Log.e("zwj", "getSlotInfoBySubId phoneId "+phoneId);
+         String card_slot = "";
+         if (isPrimaryCard) {
+             card_slot = context.getResources().getString(R.string.main_card_slot);
+@@ -109,7 +109,7 @@
+      */
+     public static int getPhoneIdBySubId(Context context, int subId) {
+         List<SubscriptionInfo> result = DialerUtils
+-                .getActiveSubscriptionInfoList();
++                .getActiveSubscriptionInfoList(context);
+ 
+         if (result != null) {
+             for (SubscriptionInfo subInfo : result) {
+@@ -170,7 +170,7 @@
+         if (call != null && call.getAccountHandle() != null) {
+             String iccId = call.getAccountHandle().getId();
+             List<SubscriptionInfo> result = DialerUtils
+-                    .getActiveSubscriptionInfoList();
++                    .getActiveSubscriptionInfoList(context);
+ 
+             if (result != null) {
+                 for (SubscriptionInfo subInfo : result) {
+@@ -190,7 +190,7 @@
+         if (phoneAcountHandle != null) {
+             String iccId = phoneAcountHandle.getId();
+             List<SubscriptionInfo> result = DialerUtils
+-                    .getActiveSubscriptionInfoList();
++                    .getActiveSubscriptionInfoList(context);
+ 
+             if (result != null) {
+                 for (SubscriptionInfo subInfo : result) {
+Index: packages/apps/Dialer/src/com/android/dialer/util/DialerUtils.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/util/DialerUtils.java	(revision 178779)
++++ packages/apps/Dialer/src/com/android/dialer/util/DialerUtils.java	(revision 178780)
+@@ -269,7 +269,10 @@
+         return DialerUtils.sSubInfoMap.get(slotId);
+     }
+ 
+-    public static List<SubscriptionInfo> getActiveSubscriptionInfoList() {
++    public static List<SubscriptionInfo> getActiveSubscriptionInfoList(Context context) {
++        if (!sPermissionFlag) {
++            getActiveSubscriptionInfo(context, -1, true);
++        }
+         return sSubInfos;
+     }
+     /* @} */

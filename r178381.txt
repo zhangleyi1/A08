@@ -1,0 +1,94 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 178380)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 178381)
+@@ -1209,10 +1209,15 @@
+             /* SPRD: add for bug613747 @{ */
+             if (!mStateSaved) {
+                 Log.d(TAG, " sim1  " + SystemProperties.getBoolean("persist.radio.def.account", false));
++                /*
++                *if persist.radio.def.account is true user original phone method
++                *   as handleDialButtonPressed()
++                * else use fixed method as handleDialButtonPressed(INDEX_SIM1);         
++                */
+                 if (SystemProperties.getBoolean("persist.radio.def.account", false)) {
++                    handleDialButtonPressed();
++                } else {
+                     handleDialButtonPressed(INDEX_SIM1);
+-                } else {
+-                    handleDialButtonPressed();
+                 }
+             }
+             /* @} */
+@@ -1236,11 +1241,16 @@
+         } else if (resId == R.id.dialpad_floating_action_gsm_button) {
+             if (!mStateSaved) {
+                 Log.d(TAG, " sim2 " + SystemProperties.getBoolean("persist.radio.def.account", false));
++                /*
++                *if persist.radio.def.account is true user original phone method
++                *   as handleDialButtonPressed()
++                * else use fixed method as handleDialButtonPressed(INDEX_SIM2);         
++                */
+                 if (SystemProperties.getBoolean("persist.radio.def.account", false)) {
+-                    handleDialButtonPressed(INDEX_SIM2);
++                    handleDialButtonPressed();
+                     
+                 } else {
+-                   handleDialButtonPressed(); 
++                   handleDialButtonPressed(INDEX_SIM2);
+                 }
+             }
+             //call(getContext(), 1, number);
+Index: packages/services/Telephony/src/com/android/phone/settings/AccountSelectionPreference.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/settings/AccountSelectionPreference.java	(revision 178380)
++++ packages/services/Telephony/src/com/android/phone/settings/AccountSelectionPreference.java	(revision 178381)
+@@ -102,7 +102,7 @@
+                 Log.d(TAG, "Account " + handle + " is invalid");
+             }
+         }
+-		/* CQ @{ */
++        /* CQ @{ */
+         if (validAccounts.size() == 2) {
+             validAccounts.remove(1);
+         }
+@@ -189,8 +189,8 @@
+         if (mShowSelectionInSummary) {
+             setSummary(mEntries[selectedIndex]);
+         }
+-		    Log.d("rkniu", "setModel:  selectedIndex = " + selectedIndex);
+-			setSystemProperties(selectedIndex);
++            Log.d("rkniu", "setModel:  selectedIndex = " + selectedIndex);
++            setSystemProperties(selectedIndex);
+     }
+ 
+     @Override
+@@ -216,23 +216,23 @@
+         return false;
+     }
+ 
+-	    private void setSystemProperties(int index) {
++        private void setSystemProperties(int index) {
+         Log.d("rkniu", "onPreferenceChange: index = " + index +
+                 ", mAccounts.length = " + mAccounts.length + ", mSipAccountEnable = "
+                 + mSipAccountEnable);
+         if (index == mAccounts.length) {
+-            SystemProperties.set("persist.radio.def.account", "false");
++            SystemProperties.set("persist.radio.def.account", "true");//ask first
+         } else {
+             if (mSipAccountEnable) {
+                 if (index > 0 && mAccounts.length > 1) {
+-                    SystemProperties.set("persist.radio.def.account", "false");
++                    SystemProperties.set("persist.radio.def.account", "true");//ask fist or sip account
+                 } else if (index == 0) {
+                     Log.d("rkniu", "============  def  true");
+-                    SystemProperties.set("persist.radio.def.account", "true");
++                    SystemProperties.set("persist.radio.def.account", "false");//sim account
+                 }
+             } else {
+                 if (index == 0) {
+-                    SystemProperties.set("persist.radio.def.account", "true");
++                    SystemProperties.set("persist.radio.def.account", "false");//sim account
+                 }
+             }
+         }

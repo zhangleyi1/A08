@@ -1,0 +1,48 @@
+Index: packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java	(revision 173621)
++++ packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java	(revision 173622)
+@@ -1199,6 +1199,7 @@
+             final SubscriptionListEntry subscriptionListEntry =
+                     mConversationDataModel.getData().getSubscriptionEntryForSelfParticipant(
+                             mBinding.getData().getSelfId(), false /* excludeDefault */);
++	     Log.d("duxingheng"," updateVisualonDraftChanged selfId = " + mBinding.getData().getSelfId());
+             if (subscriptionListEntry == null) {
+                 mComposeEditText.setHint(R.string.compose_message_view_hint_text);
+             } else {
+Index: packages/apps/Messaging/src/com/android/messaging/ui/conversation/ConversationFragment.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/ui/conversation/ConversationFragment.java	(revision 173621)
++++ packages/apps/Messaging/src/com/android/messaging/ui/conversation/ConversationFragment.java	(revision 173622)
+@@ -75,6 +75,7 @@
+ import com.android.messaging.Factory;
+ import com.android.messaging.R;
+ import com.android.messaging.datamodel.DataModel;
++import com.android.messaging.datamodel.DatabaseWrapper;
+ import com.android.messaging.datamodel.MediaScratchFileProvider;
+ import com.android.messaging.datamodel.MessagingContentProvider;
+ import com.android.messaging.datamodel.action.InsertNewMessageAction;
+@@ -1498,14 +1499,22 @@
+     void suppressWriteDraft() {
+         mSuppressWriteDraft = true;
+     }
+-
++	
++    private void resetToDefaultSettingSIM(){
++		final DatabaseWrapper db = DataModel.get().getDatabase();
++		final ParticipantData defaultSelf = BugleDatabaseOperations.getOrCreateSelf(db, ParticipantData.DEFAULT_SELF_SUB_ID);
++		Log.d("andy","resetToDefaultSettingSIM selfId = " + defaultSelf.getId());
++		mComposeMessageView.updateConversationSelfIdOnExternalChange(defaultSelf.getId());
++	}
+     @Override
+     public void onPause() {
++        Log.d("duxingheng","ConversationFragment onPause");
+         super.onPause();
+        /*add by sprd for Bug 626075 start*/
+         if (getActivity().isInMultiWindowMode()){
+             return;
+         }
++	    resetToDefaultSettingSIM();	
+        /*add by sprd for Bug 626075 end*/
+         mLoadDraftDone = false;
+         mOnAttachmentChosen = false;

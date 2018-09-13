@@ -1,0 +1,218 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/AnswerPresenter.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/AnswerPresenter.java	(revision 166632)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/AnswerPresenter.java	(revision 166633)
+@@ -322,8 +322,35 @@
+             getUi().showCustomMessageDialog();
+         }
+     }
+-    /* @} */
+ 
++    //Added by zhangleyi for 20170322 begin
++    public void customRejectCallWithStartSmsApplicationCustom(Context context) {
++        Log.d(this, "zly --> rejectCallWithStartSmsApplication()...");
++
++        String phoneNumber = mCall.getNumber();
++        Uri uri = null;
++        Intent unlock = new Intent(UNLOCK_FOR_CALL_REJECT_REQUIRED);
++
++        if (!TextUtils.isEmpty(phoneNumber)) {
++            uri = Uri.parse("smsto:" + phoneNumber);
++        }
++
++        if (uri == null) {
++            return;
++        }
++
++        Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
++        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++        try {
++            context.sendBroadcast(unlock);
++            context.startActivity(intent);
++            TelecomAdapter.getInstance().rejectCall(mCall.getId(), false, null);
++        } catch (ActivityNotFoundException ignored) {
++            Log.e(this, "ActivityNotFoundException for ACTION_SENDTO");
++        }
++    }
++    //Added by zhangleyi for 20170322 end    
++
+     public void rejectCallWithMessage(String message) {
+         Log.d(this, "sendTextToDefaultActivity()...");
+         TelecomAdapter.getInstance().rejectCall(mCall.getId(), true, message);
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/SmsRejustDialogActivity.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/SmsRejustDialogActivity.java	(revision 0)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/SmsRejustDialogActivity.java	(revision 166633)
+@@ -0,0 +1,86 @@
++package com.android.incallui;
++
++import android.app.Activity;
++import android.app.Dialog;
++import android.content.DialogInterface;
++import android.os.Bundle;
++import android.view.View;
++import android.view.WindowManager;
++import android.widget.AdapterView;
++import android.widget.ArrayAdapter;
++import android.widget.ListView;
++import android.app.AlertDialog;
++
++import java.util.ArrayList;
++import java.util.List;
++
++/**
++ * Created by Administrator on 2017/3/22.
++ */
++public class SmsRejustDialogActivity extends Activity {
++
++    private List<String> mSmsResponses  = new ArrayList<>();
++    private ArrayAdapter<String> mSmsResponsesAdapter;
++    private Dialog mCannedResponsePopup = null;
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        showMessageDialog();
++    }
++
++    public void showMessageDialog() {
++        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
++
++        if(mSmsResponses.isEmpty()){
++            Call call = CallList.getInstance().getIncomingCall();
++            final List<String> textMsgs = CallList.getInstance().getTextResponses(call.getId());
++            mSmsResponses.addAll(textMsgs);
++            mSmsResponses.add(this.getResources().getString(
++                    R.string.respond_via_sms_custom_message));
++        }
++
++        mSmsResponsesAdapter = new ArrayAdapter<>(builder.getContext(),
++                android.R.layout.simple_list_item_1, android.R.id.text1, mSmsResponses);
++
++        final ListView lv = new ListView(this);
++        lv.setAdapter(mSmsResponsesAdapter);
++        lv.setOnItemClickListener(new RespondViaSmsItemClickListener());
++
++        builder.setCancelable(true).setView(lv).setOnCancelListener(
++                new DialogInterface.OnCancelListener() {
++                    @Override
++                    public void onCancel(DialogInterface dialogInterface) {
++
++                        InCallPresenter.getInstance().getAnswerPresenter().onDismissDialog();
++                    }
++                });
++        mCannedResponsePopup = builder.create();
++        mCannedResponsePopup.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
++        mCannedResponsePopup.show();
++    }
++
++    public class RespondViaSmsItemClickListener implements AdapterView.OnItemClickListener {
++        @Override
++        public void onItemClick(AdapterView<?> parent,  // The ListView
++                                View view,  // The TextView that was clicked
++                                int position, long id) {
++            final String message = (String) parent.getItemAtPosition(position);
++             dismissCannedResponsePopup();
++            if (position == (parent.getCount() - 1)) {
++                InCallPresenter.getInstance().getAnswerPresenter().customRejectCallWithStartSmsApplicationCustom(SmsRejustDialogActivity.this);
++            } else {
++                InCallPresenter.getInstance().getAnswerPresenter().rejectCallWithMessage(message);
++            }
++            SmsRejustDialogActivity.this.finish();
++        }
++    }
++
++    protected void dismissCannedResponsePopup() {
++        if (mCannedResponsePopup != null) {
++            mCannedResponsePopup.dismiss();  // safe even if already dismissed
++            mCannedResponsePopup = null;
++        }
++    }
++}
++
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/StatusBarNotifier.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/StatusBarNotifier.java	(revision 166632)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/StatusBarNotifier.java	(revision 166633)
+@@ -23,6 +23,7 @@
+ import static com.android.incallui.NotificationBroadcastReceiver.ACTION_DECLINE_INCOMING_CALL;
+ import static com.android.incallui.NotificationBroadcastReceiver.ACTION_DECLINE_VIDEO_UPGRADE_REQUEST;
+ import static com.android.incallui.NotificationBroadcastReceiver.ACTION_HANG_UP_ONGOING_CALL;
++import static com.android.incallui.NotificationBroadcastReceiver.ACTION_SMS_REJUST_INCOMING_CALL;
+ 
+ import com.google.common.base.Preconditions;
+ 
+@@ -383,6 +384,7 @@
+             addHangupAction(builder);
+         } else if (state == Call.State.INCOMING || state == Call.State.CALL_WAITING) {
+             addDismissAction(builder);
++            addSmsRejustAction(builder);    //Added by zhangleyi for 20170322
+             if (call.isVideoCall(mContext)) {
+                 addVoiceAction(builder);
+                 addVideoCallAction(builder);
+@@ -665,6 +667,18 @@
+                 declinePendingIntent);
+     }
+ 
++    //Added by zhangleyi for 20170322 begin
++    private void addSmsRejustAction(Notification.Builder builder) {
++        Log.d(this, "Will show \"SmsRejust\" action in the incoming call Notification");
++
++        PendingIntent declinePendingIntent =
++                createNotificationPendingIntent(mContext, ACTION_SMS_REJUST_INCOMING_CALL);
++        builder.addAction(R.drawable.ic_close_dk,
++                mContext.getText(R.string.notification_action_sms_rejust),
++                declinePendingIntent);
++    }
++    //Added by zhangleyi for 20170322 end
++
+     private void addHangupAction(Notification.Builder builder) {
+         Log.d(this, "Will show \"hang-up\" action in the ongoing active call Notification");
+ 
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/NotificationBroadcastReceiver.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/NotificationBroadcastReceiver.java	(revision 166632)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/NotificationBroadcastReceiver.java	(revision 166633)
+@@ -46,6 +46,8 @@
+             "com.android.incallui.ACTION_ACCEPT_VIDEO_UPGRADE_REQUEST";
+     public static final String ACTION_DECLINE_VIDEO_UPGRADE_REQUEST =
+             "com.android.incallui.ACTION_DECLINE_VIDEO_UPGRADE_REQUEST";
++    public static final String ACTION_SMS_REJUST_INCOMING_CALL =
++            "com.android.incallui.ACTION_SMS_REJUST_INCOMING_CALL";
+ 
+     @Override
+     public void onReceive(Context context, Intent intent) {
+@@ -69,14 +71,17 @@
+                     VideoProfile.STATE_BIDIRECTIONAL, context);
+         } else if (action.equals(ACTION_DECLINE_VIDEO_UPGRADE_REQUEST)) {
+             InCallPresenter.getInstance().declineUpgradeRequest(context);
+-            //add for SPRD:656290
++           //add for SPRD:656290
+         } else if (action.equals(WifiManager.RSSI_CHANGED_ACTION)) {
+             int rssi = intent.getIntExtra(WifiManager.EXTRA_NEW_RSSI, -200);
+             int level = WifiManager.calculateSignalLevel(rssi, 5);
+-            Log.d(this, "onReceive RSSI_CHANGED_ACTION"+level);
++			 Log.d(this, "onReceive RSSI_CHANGED_ACTION"+level);
+             InCallPresenter.getInstance().setSignalLevel(level);
+-        }
+-
++        } else if (ACTION_SMS_REJUST_INCOMING_CALL.equals(action)) {
++            Intent it = new Intent();
++            it.setClass(context.getApplicationContext(), SmsRejustDialogActivity.class);
++            it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++        } 
+     }
+ 
+ }
+Index: packages/apps/Dialer/InCallUI/res/values/strings.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/values/strings.xml	(revision 166632)
++++ packages/apps/Dialer/InCallUI/res/values/strings.xml	(revision 166633)
+@@ -527,6 +527,7 @@
+     <string name="closed_now">Closed now</string>
+     <!-- SPRD:add for Volte. -->
+     <string name="invite_call">"Invite"</string>
++	<string name="notification_action_sms_rejust">"SmsRejust"</string>
+     <!-- SPRD:add for Vowifi. -->
+     <string name="poor_voice_quality">"Poor voice quality"</string>
+     <string name="fair_voice_quality">"Fair voice quality"</string>

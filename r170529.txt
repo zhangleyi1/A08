@@ -1,0 +1,307 @@
+Index: packages/apps/FactoryMode/AndroidManifest.xml
+===================================================================
+--- packages/apps/FactoryMode/AndroidManifest.xml	(revision 170528)
++++ packages/apps/FactoryMode/AndroidManifest.xml	(revision 170529)
+@@ -243,6 +243,10 @@
+             android:name=".flashlight.FlashLightSub"
+             android:label="@string/flashlightSub"
+             android:screenOrientation="portrait" />
++		<activity
++            android:name=".masterclear.MasterClear"
++            android:label="@string/masterclear"
++            android:screenOrientation="portrait" />
+     </application>
+ 
+ </manifest>
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java	(revision 170528)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java	(revision 170529)
+@@ -132,9 +132,12 @@
+ 		case FactoryMode.TESTITEM_FLASHLIGHT:
+ 			str = getString(R.string.flashlight);
+ 			break;
+-            case FactoryMode.TESTITEM_FLASHLIGHT_SUB:
++        case FactoryMode.TESTITEM_FLASHLIGHT_SUB:
+                 str = getString(R.string.flashlightSub);
+                 break;
++		case FactoryMode.TESTITEM_MASTERCLEAR:
++                str = getString(R.string.masterclear);
++                break;
+ 		default:
+ 			break;
+ 		}
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 170528)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 170529)
+@@ -51,6 +51,7 @@
+ import com.mediatek.factorymode.hall.Hall;
+ import com.mediatek.factorymode.flashlight.FlashLight;
+ import com.mediatek.factorymode.flashlight.FlashLightSub;
++import com.mediatek.factorymode.masterclear.MasterClear;
+ 
+ import java.io.File;
+ import java.io.FileNotFoundException;
+@@ -97,7 +98,8 @@
+     public static final int TESTITEM_FLASHLIGHT_SUB = 24;
+ 	//public static final int TESTITEM_LED = 25;
+ 	public static final int TESTITEM_LSENSORCALI = 25;
+-	public static final int TESTITEM_TATOL = 26;
++	public static final int TESTITEM_MASTERCLEAR = 26;
++	public static final int TESTITEM_TATOL = 27;
+ 	//public static final int TESTITEM_TPRAWDATA=19;
+ 	//private static int currentTestMode = 0;
+ 	public static int currenttestitem = TESTITEM_START;
+@@ -171,6 +173,7 @@
+   //TESTITEM_LED ,
+     TESTITEM_FLASHLIGHT ,
+ 	TESTITEM_FLASHLIGHT_SUB ,
++	TESTITEM_MASTERCLEAR
+   //TESTITEM_TPRAWDATA
+   };
+ 
+@@ -730,6 +733,10 @@
+           intent.setClass(this, FlashLightSub.class);
+           startActivityForResult(intent, TESTITEM_FLASHLIGHT_SUB);
+           break;
++	  case  TESTITEM_MASTERCLEAR:
++		 intent.setClass(this, MasterClear.class);
++        startActivityForResult(intent, TESTITEM_MASTERCLEAR);
++		  break;
+       default:
+         break;
+     }
+@@ -834,6 +841,9 @@
+         case TESTITEM_FLASHLIGHT_SUB:
+             str = getString(R.string.flashlightSub);
+             break;
++		case TESTITEM_MASTERCLEAR:
++			str = getString(R.string.masterclear);
++			break;
+ 		default:
+ 			break;
+ 		}
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/masterclear/MasterClear.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/masterclear/MasterClear.java	(revision 0)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/masterclear/MasterClear.java	(revision 170529)
+@@ -0,0 +1,97 @@
++package com.mediatek.factorymode.masterclear;
++
++import java.util.List;
++
++import android.app.Activity;
++import android.bluetooth.BluetoothDevice;
++import android.content.BroadcastReceiver;
++import android.content.Context;
++import android.content.Intent;
++import android.os.Bundle;
++import android.util.Log;
++import android.view.KeyEvent;
++import android.view.View;
++import android.view.Window;
++import android.view.WindowManager;
++import android.widget.Button;
++
++import com.mediatek.factorymode.FactoryMode;
++import com.mediatek.factorymode.R;
++import com.mediatek.factorymode.bluetooth.Bluetooth;
++import com.mediatek.factorymode.earphone.Earphone;
++import android.content.ComponentName;
++
++
++public class MasterClear extends Activity{
++	Button succesButton ;
++	Button failButton ;
++	private static final Intent BACKUP_SETTINGS = new Intent().setComponent(new ComponentName(
++            "com.android.settings", "com.android.settings.Settings$PrivacySettingsActivity"));
++	@Override
++	protected void onCreate(Bundle savedInstanceState) {
++		// TODO Auto-generated method stub
++		super.onCreate(savedInstanceState);
++    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
++	  getWindow().getDecorView().setSystemUiVisibility(View.STATUS_BAR_DISABLE_EXPAND);
++		setContentView(R.layout.masterclear_test);
++		startActivity(BACKUP_SETTINGS);
++		succesButton = (Button)this.findViewById(R.id.master_bt_ok);
++		failButton = (Button)this.findViewById(R.id.master_bt_failed);
++		succesButton.setEnabled(true);
++		succesButton.setOnClickListener(new Button.OnClickListener(){
++
++			@Override
++			public void onClick(View v) {
++				// TODO Auto-generated method stub
++				Intent intent = new Intent(MasterClear.this, FactoryMode.class);
++				setResult(FactoryMode.TEST_OK,intent);
++				finish();
++			}
++			
++		});
++		failButton.setOnClickListener(new Button.OnClickListener(){
++
++			@Override
++			public void onClick(View v) {
++				// TODO Auto-generated method stub
++				Intent intent = new Intent(MasterClear.this, FactoryMode.class);
++				setResult(FactoryMode.TEST_FAIL,intent);
++				finish();
++			}
++			
++		});
++		
++	}
++	
++	@Override
++	protected void onDestroy() {
++		super.onDestroy();
++	}
++
++	@Override
++	protected void onStop() {	
++		super.onStop();
++	}
++	
++	
++	@Override
++	public boolean onKeyUp(int keyCode, KeyEvent event) {
++		switch (keyCode) {
++		case KeyEvent.KEYCODE_MENU:
++			return true;
++			
++		case KeyEvent.KEYCODE_BACK:
++			Intent intent = new Intent(MasterClear.this, FactoryMode.class);
++			setResult(FactoryMode.TEST_CANCEL,intent);
++			finish();
++			return true;
++		}
++		return super.onKeyUp(keyCode, event);
++    }
++	
++	
++	@Override
++	protected void onResume(){
++		super.onResume();
++	}
++}
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/simcard/SimCard.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/simcard/SimCard.java	(revision 170528)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/simcard/SimCard.java	(revision 170529)
+@@ -118,9 +118,9 @@
+ 			
+ 			if(Sim1Exist && Sim2Exist){
+ 			   successButton.setEnabled(true);
+-			   Intent intent = new Intent(SimCard.this, FactoryMode.class);
+-			   setResult(FactoryMode.TEST_OK,intent);
+-			   finish();
++			   //Intent intent = new Intent(SimCard.this, FactoryMode.class);
++			  // setResult(FactoryMode.TEST_OK,intent);
++			   //finish();
+ 			}
+ 		}
+ 		
+Index: packages/apps/FactoryMode/res/values/strings.xml
+===================================================================
+--- packages/apps/FactoryMode/res/values/strings.xml	(revision 170528)
++++ packages/apps/FactoryMode/res/values/strings.xml	(revision 170529)
+@@ -227,4 +227,5 @@
+     <string name="sener_hint">The data of the lightdensor is:</string>
+     <string name="gsener_hint">The data of motionsensor is:</string>
+     <string name="flashlightSub">SubFlashLight</string>
++	<string name="masterclear">MasterClear</string>
+ </resources>
+Index: packages/apps/FactoryMode/res/layout/main.xml
+===================================================================
+--- packages/apps/FactoryMode/res/layout/main.xml	(revision 170528)
++++ packages/apps/FactoryMode/res/layout/main.xml	(revision 170529)
+@@ -5,12 +5,12 @@
+ 	android:layout_height="fill_parent"
+ 	xmlns:android="http://schemas.android.com/apk/res/android">
+ 	<Button 
+-		android:textSize="15.0dip" 
++		android:textSize="16.0dip" 
+ 		android:id="@id/main_bt_autotest"
+ 		android:layout_width="fill_parent"
+ 		android:layout_height="wrap_content"
+ 		android:text="@string/AutoTest"
+-		android:layout_weight="0.5" />
++		android:layout_weight="0.3" />
+ 		
+ 	<GridView
+ 		android:id="@id/main_grid"
+@@ -19,21 +19,21 @@
+ 		android:columnWidth="101.0dip"
+ 		android:gravity="center"
+ 		android:horizontalSpacing="0.2dip"
+-		android:numColumns="auto_fit"
++		android:numColumns="4"
+ 		android:padding="0.0dip"
+ 		android:stretchMode="columnWidth"
+ 		android:verticalSpacing="0.0dip" />
+ 		
+ 	<Button 
+-		android:textSize="14.0dip" 
++		android:textSize="16.0dip" 
+ 		android:id="@+id/main_bt_report" 
+ 		android:layout_width="fill_parent" 
+ 		android:layout_height="wrap_content" 
+ 		android:text="@string/SingleTestReport" 
+-		android:layout_weight="0.8" />
++		android:layout_weight="0.4" />
+ 		
+ 	<Button 
+-		android:textSize="14.0dip" 
++		android:textSize="16.0dip" 
+ 		android:id="@+id/main_auto_report" 
+ 		android:layout_width="fill_parent" 
+ 		android:layout_height="wrap_content" 
+Index: packages/apps/FactoryMode/res/layout/masterclear_test.xml
+===================================================================
+--- packages/apps/FactoryMode/res/layout/masterclear_test.xml	(revision 0)
++++ packages/apps/FactoryMode/res/layout/masterclear_test.xml	(revision 170529)
+@@ -0,0 +1,23 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent"
++  xmlns:android="http://schemas.android.com/apk/res/android">
++    <LinearLayout 
++		android:orientation="vertical" 
++		android:layout_width="fill_parent" 
++		android:layout_height="fill_parent">
++        <Button 
++			android:textSize="25.0dip" 
++			android:id="@+id/master_bt_ok" 
++			android:layout_width="fill_parent" 
++			android:layout_height="wrap_content" 
++			android:text="@string/Success" 
++			android:layout_weight="0.8" />
++        <Button 
++			android:textSize="25.0dip" 
++			android:id="@+id/master_bt_failed" 
++			android:layout_width="fill_parent" 
++			android:layout_height="wrap_content" 
++			android:text="@string/Failed" 
++			android:layout_weight="0.2" />
++    </LinearLayout>
++</LinearLayout>
+Index: packages/apps/FactoryMode/res/layout/main_grid.xml
+===================================================================
+--- packages/apps/FactoryMode/res/layout/main_grid.xml	(revision 170528)
++++ packages/apps/FactoryMode/res/layout/main_grid.xml	(revision 170529)
+@@ -5,5 +5,5 @@
+     android:layout_height="fill_parent"
+     android:background="@drawable/btn_default"
+     android:textColor="@color/black"
+-    android:textSize="15.0dip" />
++    android:textSize="12.0dip" />
+ 
+Index: packages/apps/FactoryMode/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/apps/FactoryMode/res/values-zh-rCN/strings.xml	(revision 170528)
++++ packages/apps/FactoryMode/res/values-zh-rCN/strings.xml	(revision 170529)
+@@ -219,4 +219,5 @@
+     <string name="sener_hint">The data of the lightdensor is:</string>
+     <string name="gsener_hint">The data of motionsensor is:</string>
+     <string name="flashlightSub">前闪光灯</string>
++	<string name="masterclear">"恢复出厂设置"</string>
+ </resources>

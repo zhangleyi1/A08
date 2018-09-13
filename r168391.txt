@@ -1,0 +1,13 @@
+Index: frameworks/base/core/java/android/view/inputmethod/InputMethodManager.java
+===================================================================
+--- frameworks/base/core/java/android/view/inputmethod/InputMethodManager.java	(revision 168390)
++++ frameworks/base/core/java/android/view/inputmethod/InputMethodManager.java	(revision 168391)
+@@ -1390,7 +1390,7 @@
+         synchronized (mH) {
+             if (DEBUG) Log.v(TAG, "onViewDetachedFromWindow: view=" + dumpViewInfo(view)
+                     + " mServedView=" + dumpViewInfo(mServedView));
+-            if (mServedView == view) {
++            if (mServedView == view && mNextServedView == view) {
+                 mNextServedView = null;
+                 scheduleCheckFocusLocked(view);
+             }

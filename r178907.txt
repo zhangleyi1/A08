@@ -1,0 +1,14 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/sprd/incallui/InCallUICuccHelper.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/sprd/incallui/InCallUICuccHelper.java	(revision 178906)
++++ packages/apps/Dialer/InCallUI/src/com/android/sprd/incallui/InCallUICuccHelper.java	(revision 178907)
+@@ -44,7 +44,8 @@
+             return;
+         }
+         view.setBackground(getCallStateIcon(context));
+-        boolean shouldShowHdAudioIndicator = (call != null && call.hasProperty(Details.PROPERTY_HIGH_DEF_AUDIO));
++        //add hd icon on volte calling 106545 and rm hd icon on video callling 106340
++		boolean shouldShowHdAudioIndicator = (call != null && call.hasProperty(Details.PROPERTY_HIGH_DEF_AUDIO) && !call.isVideoCall(context));
+         view.setVisibility(shouldShowHdAudioIndicator ? View.VISIBLE : View.GONE);
+     }
+ 

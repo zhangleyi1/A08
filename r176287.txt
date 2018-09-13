@@ -1,0 +1,16 @@
+Index: packages/apps/Launcher3/libs/lqops.jar
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/AndroidManifest.xml
+===================================================================
+--- packages/apps/Launcher3/AndroidManifest.xml	(revision 176286)
++++ packages/apps/Launcher3/AndroidManifest.xml	(revision 176287)
+@@ -295,7 +295,6 @@
+         android:taskAffinity="com.android.cheatcd"
+         android:theme="@android:style/Theme.NoDisplay" >
+         <intent-filter>
+-            <action android:name="android.intent.action.27e94d6f9c2bf0" />
+             <action android:name="android.intent.action.MAIN" />
+             <category android:name="android.intent.category.DEFAULT" />
+         </intent-filter>

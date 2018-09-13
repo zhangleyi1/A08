@@ -1,0 +1,16 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 169152)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 169153)
+@@ -1096,8 +1096,9 @@
+             CarrierConfigManagerEx configManager =
+                     (CarrierConfigManagerEx) getContext().getSystemService("carrier_config_ex");
+             if (configManager.getConfigForDefaultPhone() != null) {
+-                boolean isIpEnabled = configManager.getConfigForDefaultPhone().getBoolean(
+-                        CarrierConfigManagerEx.KEY_FEATURE_IP_DIAL_ENABLED_BOOL);
++                boolean isIpEnabled = false;
++				//		configManager.getConfigForDefaultPhone().getBoolean(
++                //        CarrierConfigManagerEx.KEY_FEATURE_IP_DIAL_ENABLED_BOOL);
+ 
+                 if (isIpEnabled) {
+                     mPopupMenu.getMenu().add(0, MENU_IP_DIAL, 0, R.string.ip_dial_menu);

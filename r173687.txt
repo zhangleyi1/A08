@@ -1,0 +1,1982 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/widget/ModeOptions.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/widget/ModeOptions.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/widget/ModeOptions.java	(revision 173687)
+@@ -126,20 +126,7 @@
+         mBackgroundColor = getResources().getColor(R.color.mode_options_background);
+         mPaint.setAntiAlias(true);
+         mPaint.setColor(mBackgroundColor);
+-        mModeOptionsButtons = (TopRightWeightedLayout) findViewById(R.id.mode_options_buttons);
+-        mModeOptionsPano = (RadioOptions) findViewById(R.id.mode_options_pano);
+-        mModeOptionsExposure = (RadioOptions) findViewById(R.id.mode_options_exposure);
+         mMainBar = mActiveBar = mModeOptionsButtons;
+-
+-        /* SPRD: New feature vgesture detect @{ */
+-        mGridLinesButton = (MultiToggleImageButton)mModeOptionsButtons.findViewById(R.id.grid_lines_toggle_button);
+-        mVGestureButton = (MultiToggleImageButton)mModeOptionsButtons.findViewById(R.id.camera_vgesture_button);
+-        if (UCamUtill.isVgestureEnnable()) {
+-            mGridLinesButton.setVisibility(View.GONE);
+-        } else {
+-            mVGestureButton.setVisibility(View.GONE);
+-        }
+-        /* @} */
+     }
+ 
+     public void showExposureOptions() {
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/widget/ModeOptionsOverlay.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/widget/ModeOptionsOverlay.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/widget/ModeOptionsOverlay.java	(revision 173687)
+@@ -60,11 +60,6 @@
+     private static final int BOTTOM_RIGHT = Gravity.BOTTOM | Gravity.RIGHT;
+     private static final int TOP_RIGHT = Gravity.TOP | Gravity.RIGHT;
+ 
+-    private ModeOptions mModeOptions;
+-    // need a reference to set the onClickListener and fix the layout gravity on orientation change
+-    private LinearLayout mModeOptionsToggle;
+-    // need a reference to fix the rotation on orientation change
+-    private ImageView mThreeDots;
+     private CaptureLayoutHelper mCaptureLayoutHelper = null;
+ 
+     public ModeOptionsOverlay(Context context, AttributeSet attrs) {
+@@ -72,21 +67,6 @@
+     }
+ 
+     /**
+-     * Whether the mode options are hidden.
+-     */
+-    public boolean isModeOptionsHidden() {
+-        return mModeOptions.isHiddenOrHiding();
+-    }
+-
+-    /**
+-     * Gets the current width of the mode options toggle including the three dots and various mode
+-     * option indicators.
+-     */
+-    public float getModeOptionsToggleWidth() {
+-        return mModeOptionsToggle.getWidth();
+-    }
+-
+-    /**
+      * Sets a capture layout helper to query layout rect from.
+      */
+     public void setCaptureLayoutHelper(CaptureLayoutHelper helper) {
+@@ -94,11 +74,9 @@
+     }
+ 
+     public void setToggleClickable(boolean clickable) {
+-        mModeOptionsToggle.setClickable(clickable);
+     }
+ 
+     public void showExposureOptions() {
+-        mModeOptions.showExposureOptions();
+     }
+ 
+     /**
+@@ -107,30 +85,10 @@
+      * @param listener The listener to be set.
+      */
+     public void setModeOptionsListener(ModeOptions.Listener listener) {
+-        mModeOptions.setListener(listener);
+     }
+ 
+     @Override
+     public void onFinishInflate() {
+-        mModeOptions = (ModeOptions) findViewById(R.id.mode_options);
+-        mModeOptions.setClickable(true);
+-        mModeOptions.setOnClickListener(new View.OnClickListener() {
+-            @Override
+-            public void onClick(View v) {
+-                closeModeOptions();
+-            }
+-        });
+-
+-        mModeOptionsToggle = (LinearLayout) findViewById(R.id.mode_options_toggle);
+-        mModeOptionsToggle.setOnClickListener(new View.OnClickListener() {
+-            @Override
+-            public void onClick(View v) {
+-                mModeOptions.animateVisible();
+-            }
+-        });
+-        mModeOptions.setViewToShowHide(mModeOptionsToggle);
+-
+-        mThreeDots = (ImageView) findViewById(R.id.three_dots);
+     }
+ 
+     @Override
+@@ -164,7 +122,6 @@
+      * scheduled.
+      */
+     public void closeModeOptions() {
+-        mModeOptions.animateHidden();
+     }
+ 
+     @Override
+@@ -198,38 +155,6 @@
+     private void checkOrientation(int orientation) {
+      */
+     public void checkOrientation(int orientation) {
+-    /**
+-     * @}
+-     */
+-        final boolean isPortrait = (Configuration.ORIENTATION_PORTRAIT == orientation);
+-
+-        final int modeOptionsDimension = (int) getResources()
+-            .getDimension(R.dimen.mode_options_height);
+-
+-        FrameLayout.LayoutParams modeOptionsParams
+-            = (FrameLayout.LayoutParams) mModeOptions.getLayoutParams();
+-        FrameLayout.LayoutParams modeOptionsToggleParams
+-            = (FrameLayout.LayoutParams) mModeOptionsToggle.getLayoutParams();
+-
+-        if (isPortrait) {
+-            modeOptionsParams.height = modeOptionsDimension;
+-            modeOptionsParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+-            modeOptionsParams.gravity = Gravity.BOTTOM;
+-
+-            modeOptionsToggleParams.gravity = BOTTOM_RIGHT;
+-
+-            mThreeDots.setImageResource(R.drawable.ic_options_port);
+-        } else {
+-            modeOptionsParams.width = modeOptionsDimension;
+-            modeOptionsParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+-            modeOptionsParams.gravity = Gravity.RIGHT;
+-
+-            modeOptionsToggleParams.gravity = TOP_RIGHT;
+-
+-            mThreeDots.setImageResource(R.drawable.ic_options_land);
+-        }
+-
+-        requestLayout();
+     }
+ 
+     /*
+@@ -238,9 +163,6 @@
+     @Override
+     public void onOrientationChanged(OrientationManager orientationManager,
+             OrientationManager.DeviceOrientation deviceOrientation) {
+-        int orientation = deviceOrientation.getDegrees();
+-
+-        mModeOptions.setupToggleButtonParams(orientation);
+     }
+     /* @} */
+ }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/widget/IndicatorIconController.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/widget/IndicatorIconController.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/widget/IndicatorIconController.java	(revision 173687)
+@@ -73,54 +73,6 @@
+     private AppController mController;
+ 
+     public IndicatorIconController(AppController controller, View root) {
+-        mController = controller;
+-        Context context = controller.getAndroidContext();
+-
+-        mFlashIndicator = (ImageView) root.findViewById(R.id.flash_indicator);
+-        mFlashIndicatorPhotoIcons = context.getResources().obtainTypedArray(
+-            R.array.camera_flashmode_indicator_icons);
+-        mFlashIndicatorVideoIcons = context.getResources().obtainTypedArray(
+-            R.array.video_flashmode_indicator_icons);
+-        //SPRD:fix bug528493 flash state is not consistent between hide and spread
+-        mFlashIndicatorGifIcons = context.getResources().obtainTypedArray(
+-            R.array.gif_flashmode_indicator_icons);
+-
+-        mHdrIndicator = (ImageView) root.findViewById(R.id.hdr_indicator);
+-        mHdrPlusIndicatorIcons = context.getResources().obtainTypedArray(
+-            R.array.pref_camera_hdr_plus_indicator_icons);
+-        mHdrIndicatorIcons = context.getResources().obtainTypedArray(
+-            R.array.pref_camera_hdr_indicator_icons);
+-
+-        int panoIndicatorArrayId = PhotoSphereHelper.getPanoramaOrientationIndicatorArrayId();
+-        if (panoIndicatorArrayId > 0) {
+-            mPanoIndicator = (ImageView) root.findViewById(R.id.pano_indicator);
+-            mPanoIndicatorIcons =
+-                context.getResources().obtainTypedArray(panoIndicatorArrayId);
+-        }
+-
+-        mCountdownTimerIndicator = (ImageView) root.findViewById(R.id.countdown_timer_indicator);
+-        mCountdownTimerIndicatorIcons = context.getResources().obtainTypedArray(
+-                R.array.pref_camera_countdown_indicators);
+-
+-        /* SPRD: New feature vgesture detect @{ */
+-        if (UCamUtill.isVgestureEnnable()) {
+-            mVgestureIndicator = (ImageView) root.findViewById(R.id.vgesture_indicator);
+-            mVgestureIndicatorIcons = context.getResources().obtainTypedArray(
+-                    R.array.camera_vgesture_indicator_icons);
+-        }
+-        /* @} */
+-
+-        // SPRD Bug:474711 Feature:Exposure Compensation.
+-        mExposureIndicatorN3 = (ImageView) root.findViewById(R.id.exposure_n3_indicator);
+-
+-        mExposureIndicatorN2 = (ImageView) root.findViewById(R.id.exposure_n2_indicator);
+-        mExposureIndicatorN1 = (ImageView) root.findViewById(R.id.exposure_n1_indicator);
+-        mExposureIndicatorP1 = (ImageView) root.findViewById(R.id.exposure_p1_indicator);
+-        mExposureIndicatorP2 = (ImageView) root.findViewById(R.id.exposure_p2_indicator);
+-
+-        // SPRD Bug:474711 Feature:Exposure Compensation.
+-        mExposureIndicatorP3 = (ImageView) root.findViewById(R.id.exposure_p3_indicator);
+-
+     }
+ 
+     @Override
+@@ -256,19 +208,6 @@
+      * Sync the icon and the visibility of the pano indicator.
+      */
+     private void syncPanoIndicator() {
+-        if (mPanoIndicator == null) {
+-            Log.w(TAG, "Trying to sync a pano indicator that is not initialized.");
+-            return;
+-        }
+-
+-        ButtonManager buttonManager = mController.getButtonManager();
+-        if (buttonManager.isPanoEnabled()) {
+-            setIndicatorState(SettingsManager.SCOPE_GLOBAL,
+-                              Keys.KEY_CAMERA_PANO_ORIENTATION, mPanoIndicator,
+-                              mPanoIndicatorIcons, true);
+-        } else {
+-            changeVisibility(mPanoIndicator, View.GONE);
+-        }
+     }
+ 
+     private void syncExposureIndicator() {
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/captureintent/CaptureIntentModuleUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/captureintent/CaptureIntentModuleUI.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/captureintent/CaptureIntentModuleUI.java	(revision 173687)
+@@ -245,8 +245,6 @@
+         mIntentReviewImageView.setVisibility(View.VISIBLE);
+ 
+         mAppUI.transitionToIntentReviewLayout();
+-        mAppUI.hideModeOptions();
+-        mAppUI.disableModeOptions();
+         mAppUI.setShutterButtonEnabled(false);
+     }
+ 
+@@ -260,9 +258,6 @@
+         mIntentReviewImageView.setImageBitmap(null);
+ 
+         mAppUI.transitionToIntentCaptureLayout();
+-        mAppUI.syncModeOptionIndicators();
+-        mAppUI.enableModeOptions();
+-        mAppUI.showModeOptions();
+         mAppUI.setShutterButtonEnabled(true);
+         mAppUI.setShouldSuppressCaptureIndicator(true);
+     }
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/CaptureModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/CaptureModule.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/CaptureModule.java	(revision 173687)
+@@ -510,7 +510,6 @@
+         if (countDownDuration > 0) {
+             // Start count down.
+             mAppController.getCameraAppUI().transitionToCancel();
+-            mAppController.getCameraAppUI().hideModeOptions();
+             mUI.setCountdownFinishedListener(this);
+             mUI.startCountdown(countDownDuration);
+             // Will take picture later via listener callback.
+@@ -602,7 +601,6 @@
+     @Override
+     public void onCountDownFinished() {
+         mAppController.getCameraAppUI().transitionToCapture();
+-        mAppController.getCameraAppUI().showModeOptions();
+         if (mPaused) {
+             return;
+         }
+@@ -625,7 +623,6 @@
+         }
+ 
+         if (!mPaused) {
+-            mAppController.getCameraAppUI().showModeOptions();
+             mAppController.getCameraAppUI().transitionToCapture();
+         }
+     }
+@@ -710,7 +707,6 @@
+ 
+         // TODO: Check if we can really take a photo right now (memory, camera
+         // state, ... ).
+-        mAppController.getCameraAppUI().enableModeOptions();
+         mAppController.setShutterEnabled(true);
+         mAppController.getCameraAppUI().showAccessibilityZoomUI(
+                 mCameraCharacteristics.getAvailableMaxDigitalZoom());
+@@ -1055,7 +1051,6 @@
+     @Override
+     public void onReadyStateChanged(boolean readyForCapture) {
+         if (readyForCapture) {
+-            mAppController.getCameraAppUI().enableModeOptions();
+         }
+         mAppController.setShutterEnabled(readyForCapture);
+     }
+@@ -1073,7 +1068,6 @@
+ 
+     @Override
+     public void onPictureTaken(CaptureSession session) {
+-        mAppController.getCameraAppUI().enableModeOptions();
+     }
+ 
+     @Override
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/ButtonManager.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/ButtonManager.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src/com/android/camera/ButtonManager.java	(revision 173687)
+@@ -80,23 +80,6 @@
+ 
+     private ImageButton mButtonExposureCompensation;
+ 
+-    // SPRD Bug:474711 Feature:Exposure Compensation.
+-    private ImageButton mExposureN3;
+-
+-    private ImageButton mExposureN2;
+-    private ImageButton mExposureN1;
+-    private ImageButton mExposure0;
+-    private ImageButton mExposureP1;
+-    private ImageButton mExposureP2;
+-
+-    // SPRD Bug:474711 Feature:Exposure Compensation.
+-    private ImageButton mExposureP3;
+-
+-    private RadioOptions mModeOptionsExposure;
+-    private RadioOptions mModeOptionsPano;
+-    private View mModeOptionsButtons;
+-    private ModeOptions mModeOptions;
+-
+     private int mMinExposureCompensation;
+     private int mMaxExposureCompensation;
+     private float mExposureCompensationStep;
+@@ -176,25 +159,6 @@
+             = (MultiToggleImageButton) root.findViewById(R.id.flash_toggle_button);
+         mButtonHdr
+             = (MultiToggleImageButton) root.findViewById(R.id.hdr_plus_toggle_button);
+-        /**
+-          * SPRD: Change for New Feature VGesture
+-          * original code
+-          * @{
+-        mButtonGridlines
+-            = (MultiToggleImageButton) root.findViewById(R.id.grid_lines_toggle_button);
+-           */
+-        /*if (!UCamUtill.isVgestureEnnable()) {*/
+-            mButtonGridlines
+-                = (MultiToggleImageButton) root.findViewById(R.id.grid_lines_toggle_button);
+-        /*} else {*/
+-        if (UCamUtill.isVgestureEnnable()) {
+-            camera_vgesture_button
+-                = (MultiToggleImageButton) root.findViewById(R.id.camera_vgesture_button);
+-        }
+-       /* }*/
+-        /**
+-          * @}
+-          */
+         mButtonCancel
+             = (ImageButton) root.findViewById(R.id.cancel_button);
+         mButtonDone
+@@ -201,28 +165,6 @@
+             = (ImageButton) root.findViewById(R.id.done_button);
+         mButtonRetake
+             = (ImageButton) root.findViewById(R.id.retake_button);
+-
+-        mButtonExposureCompensation =
+-            (ImageButton) root.findViewById(R.id.exposure_button);
+-
+-        // SPRD Bug:474711 Feature:Exposure Compensation.
+-        mExposureN3 = (ImageButton) root.findViewById(R.id.exposure_n3);
+-
+-        mExposureN2 = (ImageButton) root.findViewById(R.id.exposure_n2);
+-        mExposureN1 = (ImageButton) root.findViewById(R.id.exposure_n1);
+-        mExposure0 = (ImageButton) root.findViewById(R.id.exposure_0);
+-        mExposureP1 = (ImageButton) root.findViewById(R.id.exposure_p1);
+-        mExposureP2 = (ImageButton) root.findViewById(R.id.exposure_p2);
+-
+-        // SPRD Bug:474711 Feature:Exposure Compensation.
+-        mExposureP3 = (ImageButton) root.findViewById(R.id.exposure_p3);
+-
+-        mModeOptionsExposure = (RadioOptions) root.findViewById(R.id.mode_options_exposure);
+-        mModeOptionsPano = (RadioOptions) root.findViewById(R.id.mode_options_pano);
+-        mModeOptionsButtons = root.findViewById(R.id.mode_options_buttons);
+-        mModeOptions = (ModeOptions) root.findViewById(R.id.mode_options);
+-
+-        mButtonCountdown = (MultiToggleImageButton) root.findViewById(R.id.countdown_toggle_button);
+     }
+ 
+     @Override
+@@ -679,28 +621,10 @@
+ 
+ 
+     public void setToInitialState() {
+-        mModeOptions.setMainBar(ModeOptions.BAR_STANDARD);
+     }
+ 
+     public void setExposureCompensationCallback(final CameraAppUI.BottomBarUISpec
+                                         .ExposureCompensationSetCallback cb) {
+-        if (cb == null) {
+-            mModeOptionsExposure.setOnOptionClickListener(null);
+-        } else {
+-            mModeOptionsExposure
+-                .setOnOptionClickListener(new RadioOptions.OnOptionClickListener() {
+-                    @Override
+-                    public void onOptionClicked(View v) {
+-                        int comp = Integer.parseInt((String)(v.getTag()));
+-
+-                        if (mExposureCompensationStep != 0.0f) {
+-                            int compValue =
+-                                Math.round(comp / mExposureCompensationStep);
+-                            cb.setExposure(compValue);
+-                        }
+-                    }
+-                });
+-        }
+     }
+ 
+     /**
+@@ -714,17 +638,6 @@
+         mMinExposureCompensation = min;
+         mExposureCompensationStep = step;
+ 
+-        // SPRD Bug:474711 Feature:Exposure Compensation.
+-        setVisible(mExposureN3, (Math.round(min * step) <= -3));
+-
+-        setVisible(mExposureN2, (Math.round(min * step) <= -2));
+-        setVisible(mExposureN1, (Math.round(min * step) <= -1));
+-        setVisible(mExposureP1, (Math.round(max * step) >= 1));
+-        setVisible(mExposureP2, (Math.round(max * step) >= 2));
+-
+-        // SPRD Bug:474711 Feature:Exposure Compensation.
+-        setVisible(mExposureP3, (Math.round(max * step) >= 3));
+-
+         updateExposureButtons();
+     }
+ 
+@@ -1050,12 +963,6 @@
+      * Update the visual state of the manual exposure buttons
+      */
+     public void updateExposureButtons() {
+-        int compValue = mSettingsManager.getInteger(mAppController.getCameraScope(),
+-                                                    Keys.KEY_EXPOSURE);
+-        if (mExposureCompensationStep != 0.0f) {
+-            int comp = Math.round(compValue * mExposureCompensationStep);
+-            mModeOptionsExposure.setSelectedOptionByTag(String.valueOf(comp));
+-        }
+     }
+ 
+     /**
+@@ -1087,80 +994,10 @@
+         button.setState(index >= 0 ? index : 0, true);
+     }
+ 
+-    public boolean isPanoEnabled() {
+-        return mModeOptions.getMainBar() == ModeOptions.BAR_PANO;
+-    }
+-
+    /**
+      * Initialize a panorama orientation buttons.
+      */
+     public void initializePanoOrientationButtons(final ButtonCallback cb) {
+-        int resIdImages = PhotoSphereHelper.getPanoramaOrientationOptionArrayId();
+-        int resIdDescriptions = PhotoSphereHelper.getPanoramaOrientationDescriptions();
+-        if (resIdImages > 0) {
+-            TypedArray imageIds = null;
+-            TypedArray descriptionIds = null;
+-            try {
+-                mModeOptions.setMainBar(ModeOptions.BAR_PANO);
+-                imageIds = mAppController
+-                    .getAndroidContext().getResources().obtainTypedArray(resIdImages);
+-                descriptionIds = mAppController
+-                    .getAndroidContext().getResources().obtainTypedArray(resIdDescriptions);
+-                mModeOptionsPano.removeAllViews();
+-                final boolean isHorizontal =
+-                    (mModeOptionsPano.getOrientation() == LinearLayout.HORIZONTAL);
+-                final int numImageIds = imageIds.length();
+-                for (int index = 0; index < numImageIds; index++) {
+-                    int i;
+-                    // if in portrait orientation (pano bar horizonal), order buttons normally
+-                    // if in landscape orientation (pano bar vertical), reverse button order
+-                    if (isHorizontal) {
+-                        i = index;
+-                    } else {
+-                        i = numImageIds - index - 1;
+-                    }
+-
+-                    int imageId = imageIds.getResourceId(i, 0);
+-                    if (imageId > 0) {
+-                        ImageButton imageButton = (ImageButton) LayoutInflater
+-                            .from(mAppController.getAndroidContext())
+-                            .inflate(R.layout.mode_options_imagebutton_template,
+-                                     mModeOptionsPano, false);
+-                        imageButton.setImageResource(imageId);
+-                        imageButton.setTag(String.valueOf(i));
+-                        mModeOptionsPano.addView(imageButton);
+-
+-                        int descriptionId = descriptionIds.getResourceId(i, 0);
+-                        if (descriptionId > 0) {
+-                            imageButton.setContentDescription(
+-                                    mAppController.getAndroidContext().getString(descriptionId));
+-                        }
+-                    }
+-                }
+-                mModeOptionsPano.updateListeners();
+-                mModeOptionsPano
+-                    .setOnOptionClickListener(new RadioOptions.OnOptionClickListener() {
+-                        @Override
+-                        public void onOptionClicked(View v) {
+-                            if (cb != null) {
+-                                int state = Integer.parseInt((String)v.getTag());
+-                                mSettingsManager.setValueByIndex(SettingsManager.SCOPE_GLOBAL,
+-                                                                 Keys.KEY_CAMERA_PANO_ORIENTATION,
+-                                                                 state);
+-                                cb.onStateChanged(state);
+-                            }
+-                        }
+-                    });
+-                updatePanoButtons();
+-            } finally {
+-                if (imageIds != null) {
+-                    imageIds.recycle();
+-                }
+-                if (descriptionIds != null) {
+-                    descriptionIds.recycle();
+-                }
+-            }
+-        }
+     }
+ 
+     /* SPRD: New feature vgesture detect @{ */
+@@ -1192,9 +1029,6 @@
+     /* @} */
+ 
+     private void updatePanoButtons() {
+-        int modeIndex = mSettingsManager.getIndexOfCurrentValue(SettingsManager.SCOPE_GLOBAL,
+-                                                                Keys.KEY_CAMERA_PANO_ORIENTATION);
+-        mModeOptionsPano.setSelectedOptionByTag(String.valueOf(modeIndex));
+     }
+ 
+     private void setPreChangeCallback(MultiToggleImageButton button, final ButtonCallback preCb) {
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src/com/sprd/camera/panora/WideAnglePanoramaModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src/com/sprd/camera/panora/WideAnglePanoramaModule.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src/com/sprd/camera/panora/WideAnglePanoramaModule.java	(revision 173687)
+@@ -1187,7 +1187,6 @@
+     }
+ 
+     private void hideSetting() {
+-        mActivity.getCameraAppUI().hideModeOptions();
+         mActivity.getModuleLayoutRoot().findViewById(R.id.settings_button)
+                 .setVisibility(View.INVISIBLE);
+     }
+@@ -1426,10 +1425,6 @@
+                  * key@{
+                  */
+                 mActivity.getCameraAppUI().hideModeList();
+-                /* }@ */
+-                /* SPRD:fix bug499275 Front DC can not capture through the Bluetooth@{ */
+-                mActivity.getCameraAppUI().closeModeOptions();
+-                /* }@ */
+                 int volumeStatus = getVolumeControlStatus(mActivity);
+                 if (volumeStatus == Keys.shutter || keyCode == KeyEvent.KEYCODE_CAMERA) {
+                     onShutterButtonClick();
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res/layout/sticky_bottom_capture_layout.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res/layout/sticky_bottom_capture_layout.xml	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res/layout/sticky_bottom_capture_layout.xml	(revision 173687)
+@@ -27,8 +27,6 @@
+         android:layout_height="@+dimen/rounded_thumbnail_ripple_ring_diameter_max"
+         android:visibility="invisible" />
+ 
+-    <include layout="@layout/mode_options_overlay" />
+-
+     <com.android.camera.ui.BottomBar
+         android:id="@+id/bottom_bar"
+         android:layout_width="match_parent"
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/src/com/ucamera/ucam/modules/ufilter/UcamFilterPhotoUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/src/com/ucamera/ucam/modules/ufilter/UcamFilterPhotoUI.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/src/com/ucamera/ucam/modules/ufilter/UcamFilterPhotoUI.java	(revision 173687)
+@@ -47,7 +47,6 @@
+     private static final Log.Tag TAG = new Log.Tag("UcamFilterPhotoUI");
+     private ImageView mFilterButton;
+ 
+-    private ModeOptionsOverlay mModeOptionsOverlay;
+     protected TsAdvancedFilterGLView mFilterGLView;
+     protected SmallAdvancedFilter mSmallAdvancedFilter;
+     // SPRD: Fix bug 574390 Quick click two times filter, no filter interface,Filter effect diagram disappear
+@@ -249,16 +248,10 @@
+ 
+     @Override
+     public void resetUI() {
+-        if (mModeOptionsOverlay != null) {
+-            mModeOptionsOverlay.setPadding(0,0,0,0);
+-        }
+         super.resetUI();
+     }
+ 
+     public void initModeOptions() {
+-        int bottom = mActivity.getResources().getDimensionPixelSize(R.dimen.mode_option_overlay_filter_height);
+-        mModeOptionsOverlay = (ModeOptionsOverlay) mRootView.findViewById(R.id.mode_options_overlay);
+-        mModeOptionsOverlay.setPadding(0, 0, 0, bottom);
+     }
+ 
+     /* SPRD: Fix 474843 Add for Filter Feature @{ */
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/src/com/ucamera/ucam/modules/ugif/GifModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/src/com/ucamera/ucam/modules/ugif/GifModule.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/src/com/ucamera/ucam/modules/ugif/GifModule.java	(revision 173687)
+@@ -160,7 +160,6 @@
+     private View mModeOptions;
+     // CID 109221 : UrF: Unread field (FB.URF_UNREAD_FIELD)
+     // private LinearLayout mModeOptionsToggle;
+-    private ModeOptionsOverlay mModeOptionsOverLay;
+     private TopRightWeightedLayout mModeOptionsButton;
+     // CID 109347 : UuF: Unused field (FB.UUF_UNUSED_FIELD)
+     // private int mModeToggleBottomMargin;
+@@ -475,7 +474,6 @@
+         // CID 109221 : UrF: Unread field (FB.URF_UNREAD_FIELD)
+         // mModeOptionsToggle = (LinearLayout) mActivity.getModuleLayoutRoot().findViewById(R.id.mode_options_toggle);
+         mModeOptionsButton = (TopRightWeightedLayout) mActivity.getModuleLayoutRoot().findViewById(R.id.mode_options_buttons);
+-        mModeOptionsOverLay = (ModeOptionsOverlay) mActivity.getModuleLayoutRoot().findViewById(R.id.mode_options_overlay);
+         // CID 123743 : DLS: Dead local store (FB.DLS_DEAD_LOCAL_STORE)
+         // int bottom = mActivity.getResources().getDimensionPixelSize(R.dimen.mode_option_overlay_gif_height);
+         resetLayout();
+@@ -489,7 +487,6 @@
+ 
+     @Override
+     protected void setModeOptionsLayout() {
+-        mModeOptionsOverLay.checkOrientation(Configuration.ORIENTATION_PORTRAIT);
+         mModeOptionsButton.checkOrientation(Configuration.ORIENTATION_PORTRAIT);
+ /*        if (mModeOptionsToggle != null) {
+             FrameLayout.LayoutParams paramsToggle =
+@@ -1340,8 +1337,6 @@
+     public void resetLayout() {
+         /* SPRD: fix bug539498 shows gap between Video icon area and option button area @{ */
+         updatePreviewAspectRatio(DEFAULT_ASPECT_RATIO);
+-        int bottom = mActivity.getResources().getDimensionPixelSize(R.dimen.mode_option_overlay_gif_height);
+-        mModeOptionsOverLay.setPadding(0,0,0,bottom);
+         /* @} */
+     }
+ 
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/src/com/ucamera/ucam/modules/ui/BasicUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/src/com/ucamera/ucam/modules/ui/BasicUI.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/src/com/ucamera/ucam/modules/ui/BasicUI.java	(revision 173687)
+@@ -573,18 +573,11 @@
+         mPhotoVoiceRecordProgress.startVoiceRecord();
+         mActivity.getCameraAppUI().showStopRecordVoiceButton();
+         mActivity.getCameraAppUI().hideCaptureIndicator();
+-        ModeOptionsOverlay mo = (ModeOptionsOverlay) mRootView
+-                .findViewById(R.id.mode_options_overlay);
+-        mo.setVisibility(View.GONE);
+     }
+ 
+     public void hideAudioNoteProgress() {
+         mPhotoVoiceRecordProgress.stopVoiceRecord();
+         mActivity.getCameraAppUI().hideStopRecordVoiceButton();
+-        /* SPRD: Fix 474843 Add for Filter Feature @{ */
+-        ModeOptionsOverlay mo = (ModeOptionsOverlay) mRootView
+-                .findViewById(R.id.mode_options_overlay);
+-        mo.setVisibility(View.VISIBLE);
+     }
+     /* @} */
+ 
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/src/com/ucamera/ucam/modules/uscenery/SprdSceneryModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/src/com/ucamera/ucam/modules/uscenery/SprdSceneryModule.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_ucam/UCamera/src/com/ucamera/ucam/modules/uscenery/SprdSceneryModule.java	(revision 173687)
+@@ -739,15 +739,6 @@
+     }
+ 
+     public void updateLayout() {
+-        View view = mViewModuleRoot.findViewById(R.id.mode_options_overlay);
+-        if (view != null) {
+-            if (mPaused) {
+-                view.setPadding(0, 0, 0, 0);
+-            } else {
+-                int bottom = mActivity.getResources().getDimensionPixelSize(R.dimen.mode_option_overlay_scenery_height);
+-                view.setPadding(0, 0, 0, bottom);
+-            }
+-        }
+     }
+ 
+ //    @Override
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_ucam/layout/ucam_magiclens_module.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_ucam/layout/ucam_magiclens_module.xml	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_ucam/layout/ucam_magiclens_module.xml	(revision 173687)
+@@ -46,11 +46,12 @@
+         <!--用于显示预览实时滤镜的GLSurfaceView。
+          TsAdvancedFilterGLView会显示在PreviewSurfaceView上层，遮挡住PreviewSurfaceView
+          -->
+-        <com.thundersoft.advancedfilter.TsAdvancedFilterGLView
+-            android:id="@+id/advanced_filter_glview"
+-            android:layout_width="match_parent"
+-            android:layout_height="match_parent"
+-            android:visibility="gone" />
++        <ViewStub
++        android:id="@+id/ucam_magiclens_module_id"
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        android:layout="@layout/ucam_magiclens_module_advfilter" />
++
+     </FrameLayout>
+     <!--
+     <ImageView
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamucamoverlay/ucam/modules/BasicModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamucamoverlay/ucam/modules/BasicModule.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamucamoverlay/ucam/modules/BasicModule.java	(revision 173687)
+@@ -566,7 +566,7 @@
+                                                             */) {// SPRD:Fix bug 398341
+             mAppController.getCameraAppUI().transitionToCapture();
+             mAppController.getCameraAppUI().setSwipeEnabled(true);
+-            mAppController.getCameraAppUI().showModeOptions();
++            
+             mAppController.setShutterEnabled(true);
+         }
+         /*SPRD: fix bug 599542 add for touch capture and count down @{*/
+@@ -595,7 +595,7 @@
+         }
+     }
+ 
+-    private void onPreviewStarted() {
++  private void onPreviewStarted() {
+         Log.i(TAG, "onPreviewStarted mContinuousCaptureCount=" + mContinuousCaptureCount);
+         mAppController.onPreviewStarted();
+         Log.i(TAG, "onPreviewStarted mCameraState=" + mCameraState);
+@@ -607,14 +607,6 @@
+              * mAppController.getCameraAppUI().showModeOptions();
+              * mAppController.setShutterEnabled(true);
+              */
+-            if (mIsImageCaptureIntent) {// SPRD:Fix bug 391829
+-                // mAppController.getCameraAppUI().showModeOptions();
+-                if (mUI.isReviewShow()) {// SPRD BUG: 402084
+-                    mAppController.getCameraAppUI().hideModeOptions();
+-                } else {
+-                    mAppController.getCameraAppUI().showModeOptions();
+-                }
+-            }
+             setCameraState(IDLE);
+         }
+         // startFaceDetection();
+@@ -1278,7 +1270,7 @@
+             if (!mQuickCapture) {
+                 Log.v(TAG, "showing UI");
+                 mUI.showCapturedImageForReview(jpegData, orientation, mMirror);
+-                mAppController.getCameraAppUI().hideModeOptions();// SPRD BUG: 402084
++                
+             } else {
+                 onCaptureDone();
+             }
+@@ -1582,7 +1574,7 @@
+         }
+         mUI.hidePostCaptureAlert();
+         mUI.hideIntentReviewImageView();
+-        mAppController.getCameraAppUI().showModeOptions();// SPRD BUG: 402084
++       
+         setupPreview();
+     }
+ 
+@@ -1751,7 +1743,7 @@
+         /* @} */
+     }
+ 
+-    @Override
++   @Override
+     public void onShutterButtonClick() {
+         Log.i(TAG, "onShutterButtonClick mPaused:" + mPaused + ",mCameraState:" + mCameraState
+                 + " isShutterEnabled=" + isShutterEnabled());
+@@ -1785,7 +1777,6 @@
+                 + " mContinuousCaptureCount=" + mContinuousCaptureCount);
+         if (getContinuousCount() > 1) {
+             mAppController.getCameraAppUI().setSwipeEnabled(false);
+-            mAppController.getCameraAppUI().hideModeOptions();
+         }
+         int countDownDuration = mDataModuleCurrent
+                 .getInt(Keys.KEY_COUNTDOWN_DURATION);
+@@ -1794,7 +1785,6 @@
+         if (countDownDuration > 0) {
+             // Start count down.
+             mAppController.getCameraAppUI().transitionToCancel();
+-            mAppController.getCameraAppUI().hideModeOptions();
+             mUI.startCountdown(countDownDuration);
+             return;
+         } else {
+@@ -2290,7 +2280,7 @@
+         return false;
+     }
+ 
+-    @Override
++   @Override
+     public boolean onKeyUp(int keyCode, KeyEvent event) {
+         switch (keyCode) {
+             case KeyEvent.KEYCODE_VOLUME_UP:
+@@ -2316,9 +2306,6 @@
+                             cancelCountDown();
+                         } else {
+                             mVolumeButtonClickedFlag = true;
+-                            /* SPRD:fix bug499275 Front DC can not capture through the Bluetooth@{ */
+-                            mActivity.getCameraAppUI().closeModeOptions();
+-                            /* }@ */
+                             onShutterButtonClick();
+                         }
+                         /* SPRD:fix bug 496864 Can not capture twice using key of volumn @{ */
+@@ -3179,7 +3166,7 @@
+             mAppController.setShutterEnabled(state == MemoryManager.STATE_OK);
+         }
+         if (state != MemoryManager.STATE_OK) {
+-            mAppController.getCameraAppUI().disableModeOptions();
++           
+             Toast.makeText(mActivity, R.string.message_save_task_memory_limit, Toast.LENGTH_LONG).show();
+         }
+     }
+@@ -3579,7 +3566,7 @@
+         // mAppController.getCameraAppUI().onShutterButtonClick();
+         // } else {
+         mAppController.getCameraAppUI().setSwipeEnabled(true);
+-        mAppController.getCameraAppUI().showModeOptions();
++        
+         // }
+     }
+ 
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamucamoverlay/ucam/modules/ugif/GifModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamucamoverlay/ucam/modules/ugif/GifModule.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamucamoverlay/ucam/modules/ugif/GifModule.java	(revision 173687)
+@@ -176,8 +176,6 @@
+     protected CameraThumbnailThread mCameraThumbnailThread;
+     private View mModeOptions;
+     // CID 109221 : UrF: Unread field (FB.URF_UNREAD_FIELD)
+-    // private LinearLayout mModeOptionsToggle;
+-    private ModeOptionsOverlay mModeOptionsOverLay;
+     private TopRightWeightedLayout mModeOptionsButton;
+     // CID 109347 : UuF: Unused field (FB.UUF_UNUSED_FIELD)
+     // private int mModeToggleBottomMargin;
+@@ -324,11 +322,9 @@
+                 mShutterSound.playUgifVideoSound();
+             }
+             if (!isGifRecording) {
+-                mActivity.getCameraAppUI().hideModeOptions();
+                 mActivity.getCameraAppUI().setSwipeEnabled(false);
+                 isGifRecording = true;
+             } else {
+-                mActivity.getCameraAppUI().enableModeOptions();
+                 mActivity.getCameraAppUI().setSwipeEnabled(true);
+                 gifFinish();
+                 return;
+@@ -359,7 +355,6 @@
+                 changeUI(false);
+                 isGifRecording = false;
+                 //SPRD:fix bug533672 stop record gif, show mode options
+-                mActivity.getCameraAppUI().showModeOptions();
+                 mActivity.getCameraAppUI().setSwipeEnabled(true);
+                 break;
+             case R.id.gif_finish:
+@@ -495,11 +490,6 @@
+         mGifProgressBar = (ProgressBar) mRootView.findViewById(R.id.gif_progress_bar);
+         mProgressTextView = (TextView) mRootView.findViewById(R.id.gif_progress_text);
+ 
+-        mModeOptions = (View) mActivity.getModuleLayoutRoot().findViewById(R.id.mode_options);
+-        // CID 109221 : UrF: Unread field (FB.URF_UNREAD_FIELD)
+-        // mModeOptionsToggle = (LinearLayout) mActivity.getModuleLayoutRoot().findViewById(R.id.mode_options_toggle);
+-        mModeOptionsButton = (TopRightWeightedLayout) mActivity.getModuleLayoutRoot().findViewById(R.id.mode_options_buttons);
+-        mModeOptionsOverLay = (ModeOptionsOverlay) mActivity.getModuleLayoutRoot().findViewById(R.id.mode_options_overlay);
+         // CID 123743 : DLS: Dead local store (FB.DLS_DEAD_LOCAL_STORE)
+         // int bottom = mActivity.getResources().getDimensionPixelSize(R.dimen.mode_option_overlay_gif_height);
+         resetLayout();
+@@ -513,8 +503,6 @@
+ 
+     @Override
+     protected void setModeOptionsLayout() {
+-        mModeOptionsOverLay.checkOrientation(Configuration.ORIENTATION_PORTRAIT);
+-        mModeOptionsButton.checkOrientation(Configuration.ORIENTATION_PORTRAIT);
+         /*
+          * if (mModeOptionsToggle != null) { FrameLayout.LayoutParams paramsToggle =
+          * (FrameLayout.LayoutParams) mModeOptionsToggle.getLayoutParams(); if (!mPaused) {
+@@ -1737,8 +1725,6 @@
+     public void resetLayout() {
+         /* SPRD: fix bug539498 shows gap between Video icon area and option button area @{ */
+         updatePreviewAspectRatio(DEFAULT_ASPECT_RATIO);
+-        int bottom = mActivity.getResources().getDimensionPixelSize(R.dimen.mode_option_overlay_gif_height);
+-        mModeOptionsOverLay.setPadding(0,0,0,bottom);
+         /* @} */
+     }
+ 
+@@ -1776,7 +1762,6 @@
+         changeUI(false);
+         isGifRecording = false;
+         // SPRD:fix bug533672 stop record gif, show mode options
+-        mActivity.getCameraAppUI().showModeOptions();
+         mActivity.getCameraAppUI().setSwipeEnabled(true);
+     }
+ 
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamsprdoverlay/camera/freeze/FreezeFrameDisplayControl.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamsprdoverlay/camera/freeze/FreezeFrameDisplayControl.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamsprdoverlay/camera/freeze/FreezeFrameDisplayControl.java	(revision 173687)
+@@ -231,7 +231,6 @@
+             mActivity.notifyNewMedia(mUri);
+         /* bug 251198 end @} */
+         mActivity.getCameraAppUI().setSwipeEnabled(true);//SPRD:Fix bug 401765
+-        mActivity.getCameraAppUI().showModeOptions();//SPRD:Fix bug 401344
+         proxyRestartViews();
+     }
+ 
+@@ -243,7 +242,6 @@
+             mActivity.removeDataByUri(uri);
+         }
+         mActivity.getCameraAppUI().setSwipeEnabled(true);//SPRD:Fix bug 401765
+-        mActivity.getCameraAppUI().showModeOptions();//SPRD:Fix bug 401344
+     }
+ 
+     /* @{ SPRD: bug 251198 start */
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DreamUIPreferenceSettingLayout.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DreamUIPreferenceSettingLayout.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/settings/DreamUIPreferenceSettingLayout.java	(revision 173687)
+@@ -60,7 +60,6 @@
+     protected void onFinishInflate() {
+         super.onFinishInflate();
+         mActivity = (Activity) getContext();
+-        DataModuleManager.getInstance(mActivity).addListener(this);
+         mReturnButton = (ImageView) findViewById(R.id.return_image);
+         mSettingFragContainer = (FrameLayout) findViewById(R.id.setting_frament_container);
+         mReturnButton.setOnClickListener(new OnClickListener() {
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/AudioPicture/AudioPictureModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/AudioPicture/AudioPictureModule.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/AudioPicture/AudioPictureModule.java	(revision 173687)
+@@ -25,6 +25,7 @@
+ import android.hardware.Camera.Parameters;
+ import com.android.camera.CameraActivity;
+ import android.view.View;
++import android.view.ViewStub;
+ import android.view.WindowManager;
+ import android.view.Gravity;
+ import android.widget.Toast;
+@@ -62,6 +63,15 @@
+ 
+     @Override
+     public PhotoUI createUI(CameraActivity activity) {
++        ViewStub viewStubRecordProgess = (ViewStub) activity.findViewById(R.id.layout_photo_voice_record_progess_id);
++        if (viewStubRecordProgess != null) {
++            viewStubRecordProgess.inflate();
++        }
++        ViewStub viewStubVoicePreview = (ViewStub) activity.findViewById(R.id.layout_voice_preview_id);
++        if (viewStubVoicePreview != null) {
++            viewStubVoicePreview.inflate();
++        }
++        mVoicePreview = (ImageView) mActivity.findViewById(R.id.voice_preview);
+         // SPRD: ui check 208
+         showRecordVoiceHind();
+         return new AudioPictureUI(activity, this, activity.getModuleLayoutRoot());
+@@ -210,7 +220,6 @@
+     }
+ 
+     private void freezePreview() {
+-        mVoicePreview = mActivity.getCameraAppUI().getVoicePreview();
+         setVoiceReviewParams();
+         mVoicePreview.setImageBitmap(makeBitmap(mActivity.getCameraAppUI().getPreviewShotWithoutTransform()));
+         mVoicePreview.setVisibility(View.VISIBLE);
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/filterdream/DreamFilterModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/filterdream/DreamFilterModule.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/filterdream/DreamFilterModule.java	(revision 173687)
+@@ -12,8 +12,11 @@
+ import com.ucamera.ucam.modules.BasicModule;
+ import com.ucamera.ucam.modules.ufilter.UcamFilterPhotoModule;
+ import com.android.camera.PhotoController;
++
+ import android.view.View;
++import android.view.ViewStub;
+ import android.widget.Toast;
++
+ import com.android.camera2.R;
+ import com.android.camera.debug.Log;
+ import com.android.camera.debug.Log.Tag;
+@@ -25,6 +28,7 @@
+ import com.android.camera.util.CameraUtil;
+ import com.android.camera.util.GcamHelper;
+ import com.android.camera.util.Size;
++
+ import java.util.Collections;
+ import java.util.Comparator;
+ import java.util.List;
+@@ -65,6 +69,14 @@
+     public void makeModuleUI(PhotoController controller, View parent) {
+         Log.d(TAG, "makeModuleUI E.");
+         // initialize BaseUI object
++        ViewStub viewStubAdvancedFilterGLView = (ViewStub) mActivity.findViewById(R.id.ucam_magiclens_module_id);
++        if(viewStubAdvancedFilterGLView != null){
++            viewStubAdvancedFilterGLView.inflate();
++        }
++        ViewStub viewStubMagiclensBottom = (ViewStub) mActivity.findViewById(R.id.layout_ucam_magiclens_bottom_id);
++        if(viewStubMagiclensBottom != null){
++            viewStubMagiclensBottom.inflate();
++        }
+         mUI = new DreamFilterModuleUI(mCameraId, mActivity, controller, parent);
+         mFilterUI = (DreamFilterModuleUI) mUI;
+         mActivity.setPreviewStatusListener(mUI);
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/continuephoto/ContinuePhotoModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/continuephoto/ContinuePhotoModule.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/continuephoto/ContinuePhotoModule.java	(revision 173687)
+@@ -168,7 +168,6 @@
+             mAppController.getCameraAppUI().onShutterButtonClick();
+         } else {
+             mAppController.getCameraAppUI().setSwipeEnabled(true);
+-            mAppController.getCameraAppUI().showModeOptions();
+         }
+     }
+ 
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/vgesturephoto/VgesturePhotoModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/vgesturephoto/VgesturePhotoModule.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dream/camera/modules/vgesturephoto/VgesturePhotoModule.java	(revision 173687)
+@@ -23,6 +23,7 @@
+ import com.dream.camera.vgesture.VGestureController;
+ 
+ import android.view.View;
++import android.view.ViewStub;
+ 
+ import com.dream.camera.util.DreamUtil;
+ import com.dream.camera.settings.DataModuleBasic;
+@@ -45,6 +46,16 @@
+ 
+     @Override
+     public VgesturePhotoUI createUI(CameraActivity activity) {
++
++        ViewStub viewStubDetectView = (ViewStub) mActivity.findViewById(R.id.layout_detectview_id);
++        if(viewStubDetectView != null){
++            viewStubDetectView.inflate();
++        }
++        ViewStub viewStubVgestureView = (ViewStub) mActivity.findViewById(R.id.layout_vgesture_id);
++        if(viewStubVgestureView != null){
++            viewStubVgestureView.inflate();
++        }
++
+         return new VgesturePhotoUI(activity, this, activity.getModuleLayoutRoot());
+     }
+ 
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/PhotoModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/PhotoModule.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/PhotoModule.java	(revision 173687)
+@@ -498,7 +498,6 @@
+                     break;
+                 }
+                 mAppController.getCameraAppUI().transitionToCancel();
+-                mAppController.getCameraAppUI().hideModeOptions();
+                 mAppController.getCameraAppUI().updatePreviewUI(View.GONE);
+                 mVGestureController.startTimer(msg.arg1);
+                 break;
+@@ -913,7 +912,6 @@
+         if (!mActivity.getCameraAppUI().isInIntentReview()// SPRD:Fix bug 497077
+                 && !mActivity.getCameraAppUI().isInFreezeReview()){// SPRD:Fix bug 398341
+             mAppController.getCameraAppUI().transitionToCapture();
+-            mAppController.getCameraAppUI().showModeOptions();
+             mAppController.setShutterEnabled(true);
+             // SPRD:cancel CountDown cannot swipe
+             mAppController.getCameraAppUI().setSwipeEnabled(true);
+@@ -938,7 +936,6 @@
+         }
+         mAppController.getCameraAppUI().updatePreviewUI(View.VISIBLE);
+         mAppController.getCameraAppUI().transitionToCapture();
+-        mAppController.getCameraAppUI().showModeOptions();
+         mAppController.getCameraAppUI().setSwipeEnabled(true);
+ 
+     }
+@@ -978,13 +975,6 @@
+                 || (mCameraState == PREVIEW_STOPPED)) {// SPRD:Fix
+                                                        // bug
+                                                        // 388289
+-            if (mIsImageCaptureIntent) {// SPRD:Fix bug 391829
+-                if (mUI.isReviewShow()) {// SPRD BUG: 402084
+-                    mAppController.getCameraAppUI().hideModeOptions();
+-                } else {
+-                    mAppController.getCameraAppUI().showModeOptions();
+-                }
+-            }
+             setCameraState(IDLE);
+         }
+ 
+@@ -1893,9 +1883,6 @@
+                     Log.v(TAG, "showing UI");
+                     mUI.showCapturedImageForReview(jpegData, orientation,
+                             mMirror);
+-                    mAppController.getCameraAppUI().hideModeOptions();// SPRD
+-                                                                      // BUG:
+-                                                                      // 402084
+                 } else {
+                     onCaptureDone();
+                 }
+@@ -2241,7 +2228,7 @@
+         mHardwareSpec = new HardwareSpecImpl(getCameraProvider(),
+                 mCameraCapabilities, mAppController.getCameraFeatureConfig(),
+                 isCameraFrontFacing());
+-        if(mHardwareSpec.isFlashSupported()){
++		if(mHardwareSpec.isFlashSupported()){
+             mUI.setButtonVisibility(ButtonManagerDream.BUTTON_FLASH_DREAM,View.VISIBLE);
+         }else{
+             mUI.setButtonVisibility(ButtonManagerDream.BUTTON_FLASH_DREAM,View.GONE);
+@@ -2267,7 +2254,6 @@
+         }
+         mUI.hidePostCaptureAlert();
+         mUI.hideIntentReviewImageView();
+-        mAppController.getCameraAppUI().showModeOptions();// SPRD BUG: 402084
+         setupPreview();
+     }
+ 
+@@ -2544,9 +2530,6 @@
+                 || isAudioRecording()
+                 || mAppController.getCameraAppUI().isModeListOpen()) {// SPRD:Fix bug399745
+             Log.i(TAG, "onShutterButtonClick is return !");
+-            if (mCaptureCount > 1) {
+-                mAppController.getCameraAppUI().enableModeOptions();
+-            }
+             mVolumeButtonClickedFlag = false;
+             if (mActivity.isFilmstripCoversPreview()
+                     && mDataModuleCurrent.getBoolean(Keys.KEY_CAMERA_VGESTURE)
+@@ -2592,16 +2575,9 @@
+         Log.i(TAG, "onShutterButtonClick: mCameraState=" + mCameraState
+                 + " mVolumeButtonClickedFlag=" + mVolumeButtonClickedFlag
+                 + " mContinuousCaptureCount=" + mContinuousCaptureCount);
+-        /*
+-         * SPRD:fix bug498569 When capture with hdr, the key of ... can be
+-         * clicked@{
+-         */
+-        mAppController.getCameraAppUI().disableModeOptions();
+-        /* }@ */
+ 
+         mAppController.getCameraAppUI().setSwipeEnabled(false);
+         if (getContinuousCount() > 1) {
+-            mAppController.getCameraAppUI().hideModeOptions();
+             mAppController.getCameraAppUI().hideCaptureIndicator();
+         }
+         /* @} */
+@@ -2616,7 +2592,6 @@
+         if (countDownDuration > 0) {
+             // Start count down.
+             mAppController.getCameraAppUI().transitionToCancel();
+-            mAppController.getCameraAppUI().hideModeOptions();
+             mUI.startCountdown(countDownDuration);
+             return;
+         } else {
+@@ -2719,7 +2694,6 @@
+          */
+         if (mPaused || mIsContinousCaptureFinish) {
+             mAppController.getCameraAppUI().setSwipeEnabled(true);
+-            mAppController.getCameraAppUI().showModeOptions();
+             mIsContinousCaptureFinish = false;
+             return;
+         }
+@@ -3237,12 +3211,6 @@
+                         cancelVgestureCountDown(true);
+                     } else {
+                         mVolumeButtonClickedFlag = true;
+-                        /*
+-                         * SPRD:fix bug499275 Front DC can not capture through
+-                         * the Bluetooth@{
+-                         */
+-                        mActivity.getCameraAppUI().closeModeOptions();
+-                        /* }@ */
+                         if (mBurstCaptureType == keyCode){
+                             handleActionUp();
+                         } else if (!mIsImageCaptureIntent) {
+@@ -3475,7 +3443,7 @@
+         Log.i(TAG, "stopPreview start!mCameraDevice=" + mCameraDevice);
+         if (mCameraDevice != null && mCameraState != PREVIEW_STOPPED) {
+             Log.i(TAG, "stopPreview");
+-			mCameraDevice.stopPreview();
++            mCameraDevice.stopPreview();
+             mFaceDetectionStarted = false;
+         }
+         setCameraState(PREVIEW_STOPPED);
+@@ -4460,11 +4428,6 @@
+                 /* @} */
+                 mAppController.setShutterEnabled(state == MemoryManager.STATE_OK);
+             }
+-            /* SPRD: Fix bug 547144 that app is killed because of low memory @{ */
+-            if (state != MemoryManager.STATE_OK) {
+-                mAppController.getCameraAppUI().disableModeOptions();
+-            }
+-            /* @} */
+             if (isUcamBeautyCanBeUsed()) {
+                 mUI.setFilterMakeupButtonEnabled(state == MemoryManager.STATE_OK);// SPRD:fix
+                                                                                   // bug474672
+@@ -4889,7 +4852,6 @@
+             mAppController.getCameraAppUI().onShutterButtonClick();
+         } else {
+             mAppController.getCameraAppUI().setSwipeEnabled(true);
+-            mAppController.getCameraAppUI().showModeOptions();
+         }
+     }
+ 
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/app/CameraAppUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/app/CameraAppUI.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/app/CameraAppUI.java	(revision 173687)
+@@ -33,6 +33,7 @@
+ import android.view.View;
+ import android.view.ViewConfiguration;
+ import android.view.ViewGroup;
++import android.view.ViewStub;
+ import android.view.animation.Animation;
+ import android.view.animation.ScaleAnimation;
+ import android.widget.FrameLayout;
+@@ -583,7 +584,6 @@
+     private ImageButton mCountdownCancelButton;
+     private BottomBar mBottomBar;
+     private ModeOptionsOverlay mModeOptionsOverlay;
+-    private IndicatorIconController mIndicatorIconController;
+     private FocusRing mFocusRing;
+     private FrameLayout mTutorialsPlaceHolderWrapper;
+     private StickyBottomCaptureLayout mStickyBottomCaptureLayout;
+@@ -634,7 +634,6 @@
+             }
+         }
+     };
+-    private View mModeOptionsToggle;
+     private final RoundedThumbnailView mRoundedThumbnailView;
+     private final DreamCaptureLayoutHelper mCaptureLayoutHelper;
+     private final View mAccessibilityAffordances;
+@@ -1016,7 +1015,7 @@
+         mAppRootView = appRootView;
+         mSettingLayout = (DreamUIPreferenceSettingLayout) appRootView
+                 .findViewById(R.id.dream_ui_preference_setting_layout);
+-
++        DataModuleManager.getInstance(mController.getAndroidContext()).addListener(mSettingLayout);
+         mCurrentModuleTip = (TextView) appRootView
+                 .findViewById(R.id.current_module);
+ 
+@@ -1246,6 +1245,7 @@
+                 .unregisterDisplayListener(mDisplayListener);
+         SlidePanelManager.getInstance((CameraActivity) mController).onDestroy();
+         mIsDestroyed = true;
++        DataModuleManager.getInstance(mController.getAndroidContext()).removeListener(mSettingLayout);
+     }
+ 
+     /**
+@@ -1382,7 +1382,6 @@
+      * adapts the rest of the UI.
+      */
+     public void openModeList() {
+-        mModeOptionsOverlay.closeModeOptions();
+         mModeListView.onMenuPressed();
+     }
+ 
+@@ -1534,40 +1533,6 @@
+     public void onModeListOpenProgress(float progress) {
+         // When the mode list is in transition, ensure the large layers are
+         // hardware accelerated.
+-        if (progress >= 1.0f || progress <= 0.0f) {
+-            // Convert hardware layers back to default layer types when
+-            // animation stops
+-            // to prevent accidental artifacting.
+-            if (mModeOptionsToggle.getLayerType() == View.LAYER_TYPE_HARDWARE
+-                    || mShutterButton.getLayerType() == View.LAYER_TYPE_HARDWARE) {
+-                Log.v(TAG,
+-                        "Disabling hardware layer for the Mode Options Toggle Button.");
+-                mModeOptionsToggle.setLayerType(View.LAYER_TYPE_NONE, null);
+-                Log.v(TAG, "Disabling hardware layer for the Shutter Button.");
+-                mShutterButton.setLayerType(View.LAYER_TYPE_NONE, null);
+-            }
+-        } else {
+-            if (mModeOptionsToggle.getLayerType() != View.LAYER_TYPE_HARDWARE
+-                    || mShutterButton.getLayerType() != View.LAYER_TYPE_HARDWARE) {
+-                Log.v(TAG,
+-                        "Enabling hardware layer for the Mode Options Toggle Button.");
+-                mModeOptionsToggle.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+-                Log.v(TAG, "Enabling hardware layer for the Shutter Button.");
+-                mShutterButton.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+-            }
+-        }
+-
+-        progress = 1 - progress;
+-        float interpolatedProgress = Gusterpolator.INSTANCE
+-                .getInterpolation(progress);
+-        mModeOptionsToggle.setAlpha(interpolatedProgress);
+-        // Change shutter button alpha linearly based on the mode list open
+-        // progress:
+-        // set the alpha to disabled alpha when list is fully open, to enabled
+-        // alpha
+-        // when the list is fully closed.
+-        mShutterButton.setAlpha(progress * ShutterButton.ALPHA_WHEN_ENABLED
+-                + (1 - progress) * ShutterButton.ALPHA_WHEN_DISABLED);
+     }
+ 
+     @Override
+@@ -1575,18 +1540,6 @@
+         // Convert hardware layers back to default layer types when animation
+         // stops
+         // to prevent accidental artifacting.
+-        if (mModeOptionsToggle.getLayerType() == View.LAYER_TYPE_HARDWARE
+-                || mShutterButton.getLayerType() == View.LAYER_TYPE_HARDWARE) {
+-            Log.v(TAG,
+-                    "Disabling hardware layer for the Mode Options Toggle Button.");
+-            mModeOptionsToggle.setLayerType(View.LAYER_TYPE_NONE, null);
+-            Log.v(TAG, "Disabling hardware layer for the Shutter Button.");
+-            mShutterButton.setLayerType(View.LAYER_TYPE_NONE, null);
+-        }
+-
+-        // Make sure the alpha on mode options ellipse is reset when mode drawer
+-        // is closed.
+-        mModeOptionsToggle.setAlpha(1f);
+         mShutterButton.setAlpha(ShutterButton.ALPHA_WHEN_ENABLED);
+     }
+ 
+@@ -1707,16 +1660,6 @@
+     }
+ 
+     /**
+-     * Updates the mode option indicators according to the current settings.
+-     */
+-    public void syncModeOptionIndicators() {
+-        if (mIndicatorIconController != null) {
+-            // Sync the settings state with the indicator state.
+-            mIndicatorIconController.syncIndicators();
+-        }
+-    }
+-
+-    /**
+      * Adds a listener to receive callbacks when preview area changes.
+      */
+     public void addPreviewAreaChangedListener(
+@@ -1760,22 +1703,13 @@
+ 
+         mBottomBar.setCaptureLayoutHelper(mCaptureLayoutHelper);
+ 
+-        mModeOptionsOverlay = (ModeOptionsOverlay) mCameraRootView
+-                .findViewById(R.id.mode_options_overlay);
+-
+-        // SPRD Bug:519334 Refactor Rotation UI of Camera.
+-        mController.getOrientationManager().addOnOrientationChangeListener(
+-                mModeOptionsOverlay);
+-
+         // Sets the visibility of the bottom bar and the mode options.
+         resetBottomControls(mController.getCurrentModuleController(),
+                 mController.getCurrentModuleIndex());
+-        mModeOptionsOverlay.setCaptureLayoutHelper(mCaptureLayoutHelper);
+ 
+         mShutterButton = (ShutterButton) mCameraRootView
+                 .findViewById(R.id.shutter_button);
+         addShutterListener(mController.getCurrentModuleController());
+-        addShutterListener(mModeOptionsOverlay);
+         addShutterListener(this);
+ 
+         mGridLines = (GridLines) mCameraRootView.findViewById(R.id.grid_lines);
+@@ -1798,7 +1732,6 @@
+         mZoomPanel = (ZoomPanel) mCameraRootView.findViewById(R.id.zoom_panel);
+ 
+         mPreviewOverlay.setOnTouchListener(new MyTouchListener());
+-        mPreviewOverlay.setOnPreviewTouchedListener(mModeOptionsOverlay);
+         mPreviewOverlay.setOnDreamZoomUIChangedListener(mZoomPanel);
+         mZoomPanel.setOnProgressChangeListener(mPreviewOverlay);
+ 
+@@ -1810,17 +1743,9 @@
+         mTextureViewHelper.addPreviewAreaSizeChangedListener(mPreviewOverlay);
+         mTextureViewHelper.addPreviewAreaSizeChangedListener(mCaptureOverlay);
+ 
+-        if (mIndicatorIconController == null) {
+-            mIndicatorIconController = new IndicatorIconController(mController,
+-                    mAppRootView);
+-        }
+-
+         mController.getButtonManager().load(mCameraRootView);
+-        mController.getButtonManager().setListener(mIndicatorIconController);
+-//        mController.getSettingsManager().addListener(mIndicatorIconController);
++        mController.getButtonManager().setListener(null);
+ 
+-        mModeOptionsToggle = mCameraRootView
+-                .findViewById(R.id.mode_options_toggle);
+         mFocusRing = (FocusRing) mCameraRootView.findViewById(R.id.focus_ring);
+         mTutorialsPlaceHolderWrapper = (FrameLayout) mCameraRootView
+                 .findViewById(R.id.tutorials_placeholder_wrapper);
+@@ -1836,7 +1761,6 @@
+                 .addAspectRatioChangedListener(new PreviewStatusListener.PreviewAspectRatioChangedListener() {
+                     @Override
+                     public void onPreviewAspectRatioChanged(float aspectRatio) {
+-                        mModeOptionsOverlay.requestLayout();
+                         mBottomBar.requestLayout();
+                     }
+                 });
+@@ -1920,8 +1844,6 @@
+         }
+         // SPRD:Fix bug 400555 && bug391138
+         if (!isInIntentReview() && !isInFreezeReview()) {
+-            enableModeOptions();
+-
+         /*SPRD:fix bug607898 fix setting ui when back from home/secure camera, last time pause camera by pressing home @{ */
+             if (isSettingLayoutOpen()) {
+                 updatePreviewUI(View.GONE);//SPRD:fix bug 607898
+@@ -1968,31 +1890,6 @@
+     }
+ 
+     /**
+-     * Set the mode options toggle clickable.
+-     */
+-    public void enableModeOptions() {
+-
+-        /*
+-         * For modules using camera 1 api, this gets called in
+-         * onSurfaceTextureUpdated whenever the preview gets stopped and started
+-         * after each capture. This also takes care of the case where the mode
+-         * options might be unclickable when we switch modes For modules using
+-         * camera 2 api, they're required to call this method when a capture is
+-         * "completed". Unfortunately this differs per module implementation.
+-         */
+-        if (!mDisableAllUserInteractions) {
+-            mModeOptionsOverlay.setToggleClickable(true);
+-        }
+-    }
+-
+-    /**
+-     * Set the mode options toggle not clickable.
+-     */
+-    public void disableModeOptions() {
+-        mModeOptionsOverlay.setToggleClickable(false);
+-    }
+-
+-    /**
+      * SPRD: Add for bug 529369 stop Video recording before switch camera
+      * 
+      * @{
+@@ -2013,12 +1910,10 @@
+ 
+     public void setDisableAllUserInteractions(boolean disable) {
+         if (disable) {
+-            disableModeOptions();
+             setShutterButtonEnabled(false);
+             setSwipeEnabled(false);
+             mModeListView.hideAnimated();
+         } else {
+-            enableModeOptions();
+             setShutterButtonEnabled(true);
+             setSwipeEnabled(true);
+         }
+@@ -2219,10 +2114,6 @@
+             mPreviewStatusListener.onSurfaceTextureAvailable(surface, width,
+                     height);
+         }
+-        if (!isInIntentReview() && !isInFreezeReview()) {// SPRD:Fix bug 400555
+-                                                         // && bug391138
+-            enableModeOptions();
+-        }
+     }
+ 
+     @Override
+@@ -2333,25 +2224,6 @@
+         };
+     }
+ 
+-    /*************************** Mode options api *****************************/
+-
+-    /**
+-     * Set the mode options visible.
+-     */
+-    public void showModeOptions() {
+-        /* Make mode options clickable. */
+-        enableModeOptions();
+-        // mModeOptionsOverlay.setVisibility(View.VISIBLE);
+-    }
+-
+-    /**
+-     * Set the mode options invisible. This is necessary for modes that don't
+-     * show a bottom bar for the capture UI.
+-     */
+-    public void hideModeOptions() {
+-        mModeOptionsOverlay.setVisibility(View.INVISIBLE);
+-    }
+-
+     /**************************** Bottom bar api ******************************/
+ 
+     /**
+@@ -2375,11 +2247,9 @@
+     private boolean areBottomControlsUsed(ModuleController module) {
+         if (module.isUsingBottomBar()) {
+             showBottomBar();
+-            showModeOptions();
+             return true;
+         } else {
+             hideBottomBar();
+-            hideModeOptions();
+             return false;
+         }
+     }
+@@ -2534,7 +2404,6 @@
+         applyModuleSpecs(moduleController.getHardwareSpec(),
+                 moduleController.getBottomBarSpec());
+         mBottomBar.transitionToIntentCaptureLayout();
+-        showModeOptions();
+         showPreviewTop();
+     }
+ 
+@@ -2547,7 +2416,6 @@
+         applyModuleSpecs(moduleController.getHardwareSpec(),
+                 moduleController.getBottomBarSpec());
+         mBottomBar.transitionToIntentReviewLayout();
+-        hideModeOptions();
+ 
+         // Hide the preview snapshot since the screen is frozen when users tap
+         // shutter button in capture intent.
+@@ -2940,24 +2808,9 @@
+     }
+     /* @} */
+ 
+-    /* SPRD:fix bug499275 Front DC can not capture through the Bluetooth@{ */
+-    public void closeModeOptions() {
+-        mModeOptionsOverlay.closeModeOptions();
+-    }
+-
+-    /* @} */
+-
+     /* SPRD:Add for bug 507813 The flash icon is not sync @{ */
+     public void resetIndicatorIcon() {
+-        if (mIndicatorIconController == null) {
+-            mIndicatorIconController = new IndicatorIconController(mController,
+-                    mAppRootView);
+-        }
+-//        mController.getSettingsManager().addListener(this);
+-        mController.getButtonManager().setListener(mIndicatorIconController);
+-//        mController.getSettingsManager().addListener(
+-//                mController.getButtonManager());
+-//        mController.getSettingsManager().addListener(mIndicatorIconController);
++        mController.getButtonManager().setListener(null);
+     }
+ 
+     /* @} */
+@@ -3144,6 +2997,10 @@
+ 
+     public void initSidePanel() {
+         if (mCameraRootView != null) {
++            ViewStub viewStubDetectView = (ViewStub) mCameraRootView.findViewById(R.id.layout_side_panel_id);
++            if(viewStubDetectView != null){
++                viewStubDetectView.inflate();
++            }
+             spES = mCameraRootView.findViewById(R.id.sb_external_storage_status);
+             updateSidePanelItem(DreamUtil.SP_EXTERNAL_STORAGE, true);
+ 
+@@ -3997,12 +3854,10 @@
+     /* SPRD: Fix bug 535110, Photo voice record. @{ */
+     public void showStopRecordVoiceButton() {
+         mBottomBar.showStopRecordVoiceButton();
+-        disableModeOptions();
+     }
+ 
+     public void hideStopRecordVoiceButton() {
+         mBottomBar.hideStopRecordVoiceButton();
+-        enableModeOptions();
+     }
+ 
+     public void setVoicePlayButtonVisible(boolean visible) {
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoUI.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoUI.java	(revision 173687)
+@@ -103,8 +103,7 @@
+         mPreviewOverlay = (PreviewOverlay) mRootView.findViewById(R.id.preview_overlay);
+ 
+         /* SPRD: fix bug539498 shows gap between Video icon area and option button area @{ */
+-        ModeOptionsOverlay mo = (ModeOptionsOverlay) mRootView.findViewById(R.id.mode_options_overlay);
+-        mo.setPadding(0,0,0,0);
++        
+         /* @} */
+         initializeMiscControls();
+         mAnimationManager = new AnimationManager();
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/CameraActivity.java	(revision 173687)
+@@ -76,6 +76,7 @@
+ import android.widget.ShareActionProvider;
+ import android.widget.Toast;
+ import android.widget.CheckBox;
++import android.view.ViewStub;
+ import android.widget.CompoundButton;
+ 
+ import com.android.camera.app.AppController;
+@@ -217,8 +218,8 @@
+ import com.android.camera.SecurityAccessLocation;
+ import com.sprd.camera.plugin.AddCameraForCMCC;
+ import com.dream.camera.settings.DataModulePhoto;
+-import android.view.ViewStub;
+ 
++
+ public class CameraActivity extends QuickActivity implements AppController,
+         CameraAgent.CameraOpenCallback,
+         ShareActionProvider.OnShareTargetSelectedListener, ResetListener,
+@@ -2991,7 +2992,13 @@
+     private void showCameraWelcome() {
+         boolean shouldWelcome = DataModuleManager.getInstance(this)
+                 .getDataModuleCamera().getBoolean(Keys.KEY_CAMERA_WELCOME);
+-
++		if(shouldWelcome == true){
++            ViewStub viewStub = (ViewStub) findViewById(R.id.layout_dream_welcome_id);
++            if(viewStub != null){
++                viewStub.inflate();
++            }
++        }
++		
+         View welcomeView = findViewById(R.id.dream_welcome);
+ 
+         if (welcomeView != null) {
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoModule.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoModule.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/VideoModule.java	(revision 173687)
+@@ -1006,7 +1006,7 @@
+             // Sprd: Add for bug 529369 stop Video recording before switch
+             // camera
+             //mAppController.getCameraAppUI().enableCameraToggleButton();
+-            mAppController.getCameraAppUI().enableModeOptions();
++            
+             mAppController.getCameraAppUI().updateExtendPanelUI(View.VISIBLE);
+             onStopVideoRecording();
+         } else {
+@@ -1014,7 +1014,7 @@
+                 return;
+             }
+ 
+-            mAppController.getCameraAppUI().disableModeOptions();
++            
+             startVideoRecording();
+         }
+         mAppController.setShutterEnabled(false);
+@@ -1391,7 +1391,7 @@
+                 mActivity.getCameraAppUI().hideModeList();
+             /* }@ */
+             /* SPRD:fix bug499275 Front DC can not capture through the Bluetooth@{ */
+-                mActivity.getCameraAppUI().closeModeOptions();
++                
+             /* }@ */
+             /* SPRD:Bug 535058 New feature: volume @{ */
+                 int volumeStatus = getVolumeControlStatus(mActivity);
+@@ -1989,7 +1989,7 @@
+                     // A special case of mode options closing: during
+                     // capture it should
+                     // not be possible to change mode state.
+-                    mAppController.getCameraAppUI().hideModeOptions();
++                    
+ 
+                             /*
+                              * SPRD Bug:529008 Animate just once. @{ Original
+@@ -2188,7 +2188,7 @@
+         // release media recorder
+         releaseMediaRecorder();
+ 
+-        mAppController.getCameraAppUI().showModeOptions();
++        
+ 
+         /*
+          * SPRD Bug:529008 Animate just once. @{ Original Android code:
+@@ -2613,15 +2613,12 @@
+          * SPRD:Add for bug 496130 when recording video ,snap photo the
+          * optionbar shows @{
+          */
+-        getServices().getMediaSaver().setListener(
++         getServices().getMediaSaver().setListener(
+                 new MediaSaverImpl.Listener() {
+                     public void onHideBurstScreenHint() {
+                         if (isRecording()) {
+                             // SPRD: Fix bug 541750 The photo module can't change mode after take a picture.
+                             showVideoSnapshotUI(false);
+-                            mAppController.getCameraAppUI().hideModeOptions();
+-                        } else {
+-                            mAppController.getCameraAppUI().showModeOptions();
+                         }
+                     }
+ 
+@@ -2817,7 +2814,7 @@
+         if (stop) {
+             // CameraAppUI mishandles mode option enable/disable
+             // for video, override that
+-            mAppController.getCameraAppUI().enableModeOptions();
++            
+             onStopVideoRecording();
+         }
+         /* @} */
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/PhotoUI.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/PhotoUI.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/PhotoUI.java	(revision 173687)
+@@ -879,11 +879,6 @@
+         mActivity.getOrientationManager().resetOrientaion();
+ 
+          */
+-
+-        ModeOptionsOverlay mo = (ModeOptionsOverlay) mRootView
+-                .findViewById(R.id.mode_options_overlay);
+-        mo.setPadding(0, 0, 0, 0);
+-        mo.requestLayout();
+     }
+ 
+     /* @} */
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/ui/StickyBottomCaptureLayout.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/ui/StickyBottomCaptureLayout.java	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/src_dream/com/dreamoverlay/camera/ui/StickyBottomCaptureLayout.java	(revision 173687)
+@@ -50,36 +50,6 @@
+     private CaptureLayoutHelper mCaptureLayoutHelper = null;
+     private CameraAppUI mCameraAppUI = null;//SPRD: fix bug 474672
+ 
+-    private ModeOptions.Listener mModeOptionsListener = new ModeOptions.Listener() {
+-        @Override
+-        public void onBeginToShowModeOptions() {
+-            final PointF thumbnailViewPosition = getRoundedThumbnailPosition(
+-                    mCaptureLayoutHelper.getUncoveredPreviewRect(),
+-                    false,
+-                    mModeOptionsOverlay.getModeOptionsToggleWidth());
+-            final int orientation = getResources().getConfiguration().orientation;
+-            if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+-                animateCaptureIndicatorToY(thumbnailViewPosition.y);
+-            } else {
+-                animateCaptureIndicatorToX(thumbnailViewPosition.x);
+-            }
+-        }
+-
+-        @Override
+-        public void onBeginToHideModeOptions() {
+-            final PointF thumbnailViewPosition = getRoundedThumbnailPosition(
+-                    mCaptureLayoutHelper.getUncoveredPreviewRect(),
+-                    true,
+-                    mModeOptionsOverlay.getModeOptionsToggleWidth());
+-            final int orientation = getResources().getConfiguration().orientation;
+-            if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+-                animateCaptureIndicatorToY(thumbnailViewPosition.y);
+-            } else {
+-                animateCaptureIndicatorToX(thumbnailViewPosition.x);
+-            }
+-        }
+-    };
+-
+     public StickyBottomCaptureLayout(Context context, AttributeSet attrs) {
+         super(context, attrs);
+     }
+@@ -87,8 +57,6 @@
+     @Override
+     public void onFinishInflate() {
+         mRoundedThumbnailView = (RoundedThumbnailView) findViewById(R.id.rounded_thumbnail_view);
+-        mModeOptionsOverlay = (ModeOptionsOverlay) findViewById(R.id.mode_options_overlay);
+-        mModeOptionsOverlay.setModeOptionsListener(mModeOptionsListener);
+         mBottomBar = findViewById(R.id.bottom_bar);
+     }
+ 
+@@ -113,9 +81,6 @@
+             return;
+         }
+         // Layout mode options overlay.
+-        RectF uncoveredPreviewRect = mCaptureLayoutHelper.getUncoveredPreviewRect();
+-        mModeOptionsOverlay.layout((int) uncoveredPreviewRect.left, (int) uncoveredPreviewRect.top,
+-                (int) uncoveredPreviewRect.right, (int) uncoveredPreviewRect.bottom);
+ 
+          // Layout capture indicator.
+ //         PointF roundedThumbnailViewPosition = getRoundedThumbnailPosition(
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/dream_camera_arrays_photo_part.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/dream_camera_arrays_photo_part.xml	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/dream_camera_arrays_photo_part.xml	(revision 173687)
+@@ -328,7 +328,7 @@
+     <integer-array name="pref_camera_zsl_key_array">
+         <item>@string/pref_camera_zsl_key</item>
+         <item>@integer/storage_position_category_bf</item>
+-        <item>@string/preference_switch_item_default_value_true</item>
++        <item>@string/preference_switch_item_default_value_false</item>
+         <item>@array/preference_camera_switch_entryvalues</item>
+         <item>@array/preference_camera_switch_entryvalues</item>
+     </integer-array>
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/dream_sticky_bottom_capture_layout.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/dream_sticky_bottom_capture_layout.xml	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/dream_sticky_bottom_capture_layout.xml	(revision 173687)
+@@ -4,8 +4,6 @@
+     android:layout_width="match_parent"
+     android:layout_height="match_parent" >
+ 
+-    <include layout="@layout/dream_mode_options_overlay" />
+-
+     <com.android.camera.ui.BottomBar
+         android:id="@+id/bottom_bar"
+         android:layout_width="match_parent"
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/ucam_magiclens_module_advfilter.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/ucam_magiclens_module_advfilter.xml	(revision 0)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/ucam_magiclens_module_advfilter.xml	(revision 173687)
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<com.thundersoft.advancedfilter.TsAdvancedFilterGLView xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:camera="http://schemas.android.com/apk/res/com.android.camera2"
++    android:id="@+id/advanced_filter_glview"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:visibility="gone" >
++
++</com.thundersoft.advancedfilter.TsAdvancedFilterGLView>
+\ No newline at end of file
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/vgesture_detect_view.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/vgesture_detect_view.xml	(revision 0)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/vgesture_detect_view.xml	(revision 173687)
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<com.sprd.ucam.vgesutre.DetectView xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:camera="http://schemas.android.com/apk/res/com.android.camera2"
++    android:id="@+id/camera_view_detect"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:layout_centerInParent="true" >
++
++</com.sprd.ucam.vgesutre.DetectView>
+\ No newline at end of file
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/dream_camera.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/dream_camera.xml	(revision 173686)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/dream_camera.xml	(revision 173687)
+@@ -13,13 +13,11 @@
+         android:layout_height="match_parent" />
+ 
+     <!-- SPRD: Add for voice picture -->
+-    <ImageView
+-        android:id="@+id/voice_preview"
++    <ViewStub
++        android:id="@+id/layout_voice_preview_id"
+         android:layout_width="match_parent"
+         android:layout_height="match_parent"
+-        android:clickable="false"
+-        android:focusable="false"
+-        android:visibility="gone" />
++        android:layout="@layout/layout_voice_preview" />
+ 
+     <!-- SPRD: Add for Filter Feature -->
+     <include layout="@layout/ucam_magiclens_module"/>
+@@ -41,6 +39,17 @@
+         android:layout_height="match_parent" />
+     <!-- SPRD: used to display vgesture view -->
+ 
++    <ViewStub
++        android:id="@+id/layout_detectview_id"
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        android:layout="@layout/vgesture_detect_view" />
++    <ViewStub
++        android:id="@+id/layout_vgesture_id"
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        android:layout="@layout/ucam_vgesture_module" />
++<!--
+     <com.sprd.ucam.vgesutre.DetectView
+         android:id="@+id/camera_view_detect"
+         android:layout_width="match_parent"
+@@ -48,7 +57,7 @@
+         android:layout_centerInParent="true" />
+ 
+     <include layout="@layout/ucam_vgesture_module"/>
+-
++     -->
+     <com.android.camera.ui.FaceView
+         android:id="@+id/face_view"
+         android:layout_width="match_parent"
+@@ -94,8 +103,14 @@
+         android:clickable="true"
+         android:visibility="gone" />
+ 
+-	<!-- SPRD: Fix bug 535110, Photo voice record. -->
+-	<include layout="@layout/photo_voice_record_progress" />
++    <!-- SPRD: Fix bug 535110, Photo voice record. 
++    <include layout="@layout/photo_voice_record_progress" />
++    -->
++    <ViewStub
++        android:id="@+id/layout_photo_voice_record_progess_id"
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        android:layout="@layout/photo_voice_record_progress" />
+ 
+     <FrameLayout
+         android:id="@+id/module_layout"
+@@ -117,9 +132,9 @@
+         android:layout_height="match_parent"/>
+ 
+     <!-- SPRD:Add for bug 465355 -->
+-
++<!--
+     <include layout="@layout/ucam_makeup_bottom" />
+-
++-->
+     <!-- SPRD:Dream Camera top panel -->
+ 
+     <FrameLayout
+@@ -138,8 +153,17 @@
+             android:visibility="gone"/>
+     <!-- SPRD:Dream Camera side panel -->
+ 
++    <ViewStub
++        android:id="@+id/layout_side_panel_id"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_marginRight="8dp"
++        android:layout_marginTop="80dp"
++        android:layout_gravity="right"
++        android:layout="@layout/side_panel" />
++    <!--
+     <include layout="@layout/side_panel" />
+-
++    -->
+     <!-- SPRD:Dream Camera extend panel -->
+ 
+    <LinearLayout
+@@ -178,7 +202,14 @@
+     </FrameLayout>
+ 
+     <!-- SPRD: Add for bug 461760 -->
++    <!--
+     <include layout="@layout/ucam_magiclens_bottom" />
++    -->
++     <ViewStub
++        android:id="@+id/layout_ucam_magiclens_bottom_id"
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        android:layout="@layout/ucam_magiclens_bottom" />
+ 
+     <include layout="@layout/dream_mode_list_layout" />
+ 
+@@ -222,10 +253,18 @@
+     </LinearLayout>
+     <!-- SPRD:Dream Camera slide panel -->
+     <include layout="@layout/slide_panel" />
++
++     <ViewStub
++        android:id="@+id/layout_dream_welcome_id"
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        android:layout="@layout/dream_welcome" />
++     <!--
+     <include layout="@layout/dream_welcome" />
++    -->
+ 
+     <include android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              layout="@layout/dream_ui_preference_setting_layout" />
+ 
+-</FrameLayout>
+\ No newline at end of file
++</FrameLayout>
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/layout_voice_preview.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/layout_voice_preview.xml	(revision 0)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/layout/layout_voice_preview.xml	(revision 173687)
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:camera="http://schemas.android.com/apk/res/com.android.camera2"
++    android:id="@+id/voice_preview"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:clickable="false"
++    android:focusable="false"
++    android:visibility="gone" />
+Index: vendor/sprd/modules/libcamera/oem2v0/src/cmr_preview.c
+===================================================================
+--- vendor/sprd/modules/libcamera/oem2v0/src/cmr_preview.c	(revision 173686)
++++ vendor/sprd/modules/libcamera/oem2v0/src/cmr_preview.c	(revision 173687)
+@@ -5779,7 +5779,7 @@
+ 	prev_cxt->prev_rot_index = 0;
+ 	prev_cxt->prev_frm_cnt   = 0;
+ 	prev_cxt->prev_preflash_skip_en = 0;
+-	prev_cxt->prev_skip_num  = sensor_info->preview_skip_num;
++	prev_cxt->prev_skip_num  = 0;
+ 	prev_cxt->skip_mode      = IMG_SKIP_HW;
+ 
+ 

@@ -1,0 +1,17 @@
+Index: kernel/drivers/input/misc/kxtj-lis3dh.c
+===================================================================
+--- kernel/drivers/input/misc/kxtj-lis3dh.c	(revision 167472)
++++ kernel/drivers/input/misc/kxtj-lis3dh.c	(revision 167473)
+@@ -1341,9 +1341,9 @@
+ 	/*      next is used for interruptB sources data if the case */
+ 	set_bit(ABS_WHEEL, acc->input_dev->absbit);
+ 
+-	input_set_abs_params(acc->input_dev, ABS_X, -G_MAX, G_MAX, FUZZ, FLAT);
+-	input_set_abs_params(acc->input_dev, ABS_Y, -G_MAX, G_MAX, FUZZ, FLAT);
+-	input_set_abs_params(acc->input_dev, ABS_Z, -G_MAX, G_MAX, FUZZ, FLAT);
++	input_set_abs_params(acc->input_dev, ABS_X, -G_MAX, G_MAX, 0, 0);
++	input_set_abs_params(acc->input_dev, ABS_Y, -G_MAX, G_MAX, 0, 0);
++	input_set_abs_params(acc->input_dev, ABS_Z, -G_MAX, G_MAX, 0, 0);
+ 	/*      next is used for interruptA sources data if the case */
+ 	input_set_abs_params(acc->input_dev, ABS_MISC, INT_MIN, INT_MAX, 0, 0);
+ 	/*      next is used for interruptB sources data if the case */

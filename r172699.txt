@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/RunIn/src/com/mtbf/runner/Functions.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/RunIn/src/com/mtbf/runner/Functions.java	(revision 172698)
++++ vendor/sprd/platform/packages/apps/RunIn/src/com/mtbf/runner/Functions.java	(revision 172699)
+@@ -718,7 +718,7 @@
+                 FileOutputStream out;
+                 String content = "aa";
+                 try {
+-                    out = context.openFileOutput("testemmc.txt", 0x02);
++                    out = context.openFileOutput("testemmc.txt", Context.MODE_PRIVATE);
+                     for (int i = 0; i < 100 * 1024; i++) {
+                         out.write(content.getBytes());
+                     }

@@ -1,0 +1,560 @@
+Index: packages/apps/Settings/res/values/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values/strings.xml	(revision 171931)
++++ packages/apps/Settings/res/values/strings.xml	(revision 171932)
+@@ -622,7 +622,7 @@
+     <!-- Wireless Settings screen title for things like Wi-Fi, bluetooth, airplane mode. -->
+     <string name="wireless_networks_settings_title">Wireless &amp; networks</string>
+     <!-- Main Settings screen settings summary text for the "Wireless controls" setting -->
+-    <string name="radio_controls_summary">Manage Wi\u2011Fi, Bluetooth, airplane mode, cellular networks, &amp; VPNs</string>
++    <string name="radio_controls_summary">Manage WI\u2011FI, Bluetooth, airplane mode, cellular networks, &amp; VPNs</string>
+ 
+     <!-- check box cellular data title [CHAR LIMIT=30] -->
+     <string name="cellular_data_title">Cellular data</string>
+@@ -1463,7 +1463,7 @@
+     <string name="bluetooth_dock_settings_remember">Remember settings</string>
+ 
+     <!-- Wifi Assistant title.  [CHAR LIMIT=40] -->
+-    <string name="wifi_assistant_title">Wi\u2011Fi Assistant</string>
++    <string name="wifi_assistant_title">WI\u2011FI Assistant</string>
+ 
+     <!-- Wifi Display settings. The title of the screen. [CHAR LIMIT=40] -->
+     <string name="wifi_display_settings_title">Cast</string>
+@@ -1539,25 +1539,25 @@
+ 
+     <!-- Wi-Fi Settings --> <skip />
+     <!-- Used in the 1st-level settings screen to turn on Wi-Fi -->
+-    <string name="wifi_quick_toggle_title">Wi\u2011Fi</string>
++    <string name="wifi_quick_toggle_title">WI\u2011FI</string>
+     <!-- Used in the 1st-level settings screen as the turn-on summary -->
+-    <string name="wifi_quick_toggle_summary">Turn on Wi\u2011Fi</string>
++    <string name="wifi_quick_toggle_summary">Turn on WI\u2011FI</string>
+     <!-- Used in the 1st-level settings screen to go to the 2nd-level settings screen  [CHAR LIMIT=20]-->
+-    <string name="wifi_settings">Wi\u2011Fi</string>
++    <string name="wifi_settings">WI\u2011FI</string>
+     <!-- Title of the Wi-fi settings screen -->
+-    <string name="wifi_settings_category">Wi\u2011Fi settings</string>
++    <string name="wifi_settings_category">WI\u2011FI settings</string>
+     <!-- Title of the Wi-fi settings entry in the left top level menu -->
+-    <string name="wifi_settings_title">Wi\u2011Fi</string>
++    <string name="wifi_settings_title">WI\u2011FI</string>
+     <!-- Summary text of the Wi-fi settings screen -->
+     <string name="wifi_settings_summary">Set up &amp; manage wireless access points</string>
+     <!-- Used in the 1st-level settings screen to turn on Wi-Fi  [CHAR LIMIT=60] -->
+-    <string name="wifi_setup_wizard_title">Select Wi\u2011Fi network</string>
++    <string name="wifi_setup_wizard_title">Select WI\u2011FI network</string>
+     <!-- Used by Account creation for turning on Wi-Fi  [CHAR LIMIT=60] -->
+-    <string name="wifi_select_network">Select Wi\u2011Fi</string>
++    <string name="wifi_select_network">Select WI\u2011FI</string>
+     <!-- Summary text when turning Wi-Fi or bluetooth on -->
+-    <string name="wifi_starting">Turning Wi\u2011Fi on\u2026</string>
++    <string name="wifi_starting">Turning WI\u2011FI on\u2026</string>
+     <!-- Summary text when turning Wi-Fi or bluetooth off -->
+-    <string name="wifi_stopping">Turning off Wi\u2011Fi\u2026</string>
++    <string name="wifi_stopping">Turning off WI\u2011FI\u2026</string>
+     <!-- Summary text when Wi-Fi or bluetooth has error -->
+     <string name="wifi_error">Error</string>
+     <!-- Summary text when wifi SoftAP started failed due to no legal usable channel allowed in this region by regulatory -->
+@@ -1571,13 +1571,13 @@
+     <!-- Checkbox title for option to toggle poor network detection -->
+     <string name="wifi_poor_network_detection">Avoid poor connections</string>
+     <!-- Checkbox summary for option to toggle poor network detection -->
+-    <string name="wifi_poor_network_detection_summary">Don\u2019t use a Wi\u2011Fi network unless it has a good Internet connection</string>
++    <string name="wifi_poor_network_detection_summary">Don\u2019t use a WI\u2011FI network unless it has a good Internet connection</string>
+     <!-- Checkbox summary for option to toggle poor network detection [CHAR LIMIT=60] -->
+     <string name="wifi_avoid_poor_network_detection_summary">Only use networks that have a good Internet connection</string>
+     <!-- Checkbox title for option to connect to open Wi-Fi automatically [CHAR LIMIT=40] -->
+-    <string name="wifi_automatically_connect_title">Use open Wi\u2011Fi automatically</string>
++    <string name="wifi_automatically_connect_title">Use open WI\u2011FI automatically</string>
+     <!-- Checkbox summary for option to connect to open Wi-Fi automatically  [CHAR LIMIT=100] -->
+-    <string name="wifi_automatically_connect_summary">Let a Wi\u2011Fi assistant automatically connect to open networks determined to be high quality</string>
++    <string name="wifi_automatically_connect_summary">Let a WI\u2011FI assistant automatically connect to open networks determined to be high quality</string>
+     <!-- Dialog title for option to select an app which connects to open Wi-Fi automatically [CHAR LIMIT=40] -->
+     <string name="wifi_select_assistant_dialog_title">Choose assistant</string>
+     <!-- Preference title for option to install certificates -->
+@@ -1586,32 +1586,32 @@
+       place-holders "LINK_BEGIN" and "LINK_END" must NOT be translated. They mark a link to bring
+       the user to "scanning settings" screen. -->
+     <string name="wifi_scan_notify_text">To improve location accuracy, system apps and services can
+-        still scan for Wi\u2011Fi networks. You can change this in
++        still scan for WI\u2011FI networks. You can change this in
+         <xliff:g id="link_begin">LINK_BEGIN</xliff:g>scanning
+         settings<xliff:g id="link_end">LINK_END</xliff:g>.</string>
+     <!-- Wifi scan always mode checkbox text -->
+     <string name="wifi_scan_notify_remember_choice">Don\u2019t show again</string>
+     <!-- Setting title for setting the wifi sleep policy. Do we keep Wi-Fi active when the screen turns off? -->
+-    <string name="wifi_setting_sleep_policy_title">Keep Wi\u2011Fi on during sleep</string>
++    <string name="wifi_setting_sleep_policy_title">Keep WI\u2011FI on during sleep</string>
+     <!-- Setting title for setting the wifi sleep policy. Do we keep Wi-Fi active when the screen turns off? [CHAR LIMIT=30] -->
+-    <string name="wifi_setting_on_during_sleep_title">Wi\u2011Fi on during sleep</string>
++    <string name="wifi_setting_on_during_sleep_title">WI\u2011FI on during sleep</string>
+     <!-- Generic error message when the sleep policy could not be set. -->
+     <string name="wifi_setting_sleep_policy_error">There was a problem changing the setting</string>
+     <!-- Checkbox title for option to toggle suspend power optimizations [CHAR LIMIT=30] -->
+     <string name="wifi_suspend_efficiency_title">Improve efficiency</string>
+     <!-- Checkbox title for option to toggle suspend power optimizations -->
+-    <string name="wifi_suspend_optimizations">Wi\u2011Fi optimization</string>
++    <string name="wifi_suspend_optimizations">WI\u2011FI optimization</string>
+     <!-- Checkbox summary for option to toggle suspend power optimizations -->
+-    <string name="wifi_suspend_optimizations_summary">Minimize battery usage when Wi\u2011Fi is on</string>
++    <string name="wifi_suspend_optimizations_summary">Minimize battery usage when WI\u2011FI is on</string>
+     <!-- Checkbox summary for option to toggle suspend power optimizations [CHAR LIMIT=30] -->
+-    <string name="wifi_limit_optimizations_summary">Limit battery used by Wi\u2011Fi</string>
++    <string name="wifi_limit_optimizations_summary">Limit battery used by WI\u2011FI</string>
+     <!-- Checkbox title. Should we switch to using cellular data if Wi-Fi is still connected but the Wi-Fi network we're connected to no longer has Internet access (e.g., due to an outage)? -->
+-    <string name="wifi_switch_away_when_unvalidated">Switch to cellular data if Wi\u2011Fi loses Internet access.</string>
++    <string name="wifi_switch_away_when_unvalidated">Switch to cellular data if WI\u2011FI loses Internet access.</string>
+ 
+     <!-- Action bar text message to manually add a wifi network [CHAR LIMIT=20]-->
+     <string name="wifi_add_network">Add network</string>
+     <!-- Header for the list of wifi networks-->
+-    <string name="wifi_access_points">Wi\u2011Fi networks</string>
++    <string name="wifi_access_points">WI\u2011FI networks</string>
+     <!-- Menu option to do WPS Push Button [CHAR LIMIT=25]-->
+     <string name="wifi_menu_wps_pbc">WPS Push Button</string>
+     <!-- Content description for menu button in Wifi setup. Not shown on the screen. [CHAR LIMIT=NONE] -->
+@@ -1619,7 +1619,7 @@
+     <!-- Menu option to do WPS Pin Entry [CHAR LIMIT=25]-->
+     <string name="wifi_menu_wps_pin">WPS Pin Entry</string>
+     <!-- Menu option to launch Wi-Fi Direct settings [CHAR LIMIT=20]-->
+-    <string name="wifi_menu_p2p">Wi\u2011Fi Direct</string>
++    <string name="wifi_menu_p2p">WI\u2011FI Direct</string>
+     <!-- Menu option to scan Wi-Fi networks -->
+     <string name="wifi_menu_scan">Scan</string>
+     <!-- Menu option to Wi-Fi advanced settings -->
+@@ -1637,11 +1637,11 @@
+     <!-- Menu option to write a Wi-Fi configuration token to an NFC tag [CHAR_LIMIT=30]-->
+     <string name="wifi_menu_write_to_nfc">Write to NFC tag</string>
+     <!-- Wi-Fi settings. text displayed when Wi-Fi is off and network list is empty [CHAR LIMIT=50]-->
+-    <string name="wifi_empty_list_wifi_off">To see available networks, turn Wi\u2011Fi on.</string>
++    <string name="wifi_empty_list_wifi_off">To see available networks, turn WI\u2011FI on.</string>
+     <!-- Wi-Fi settings. text displayed when Wi-Fi is on and network list is empty [CHAR LIMIT=50]-->
+-    <string name="wifi_empty_list_wifi_on">Searching for Wi\u2011Fi networks\u2026</string>
++    <string name="wifi_empty_list_wifi_on">Searching for WI\u2011FI networks\u2026</string>
+     <!-- Wifi Settings. text displayed when user has restriction DISALLOW_CONFIG_WIFI [CHAR LIMIT=NONE]-->
+-    <string name="wifi_empty_list_user_restricted">You don\u2019t have permission to change the Wi\u2011Fi network.</string>
++    <string name="wifi_empty_list_user_restricted">You don\u2019t have permission to change the WI\u2011FI network.</string>
+     <!-- Wi-Fi settings. title for setup other network button [CHAR LIMIT=35]-->
+     <string name="wifi_other_network">Add another network</string>
+     <!-- Wi-Fi settings. content description for more button [CHAR LIMIT=50]-->
+@@ -1653,17 +1653,17 @@
+     <!-- Label to show/hide advanced options [CHAR LIMIT=40] -->
+     <string name="wifi_show_advanced">Advanced options</string>
+     <!-- Title for the WPS setup dialog [CHAR LIMIT=50] -->
+-    <string name="wifi_wps_setup_title">Wi\u2011Fi Protected Setup</string>
++    <string name="wifi_wps_setup_title">WI\u2011FI Protected Setup</string>
+     <!-- Message in WPS dialog at start up [CHAR LIMIT=150] -->
+     <string name="wifi_wps_setup_msg">Starting WPS\u2026</string>
+     <!-- Message in WPS dialog for PBC after start up [CHAR LIMIT=150] -->
+-    <string name="wifi_wps_onstart_pbc">Press the Wi\u2011Fi Protected Setup button on your router. It may be called \u201cWPS\u201d or marked with this symbol:</string>
++    <string name="wifi_wps_onstart_pbc">Press the WI\u2011FI Protected Setup button on your router. It may be called \u201cWPS\u201d or marked with this symbol:</string>
+     <!-- Message in WPS dialog for PIN after start up [CHAR LIMIT=150] -->
+-    <string name="wifi_wps_onstart_pin">Enter pin <xliff:g id="number">%1$s</xliff:g> on your Wi\u2011Fi router. The setup can take up to two minutes to complete.</string>
++    <string name="wifi_wps_onstart_pin">Enter pin <xliff:g id="number">%1$s</xliff:g> on your WI\u2011FI router. The setup can take up to two minutes to complete.</string>
+     <!-- Text displayed when WPS succeeds [CHAR LIMIT=150] -->
+     <string name="wifi_wps_complete">WPS succeeded. Connecting to the network\u2026</string>
+     <!-- Text displayed when Wi-Fi is connected through WPS [CHAR LIMIT=150] -->
+-    <string name="wifi_wps_connected">Connected to Wi\u2011Fi network <xliff:g id="network_name">%s</xliff:g></string>
++    <string name="wifi_wps_connected">Connected to WI\u2011FI network <xliff:g id="network_name">%s</xliff:g></string>
+     <!-- Text displayed when WPS setup is in progress [CHAR LIMIT=150] -->
+     <string name="wifi_wps_in_progress">WPS is already in progress and can take up to two minutes to complete</string>
+     <!-- Text displayed when WPS fails to start [CHAR LIMIT=150] -->
+@@ -1787,32 +1787,32 @@
+     <string name="wifi_dont_skip">Go back</string>
+ 
+     <!-- Text warning about skipping Wi-Fi with a mobile connect (tablet) [CHAR LIMIT=NONE]-->
+-    <string name="wifi_skipped_message" product="tablet">WARNING: if you skip Wi\u2011Fi, your tablet will only use cellular data for initial downloads and updates. To avoid possible data charges, connect to Wi\u2011Fi.</string>
++    <string name="wifi_skipped_message" product="tablet">WARNING: if you skip WI\u2011FI, your tablet will only use cellular data for initial downloads and updates. To avoid possible data charges, connect to WI\u2011FI.</string>
+     <!-- Text warning about skipping Wi-Fi with a mobile connect (device) [CHAR LIMIT=NONE]-->
+-    <string name="wifi_skipped_message" product="device">WARNING: if you skip Wi\u2011Fi, your device will only use cellular data for initial downloads and updates. To avoid possible data charges, connect to Wi\u2011Fi.</string>
++    <string name="wifi_skipped_message" product="device">WARNING: if you skip WI\u2011FI, your device will only use cellular data for initial downloads and updates. To avoid possible data charges, connect to WI\u2011FI.</string>
+     <!-- Text warning about skipping Wi-Fi with a mobile connect (phone) [CHAR LIMIT=NONE]-->
+-    <string name="wifi_skipped_message" product="default">WARNING: if you skip Wi\u2011Fi, your phone will only use cellular data for initial downloads and updates. To avoid possible data charges, connect to Wi\u2011Fi.</string>
++    <string name="wifi_skipped_message" product="default">WARNING: if you skip WI\u2011FI, your phone will only use cellular data for initial downloads and updates. To avoid possible data charges, connect to WI\u2011FI.</string>
+ 
+     <!-- Text warning about skipping Wi-Fi without a mobile connect (tablet) [CHAR LIMIT=NONE] -->
+-    <string name="wifi_and_mobile_skipped_message" product="tablet">If you skip Wi\u2011Fi:\n\n<li>Your tablet won\u2019t have an Internet connection.</li>\n\n<li>You won\u2019t get software updates until you connect to the Internet.</li>\n\n<li>You can\u2019t activate device protection features at this time.</li></string>
++    <string name="wifi_and_mobile_skipped_message" product="tablet">If you skip WI\u2011FI:\n\n<li>Your tablet won\u2019t have an Internet connection.</li>\n\n<li>You won\u2019t get software updates until you connect to the Internet.</li>\n\n<li>You can\u2019t activate device protection features at this time.</li></string>
+     <!-- Text warning about skipping Wi-Fi without a mobile connect (device) [CHAR LIMIT=NONE] -->
+-    <string name="wifi_and_mobile_skipped_message" product="device">If you skip Wi\u2011Fi:\n\n<li>Your device won\u2019t have an Internet connection.</li>\n\n<li>You won\u2019t get software updates until you connect to the Internet.</li>\n\n<li>You can\u2019t activate device protection features at this time.</li></string>
++    <string name="wifi_and_mobile_skipped_message" product="device">If you skip WI\u2011FI:\n\n<li>Your device won\u2019t have an Internet connection.</li>\n\n<li>You won\u2019t get software updates until you connect to the Internet.</li>\n\n<li>You can\u2019t activate device protection features at this time.</li></string>
+     <!-- Text warning about skipping Wi-Fi without a mobile connect (phone) [CHAR LIMIT=NONE] -->
+-    <string name="wifi_and_mobile_skipped_message" product="default">If you skip Wi\u2011Fi:\n\n<li>Your phone won\u2019t have an Internet connection.</li>\n\n<li>You won\u2019t get software updates until you connect to the Internet.</li>\n\n<li>You can\u2019t activate device protection features at this time.</li></string>
++    <string name="wifi_and_mobile_skipped_message" product="default">If you skip WI\u2011FI:\n\n<li>Your phone won\u2019t have an Internet connection.</li>\n\n<li>You won\u2019t get software updates until you connect to the Internet.</li>\n\n<li>You can\u2019t activate device protection features at this time.</li></string>
+     <!-- Text alerting that Wi-Fi couldn't connect (tablet) [CHAR LIMIT=NONE] -->
+-    <string name="wifi_connect_failed_message" product="tablet">The tablet was unable to connect to this Wi\u2011Fi network.</string>
++    <string name="wifi_connect_failed_message" product="tablet">The tablet was unable to connect to this WI\u2011FI network.</string>
+     <!-- Text alerting that Wi-Fi couldn't connect (device) [CHAR LIMIT=NONE] -->
+-    <string name="wifi_connect_failed_message" product="device">The device was unable to connect to this Wi\u2011Fi network.</string>
++    <string name="wifi_connect_failed_message" product="device">The device was unable to connect to this WI\u2011FI network.</string>
+     <!-- Text alerting that Wi-Fi couldn't connect (phone) [CHAR LIMIT=NONE] -->
+-    <string name="wifi_connect_failed_message" product="default">The phone was unable to connect to this Wi\u2011Fi network.</string>
++    <string name="wifi_connect_failed_message" product="default">The phone was unable to connect to this WI\u2011FI network.</string>
+ 
+     <!-- Wi-Fi Advanced Settings --> <skip />
+     <!-- Wi-Fi settings screen, Saved networks, settings section.  This is a header shown above Saved networks wifi settings. [CHAR LIMIT=30] -->
+     <string name="wifi_saved_access_points_titlebar">Saved networks</string>
+     <!-- Wi-Fi settings screen, advanced, settings section.  This is a header shown above advanced wifi settings. [CHAR LIMIT=30] -->
+-    <string name="wifi_advanced_titlebar">Advanced Wi\u2011Fi</string>
++    <string name="wifi_advanced_titlebar">Advanced WI\u2011FI</string>
+     <!-- Wi-Fi settings screen, configure, settings section.  This is a header shown above configure wifi settings. [CHAR LIMIT=30] -->
+-    <string name="wifi_configure_titlebar">Configure Wi\u2011Fi</string>
++    <string name="wifi_configure_titlebar">Configure WI\u2011FI</string>
+     <!-- Wi-Fi settings screen, advanced, title of the item to show the Wi-Fi device's MAC address. -->
+     <string name="wifi_advanced_mac_address_title">MAC address</string>
+     <!-- Title of the screen to adjust IP settings -->
+@@ -1824,7 +1824,7 @@
+     <!-- Wifi Advanced settings.  Used as a label under the shortcut icon that goes to Wifi advanced settings. [CHAR LIMIT=20] -->
+     <string name="wifi_advanced_settings_label">IP settings</string>
+     <!-- Error message for users that aren't allowed to see or modify WiFi advanced settings [CHAR LIMIT=NONE] -->
+-    <string name="wifi_advanced_not_available">Wi\u2011Fi advanced settings are not available for this user</string>
++    <string name="wifi_advanced_not_available">WI\u2011FI advanced settings are not available for this user</string>
+     <!-- Menu item to save the IP settings -->
+     <string name="wifi_ip_settings_menu_save">Save</string>
+     <!-- Menu ietm to cancel the IP settings -->
+@@ -1848,7 +1848,7 @@
+ 
+     <!-- Wi-Fi p2p / Wi-Fi Direct settings -->
+     <!-- Used in the 1st-level settings screen to launch Wi-fi Direct settings [CHAR LIMIT=25] -->
+-    <string name="wifi_p2p_settings_title">Wi\u2011Fi Direct</string>
++    <string name="wifi_p2p_settings_title">WI\u2011FI Direct</string>
+     <string name="wifi_p2p_device_info">Device information</string>
+     <string name="wifi_p2p_persist_network">Remember this connection</string>
+     <!-- Menu option to discover peers-->
+@@ -1880,11 +1880,11 @@
+ 
+     <!-- Wifi AP settings-->
+     <!-- Label for Wifi tether checkbox. Toggles Access Point on/off -->
+-    <string name="wifi_tether_checkbox_text">Portable Wi\u2011Fi hotspot</string>
++    <string name="wifi_tether_checkbox_text">Portable WI\u2011FI hotspot</string>
+     <!-- Label for Wifi tether checkbox. Toggles Access Point on/off  [CHAR LIMIT=30] -->
+-    <string name="wifi_hotspot_checkbox_text">Wi\u2011Fi hotspot</string>
++    <string name="wifi_hotspot_checkbox_text">WI\u2011FI hotspot</string>
+     <!-- Label for Wifi tether checkbox summary. Toggles Access Point on/off  [CHAR LIMIT=60] -->
+-    <string name="wifi_hotspot_checkbox_text_summary">Use cellular connection to provide Wi\u2011Fi network</string>
++    <string name="wifi_hotspot_checkbox_text_summary">Use cellular connection to provide WI\u2011FI network</string>
+     <!-- Summary text when turning hotspot on -->
+     <string name="wifi_tether_starting">Turning hotspot on\u2026</string>
+     <!-- Summary text when turning hotspot off -->
+@@ -1892,15 +1892,15 @@
+     <!-- Subtext for wifi tether checkbox on success -->
+     <string name="wifi_tether_enabled_subtext">Portable hotspot <xliff:g id="network_ssid">%1$s</xliff:g> active</string>
+     <!-- Subtext for wifi tether checkbox on failure -->
+-    <string name="wifi_tether_failed_subtext">Portable Wi\u2011Fi hotspot error</string>
++    <string name="wifi_tether_failed_subtext">Portable WI\u2011FI hotspot error</string>
+     <!-- Used to open the ssid and security dialog for Wifi Access Point -->
+-    <string name="wifi_tether_configure_ap_text">Set up Wi\u2011Fi hotspot</string>
++    <string name="wifi_tether_configure_ap_text">Set up WI\u2011FI hotspot</string>
+     <!-- Used to open the ssid and security dialog for Wifi Access Point.  [CHAR LIMIT=30]-->
+-    <string name="wifi_hotspot_configure_ap_text">Wi\u2011Fi hotspot setup</string>
++    <string name="wifi_hotspot_configure_ap_text">WI\u2011FI hotspot setup</string>
+     <!-- Summary Used to open the ssid and security dialog for Wifi Access Point.  [CHAR LIMIT=60] -->
+-    <string name="wifi_hotspot_configure_ap_text_summary">AndroidAP WPA2 PSK portable Wi\u2011Fi hotspot</string>
++    <string name="wifi_hotspot_configure_ap_text_summary">AndroidAP WPA2 PSK portable WI\u2011FI hotspot</string>
+     <!-- Subtext on configuration preference to indicate SSID and security chosen -->
+-    <string name="wifi_tether_configure_subtext"><xliff:g id="network_ssid">%1$s</xliff:g> <xliff:g id="network_security">%2$s</xliff:g> portable Wi\u2011Fi hotspot</string>
++    <string name="wifi_tether_configure_subtext"><xliff:g id="network_ssid">%1$s</xliff:g> <xliff:g id="network_security">%2$s</xliff:g> portable WI\u2011FI hotspot</string>
+     <!-- Default access point SSID used for tethering -->
+     <string name="wifi_tether_configure_ssid_default">AndroidHotspot</string>
+ 
+@@ -2362,7 +2362,7 @@
+     <!-- About phone, status item title. The cell carrier that the user is connected to.  -->
+     <string name="status_operator">Network</string>
+     <!-- About phone, status item title.  The MAC address of the Wi-Fi network adapter. -->
+-    <string name="status_wifi_mac_address">Wi\u2011Fi MAC address</string>
++    <string name="status_wifi_mac_address">WI\u2011FI MAC address</string>
+     <!-- About phone, status item title.  The bluetooth adapter's hardware address-->
+     <string name="status_bt_address">Bluetooth address</string>
+     <!-- About phone, status item title.  The hardware serial number. [CHAR LIMIT=30]-->
+@@ -2791,7 +2791,7 @@
+     <!-- SD card & phone storage settings screen, setting option name under Backup & Restore heading -->
+     <string name="reset_network_title">Network settings reset</string>
+     <!-- SD card & phone storage settings screen, message on screen after user selects Reset network settings [CHAR LIMIT=NONE] -->
+-    <string name="reset_network_desc">This will reset all network settings, including:\n\n<li>Wi\u2011Fi</li>\n<li>Cellular data</li>\n<li>Bluetooth</li>"</string>
++    <string name="reset_network_desc">This will reset all network settings, including:\n\n<li>WI\u2011FI</li>\n<li>Cellular data</li>\n<li>Bluetooth</li>"</string>
+     <!-- SD card & phone storage settings screen, button on screen after user selects Reset network settings -->
+     <string name="reset_network_button_text">Reset settings</string>
+     <!-- SD card & phone storage settings screen, message on screen after user selects Reset settings button -->
+@@ -2931,7 +2931,7 @@
+     <string name="sms_change_default_no_previous_dialog_text" translatable="true">Use <xliff:g id="new_app">%s</xliff:g> as your SMS app?</string>
+ 
+     <!-- Wifi Assistant change wi-fi assistant title.  [CHAR LIMIT=40] -->
+-    <string name="network_scorer_change_active_dialog_title">Change Wi\u2011Fi assistant?</string>
++    <string name="network_scorer_change_active_dialog_title">Change WI\u2011FI assistant?</string>
+     <!-- Wifi Assistant request message.  This message asks the user if it is okay for an app to become the Wifi Assistant instead of the current Wifi Assistant app. [CHAR LIMIT=100] -->
+     <string name="network_scorer_change_active_dialog_text">Use <xliff:g id="new_app">%1$s</xliff:g> instead of <xliff:g id="current_app">%2$s</xliff:g> to manage your network connections?</string>
+     <!-- Wifi Assistant request message.  This message asks the user if it is okay for an app to become the Wifi Assistant. [CHAR LIMIT=100] -->
+@@ -2976,9 +2976,9 @@
+     <!-- [CHAR LIMIT=30] Location mode screen, screen title -->
+     <string name="location_mode_screen_title">Location mode</string>
+     <!-- [CHAR LIMIT=130] Location mode screen, description for high accuracy mode -->
+-    <string name="location_mode_high_accuracy_description">Use GPS, Wi\u2011Fi, Bluetooth, or cellular networks to determine location </string>
++    <string name="location_mode_high_accuracy_description">Use GPS, WI\u2011FI, Bluetooth, or cellular networks to determine location </string>
+     <!-- [CHAR LIMIT=130] Location mode screen, description for battery saving mode -->
+-    <string name="location_mode_battery_saving_description">Use Wi\u2011Fi, Bluetooth, or cellular networks to determine location</string>
++    <string name="location_mode_battery_saving_description">Use WI\u2011FI, Bluetooth, or cellular networks to determine location</string>
+     <!-- [CHAR LIMIT=130] Location mode screen, description for sensors only mode -->
+     <string name="location_mode_sensors_only_description">Use GPS to determine location</string>
+     <!-- Help menu label [CHAR LIMIT=20] Location settings screen, overflow menu that takes the user
+@@ -2987,10 +2987,10 @@
+     <!-- [CHAR LIMIT=30] Wireless background scanning settings screen, screen title -->
+     <string name="location_scanning_screen_title">Scanning</string>
+     <!-- [CHAR LIMIT=130] Preference title for Wi-Fi always scanning -->
+-    <string name="location_scanning_wifi_always_scanning_title">Wi\u2011Fi scanning</string>
++    <string name="location_scanning_wifi_always_scanning_title">WI\u2011FI scanning</string>
+     <!-- Preference description text for Wi-Fi always scanning -->
+     <string name="location_scanning_wifi_always_scanning_description">Improve location by allowing
+-      system apps and services to detect Wi\u2011Fi networks at any time.</string>
++      system apps and services to detect WI\u2011FI networks at any time.</string>
+     <!-- [CHAR LIMIT=130] Description text for Bluetooth always scanning -->
+     <string name="location_scanning_bluetooth_always_scanning_title">Bluetooth scanning</string>
+     <!-- Description text for Bluetooth always scanning -->
+@@ -2999,11 +2999,11 @@
+         time.</string>
+ 
+     <!-- [CHAR LIMIT=30] Security & location settings screen, setting check box label for Google location service (cell ID, wifi, etc.) -->
+-    <string name="location_network_based">Wi\u2011Fi &amp; cellular network location</string>
++    <string name="location_network_based">WI\u2011FI &amp; cellular network location</string>
+     <!-- [CHAR LIMIT=130] Security & location settings screen, setting summary for Google location service check box-->
+     <string name="location_neighborhood_level">Let apps use Google\u2019s location service to estimate your location faster. Anonymous location data will be collected and sent to Google.</string>
+     <!-- [CHAR LIMIT=130] Security & location settings screen, setting summary when Use wireless networks check box is selected, for wifi-only devices -->
+-    <string name="location_neighborhood_level_wifi">Location determined by Wi\u2011Fi</string>
++    <string name="location_neighborhood_level_wifi">Location determined by WI\u2011FI</string>
+     <!-- [CHAR LIMIT=30] Security & location settings screen, setting check box label for GPS satellites -->
+     <string name="location_gps">GPS satellites</string>
+     <!-- [CHAR LIMIT=100] Security & location settings screen, setting check box summary for GPS satellites on a tablet -->
+@@ -4232,7 +4232,7 @@
+     <!-- [CHAR LIMIT=25] Label for battery stats flashlight on state graph -->
+     <string name="battery_stats_flashlight_on_label">Flashlight on</string>
+     <!-- [CHAR LIMIT=25] Label for battery stats wifi running state graph -->
+-    <string name="battery_stats_wifi_running_label">Wi\u2011Fi</string>
++    <string name="battery_stats_wifi_running_label">WI\u2011FI</string>
+     <!-- [CHAR LIMIT=25] Label for battery stats wake lock state graph -->
+     <string name="battery_stats_wake_lock_label">Awake</string>
+     <!-- [CHAR LIMIT=25] Label for battery stats phone signal strength graph -->
+@@ -4242,9 +4242,9 @@
+     <!-- CPU awake time title -->
+     <string name="awake">Device awake time</string>
+     <!-- Wifi on time -->
+-    <string name="wifi_on_time">Wi\u2011Fi on time</string>
++    <string name="wifi_on_time">WI\u2011FI on time</string>
+     <!-- Bluetooth on time -->
+-    <string name="bluetooth_on_time">Wi\u2011Fi on time</string>
++    <string name="bluetooth_on_time">WI\u2011FI on time</string>
+ 
+     <!-- Activity title for battery usage history details -->
+     <string name="history_details_title">History details</string>
+@@ -4265,7 +4265,7 @@
+     <!-- Label for power consumed by the camera -->
+     <string name="power_camera">Camera</string>
+     <!-- Label for power consumed by Wi-Fi -->
+-    <string name="power_wifi">Wi\u2011Fi</string>
++    <string name="power_wifi">WI\u2011FI</string>
+     <!-- Label for power consumed by Bluetooth -->
+     <string name="power_bluetooth">Bluetooth</string>
+     <!-- Label for power consumed by Cell idle -->
+@@ -4290,7 +4290,7 @@
+     <!-- Label for GPS usage time -->
+     <string name="usage_type_gps">GPS</string>
+     <!-- [CHAR LIMIT=25] Label for WIFI usage time -->
+-    <string name="usage_type_wifi_running">Wi\u2011Fi running</string>
++    <string name="usage_type_wifi_running">WI\u2011FI running</string>
+     <!-- Label for Phone usage time -->
+     <string name="usage_type_phone" product="tablet">Tablet</string>
+     <!-- Label for Phone usage time -->
+@@ -4302,9 +4302,9 @@
+     <!-- Label for mobile network radio active time [CHAR LIMIT=32] -->
+     <string name="usage_type_radio_active">Mobile radio active</string>
+     <!-- Label for Wi-Fi network data sent [CHAR LIMIT=32] -->
+-    <string name="usage_type_data_wifi_send">Wi\u2011Fi packets sent</string>
++    <string name="usage_type_data_wifi_send">WI\u2011FI packets sent</string>
+     <!-- Label for Wi-Fi network data received [CHAR LIMIT=32] -->
+-    <string name="usage_type_data_wifi_recv">Wi\u2011Fi packets received</string>
++    <string name="usage_type_data_wifi_recv">WI\u2011FI packets received</string>
+     <!-- Label for Audio usage time -->
+     <string name="usage_type_audio">Audio</string>
+     <!-- Label for Video usage time -->
+@@ -4333,7 +4333,7 @@
+     <!-- Label for display settings -->
+     <string name="battery_action_display">Screen settings</string>
+     <!-- Label for wifi settings -->
+-    <string name="battery_action_wifi">Wi\u2011Fi settings</string>
++    <string name="battery_action_wifi">WI\u2011FI settings</string>
+     <!-- Label for bluetooth settings -->
+     <string name="battery_action_bluetooth">Bluetooth settings</string>
+ 
+@@ -4362,9 +4362,9 @@
+     <string name="battery_sugg_display">Reduce the screen brightness and/or screen timeout</string>
+ 
+     <!-- Description for wifi connectivity -->
+-    <string name="battery_desc_wifi">Battery used by Wi\u2011Fi</string>
++    <string name="battery_desc_wifi">Battery used by WI\u2011FI</string>
+     <!-- Suggestion for wifi connectivity power drain -->
+-    <string name="battery_sugg_wifi">Turn off Wi\u2011Fi when not using it or when it isn\u2019t available</string>
++    <string name="battery_sugg_wifi">Turn off WI\u2011FI when not using it or when it isn\u2019t available</string>
+ 
+     <!-- Description for bluetooth power consumption detail -->
+     <string name="battery_desc_bluetooth">Battery used by Bluetooth</string>
+@@ -4563,10 +4563,10 @@
+ 
+     <!-- Power Control Widget -->
+     <string name="gadget_title">Power control</string>
+-    <string name="gadget_toggle_wifi">Updating Wi\u2011Fi setting</string>
++    <string name="gadget_toggle_wifi">Updating WI\u2011FI setting</string>
+     <string name="gadget_toggle_bluetooth">Updating Bluetooth setting</string>
+     <!-- Template for gadget toggle button description. Populated examples are "Wi-Fi off" or "Wi-Fi turning on". -->
+-    <string name="gadget_state_template"><xliff:g name="feature" example="Wi\u2011Fi">%1$s</xliff:g> <xliff:g name="state" example="off">%2$s</xliff:g></string>
++    <string name="gadget_state_template"><xliff:g name="feature" example="WI\u2011FI">%1$s</xliff:g> <xliff:g name="state" example="off">%2$s</xliff:g></string>
+     <!-- Gadget value used to describe on state. -->
+     <string name="gadget_state_on">on</string>
+     <!-- Gadget value used to describe off state. -->
+@@ -4576,7 +4576,7 @@
+     <!-- Gadget value used to describe turning off state. -->
+     <string name="gadget_state_turning_off">turning off</string>
+     <!-- Spoken description for the Wi-Fi power control gadget. -->
+-    <string name="gadget_wifi">Wi\u2011Fi</string>
++    <string name="gadget_wifi">WI\u2011FI</string>
+     <!-- Spoken description for the Bluetooth power control gadget. -->
+     <string name="gadget_bluetooth">Bluetooth</string>
+     <!-- Spoken description for the Location power control gadget. -->
+@@ -4674,7 +4674,7 @@
+     <!-- Backup data menu title -->
+     <string name="backup_data_title">Back up my data</string>
+     <!-- Summary text of the "back up data" setting -->
+-    <string name="backup_data_summary">Back up app data, Wi\u2011Fi passwords, and other settings to Google servers</string>
++    <string name="backup_data_summary">Back up app data, WI\u2011FI passwords, and other settings to Google servers</string>
+     <!-- Configure backup account options menu title [CHAR LIMIT=25]-->
+     <string name="backup_configure_account_title">Backup account</string>
+     <!-- Auto-restore menu title [CHAR LIMIT=30] -->
+@@ -4691,7 +4691,7 @@
+     <!-- Dialog title for confirmation to erase backup data from server -->
+     <string name="backup_erase_dialog_title"></string>
+     <!-- Dialog title for confirmation to erase backup data from server -->
+-    <string name="backup_erase_dialog_message">Stop backing up your Wi\u2011Fi passwords, bookmarks, other settings, and app data, plus erase all copies on Google servers?</string>
++    <string name="backup_erase_dialog_message">Stop backing up your WI\u2011FI passwords, bookmarks, other settings, and app data, plus erase all copies on Google servers?</string>
+     <!-- Dialog title for confirmation to erase full backup data from server -->
+     <string name="fullbackup_erase_dialog_message">Stop backing up device data (such as Wi-Fi passwords and call history) and app data (such as settings and files stored by apps), plus erase all copies on remote servers?</string>
+     <!-- Summary for explanation of what full app data backup means. Manufacturers may wish to overlay this resource with their own text  -->
+@@ -4760,22 +4760,22 @@
+ 
+     <!-- Wifi Setup For Setup Wizard with XL screen -->
+     <!-- Title shown in Wifi Setup Wizard with XL screen -->
+-    <string name="wifi_setup_title">Wi\u2011Fi setup</string>
++    <string name="wifi_setup_title">WI\u2011FI setup</string>
+     <!-- Title shown in Wifi Setup Wizard with XL screen when
+          a user is configuring password for a network.
+          The argument should be the name of the network.
+          [CHAR LIMIT=50] -->
+-    <string name="wifi_setup_title_editing_network">Connect to Wi\u2011Fi network <xliff:g id="network_name" example="Happy Mobile">%s</xliff:g></string>
++    <string name="wifi_setup_title_editing_network">Connect to WI\u2011FI network <xliff:g id="network_name" example="Happy Mobile">%s</xliff:g></string>
+     <!-- Title shown in Wifi Setup For Setup Wizard with XL screen when
+          the device is connecting a network the user specified.
+          The argument should be the name of the network.
+          [CHAR LIMIT=50] -->
+-    <string name="wifi_setup_title_connecting_network">Connecting to Wi\u2011Fi network <xliff:g id="network_name" example="Happy Mobile">%s</xliff:g>\u2026</string>
++    <string name="wifi_setup_title_connecting_network">Connecting to WI\u2011FI network <xliff:g id="network_name" example="Happy Mobile">%s</xliff:g>\u2026</string>
+     <!-- Title shown in Wifi Setup For Setup Wizard with XL screen when
+          the device successfully connected to a network the user specified.
+          The argument should be the name of the network.
+          [CHAR LIMIT=50] -->
+-    <string name="wifi_setup_title_connected_network">Connected to Wi\u2011Fi network <xliff:g id="network_name" example="Happy Mobile">%s</xliff:g></string>
++    <string name="wifi_setup_title_connected_network">Connected to WI\u2011FI network <xliff:g id="network_name" example="Happy Mobile">%s</xliff:g></string>
+     <!-- Title shown in Wifi Setup For Setup Wizard with XL screen when
+          a user is adding a network.
+          [CHAR LIMIT=50] -->
+@@ -4851,11 +4851,11 @@
+     <!-- Message shown when users select EAP in Wi-Fi settings for SetupWizard,
+          saying EAP can't be configured in SetupWizard flow.
+          [CHAR LIMIT=NONE] -->
+-    <string name="wifi_setup_eap_not_supported">You can\u2019t configure an EAP Wi\u2011Fi connection during setup. After setup, you can do that in Settings &gt; Wireless &amp; networks.</string>
++    <string name="wifi_setup_eap_not_supported">You can\u2019t configure an EAP WI\u2011FI connection during setup. After setup, you can do that in Settings &gt; Wireless &amp; networks.</string>
+     <!-- Message shown when the device is connecting a network [CHAR LIMIT=NONE] -->
+     <string name="wifi_setup_description_connecting">Connecting can take a few minutes\u2026</string>
+     <!-- Message shown when the device is connected to a network [CHAR LIMIT=NONE] -->
+-    <string name="wifi_setup_description_connected">Tap <b>Next</b> to continue with setup.\n\nTap <b>Back</b> to connect to a different Wi\u2011Fi network.</string>
++    <string name="wifi_setup_description_connected">Tap <b>Next</b> to continue with setup.\n\nTap <b>Back</b> to connect to a different WI\u2011FI network.</string>
+ 
+     <!-- Do not translate. This is a stub which will be removed soon. -->
+     <string name="time_zone_auto_stub" translatable="false">Select Time Zone</string>
+@@ -5024,9 +5024,9 @@
+     <!-- Title for menu option to show 4G mobile data usage separate from other mobile data usage. [CHAR LIMIT=26] -->
+     <string name="data_usage_menu_split_4g">Separate 4G usage</string>
+     <!-- Title for menu option to show Wi-Fi data usage. [CHAR LIMIT=26] -->
+-    <string name="data_usage_menu_show_wifi">Show Wi\u2011Fi</string>
++    <string name="data_usage_menu_show_wifi">Show WI\u2011FI</string>
+     <!-- Title for menu option to hide Wi-Fi data usage. [CHAR LIMIT=26] -->
+-    <string name="data_usage_menu_hide_wifi">Hide Wi\u2011Fi</string>
++    <string name="data_usage_menu_hide_wifi">Hide WI\u2011FI</string>
+     <!-- Title for menu option to show Ethernet data usage. [CHAR LIMIT=26] -->
+     <string name="data_usage_menu_show_ethernet">Show Ethernet usage</string>
+     <!-- Title for menu option to hide Ethernet data usage. [CHAR LIMIT=26] -->
+@@ -5072,10 +5072,10 @@
+     <!-- Checkbox label that will disable 2G-3G network data connection when user-defined limit is reached. [CHAR LIMIT=26] -->
+     <string name="data_usage_disable_3g_limit">Set 2G-3G data limit</string>
+     <!-- Checkbox label that will disable Wi-Fi network data connection when user-defined limit is reached. [CHAR LIMIT=26] -->
+-    <string name="data_usage_disable_wifi_limit">Set Wi\u2011Fi data limit</string>
++    <string name="data_usage_disable_wifi_limit">Set WI\u2011FI data limit</string>
+ 
+     <!-- Tab title for showing Wi-Fi data usage. [CHAR LIMIT=10] -->
+-    <string name="data_usage_tab_wifi">Wi\u2011Fi</string>
++    <string name="data_usage_tab_wifi">WI\u2011FI</string>
+     <!-- Tab title for showing Ethernet data usage. [CHAR LIMIT=10] -->
+     <string name="data_usage_tab_ethernet">Ethernet</string>
+     <!-- Tab title for showing combined mobile data usage. [CHAR LIMIT=20] -->
+@@ -5148,11 +5148,11 @@
+     <!-- Title of dialog shown before user restricts background data usage. [CHAR LIMIT=48] -->
+     <string name="data_usage_restrict_background_title">Restrict background data?</string>
+     <!-- Body of dialog shown before user restricts background data usage. [CHAR LIMIT=NONE] -->
+-    <string name="data_usage_restrict_background">If you restrict background cellular data, some apps and services won\u2019t work unless you\u2019re connected to Wi\u2011Fi.</string>
++    <string name="data_usage_restrict_background">If you restrict background cellular data, some apps and services won\u2019t work unless you\u2019re connected to WI\u2011FI.</string>
+     <!-- Body of dialog shown before user restricts background data usage. This is for multiuser tablets. [CHAR LIMIT=NONE] -->
+-    <string name="data_usage_restrict_background_multiuser" product="tablet">If you restrict background cellular data, some apps and services won\u2019t work unless you\u2019re connected to Wi\u2011Fi.\n\nThis setting affects all users on this tablet.</string>
++    <string name="data_usage_restrict_background_multiuser" product="tablet">If you restrict background cellular data, some apps and services won\u2019t work unless you\u2019re connected to WI\u2011FI.\n\nThis setting affects all users on this tablet.</string>
+     <!-- Body of dialog shown before user restricts background data usage. This is for multiuser phones. [CHAR LIMIT=NONE] -->
+-    <string name="data_usage_restrict_background_multiuser" product="default">If you restrict background cellular data, some apps and services won\u2019t work unless you\u2019re connected to Wi\u2011Fi.\n\nThis setting affects all users on this phone.</string>
++    <string name="data_usage_restrict_background_multiuser" product="default">If you restrict background cellular data, some apps and services won\u2019t work unless you\u2019re connected to WI\u2011FI.\n\nThis setting affects all users on this phone.</string>
+ 
+     <!-- Label displaying current network data usage warning threshold. [CHAR LIMIT=18] -->
+     <string name="data_usage_sweep_warning"><font size="18"><xliff:g id="number" example="128">^1</xliff:g></font> <font size="9"><xliff:g id="unit" example="KB">^2</xliff:g></font>\n<font size="12">warning</font></string>
+@@ -5182,9 +5182,9 @@
+     <!-- Header for list of mobile networks. [CHAR LIMIT=32] -->
+     <string name="data_usage_metered_mobile">Cellular networks</string>
+     <!-- Header for list of Wi-Fi networks. [CHAR LIMIT=32] -->
+-    <string name="data_usage_metered_wifi">Metered Wi\u2011Fi networks</string>
++    <string name="data_usage_metered_wifi">Metered WI\u2011FI networks</string>
+     <!-- Body text prompting user to enable Wi-Fi to configure metered networks. [CHAR LIMIT=64] -->
+-    <string name="data_usage_metered_wifi_disabled">To select metered networks, turn Wi\u2011Fi on.</string>
++    <string name="data_usage_metered_wifi_disabled">To select metered networks, turn WI\u2011FI on.</string>
+ 
+     <!-- Disclaimer string for data usage measured by device. [CHAR LIMIT=80] -->
+     <string name="data_usage_disclaimer">Carrier data accounting may differ from your device.</string>
+@@ -5423,7 +5423,7 @@
+     <!-- Title for add user confirmation dialog [CHAR LIMIT=30] -->
+     <string name="user_add_user_title">Add new user?</string>
+     <!-- Message for add user confirmation dialog - long version. [CHAR LIMIT=none] -->
+-    <string name="user_add_user_message_long">You can share this device with other people by creating additional users. Each user has their own space, which they can customize with apps, wallpaper, and so on. Users can also adjust device settings like Wi\u2011Fi that affect everyone.\n\nWhen you add a new user, that person needs to set up their space.\n\nAny user can update apps for all other users.</string>
++    <string name="user_add_user_message_long">You can share this device with other people by creating additional users. Each user has their own space, which they can customize with apps, wallpaper, and so on. Users can also adjust device settings like WI\u2011FI that affect everyone.\n\nWhen you add a new user, that person needs to set up their space.\n\nAny user can update apps for all other users.</string>
+     <!-- Message for add user confirmation dialog - short version. [CHAR LIMIT=none] -->
+     <string name="user_add_user_message_short">When you add a new user, that person needs to set up their space.\n\nAny user can update apps for all other users. </string>
+     <!-- Title of dialog to setup a new user [CHAR LIMIT=30] -->
+@@ -5704,9 +5704,9 @@
+     <string name="app_sees_restricted_accounts_and_controlled_by">This app can access your accounts. Controlled by <xliff:g id="app">%1$s</xliff:g></string>
+ 
+     <!-- Restrictions title for configuring wifi and mobile [CHAR LIMIT=35] -->
+-    <string name="restriction_wifi_config_title">Wi\u2011Fi and Mobile</string>
++    <string name="restriction_wifi_config_title">WI\u2011FI and Mobile</string>
+     <!-- Restrictions summary for configuring wifi and mobile [CHAR LIMIT=100] -->
+-    <string name="restriction_wifi_config_summary">Allow modification of Wi\u2011Fi and Mobile settings</string>
++    <string name="restriction_wifi_config_summary">Allow modification of WI\u2011FI and Mobile settings</string>
+     <!-- Restrictions title for changing bluetooth configuration [CHAR LIMIT=35] -->
+     <string name="restriction_bluetooth_config_title">Bluetooth</string>
+     <!-- Restrictions summary for changing bluetooth configuration [CHAR LIMIT=100] -->
+@@ -7275,7 +7275,7 @@
+     <string name="ethernet_data_usage">Ethernet data usage</string>
+ 
+     <!-- Label for section about wifi in data usage screen [CHAR LIMIT=60] -->
+-    <string name="wifi">Wi-Fi</string>
++    <string name="wifi">WI-FI</string>
+ 
+     <!-- Label for section about ethernet in data usage screen [CHAR LIMIT=60] -->
+     <string name="ethernet">Ethernet</string>

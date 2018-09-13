@@ -1,0 +1,39 @@
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 181163)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 181164)
+@@ -805,7 +805,9 @@
+ 			
+              /* @} */
+                 }
+-				prefSet.addPreference(mButtonGsmRoaming);
++				if(phoneSlotId==0){
++					prefSet.addPreference(mButtonGsmRoaming);
++				}
+             }
+             /* SPRD: FEATURE_PLMN_LOCK @{ */
+             SubscriptionInfoHelper subInfoHelper = new SubscriptionInfoHelper(context, getIntent());
+@@ -1130,8 +1132,12 @@
+         }
+         ps = findPreference(BUTTON_OPERATOR_SELECTION_EXPAND_KEY);
+         if (ps != null) {
+-            ps.setEnabled(hasActiveSubscriptions && mGsmRoamingIsOpen);
+-        }
++			if(phoneSlotId==1){
++				 ps.setEnabled(hasActiveSubscriptions && true);
++			}else{
++				 ps.setEnabled(hasActiveSubscriptions && mGsmRoamingIsOpen);
++			}
++       	} 
+         ps = findPreference(BUTTON_CARRIER_SETTINGS_KEY);
+         if (ps != null) {
+             ps.setEnabled(hasActiveSubscriptions);
+@@ -1478,6 +1484,8 @@
+ 				@Override                        
+ 					public void onClick(DialogInterface dialog, int which) {                            
+ 						gsmRoamingPreference.setChecked(!gsmRaomingOn);
++						mGsmRoamingIsOpen=false;
++						updateBody();
+ 						if(gsmRaomingOn && null != Integer.valueOf(phoneSubId) && phoneSubId > 0) {
+                 	//send AT command for gsm roaming
+                 		new AsyncTask<Void, Void, Void>() {

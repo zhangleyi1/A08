@@ -1,0 +1,28 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 168185)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 168186)
+@@ -1190,6 +1190,9 @@
+             return;
+         }
+     }
++	private static final String PHONE_PACKAGE = "com.android.callsettings";
++    private static final String FAST_DIAL_SETTING_CLASS_NAME =
++            "com.android.callsettings.fastdial.FastDialSettingActivity";
+ 
+     @Override
+     public boolean onLongClick(View view) {
+@@ -1325,6 +1328,13 @@
+                     DialerUtils.startActivityWithErrorToast(getActivity(), intent);
+                     digits.clear();
+                     return true;
++				} else if (digits.length() <= 1) {
++                    final Intent fastDial = new Intent(Intent.ACTION_MAIN);
++                    fastDial.setClassName(PHONE_PACKAGE, FAST_DIAL_SETTING_CLASS_NAME);
++                    fastDial.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
++                    startActivity(fastDial);
++                    digits.clear();
++                    return true;	
+                 }
+             /* @} */
+         }

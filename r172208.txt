@@ -1,0 +1,133 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/sensor/PSensor.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/sensor/PSensor.java	(revision 172207)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/sensor/PSensor.java	(revision 172208)
+@@ -33,13 +33,13 @@
+ 		// TODO Auto-generated method stub
+ 		super.onCreate(savedInstanceState);
+ 		setContentView(R.layout.psensor);
+-	
++
+ 		sensorManager = (SensorManager)getSystemService(this.SENSOR_SERVICE);
+ 
+ 		PSensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+ 		//accuracy_view = (TextView)this.findViewById(R.id.proximity);
+ 		value_0 = (TextView)this.findViewById(R.id.proximity);
+-		
++
+ 		succesButton = (Button)this.findViewById(R.id.psensor_bt_ok);
+ 		failButton = (Button)this.findViewById(R.id.psensor_bt_failed);
+ 		succesButton.setEnabled(false);
+@@ -52,7 +52,7 @@
+ 				setResult(FactoryMode.TEST_OK,intent);
+ 				finish();
+ 			}
+-			
++
+ 		});
+ 		failButton.setOnClickListener(new Button.OnClickListener(){
+ 
+@@ -63,7 +63,7 @@
+ 				setResult(FactoryMode.TEST_FAIL,intent);
+ 				finish();
+ 			}
+-			
++
+ 		});
+ 	}
+ 
+@@ -71,7 +71,7 @@
+ 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+ 		// TODO Auto-generated method stub
+ 		if(sensor.getType() == Sensor.TYPE_PROXIMITY){
+-			
++
+ 			}
+ 	}
+ 
+@@ -90,37 +90,37 @@
+ 	}
+ 
+ 
+-	
+-	@Override
+-	public void onSensorChanged(SensorEvent event) {
+-		// TODO Auto-generated method stub
+-		if(event.sensor.getType() == Sensor.TYPE_PROXIMITY){
+ 
+-			float[] values = event.values;
++    @Override
++    public void onSensorChanged(SensorEvent event) {
++        // TODO Auto-generated method stub
++        if(event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
+ 
+-			if(psensorFlag == false  && values[0] != psensorValue){
+-				psensorValue = values[0];
+-				psensorFlag = true;
+-				}
++            float[] values = event.values;
+ 
+-			value_0.setText(getString(R.string.proximity)+values[0]);
+-			if(psensorValue != values[0] && psensorValue != 0){
+-				succesButton.setEnabled(true);
+-				if(FactoryMode.isAutoTest){
+-				Intent intent = new Intent(PSensor.this, FactoryMode.class);
+-				setResult(FactoryMode.TEST_OK,intent);
+-				finish();
+-				}
+-				}
+-			}
+-	}
++            if(psensorFlag == false  && values[0] != psensorValue){
++                psensorValue = values[0];
++                psensorFlag = true;
++            }
+ 
++            value_0.setText(getString(R.string.proximity) + values[0]);
++            if(psensorValue != values[0] && psensorValue != 0){
++                succesButton.setEnabled(true);
++                if(FactoryMode.isAutoTest){
++                    Intent intent = new Intent(PSensor.this, FactoryMode.class);
++                    setResult(FactoryMode.TEST_OK, intent);
++                    finish();
++                }
++            }
++        }
++    }
++
+ 	@Override
+ 	public boolean onKeyUp(int keyCode, KeyEvent event) {
+ 		switch (keyCode) {
+ 		case KeyEvent.KEYCODE_MENU:
+ 			return true;
+-			
++
+ 		case KeyEvent.KEYCODE_BACK:
+ 			Intent intent = new Intent(PSensor.this, FactoryMode.class);
+ 			setResult(FactoryMode.TEST_CANCEL,intent);
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/flashlight/FlashLightSub.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/flashlight/FlashLightSub.java	(revision 172207)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/flashlight/FlashLightSub.java	(revision 172208)
+@@ -83,6 +83,7 @@
+     count = 0;
+     succesButton = (Button)this.findViewById(R.id.flashlight_bt_ok);
+     failButton = (Button)this.findViewById(R.id.flashlight_bt_failed);
++    succesButton.setEnabled(false);
+     succesButton.setOnClickListener(new Button.OnClickListener(){
+ 
+       @Override
+@@ -141,6 +142,13 @@
+           }
+           if( 0 < count && count < 6){
+             handler.sendEmptyMessageDelayed(OPEN_CAMERA , 1000);
++          } else {
++            succesButton.setEnabled(true);
++            if(FactoryMode.isAutoTest){
++                Intent intent = new Intent(FlashLightSub.this, FactoryMode.class);
++                setResult(FactoryMode.TEST_OK, intent);
++                finish();
++            }
+           }
+         default:
+           break;

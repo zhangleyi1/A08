@@ -1,0 +1,40 @@
+Index: packages/apps/ContactsCommon/res/drawable-xxxhdpi/ic_call_24dp.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/ContactsCommon/res/drawable-xxhdpi/ic_call_24dp.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/ContactsCommon/res/drawable-xhdpi/ic_call_24dp.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/ContactsCommon/res/drawable-mdpi/ic_call_24dp.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/ContactsCommon/res/drawable-hdpi/ic_call_24dp.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-xhdpi/ic_call_24dp.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-xxhdpi/ic_call_24dp.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-mdpi/ic_call_24dp.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-hdpi/ic_call_24dp.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: vendor/sprd/platform/packages/apps/SprdContactsCommon/res/drawable-xxxhdpi/ic_call_24dp.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream

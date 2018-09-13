@@ -1,0 +1,28 @@
+Index: packages/apps/Settings/src/com/android/settings/datausage/DataUsageSummary.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/datausage/DataUsageSummary.java	(revision 170090)
++++ packages/apps/Settings/src/com/android/settings/datausage/DataUsageSummary.java	(revision 170091)
+@@ -200,11 +200,21 @@
+             mDataNetworkRatePreference[index].setSubId(subId);
+             mDataNetworkRatePreference[index].setNetworkType(NetworkRatePreference.TAB_MOBILE);
+         }
++		//fix for bug 95823 by zhangchi start
++        CellDataPreference cellDataPreference =(CellDataPreference) category.findPreference(KEY_DATA_ENABLE);
++        if(cellDataPreference !=null) {
++            int phoneId = SubscriptionManager.getPhoneId(subId);
++            android.util.Log.i(TAG, "subId = " + subId + ",phoneId = " + phoneId);
++            if(SubscriptionManager.getPhoneId(subId) == 1) {
++                category.removePreference(cellDataPreference);
++            } else {
+         /* SPRD:Modify Bug 644027  @{ */
+         if ( mCellDataPreference != null){
+-            android.util.Log.i(TAG, "mCellDataPreference != null");
+-            mCellDataPreference[0] = (CellDataPreference) category.findPreference(KEY_DATA_ENABLE);
++                    mCellDataPreference[0] = cellDataPreference;
+             mCellDataPreference[0].setEnabled(false);
++                }
++            }
++		//fix for bug 95823 by zhangchi end 
+         }
+         /* @} */
+         category.setTemplate(getNetworkTemplate(subId), subId, services);

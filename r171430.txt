@@ -1,0 +1,13 @@
+Index: frameworks/base/packages/SystemUI/res/values/dimens.xml
+===================================================================
+--- frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 171429)
++++ frameworks/base/packages/SystemUI/res/values/dimens.xml	(revision 171430)
+@@ -43,7 +43,7 @@
+     <dimen name="status_bar_battery_icon_width">12dp</dimen>
+ 
+     <!-- The font size for the clock in the status bar. -->
+-    <dimen name="status_bar_clock_size">18sp</dimen>
++    <dimen name="status_bar_clock_size">16sp</dimen>
+ 
+     <!-- The starting padding for the clock in the status bar. -->
+     <dimen name="status_bar_clock_starting_padding">7dp</dimen>

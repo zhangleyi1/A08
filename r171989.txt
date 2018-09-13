@@ -1,0 +1,36 @@
+Index: kernel/drivers/power/fan54015.c
+===================================================================
+--- kernel/drivers/power/fan54015.c	(revision 171988)
++++ kernel/drivers/power/fan54015.c	(revision 171989)
+@@ -349,8 +349,8 @@
+ void hl7059_otg_enable(int enable)
+ {
+ 	SPRD_EX_DEBUG("%s enable =%d\n", __func__, enable);
+-	gpio_direction_output(135,1);
+-	gpio_set_value(135, 1);
++	//gpio_direction_output(135,1);
++	//gpio_set_value(135, 1);
+ 	if(enable)
+ 	{
+ 		hl7059_set_otg_config(1);
+@@ -357,6 +357,9 @@
+ 	}
+ 	else
+ 	{
++		hl7059_set_en_hiz(1);
++		mdelay(5);
++		hl7059_set_en_hiz(0);
+ 		hl7059_set_otg_config(0);
+ 	}
+ 	if(enable){
+@@ -371,8 +374,10 @@
+ 
+ void hl7059_enable_chg(void)
+ {
++	gpio_request(142,0);
+ 	gpio_direction_output(142,0);
+ 	gpio_set_value(142, 0);
++	gpio_free(142);
+ 	hl7059_set_chg_config(1); 
+ }
+ 

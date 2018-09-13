@@ -1,0 +1,35 @@
+Index: packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java	(revision 174898)
++++ packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java	(revision 174899)
+@@ -236,14 +236,14 @@
+             }
+         }
+         /* Sprd:add for fota @{ */
+-        if(isApkExist(act, "com.adups.fota") == false){
++        if(isApkExist(act, "com.smartfren.fota") == false){
+             if(findPreference("fota_update_settings") != null){
+-              getPreferenceScreen().removePreference(findPreference("fota_update_settings"));
++              //getPreferenceScreen().removePreference(findPreference("fota_update_settings"));
+             }
+         } else {
+             Preference preference = findPreference("fota_update_settings");
+             if (preference != null) {
+-                preference.setTitle(getAppName(act, "com.adups.fota"));
++                preference.setTitle(getAppName(act, "com.smartfren.fota"));
+             }
+         }
+         /* @} */
+Index: packages/apps/Settings/res/xml/device_info_settings.xml
+===================================================================
+--- packages/apps/Settings/res/xml/device_info_settings.xml	(revision 174898)
++++ packages/apps/Settings/res/xml/device_info_settings.xml	(revision 174899)
+@@ -42,7 +42,7 @@
+ 
+         <PreferenceScreen android:key="fota_update_settings"
+                 android:title="System Update">
+-            <intent android:targetPackage="com.adups.fota"
++            <intent android:targetPackage="com.smartfren.fota"
+                     android:targetClass="com.adups.fota.GoogleOtaClient"/>
+         </PreferenceScreen>
+ 

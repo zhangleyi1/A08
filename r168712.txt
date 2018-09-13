@@ -1,0 +1,13 @@
+Index: device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinTosVmmAndroid5.1.xml
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinTosVmmAndroid5.1.xml	(revision 168711)
++++ device/sprd/scx35l/sp9832a_2h11/SharkLSGLobalMarlinTosVmmAndroid5.1.xml	(revision 168712)
+@@ -356,7 +356,7 @@
+ 				<Description>tl_fixnv1 image file</Description>
+ 			 </File>
+ 			-->
+-			<File backup="1" CheckCali="GSM,WCDMA,LTE">
++			<File backup="1" CheckCali="GSM,LTE">
+ 				<ID>NV_WLTE</ID>
+ 				<IDAlias>NV_WLTE</IDAlias>
+ 				<Type>NV_COMM</Type>

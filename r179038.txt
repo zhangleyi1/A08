@@ -1,0 +1,13 @@
+Index: packages/apps/Launcher3/ext/res/values/strings.xml
+===================================================================
+--- packages/apps/Launcher3/ext/res/values/strings.xml	(revision 179037)
++++ packages/apps/Launcher3/ext/res/values/strings.xml	(revision 179038)
+@@ -39,7 +39,7 @@
+ 
+     <string name="title_text">Warning!</string>
+     <string name="iv_title_summary_text">Peringatan!</string>
+-    <string name="tv_content_one_text">Your Andromax has been Rooted or Bootloader has been unlocked,any altering in the software or hardware component through sofware may cause damage to the device and harm the user.\n\nSmartfren disclaim any liability for harm to the user.</string>
++    <string name="tv_content_one_text">Your Andromax has been Rooted or Bootloader has been unlocked,any altering in the software or hardware component through software may cause damage to the device and harm the user.\n\nSmartfren disclaim any liability for harm to the user.</string>
+     <string name="tv_content_two_text">Your warranty is VOID!</string>
+     <string name="tv_content_three_text">The device will continue boot-up in  <xliff:g id="time">%1$s</xliff:g> seconds\n</string>
+     <string name="tv_content_four_text">Andromax Anda telah di Root atau dibuka Bootloader-nya,segala jenis perubahan pada software ataupun hardware melalui software dapat menyebabkan kerusakan pada perangkat dan membahayakan pengguna.\n\nSmartfren tidak bertanggung jawab atas resiko yang ditimbulkan.</string>

@@ -1,0 +1,25 @@
+Index: vendor/sprd/platform/packages/apps/CallSettings/src/com/android/callsettings/callbarring/CallBarringOptions.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/CallSettings/src/com/android/callsettings/callbarring/CallBarringOptions.java	(revision 171577)
++++ vendor/sprd/platform/packages/apps/CallSettings/src/com/android/callsettings/callbarring/CallBarringOptions.java	(revision 171578)
+@@ -130,6 +130,7 @@
+             prefSet.removePreference(mButtonCallIn);
+         }
+         /* @} */
++        prefSet.removePreference(mButtonAB);
+         // we wait to do the initialization until onResume so that the
+         // TimeConsumingPreferenceActivity dialog can display as it
+         // relies on onResume / onPause to maintain its foreground state.
+@@ -174,9 +175,9 @@
+                     }
+                 }
+             }
+-            mButtonAB.setListener(this);
+-            mButtonAB.init(this, true, mPhone);
+-            mButtonAB.setEnabled(true);
++            //mButtonAB.setListener(this);
++            //mButtonAB.init(this, true, mPhone);
++            //mButtonAB.setEnabled(true);
+             mButtonChgPwd.init(this, false, mPhone);
+             mFirstResume = false;
+             mIcicle = null;

@@ -1,0 +1,17 @@
+Index: packages/providers/ContactsProvider/src/com/android/providers/contacts/DefaultCallLogInsertionHelper.java
+===================================================================
+--- packages/providers/ContactsProvider/src/com/android/providers/contacts/DefaultCallLogInsertionHelper.java	(revision 167262)
++++ packages/providers/ContactsProvider/src/com/android/providers/contacts/DefaultCallLogInsertionHelper.java	(revision 167263)
+@@ -67,6 +67,12 @@
+         // Insert the current country code, so we know the country the number belongs to.
+         String countryIso = getCurrentCountryIso();
+         values.put(Calls.COUNTRY_ISO, countryIso);
++		//bug 93173 start
++		String name = values.getAsString(Calls.CACHED_NAME);
++        if(name == null || name.equals("")){
++            return;
++        } 
++		//bug 93173 end
+         // Insert the geocoded location, so that we do not need to compute it on the fly.
+         values.put(Calls.GEOCODED_LOCATION,
+                 getGeocodedLocationFor(values.getAsString(Calls.NUMBER), countryIso));

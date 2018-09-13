@@ -1,0 +1,44 @@
+Index: packages/apps/Settings/res/xml/configure_notification_settings.xml
+===================================================================
+--- packages/apps/Settings/res/xml/configure_notification_settings.xml	(revision 168469)
++++ packages/apps/Settings/res/xml/configure_notification_settings.xml	(revision 168470)
+@@ -39,9 +39,9 @@
+             android:fragment="com.android.settings.notification.ZenModeSettings" />
+ 
+     <!-- Cast -->
+-    <PreferenceScreen
++    <!--<PreferenceScreen
+             android:key="wifi_display"
+             android:title="@string/wifi_display_settings_title"
+-            android:fragment="com.android.settings.wfd.WifiDisplaySettings" />
++            android:fragment="com.android.settings.wfd.WifiDisplaySettings" />-->
+ 
+ </PreferenceScreen>
+Index: packages/apps/Settings/res/xml/wifi_display_saved_access_points.xml
+===================================================================
+--- packages/apps/Settings/res/xml/wifi_display_saved_access_points.xml	(revision 168469)
++++ packages/apps/Settings/res/xml/wifi_display_saved_access_points.xml	(revision 168470)
+@@ -15,6 +15,5 @@
+ -->
+ 
+ <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:title="@string/wifi_display_settings_title">
+-
++    android:title="@null">
+ </PreferenceScreen>
+Index: packages/apps/Settings/res/xml/sound_settings.xml
+===================================================================
+--- packages/apps/Settings/res/xml/sound_settings.xml	(revision 168469)
++++ packages/apps/Settings/res/xml/sound_settings.xml	(revision 168470)
+@@ -98,9 +98,9 @@
+                 android:fragment="com.android.settings.notification.OtherSoundSettings" />
+ 
+         <!-- Cast -->
+-        <PreferenceScreen
++        <!--<PreferenceScreen
+                 android:key="wifi_display"
+                 android:title="@string/wifi_display_settings_title"
+-                android:fragment="com.android.settings.wfd.WifiDisplaySettings" />
++                android:fragment="com.android.settings.wfd.WifiDisplaySettings" />-->
+ 
+ </PreferenceScreen>

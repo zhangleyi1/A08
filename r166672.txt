@@ -1,0 +1,13 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/BatteryLogService.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/BatteryLogService.java	(revision 166671)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/BatteryLogService.java	(revision 166672)
+@@ -60,7 +60,7 @@
+ 	private long CRSDT = 2000;// CHECK_RESULT_START_DELAY_TIME
+ 	private Toast mToast;
+ 	public static int counter = 0;
+-	private static final String BATTERY_ELECTRONIC = "/sys/class/power_supply/battery/real_time_current";
++	private static final String BATTERY_ELECTRONIC = "/sys/class/power_supply/battery/constant_charge_current";
+ 
+ 	@Override
+ 	public void onCreate() {

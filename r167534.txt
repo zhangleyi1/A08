@@ -1,0 +1,4 @@
+Index: vendor/sprd/feature_configs/base/overlay/frameworks/base/packages/SystemUI/res/drawable/stat_sys_signal_null.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream

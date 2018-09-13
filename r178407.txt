@@ -1,0 +1,22 @@
+Index: packages/apps/Launcher3/res/xml/default_workspace_5x5.xml
+===================================================================
+--- packages/apps/Launcher3/res/xml/default_workspace_5x5.xml	(revision 178406)
++++ packages/apps/Launcher3/res/xml/default_workspace_5x5.xml	(revision 178407)
+@@ -29,7 +29,7 @@
+ 
+     </resolve>
+ 
+-    <resolve
++   <!-- <resolve
+         launcher:screen="0"
+         launcher:x="1"
+         launcher:y="-1" >
+@@ -36,7 +36,7 @@
+ 	    <favorite launcher:uri="#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_GALLERY;end" />
+ 	    <favorite launcher:uri="#Intent;type=images/*;end" />
+ 
+-    </resolve>
++    </resolve>-->
+ 
+     <resolve
+         launcher:screen="0"

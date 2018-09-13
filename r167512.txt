@@ -1,0 +1,18 @@
+Index: vendor/google/products/gms-mandatory.mk
+===================================================================
+--- vendor/google/products/gms-mandatory.mk	(revision 167511)
++++ vendor/google/products/gms-mandatory.mk	(revision 167512)
+@@ -21,9 +21,10 @@
+     GoogleOneTimeInitializer \
+     GooglePartnerSetup \
+     GooglePrintRecommendationService \
+-    GoogleTTS 
+-#    GooglePackageInstaller 
+-  
++    GoogleTTS\
++	CloudPrint \
++    GooglePackageInstaller 
++ 
+ # GMS mandatory libraries
+ PRODUCT_PACKAGES += \
+     com.google.android.maps.jar \

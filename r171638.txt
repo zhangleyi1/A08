@@ -1,0 +1,76 @@
+Index: packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardPresenter.java
+===================================================================
+--- packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardPresenter.java	(revision 171637)
++++ packages/apps/Dialer/InCallUI/src/com/android/incallui/CallCardPresenter.java	(revision 171638)
+@@ -1268,13 +1268,13 @@
+             view.setTag("ON");
+             mNormalCallVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL);
+             mAudioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, mMaxCallVolume, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+-            bt.setImageResource(R.drawable.fab_blue);
++            bt.setImageResource(R.drawable.f_blue);
+             Toast.makeText(mContext, mContext.getString(R.string.volume_boost_on),Toast.LENGTH_SHORT).show();
+             Log.i("this", "set volume max:" + mMaxCallVolume) ;
+         }else{
+            view.setTag("OFF");
+            mAudioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, mNormalCallVolume, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+-           bt.setImageResource(R.drawable.fab_red);
++           bt.setImageResource(R.drawable.f_red);
+            Toast.makeText(mContext, mContext.getString(R.string.volume_boost_off),Toast.LENGTH_SHORT).show();
+            Log.i("this", "set volume normal:" + mNormalCallVolume) ;
+          }
+Index: packages/apps/Dialer/InCallUI/res/drawable-hdpi/f_red.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/InCallUI/res/drawable-hdpi/f_red.png
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/drawable-hdpi/f_red.png	(revision 0)
++++ packages/apps/Dialer/InCallUI/res/drawable-hdpi/f_red.png	(revision 171638)
+
+Property changes on: packages/apps/Dialer/InCallUI/res/drawable-hdpi/f_red.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Dialer/InCallUI/res/drawable-hdpi/f_blue.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Dialer/InCallUI/res/drawable-hdpi/f_blue.png
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/drawable-hdpi/f_blue.png	(revision 0)
++++ packages/apps/Dialer/InCallUI/res/drawable-hdpi/f_blue.png	(revision 171638)
+
+Property changes on: packages/apps/Dialer/InCallUI/res/drawable-hdpi/f_blue.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Index: packages/apps/Dialer/InCallUI/res/layout-h400dp/call_card_fragment.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/layout-h400dp/call_card_fragment.xml	(revision 171637)
++++ packages/apps/Dialer/InCallUI/res/layout-h400dp/call_card_fragment.xml	(revision 171638)
+@@ -140,7 +140,7 @@
+                 android:layout_height="wrap_content"
+                 android:layout_below="@id/telcel_info"
+                 android:padding="@dimen/call_banner_side_padding"
+-                android:src="@drawable/fab_red"
++                android:src="@drawable/f_red"
+                 android:background="#00000000"
+                 android:visibility="visible" />   
+ 
+Index: packages/apps/Dialer/InCallUI/res/layout/call_card_fragment.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/layout/call_card_fragment.xml	(revision 171637)
++++ packages/apps/Dialer/InCallUI/res/layout/call_card_fragment.xml	(revision 171638)
+@@ -140,7 +140,7 @@
+                 android:layout_height="wrap_content"
+                 android:layout_below="@id/telcel_info"
+                 android:padding="@dimen/call_banner_side_padding"
+-                android:src="@drawable/fab_blue"
++                android:src="@drawable/f_blue"
+                 android:background="#00000000"
+                 android:visibility="visible" />
+ 

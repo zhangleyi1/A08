@@ -1,0 +1,24 @@
+Index: vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/util/StorageUtilImpl.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/util/StorageUtilImpl.java	(revision 173052)
++++ vendor/sprd/platform/packages/apps/FileExplorer/src/com/sprd/fileexplorer/util/StorageUtilImpl.java	(revision 173053)
+@@ -293,10 +293,16 @@
+             return -1;
+         }
+         /* @} */
+-        int mCount = getUSBCount();
+-        for (int i = 0; i < mCount; i++) {
++        //int mCount = getUSBCount();
++        //for (int i = 0; i < mCount; i++) {
++        File[] files = EnvironmentEx.getUsbdiskVolumePaths();
++        if(files == null){
++            return -1;
++        }
++        for (int i=0; i < files.length; i++) {
+             /* SPRD: Add for bug607469. @{ */
+-            File usbdiskVolumePath = EnvironmentEx.getUsbdiskVolumePaths()[i];
++            //File usbdiskVolumePath = EnvironmentEx.getUsbdiskVolumePaths()[i];
++			File usbdiskVolumePath = files[i];
+             if (usbdiskVolumePath != null && path.startsWith(usbdiskVolumePath.getAbsolutePath())) {
+                 return i;
+             }

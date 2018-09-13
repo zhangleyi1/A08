@@ -1,0 +1,110 @@
+Index: packages/apps/Dialer/InCallUI/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/values-zh-rCN/strings.xml	(revision 176751)
++++ packages/apps/Dialer/InCallUI/res/values-zh-rCN/strings.xml	(revision 176752)
+@@ -209,5 +209,6 @@
+     <!-- @} -->
+     <string name="volume_boost_on">音量提升打开</string>
+    <string name="volume_boost_off">音量提升关闭</string>
++   <string name="calls_list">通话清单</string>
+ 
+ </resources>
+Index: packages/apps/Dialer/InCallUI/res/values/strings.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/values/strings.xml	(revision 176751)
++++ packages/apps/Dialer/InCallUI/res/values/strings.xml	(revision 176752)
+@@ -541,4 +541,5 @@
+     <!-- @} -->
+    <string name="volume_boost_on">Volume boost ON</string>
+    <string name="volume_boost_off">Volume boost OFF</string>
++   <string name="calls_list">Calls List</string>
+ </resources>
+Index: packages/apps/Dialer/InCallUI/res/values-in/strings.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/values-in/strings.xml	(revision 176751)
++++ packages/apps/Dialer/InCallUI/res/values-in/strings.xml	(revision 176752)
+@@ -193,4 +193,5 @@
+     <string name="closed_today_at" msgid="4060072663433467233">"Hari ini tutup pukul <xliff:g id="CLOSE_TIME">%s</xliff:g>"</string>
+     <string name="open_now" msgid="4615706338669555999">"Buka sekarang"</string>
+     <string name="closed_now" msgid="2635314668145282080">"Sekarang tutup"</string>
++	<string name="calls_list">Daftar panggilan</string>
+ </resources>
+Index: packages/apps/Dialer/src/com/android/dialer/CallDetailActivity.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/CallDetailActivity.java	(revision 176751)
++++ packages/apps/Dialer/src/com/android/dialer/CallDetailActivity.java	(revision 176752)
+@@ -665,7 +665,9 @@
+         ImageView videoCallIcon = null;
+         ImageView smsIcon = null;
+         ImageView addContactIcon = null;
++		TextView callsList = null;
+ 
++		callsList = (TextView) convertView.findViewById(R.id.calls_list);
+         //voiceCallIcon = (ImageView) convertView.findViewById(R.id.voice_call_icon);
+         ipCallIcon = (ImageView) convertView.findViewById(R.id.ip_call_icon);
+         videoCallIcon = (ImageView) convertView.findViewById(R.id.video_call_icon);
+@@ -689,15 +691,16 @@
+             ipCallIcon.setVisibility(View.GONE);
+         }
+         /* @} */
++		callsList.setVisibility(View.VISIBLE);
+ 
+         //video call
+         videoCallIcon.setTag(CallUtil.getVideoCallIntent(mNumber, ""));
+-        videoCallIcon.setVisibility(View.VISIBLE);
++        videoCallIcon.setVisibility(View.GONE);
+         videoCallIcon.setOnClickListener(mActionListener);
+ 
+         //send sms
+         smsIcon.setTag(new Intent(Intent.ACTION_SENDTO, Uri.fromParts("sms", mNumber, null)));
+-        smsIcon.setVisibility(View.VISIBLE);
++        smsIcon.setVisibility(View.GONE);
+         smsIcon.setOnClickListener(mActionListener);
+ 
+         // add contact
+@@ -706,7 +709,7 @@
+             intent.setType(Contacts.CONTENT_ITEM_TYPE);
+             intent.putExtra(Insert.PHONE, mNumber);
+             addContactIcon.setTag(intent);
+-            addContactIcon.setVisibility(View.VISIBLE);
++            addContactIcon.setVisibility(View.GONE);
+             addContactIcon.setOnClickListener(mActionListener);
+         } else {
+             addContactIcon.setVisibility(View.GONE);
+@@ -715,13 +718,13 @@
+         // SPRD: modify for bug600829
+         if (ImsManager.isVolteEnabledByPlatform(this)) {
+             if (CallUtil.isVideoEnabled(mContext) && DialerUtils.isVideoEnable()) {
+-                videoCallIcon.setVisibility(View.VISIBLE);
++                videoCallIcon.setVisibility(View.GONE);
+             } else {
+                 videoCallIcon.setVisibility(View.GONE);
+             }
+         } else {
+             if (CallUtil.isVideoEnabled(mContext)) {
+-                videoCallIcon.setVisibility(View.VISIBLE);
++                videoCallIcon.setVisibility(View.GONE);
+             } else {
+                 videoCallIcon.setVisibility(View.GONE);
+             }
+Index: packages/apps/Dialer/res/layout/call_detail_action_ex.xml
+===================================================================
+--- packages/apps/Dialer/res/layout/call_detail_action_ex.xml	(revision 176751)
++++ packages/apps/Dialer/res/layout/call_detail_action_ex.xml	(revision 176752)
+@@ -22,6 +22,16 @@
+         android:scaleType="centerInside"
+         android:src="@drawable/call_selector_call_ex" />
+ -->
++<TextView
++        android:id="@+id/calls_list"
++        android:layout_width="0dp"
++        android:layout_height="wrap_content"
++        android:layout_gravity="center"
++        android:layout_weight="1"
++        android:scaleType="centerInside"
++        android:text="@string/calls_list" 
++        android:layout_marginTop="5dp"
++        android:layout_marginLeft="20dp"/>
+     <ImageView
+         android:id="@+id/ip_call_icon"
+         android:layout_width="0dp"

@@ -1,0 +1,13 @@
+Index: packages/apps/Dialer/InCallUI/res/layout/video_call_views.xml
+===================================================================
+--- packages/apps/Dialer/InCallUI/res/layout/video_call_views.xml	(revision 182727)
++++ packages/apps/Dialer/InCallUI/res/layout/video_call_views.xml	(revision 182728)
+@@ -22,7 +22,7 @@
+ 
+     <TextureView
+         android:id="@+id/incomingVideo"
+-        android:layout_gravity="bottom|center"
++        android:layout_gravity="center"
+         android:layout_width="match_parent"
+         android:layout_height="match_parent" />
+     <!-- The width and height are replaced at runtime based on the selected camera. -->

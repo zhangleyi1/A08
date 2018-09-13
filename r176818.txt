@@ -1,0 +1,25 @@
+Index: vendor/sprd/platform/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/SignalClusterViewEx.java
+===================================================================
+--- vendor/sprd/platform/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/SignalClusterViewEx.java	(revision 176817)
++++ vendor/sprd/platform/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/SignalClusterViewEx.java	(revision 176818)
+@@ -912,9 +912,17 @@
+         public boolean apply(boolean isSecondaryIcon) {
+             if (mMobileVisible && !mIsAirplaneMode) {
+                 if (mLastMobileStrengthId != mMobileStrengthId) {
+-                    updateAnimatableIcon(mMobile, mMobileStrengthId);
+-                    updateAnimatableIcon(mMobileDark, mMobileStrengthId);
+-                    mLastMobileStrengthId = mMobileStrengthId;
++					if(isSecondaryIcon){
++						updateAnimatableIcon(mMobile, mMobileStrengthId);
++						updateAnimatableIcon(mMobileDark, mMobileStrengthId);
++						mLastMobileStrengthId = mMobileStrengthId;
++					}else{
++						mMobile.setScaleX((float) 1.1);
++						mMobile.setScaleY((float) 1.1);
++						updateAnimatableIcon(mMobile, mMobileStrengthId);
++						updateAnimatableIcon(mMobileDark, mMobileStrengthId);
++						mLastMobileStrengthId = mMobileStrengthId;
++					}
+                 }
+ 
+                 if (mLastMobileTypeId != mMobileTypeId) {

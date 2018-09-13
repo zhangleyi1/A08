@@ -1,0 +1,91 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java	(revision 172483)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java	(revision 172484)
+@@ -75,9 +75,9 @@
+ 		case FactoryMode.TESTITEM_LSENSORCALI:
+ 			str = getString(R.string.lsensor_cali_name);
+ 			break;
+-		//case FactoryMode.TESTITEM_RECEIVER:
+-		//	str = getString(R.string.earphone_name);
+-		//	break;
++		case FactoryMode.TESTITEM_RECEIVER:
++			str = getString(R.string.earphone_name);
++			break;
+ 		case FactoryMode.TESTITEM_WIFI:
+ 			str = getString(R.string.wifi_name);
+ 			break;
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 172483)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 172484)
+@@ -81,7 +81,7 @@
+ 	public static final int TESTITEM_SPEAKER = 6;
+ 	public static final int TESTITEM_HEADSET = 7;
+     public static final int TESTITEM_FM = 8;
+-//public static final int TESTITEM_RECEIVER = 9;
++  public static final int TESTITEM_RECEIVER = 29;//9
+   public static final int TESTITEM_WIFI = 9;
+   public static final int TESTITEM_BT = 10;
+   public static final int TESTITEM_SHAKE = 11;
+@@ -101,9 +101,9 @@
+     public static final int TESTITEM_FLASHLIGHT_SUB = 24;
+ 	//public static final int TESTITEM_LED = 25;
+ 	public static final int TESTITEM_LSENSORCALI = 25;
+-	public static final int TESTITEM_MASTERCLEAR = 29;
++	public static final int TESTITEM_MASTERCLEAR = 30;
+ 	public static final int TESTITEM_SLEEPORWAKE = 27;
+-	public static final int TESTITEM_TATOL = 30;
++	public static final int TESTITEM_TATOL = 31;
+ 	//public static final int TESTITEM_TPRAWDATA=28;
+ 	public static final int TESTITEM_TPTEST=28;
+ 	public static final int TESTITEM_LTEINFO=26;
+@@ -182,6 +182,7 @@
+ 	TESTITEM_LTEINFO,
+ 	TESTITEM_SLEEPORWAKE,
+ 	TESTITEM_TPTEST,
++	TESTITEM_RECEIVER ,
+ 	TESTITEM_MASTERCLEAR
+     //TESTITEM_TPRAWDATA
+   };
+@@ -659,10 +660,10 @@
+         intent.setClass(this, LSensorCali.class);
+         startActivityForResult(intent, TESTITEM_LSENSORCALI);
+         break;
+-    //case TESTITEM_RECEIVER:
+-    //  intent.setClass(this, Earphone.class);
+-    //  startActivityForResult(intent, TESTITEM_RECEIVER);
+-    //  break;
++    	case TESTITEM_RECEIVER:
++    	 intent.setClass(this, Earphone.class);
++      	startActivityForResult(intent, TESTITEM_RECEIVER);
++      break;
+       case TESTITEM_WIFI:
+         intent.setClass(this, WiFiTest.class);
+         startActivityForResult(intent, TESTITEM_WIFI);
+@@ -800,9 +801,9 @@
+ 		case TESTITEM_LSENSORCALI:
+ 			str = getString(R.string.lsensor_cali_name);
+ 			break;
+-		//case TESTITEM_RECEIVER:
+-		//	str = getString(R.string.earphone_name);
+-		//	break;
++		case TESTITEM_RECEIVER:
++			str = getString(R.string.earphone_name);
++			break;
+ 		case TESTITEM_WIFI:
+ 			str = getString(R.string.wifi_name);
+ 			break;
+Index: packages/apps/FactoryMode/res/values/strings.xml
+===================================================================
+--- packages/apps/FactoryMode/res/values/strings.xml	(revision 172483)
++++ packages/apps/FactoryMode/res/values/strings.xml	(revision 172484)
+@@ -127,7 +127,7 @@
+     <string name="wifi_name">WiFi</string>
+     <string name="bluetooth_name">Bluetooth</string>
+     <string name="headset_name">Headset</string>
+-    <string name="earphone_name">Earphone</string>
++    <string name="earphone_name">ReceiverLoopback</string>
+     <string name="gps_name">GPS</string>
+     <string name="vibrator_name">Vibrator</string>
+     <string name="telephone_name">Phone</string>

@@ -1,0 +1,36 @@
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 174654)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 174655)
+@@ -711,8 +711,9 @@
+ 
+         /* SPRD: FEATURE_RESOLUTION_SETTING @{ */
+         if(mPreferredSetResolution != null){
+-            mPreferredSetResolution.setValueIndex(getVideoQualityFromPreference());
+-            mPreferredSetResolution.setSummary(mPreferredSetResolution.getEntry());
++           // mPreferredSetResolution.setValueIndex(getVideoQualityFromPreference());
++            //mPreferredSetResolution.setSummary(mPreferredSetResolution.getEntry());
++            getPreferenceScreen().removePreference(mPreferredSetResolution);
+         }
+ 		 
+         /* @} */
+@@ -835,6 +836,9 @@
+                 mPreferredSetResolution.setOnPreferenceChangeListener(this);
+             }
+             /* @} */
++			if (mPreferredSetResolution != null) {
++                prefSet.removePreference(mPreferredSetResolution);
++            }
+         }
+ 
+         /* SPRD: 474686 Feature for Uplmn @{*/
+@@ -1434,7 +1438,8 @@
+             } catch (Exception ie) {
+ 
+             }
+-            mPreferredSetResolution.setValueIndex(Integer.parseInt((String)objValue));
++            //mPreferredSetResolution.setValueIndex(Integer.parseInt((String)objValue));
++            mPreferredSetResolution.setValueIndex(RESOLUTION_QVGA_15-1);
+             mPreferredSetResolution.setSummary(mPreferredSetResolution.getEntry());
+             setVideoQualitytoPreference(Integer.parseInt((String)objValue));
+         }

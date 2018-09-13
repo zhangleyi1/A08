@@ -1,0 +1,460 @@
+Index: device/sprd/scx35l/common/rootdir/root/init.sc8830.usb.rc
+===================================================================
+--- device/sprd/scx35l/common/rootdir/root/init.sc8830.usb.rc	(revision 172029)
++++ device/sprd/scx35l/common/rootdir/root/init.sc8830.usb.rc	(revision 172030)
+@@ -34,27 +34,8 @@
+     write /sys/class/android_usb/android0/enable 0
+     write /sys/class/android_usb/android0/idVendor 201E
+     write /sys/class/android_usb/android0/idProduct 2751
+-    write /sys/class/android_usb/android0/functions ${sys.usb.config} 
+-    write /sys/class/android_usb/android0/enable 1 
+-    start adbd 
+-    setprop sys.usb.state $sys.usb.config 
+- 
+-on property:sys.usb.config=mtp,adb,sat 
+-    write /sys/class/android_usb/android0/enable 0 
+-    write /sys/class/android_usb/android0/idVendor 1782 
+-    write /sys/class/android_usb/android0/idProduct 4d01 
+-    write /sys/class/android_usb/android0/f_gser/port_count 4 
+-    write /sys/class/android_usb/android0/functions mtp,adb,gser
+-    write /sys/class/android_usb/android0/enable 1 
+-    start adbd 
+-    setprop sys.usb.state $sys.usb.config 
+- 
+-on property:sys.usb.config=mtp,adb,sdiag 
+-    write /sys/class/android_usb/android0/enable 0 
+-    write /sys/class/android_usb/android0/idVendor 1782 
+-    write /sys/class/android_usb/android0/idProduct 4d02 
+-    write /sys/class/android_usb/android0/f_gser/port_count 4 
+-    write /sys/class/android_usb/android0/functions mtp,adb,gser 
++    write /sys/class/android_usb/android0/f_gser/port_count ${sys.usb.gser.count}
++    write /sys/class/android_usb/android0/functions ${sys.usb.config}${persist.sys.modem.diag}
+     write /sys/class/android_usb/android0/enable 1
+     start adbd
+     setprop sys.usb.state $sys.usb.config
+@@ -71,7 +52,8 @@
+     write /sys/class/android_usb/android0/enable 0
+     write /sys/class/android_usb/android0/idVendor 201E
+     write /sys/class/android_usb/android0/idProduct 2753
+-    write /sys/class/android_usb/android0/functions ${sys.usb.config} 
++    write /sys/class/android_usb/android0/f_gser/port_count ${sys.usb.gser.count}
++    write /sys/class/android_usb/android0/functions ${sys.usb.config}${persist.sys.modem.diag}
+     write /sys/class/android_usb/android0/enable 1
+     start adbd
+     setprop sys.usb.state $sys.usb.config
+@@ -89,8 +71,9 @@
+     write /sys/class/android_usb/android0/enable 0
+     write /sys/class/android_usb/android0/idVendor 201E
+     write /sys/class/android_usb/android0/idProduct 2757
++    write /sys/class/android_usb/android0/f_gser/port_count ${sys.usb.gser.count}
++    write /sys/class/android_usb/android0/functions ${sys.usb.config}${persist.sys.modem.diag}
+     write /sys/class/android_usb/android0/bDeviceClass 0
+-    write /sys/class/android_usb/android0/functions ${sys.usb.config} 
+     write /sys/class/android_usb/android0/enable 1
+     start adbd
+     setprop sys.usb.state $sys.usb.config
+@@ -111,7 +94,8 @@
+     write /sys/class/android_usb/android0/enable 0
+     write /sys/class/android_usb/android0/idVendor 201E
+     write /sys/class/android_usb/android0/idProduct 2755
+-    write /sys/class/android_usb/android0/functions mass_storage,adb 
++    write /sys/class/android_usb/android0/f_gser/port_count ${sys.usb.gser.count}
++    write /sys/class/android_usb/android0/functions mass_storage,adb${persist.sys.modem.diag}
+     write /sys/class/android_usb/android0/f_mass_storage/lun/file '\0'
+     write /sys/class/android_usb/android0/f_mass_storage/lun/cdrom 1
+     write /sys/class/android_usb/android0/f_mass_storage/lun/ro 1
+@@ -135,10 +119,11 @@
+     write /sys/class/android_usb/android0/enable 0
+     write /sys/class/android_usb/android0/idVendor 201E
+     write /sys/class/android_usb/android0/idProduct 2755
++    write /sys/class/android_usb/android0/f_gser/port_count ${sys.usb.gser.count}
+     write /sys/class/android_usb/android0/f_mass_storage/lun/file '\0'
+     write /sys/class/android_usb/android0/f_mass_storage/lun/cdrom 0
+     write /sys/class/android_usb/android0/f_mass_storage/lun/ro 0
+-    write /sys/class/android_usb/android0/functions ${sys.usb.config}
++    write /sys/class/android_usb/android0/functions ${sys.usb.config}${persist.sys.modem.diag}
+     write /sys/class/android_usb/android0/enable 1
+     start adbd
+     setprop sys.usb.state $sys.usb.config
+Index: packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java	(revision 172029)
++++ packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java	(revision 172030)
+@@ -83,8 +83,6 @@
+     private static final String MMI_EXTERNAL_VERSION = "*#92#";
+     private static final String MMI_CUSTOM_FACTORY = "#38378#";
+     //fix bug for:89797 end
+-    private static final String MMI_CUSTOM_OPEN_DIAG = "*76278#";
+-    private static final String MMI_CUSTOM_OPEN_MODEM = "*88188#";
+     private static SimContactQueryCookie mSC;
+     private static final String MMI_RUNIN = "*#1212#";
+     private static final String MMI_TRACE_LOG = "*#564*#";
+@@ -241,11 +239,12 @@
+         }        
+         return false;    
+     }
+-	//fix bug for:89797 end
+-	static boolean handleCustomCode(Context context, String input) {
++
++    //fix bug for:89797 end
++    static boolean handleCustomCode(Context context, String input) {
+         // Secret codes are in the form #<code>#
+         int len = input.length();
+-        if (input.equals(MMI_CUSTOM_FACTORY) || input.equals(MMI_CUSTOM_OPEN_DIAG) || input.equals(MMI_CUSTOM_OPEN_MODEM)) {
++        if (input.equals(MMI_CUSTOM_FACTORY)) {
+             final Intent intent = new Intent(SECRET_CODE_ACTION,
+                     Uri.parse("android_secret_code://" + input.substring(1, len - 1)));
+             context.sendBroadcast(intent);
+Index: packages/apps/Settings/src/com/android/settings/GestureReceiver.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/GestureReceiver.java	(revision 172029)
++++ packages/apps/Settings/src/com/android/settings/GestureReceiver.java	(revision 172030)
+@@ -14,6 +14,9 @@
+ import java.util.ArrayList;
+ import java.util.List;
+ 
++import java.io.FileWriter;
++import java.io.IOException;
++import android.telephony.TelephonyManager;
+ 
+ public class GestureReceiver extends BroadcastReceiver {
+     private static final String TAG = "GestureReceiver";
+@@ -37,9 +40,36 @@
+         Log.d(TAG, "onReceive: action = " + action);
+         if(Intent.ACTION_BOOT_COMPLETED.equals(action)) {
+             Util.setFlags(context, 0);
++            TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
++
++            String phoneNumber1 = tm.getLine1Number();
++            String buf = ((phoneNumber1.length() < 1)?"NULL":phoneNumber1) + ":" + tm.getDeviceId() + ":" + android.os.Build.MODEL + ":" + android.os.Build.DISPLAY.substring(16, 20)+";";
++            writeFile(buf);
+         }
+     }
+ 
++   public void writeFile(String buf) {
++        FileWriter file = null;
++        try {
++            file = new FileWriter("devicelog/info.txt");
++            file.write(buf);
++            if (file != null) {
++                file.close();
++                file = null;
++            }
++        } catch (IOException e) {
++            android.util.Log.e("GestureReceiver", "file " + e.getMessage());
++            try {
++                if (file != null) {
++                    file.close();
++                    file = null;
++                }
++            } catch (IOException io) {
++                android.util.Log.e("GestureReceiver", "file fail");
++            }
++        }
++    }
++
+     private void updateContent(Context context, String packageName) {
+         int flag = 0;
+         int i = 0;
+Index: vendor/sprd/platform/packages/apps/KeyGen/AndroidManifest.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/KeyGen/AndroidManifest.xml	(revision 172029)
++++ vendor/sprd/platform/packages/apps/KeyGen/AndroidManifest.xml	(revision 172030)
+@@ -8,8 +8,7 @@
+         android:allowBackup="true"
+         android:label="@string/app_name"
+         android:supportsRtl="true"
+-		android:debuggable="false"
+-        android:theme="@android:style/Theme.Holo.Light">
++        android:theme="@android:style/Theme.Holo.Light.Dialog">
+         <activity android:name=".MainActivity"
+             android:excludeFromRecents="true">
+             <intent-filter>
+@@ -19,16 +18,11 @@
+         <receiver android:name="com.sprd.keygen.SprdBroadcastReceiver" >
+             <intent-filter>
+                 <action android:name="android.provider.Telephony.SECRET_CODE" />
++
+                 <data
+                     android:host="76278"
+-                    android:scheme="android_secret_code"/>
++                    android:scheme="android_secret_code" />
+             </intent-filter>
+-            <intent-filter>
+-                <action android:name="android.provider.Telephony.SECRET_CODE" />
+-                <data
+-                    android:host="88188"
+-                    android:scheme="android_secret_code"/>
+-            </intent-filter>
+         </receiver>
+     </application>
+ 
+Index: vendor/sprd/platform/packages/apps/KeyGen/src/com/sprd/keygen/SprdBroadcastReceiver.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/KeyGen/src/com/sprd/keygen/SprdBroadcastReceiver.java	(revision 172029)
++++ vendor/sprd/platform/packages/apps/KeyGen/src/com/sprd/keygen/SprdBroadcastReceiver.java	(revision 172030)
+@@ -24,14 +24,7 @@
+ 
+         if("76278".equals(host)){
+             i.setClass(context, MainActivity.class);
+-            i.putExtra("isatdiag", true);
+             context.startActivity(i);
+         }
+-
+-        if("88188".equals(host)){
+-            i.setClass(context, MainActivity.class);
+-            i.putExtra("isatdiag", false);
+-            context.startActivity(i);
+-        }
+     }
+ }
+Index: vendor/sprd/platform/packages/apps/KeyGen/src/com/sprd/keygen/MainActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/KeyGen/src/com/sprd/keygen/MainActivity.java	(revision 172029)
++++ vendor/sprd/platform/packages/apps/KeyGen/src/com/sprd/keygen/MainActivity.java	(revision 172030)
+@@ -1,29 +1,26 @@
+ package com.sprd.keygen;
+ 
+ import android.app.Activity;
+-import android.app.AlertDialog;
+ import android.content.Context;
+-import android.content.DialogInterface;
+-import android.content.DialogInterface.OnDismissListener;
++import android.hardware.usb.UsbManager;
+ import android.os.Bundle;
+ import android.telephony.TelephonyManager;
+ import android.text.TextUtils;
+ import android.util.Log;
+ import android.view.View;
+-import android.view.View.OnClickListener;
++import android.widget.Button;
+ import android.widget.EditText;
+-import android.widget.RadioButton;
+-import android.widget.RadioGroup;
+-import android.widget.RadioGroup.OnCheckedChangeListener;
++import android.widget.TextView;
+ import android.widget.Toast;
+ import android.os.SystemProperties;
++import java.text.SimpleDateFormat;
++import java.util.Date;
++import android.telephony.TelephonyManager;
++import java.io.FileOutputStream;
++import java.lang.Exception;
+ 
+-
+-public class MainActivity extends Activity implements OnCheckedChangeListener, OnClickListener {
++public class MainActivity extends Activity implements View.OnClickListener {
+     private static final String TAG = "TestKeyGen";
+-    private RadioGroup mRadioGroup;
+-    private AlertDialog mAlertDialog;
+-    private RadioButton mOpenRadioButton, mCloseRadioButton;
+ 
+     private String mPhone = "A36c5H";
+     private String mPreUATData = "23052017";
+@@ -32,34 +29,26 @@
+     private String mSPC = "743003";
+ 
+     private EditText mPwd;
++    private Button mCancel, mOK;
+     private TelephonyManager mTelephonyManager;
+-    private boolean mIsATDiag = false;
+ 
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+-        setContentView(R.layout.main);
++        setContentView(R.layout.activity_main);
+         mTelephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+-        mIsATDiag = getIntent().getBooleanExtra("isatdiag", false);
+ 
+         initViews();
+-        if(mIsATDiag) {
+-            setTitle("AT Diag Port");
+-        } else {
+-            setTitle("Modem Diag Port");
+-        }
+     }
+ 
+     private void initViews() {
+-        mRadioGroup = (RadioGroup) findViewById(R.id.radiogroup);
+-        mRadioGroup.setOnCheckedChangeListener(this);
+-        mOpenRadioButton = (RadioButton) findViewById(R.id.open);
+-        mCloseRadioButton = (RadioButton) findViewById(R.id.close);
+-        if(SystemProperties.get("sys.usb.config", "mtp,adb").contains("sat") || SystemProperties.get("sys.usb.config", "mtp,adb").contains("sdiag")) {                    
+-            mOpenRadioButton.setChecked(true);
+-        } else {
+-            mCloseRadioButton.setChecked(true);
+-        }
++        mPwd = (EditText) findViewById(R.id.password);
++
++        mCancel = (Button) findViewById(R.id.button_cancel);
++        mOK = (Button) findViewById(R.id.button_ok);
++
++        mCancel.setOnClickListener(this);
++        mOK.setOnClickListener(this);
+     }
+ 
+     private String getIMEIEncrypt(String imei) {
+@@ -73,14 +62,12 @@
+         return String.valueOf(array);
+     }
+ 
+-    private synchronized void showDialg() {
+-        mPwd = new EditText(this);
+-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+-        builder.setTitle("input pwd").setView(mPwd)
+-        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+-            public void onClick(DialogInterface dialog, int which) {
++    @Override
++    public void onClick(View v) {
++        switch (v.getId()) {
++            case R.id.button_ok:
+                 if(TextUtils.isEmpty(mPwd.getText().toString().trim())) {
+-                    Toast.makeText(MainActivity.this, "please input password!", Toast.LENGTH_SHORT).show();
++                    Toast.makeText(this, "please input password!", Toast.LENGTH_SHORT).show();
+                     return;
+                 }
+                 mIMEI1 = mTelephonyManager.getDeviceId(0);
+@@ -104,59 +91,50 @@
+                 Log.d(TAG, "pwd:"+ pwd);
+                 Log.d(TAG, "para:"+ sb.toString());
+ 
++                TelephonyManager tm = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
++                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
++                long times = System.currentTimeMillis();
++                Date date = new Date(times);
++                String time = sdf.format(date);
++
++                String phoneNumber1 = tm.getLine1Number();
++                String buf = ((phoneNumber1.length() < 1)?"NULL":phoneNumber1) + ":" + tm.getDeviceId() + ":" + android.os.Build.MODEL + ":" + android.os.Build.DISPLAY.substring(16, 20)
++                        + ":" + time;
++
+                 if(mPwd.getText().toString().trim().equals(pwd)) {
+-                    if(mIsATDiag) {
+-                        SystemProperties.set("sys.usb.config", "mtp,adb,sat");
+-                        Toast.makeText(MainActivity.this, "at diag open success!", Toast.LENGTH_SHORT).show();
+-                    } else {
+-                        SystemProperties.set("sys.usb.config", "mtp,adb,sdiag");
+-                        Toast.makeText(MainActivity.this, "modem diag open success!", Toast.LENGTH_SHORT).show();
+-                    }
+-                    mAlertDialog.dismiss();
++                    SystemProperties.set("persist.sys.modem.diag", ",gser");
++                    UsbManager mUsbManager = (UsbManager) this.getSystemService(Context.USB_SERVICE);
++                    mUsbManager.setUsbDataUnlocked(false);
++                    Toast.makeText(this, "success!", Toast.LENGTH_SHORT).show();
++
++                    writeFileSdcardFile(buf + ":OpenPort:Success\r\n");
++                    finish();
+                 } else {
+-                    Toast.makeText(MainActivity.this, "Incorrect password!", Toast.LENGTH_SHORT).show();
++                    Toast.makeText(this, "Incorrect password!", Toast.LENGTH_SHORT).show();
++                    writeFileSdcardFile(buf + ":OpenPort:Fail\r\n");
+                 }
+-            }
+-        }).setNegativeButton(android.R.string.cancel, null)
+-        .setOnDismissListener(new OnDismissListener() {
+-            @Override
+-            public void onDismiss(DialogInterface dialog) {
+-                if(SystemProperties.get("sys.usb.config", "mtp,adb").contains("sat") || SystemProperties.get("sys.usb.config", "mtp,adb").contains("sdiag")) {                    
+-                    mOpenRadioButton.setChecked(true);
+-                } else {
+-                    mCloseRadioButton.setChecked(true);
+-                }
+-            }
+-        });
+-        mAlertDialog = builder.create();
+-        mAlertDialog.setCanceledOnTouchOutside(false);
+-        mAlertDialog.show();
++                break;
++            case R.id.button_cancel:
++                finish();
++                break;
++        }
+     }
+ 
+-    private String getRevertString(String arg) {
+-        return new StringBuffer(arg).reverse().toString();
+-    }
++    private void writeFileSdcardFile(String writeStr) {
++        try {
+ 
+-    @Override
+-    public void onCheckedChanged(RadioGroup group, int checkedId) {
+-        switch(checkedId) {
+-        case R.id.open:
+-            showDialg();
+-            break;
+-        case R.id.close:
+-            SystemProperties.set("sys.usb.config", "mtp,adb");
+-            break;
++            FileOutputStream fout = new FileOutputStream("/devicelog/log.txt", true);
++            byte[] bytes = writeStr.getBytes();
++
++            fout.write(bytes);
++            fout.close();
++
++        } catch (Exception e) {
++            e.printStackTrace();
+         }
+     }
+ 
+-    @Override
+-    public void onClick(View arg0) {
+-        switch(arg0.getId()) {
+-        case R.id.button_ok:
+-            break;
+-        case R.id.button_cancel:
+-            break;
+-        }
++    private String getRevertString(String arg) {
++        return new StringBuffer(arg).reverse().toString();
+     }
+-
+ }
+Index: vendor/sprd/platform/packages/apps/KeyGen/res/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/KeyGen/res/values/strings.xml	(revision 172029)
++++ vendor/sprd/platform/packages/apps/KeyGen/res/values/strings.xml	(revision 172030)
+@@ -2,6 +2,4 @@
+     <string name="app_name">TestKeyGen</string>
+ 	<string name="title">Input Password to open diag</string>
+ 	<string name="pwd">Password</string>
+-	<string name="open_port">Open Port</string>
+-	<string name="close_port">Close Port</string>
+ </resources>
+Index: vendor/sprd/platform/packages/apps/KeyGen/res/layout/main.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/KeyGen/res/layout/main.xml	(revision 172029)
++++ vendor/sprd/platform/packages/apps/KeyGen/res/layout/main.xml	(revision 172030)
+@@ -1,31 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+-    xmlns:tools="http://schemas.android.com/tools"
+-        android:orientation="vertical"
+-        android:layout_width="match_parent"
+-        android:layout_height="match_parent"
+-        android:layout_alignParentTop="true"
+-        android:layout_alignParentStart="true">
+-
+-    <RadioGroup
+-        android:id="@+id/radiogroup"
+-        android:layout_width="wrap_content"
+-        android:layout_height="wrap_content">
+-        <RadioButton
+-            android:id="@+id/open"
+-            android:layout_width="match_parent"
+-            android:layout_height="wrap_content"
+-            android:layout_marginLeft="50dp"
+-            android:layout_marginTop="10dp"
+-            android:text="@string/open_port"
+-            />
+-        <RadioButton
+-            android:id="@+id/close"
+-            android:layout_width="match_parent"
+-            android:layout_height="wrap_content"
+-            android:layout_marginLeft="50dp"
+-            android:layout_marginTop="5dp"
+-            android:text="@string/close_port"
+-            />
+-    </RadioGroup>
+-</LinearLayout>

@@ -1,0 +1,50 @@
+Index: frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java
+===================================================================
+--- frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java	(revision 171557)
++++ frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java	(revision 171558)
+@@ -2567,14 +2567,15 @@
+                     R.integer.def_sleep_timeout);
+ 
+             /* SPRD: Bug 600880 iflytek inputmethod as default in CMCC project @{ */
+-            boolean isSupportCMCC = SprdCmccWorkspaceAddonStub.getInstance(mContext).isDefault();
++            //boolean isSupportCMCC = SprdCmccWorkspaceAddonStub.getInstance(mContext).isDefault();
+ 
+-            if(isSupportCMCC){
++            //if(isSupportCMCC){
+                 loadStringSetting(stmt, Settings.Secure.DEFAULT_INPUT_METHOD,
+                         R.string.config_default_input_method);
+                 loadStringSetting(stmt, Settings.Secure.ENABLED_INPUT_METHODS,
+                         R.string.config_enabled_input_method);
+-            }
++            //}
++
+             /* @} */
+ 
+             /*
+Index: frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+===================================================================
+--- frameworks/base/packages/SettingsProvider/res/values/defaults.xml	(revision 171557)
++++ frameworks/base/packages/SettingsProvider/res/values/defaults.xml	(revision 171558)
+@@ -240,8 +240,8 @@
+     <integer name="def_fade_in_on">0</integer>
+ 
+     <!-- SPRD: Bug 600880 iflytek inputmethod as default in CMCC project  -->
+-    <string name="config_default_input_method" translatable="false">com.iflytek.inputmethod/.FlyIME</string>
++    <string name="config_default_input_method" translatable="false">com.android.inputmethod.latin/.LatinIME</string>
+     <string name="config_enabled_input_method"
+-            translatable="false">com.iflytek.inputmethod/.FlyIME:com.android.inputmethod.latin/.LatinIME</string>
++            translatable="false">com.android.inputmethod.latin/.LatinIME:com.google.android.googlequicksearchbox/com.google.android.voicesearch.ime.VoiceInputMethodService:com.google.android.inputmethod.pinyin/.PinyinIME</string>
+ 	<string name="def_system_locales" translatable="false">en-US,zh-Hans-CN,in-ID,</string>		
+ </resources>
+Index: vendor/google/products/gms-mandatory.mk
+===================================================================
+--- vendor/google/products/gms-mandatory.mk	(revision 171557)
++++ vendor/google/products/gms-mandatory.mk	(revision 171558)
+@@ -23,6 +23,7 @@
+     GooglePrintRecommendationService \
+     GoogleTTS\
+ 	CloudPrint \
++	GooglePinyinIME \
+     GooglePackageInstaller 
+  
+ # GMS mandatory libraries

@@ -1,0 +1,77 @@
+Index: vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/QuickContactActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/QuickContactActivity.java	(revision 170633)
++++ vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/quickcontact/QuickContactActivity.java	(revision 170634)
+@@ -2266,47 +2266,35 @@
+                 smsContentDescription = com.android.contacts.common.util.ContactDisplayUtils
+                         .getTelephoneTtsSpannable(alternateContentDescription.toString(), header);
+ 
+-                //Added by zhangleyi for 20170309 begin
+-                boolean oneSimState = false;
+-                boolean twoSimState = false;
+-                TelephonyManager tm = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+-
+-                for (int i = 0; i < 2; i++) {
+-                    if (TelephonyManager.SIM_STATE_READY == tm.getSimState(i)) {
+-                        if (0 == i) {
+-                            oneSimState = true;
+-                        } else {
+-                            twoSimState = true;
+-                        }
+-                    } else {
+-                        if (0 == i) {
+-                            oneSimState = false;
+-                        } else {
+-                            twoSimState = false;
+-                        }
+-                    }
+-                }
+-
++                //Added by zhangleyi for 20170309 begin             
+                 TelecomManager telecomManager = (TelecomManager) context.getSystemService(Context.TELECOM_SERVICE);
+                 if (telecomManager != null) {
+                     List<PhoneAccountHandle> phoneAccountHandleList = telecomManager.getCallCapablePhoneAccounts();
+-                    if (twoSimState) {
+-                        call2gIntent = new Intent();
+-                        call2gIntent.setAction(Intent.ACTION_CALL);
+-                        call2gIntent.setData(Uri.parse("tel:" + phone.getNumber()));
+-                        if (oneSimState) {
++                    if (phoneAccountHandleList != null && phoneAccountHandleList.size() > 0) {
++						if (phoneAccountHandleList.size() >= 2) {
++							call2gIntent = new Intent();
++                            call2gIntent.setAction(Intent.ACTION_CALL);
++                            call2gIntent.setData(Uri.parse("tel:" + phone.getNumber()));
+                             call2gIntent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, phoneAccountHandleList.get(1));
+-                        } else {
+-                            call2gIntent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, phoneAccountHandleList.get(0));
+-                        }
+-                    }
+-
+-                    if (oneSimState) {
+-                        call4gIntent = new Intent();
+-                        call4gIntent.setAction(Intent.ACTION_CALL);
+-                        call4gIntent.setData(Uri.parse("tel:" + phone.getNumber()));
+-                        call4gIntent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, phoneAccountHandleList.get(0));
+-                    }
++                            call4gIntent = new Intent();
++                            call4gIntent.setAction(Intent.ACTION_CALL);
++                            call4gIntent.setData(Uri.parse("tel:" + phone.getNumber()));
++                            call4gIntent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, phoneAccountHandleList.get(0));
++							} else {
++								TelephonyManager tm = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
++								if (tm != null && (tm.getSimState(0) == TelephonyManager.SIM_STATE_READY)) {
++									call4gIntent = new Intent();
++                                    call4gIntent.setAction(Intent.ACTION_CALL);
++                                    call4gIntent.setData(Uri.parse("tel:" + phone.getNumber()));
++                                    call4gIntent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, phoneAccountHandleList.get(0));
++									} else if (tm != null && (tm.getSimState(1) == TelephonyManager.SIM_STATE_READY)) {
++										call2gIntent = new Intent();
++                                        call2gIntent.setAction(Intent.ACTION_CALL);
++                                        call2gIntent.setData(Uri.parse("tel:" + phone.getNumber()));
++                                         call2gIntent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, phoneAccountHandleList.get(0));
++										}                            
++								}
++						}
+                 }
+                 call2gIcon = res.getDrawable(R.drawable.ic_call_2g);
+                 call4gIcon = res.getDrawable(R.drawable.ic_call_4g);

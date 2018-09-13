@@ -1,0 +1,151 @@
+Index: frameworks/base/services/core/java/com/android/server/power/PowerManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/power/PowerManagerService.java	(revision 170497)
++++ frameworks/base/services/core/java/com/android/server/power/PowerManagerService.java	(revision 170498)
+@@ -164,7 +164,7 @@
+     // provider populates the actual default value (R.integer.def_screen_off_timeout).
+     private static final int DEFAULT_SCREEN_OFF_TIMEOUT = 15 * 1000;
+     private static final int DEFAULT_SLEEP_TIMEOUT = -1;
+-
++	private static final int DEFAULT_NEVER_SLEEP_ON = 0;
+     // Screen brightness boost timeout.
+     // Hardcoded for now until we decide what the right policy should be.
+     // This should perhaps be a setting.
+@@ -386,6 +386,8 @@
+     // The screen off timeout setting value in milliseconds.
+     private int mScreenOffTimeoutSetting;
+ 
++	private boolean mNeverSleepOn;
++	
+     // The sleep timeout setting value in milliseconds.
+     private int mSleepTimeoutSetting;
+ 
+@@ -756,6 +758,9 @@
+         mScreenOffTimeoutSetting = Settings.System.getIntForUser(resolver,
+                 Settings.System.SCREEN_OFF_TIMEOUT, DEFAULT_SCREEN_OFF_TIMEOUT,
+                 UserHandle.USER_CURRENT);
++		mNeverSleepOn = Settings.System.getIntForUser(resolver,
++                Settings.System.NEVER_SLEEP_ON,DEFAULT_NEVER_SLEEP_ON,
++                UserHandle.USER_CURRENT) == 1;		
+         //=============================================================================
+         // add by sprd start
+         //NOTE: Bug #542086 Add power debug log Feature BEG-->
+@@ -1867,6 +1872,7 @@
+      */
+     private boolean isBeingKeptAwakeLocked() {
+         return mStayOn
++				|| mNeverSleepOn
+                 || mProximityPositive
+                 || (mWakeLockSummary & WAKE_LOCK_STAY_AWAKE) != 0
+                 || (mUserActivitySummary & (USER_ACTIVITY_SCREEN_BRIGHT
+@@ -2183,6 +2189,7 @@
+         if ((mWakeLockSummary & WAKE_LOCK_SCREEN_BRIGHT) != 0
+                 || (mUserActivitySummary & USER_ACTIVITY_SCREEN_BRIGHT) != 0
+                 || !mBootCompleted
++				|| mNeverSleepOn
+                 || mScreenBrightnessBoostInProgress) {
+             return DisplayPowerRequest.POLICY_BRIGHT;
+         }
+Index: frameworks/base/core/java/android/provider/Settings.java
+===================================================================
+--- frameworks/base/core/java/android/provider/Settings.java	(revision 170497)
++++ frameworks/base/core/java/android/provider/Settings.java	(revision 170498)
+@@ -2781,6 +2781,11 @@
+         private static final Validator SCREEN_AUTO_BRIGHTNESS_ADJ_VALIDATOR =
+                 new InclusiveFloatRangeValidator(-1, 1);
+ 
++				
++		public static final String NEVER_SLEEP_ON = "never_sleep_on";
++
++        private static final Validator NEVER_SLEEP_ON_VALIDATOR = sNonNegativeIntegerValidator;
++		
+         /**
+          * SCREEN_BRIGHTNESS_MODE value for manual mode.
+          */
+@@ -3613,6 +3618,7 @@
+             FONT_SCALE,
+             DIM_SCREEN,
+             SCREEN_OFF_TIMEOUT,
++			NEVER_SLEEP_ON,
+             SCREEN_BRIGHTNESS,
+             SCREEN_BRIGHTNESS_MODE,
+             SCREEN_AUTO_BRIGHTNESS_ADJ,
+@@ -3680,6 +3686,7 @@
+             PUBLIC_SETTINGS.add(VOLUME_NOTIFICATION);
+             PUBLIC_SETTINGS.add(VOLUME_BLUETOOTH_SCO);
+             PUBLIC_SETTINGS.add(RINGTONE);
++			PUBLIC_SETTINGS.add(NEVER_SLEEP_ON);
+             /**
+              * SPRD: bug474606, android.media.cts.RingtoneManagerTest fail
+              * @{
+@@ -3807,6 +3814,7 @@
+             VALIDATORS.put(MEDIA_BUTTON_RECEIVER, MEDIA_BUTTON_RECEIVER_VALIDATOR);
+             VALIDATORS.put(HIDE_ROTATION_LOCK_TOGGLE_FOR_ACCESSIBILITY,
+                     HIDE_ROTATION_LOCK_TOGGLE_FOR_ACCESSIBILITY_VALIDATOR);
++			VALIDATORS.put(NEVER_SLEEP_ON, NEVER_SLEEP_ON_VALIDATOR);
+             VALIDATORS.put(VIBRATE_WHEN_RINGING, VIBRATE_WHEN_RINGING_VALIDATOR);
+             VALIDATORS.put(DTMF_TONE_TYPE_WHEN_DIALING, DTMF_TONE_TYPE_WHEN_DIALING_VALIDATOR);
+             VALIDATORS.put(HEARING_AID, HEARING_AID_VALIDATOR);
+Index: packages/apps/Settings/src/com/android/settings/DisplaySettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/DisplaySettings.java	(revision 170497)
++++ packages/apps/Settings/src/com/android/settings/DisplaySettings.java	(revision 170498)
+@@ -67,6 +67,7 @@
+ import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC;
+ import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL;
+ import static android.provider.Settings.System.SCREEN_OFF_TIMEOUT;
++import static android.provider.Settings.System.NEVER_SLEEP_ON;
+ 
+ import static com.android.settingslib.RestrictedLockUtils.EnforcedAdmin;
+ 
+@@ -373,8 +374,12 @@
+                         best = i;
+                     }
+                 }
+-                summary = getString(R.string.screen_timeout_summary, entries[best]);
+-            }
++				if (best == 0) {
++                    summary = ""+entries[best];
++                } else {
++					summary = getString(R.string.screen_timeout_summary, entries[best]);
++                }
++			}
+         }
+         preference.setSummary(summary);
+     }
+@@ -531,6 +536,11 @@
+         if (KEY_SCREEN_TIMEOUT.equals(key)) {
+             try {
+                 int value = Integer.parseInt((String) objValue);
++				if (value == 0) {
++                    Settings.System.putInt(getContentResolver(), NEVER_SLEEP_ON, 1);
++                } else {
++                    Settings.System.putInt(getContentResolver(), NEVER_SLEEP_ON, 0);
++                }
+                 Settings.System.putInt(getContentResolver(), SCREEN_OFF_TIMEOUT, value);
+                 updateTimeoutPreferenceDescription(value);
+             } catch (NumberFormatException e) {
+Index: packages/apps/Settings/res/values-zh-rCN/arrays.xml
+===================================================================
+--- packages/apps/Settings/res/values-zh-rCN/arrays.xml	(revision 170497)
++++ packages/apps/Settings/res/values-zh-rCN/arrays.xml	(revision 170498)
+@@ -30,6 +30,7 @@
+     <item msgid="8392017019801393511">"全部"</item>
+   </string-array>
+   <string-array name="screen_timeout_entries">
++	<item>"永不"</item>
+     <item msgid="3342301044271143016">"15秒"</item>
+     <item msgid="8881760709354815449">"30秒"</item>
+     <item msgid="7589406073232279088">"1分钟"</item>
+Index: packages/apps/Settings/res/values/arrays.xml
+===================================================================
+--- packages/apps/Settings/res/values/arrays.xml	(revision 170497)
++++ packages/apps/Settings/res/values/arrays.xml	(revision 170498)
+@@ -52,6 +52,7 @@
+ 
+     <!-- Do not translate. -->
+     <string-array name="screen_timeout_values" translatable="false">
++		<item>0</item>
+         <!-- Do not translate. -->
+         <item>15000</item>
+         <!-- Do not translate. -->

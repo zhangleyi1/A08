@@ -1,0 +1,199 @@
+Index: device/sprd/scx35l/common/rootdir/system/etc/media_profiles.xml
+===================================================================
+--- device/sprd/scx35l/common/rootdir/system/etc/media_profiles.xml	(revision 180106)
++++ device/sprd/scx35l/common/rootdir/system/etc/media_profiles.xml	(revision 180107)
+@@ -336,29 +336,52 @@
+     <CamcorderProfiles cameraId="1">
+     
+         <EncoderProfile quality="1080p" fileFormat="mp4" duration="60">
++            <Video codec="h264"
++                   bitRate="16000000"
++                   width="1920"
++                   height="1088"
++                   frameRate="30" />
++            <Audio codec="aac"
++                   bitRate="96000"
++                   sampleRate="44100"
++                   channels="1" />
++        </EncoderProfile>    
++        <EncoderProfile quality="1080p" fileFormat="mp4" duration="60">
+             <Video codec="m4v"
+-                   bitRate="256000"
++                   bitRate="16000000"
+                    width="1920"
+-                   height="1080"
++                   height="1088"
+                    frameRate="30" />
+-            <Audio codec="amrnb"
+-                   bitRate="12200"
+-                   sampleRate="8000"
++            <Audio codec="aac"
++                   bitRate="96000"
++                   sampleRate="44100"
+                    channels="1" />
+         </EncoderProfile>
+         <EncoderProfile quality="timelapse1080p" fileFormat="mp4" duration="60">
++            <Video codec="h264"
++                   bitRate="16000000"
++                   width="1920"
++                   height="1088"
++                   frameRate="30" />
++            <!-- audio setting is ignored -->
++            <Audio codec="aac"
++                   bitRate="96000"
++                   sampleRate="44100"
++                   channels="1" />
++        </EncoderProfile>
++        <EncoderProfile quality="timelapse1080p" fileFormat="mp4" duration="60">
+             <Video codec="m4v"
+-                   bitRate="256000"
++                   bitRate="16000000"
+                    width="1920"
+-                   height="1080"
++                   height="1088"
+                    frameRate="30" />
+-            <Audio codec="amrnb"
+-                   bitRate="12200"
+-                   sampleRate="8000"
++            <Audio codec="aac"
++                   bitRate="96000"
++                   sampleRate="44100"
+                    channels="1" />
+         </EncoderProfile>
+         
+-		 <EncoderProfile quality="720p" fileFormat="mp4" duration="60">
++        <EncoderProfile quality="720p" fileFormat="mp4" duration="60">
+             <Video codec="m4v"
+                    bitRate="8000000"
+                    width="1280"
+@@ -589,21 +612,21 @@
+          or query the capabilities of the codec at all if it is disabled
+     -->
+     <VideoEncoderCap name="h264" enabled="true"
+-        minBitRate="16000" maxBitRate="16000000"
+-        minFrameWidth="176" maxFrameWidth="1280"
+-        minFrameHeight="144" maxFrameHeight="720"
++        minBitRate="16000" maxBitRate="32000000"
++        minFrameWidth="176" maxFrameWidth="1920"
++        minFrameHeight="144" maxFrameHeight="1088"
+         minFrameRate="15" maxFrameRate="60" />
+ 
+     <VideoEncoderCap name="h263" enabled="true"
+-        minBitRate="16000" maxBitRate="16000000"
+-        minFrameWidth="176" maxFrameWidth="1280"
+-        minFrameHeight="144" maxFrameHeight="720"
++        minBitRate="16000" maxBitRate="32000000"
++        minFrameWidth="176" maxFrameWidth="1920"
++        minFrameHeight="144" maxFrameHeight="1088"
+         minFrameRate="15" maxFrameRate="60" />
+ 
+     <VideoEncoderCap name="m4v" enabled="true"
+-        minBitRate="16000" maxBitRate="16000000"
+-        minFrameWidth="176" maxFrameWidth="1280"
+-        minFrameHeight="144" maxFrameHeight="720"
++        minBitRate="16000" maxBitRate="32000000"
++        minFrameWidth="176" maxFrameWidth="1920"
++        minFrameHeight="144" maxFrameHeight="1088"
+         minFrameRate="15" maxFrameRate="60" />
+ 
+     <AudioEncoderCap name="aac" enabled="true"
+Index: vendor/sprd/modules/libcamera/hal3/SprdCamera3Setting.cpp
+===================================================================
+--- vendor/sprd/modules/libcamera/hal3/SprdCamera3Setting.cpp	(revision 180106)
++++ vendor/sprd/modules/libcamera/hal3/SprdCamera3Setting.cpp	(revision 180107)
+@@ -494,7 +494,7 @@
+ 	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 720, 480, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT},
+ #endif
+ 	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 640, 480, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT},
+-	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 640, 360, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT},
++	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 640, 352, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT},
+ 	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 480, 640, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT},
+ 	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 352, 288, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT},
+ 	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 320, 240, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT},
+@@ -544,7 +544,7 @@
+ 	{HAL_PIXEL_FORMAT_YCbCr_420_888, 720, 480, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT},
+ #endif
+ 	{HAL_PIXEL_FORMAT_YCbCr_420_888, 640, 480, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT},
+-	{HAL_PIXEL_FORMAT_YCbCr_420_888, 640, 360, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT},
++	{HAL_PIXEL_FORMAT_YCbCr_420_888, 640, 352, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT},
+ 	{HAL_PIXEL_FORMAT_YCbCr_420_888, 480, 640, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT},
+ 	{HAL_PIXEL_FORMAT_YCbCr_420_888, 352, 288, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT},
+ 	{HAL_PIXEL_FORMAT_YCbCr_420_888, 320, 240, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT},
+@@ -578,7 +578,7 @@
+ 	{HAL_PIXEL_FORMAT_BLOB, 720, 480, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT},
+ #endif
+ 	{HAL_PIXEL_FORMAT_BLOB, 640, 480, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT},
+-	{HAL_PIXEL_FORMAT_BLOB, 640, 360, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT},
++	{HAL_PIXEL_FORMAT_BLOB, 640, 352, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT},
+ 	{HAL_PIXEL_FORMAT_BLOB, 480, 640, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT},
+ 	{HAL_PIXEL_FORMAT_BLOB, 352, 288, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT},
+ 	{HAL_PIXEL_FORMAT_BLOB, 320, 240, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT},
+@@ -768,7 +768,7 @@
+ //	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 720, 544, 33331760L},
+ 	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 720, 480, 33331760L},
+ 	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 640, 480, 33331760L},
+-	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 640, 360, 33331760L},
++	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 640, 352, 33331760L},
+ 	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 480, 640, 33331760L},
+ 	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 352, 288, 33331760L},
+ 	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 320, 240, 33331760L},
+@@ -824,7 +824,7 @@
+ //	{HAL_PIXEL_FORMAT_YCbCr_420_888, 720, 544, 33331760L},
+ 	{HAL_PIXEL_FORMAT_YCbCr_420_888, 720, 480, 33331760L},
+ 	{HAL_PIXEL_FORMAT_YCbCr_420_888, 640, 480, 33331760L},
+-	{HAL_PIXEL_FORMAT_YCbCr_420_888, 640, 360, 33331760L},
++	{HAL_PIXEL_FORMAT_YCbCr_420_888, 640, 352, 33331760L},
+ 	{HAL_PIXEL_FORMAT_YCbCr_420_888, 480, 640, 33331760L},
+ 	{HAL_PIXEL_FORMAT_YCbCr_420_888, 352, 288, 33331760L},
+ 	{HAL_PIXEL_FORMAT_YCbCr_420_888, 320, 240, 33331760L},
+@@ -856,7 +856,7 @@
+ 	{HAL_PIXEL_FORMAT_BLOB, 864, 480, 33331760L},
+ 	{HAL_PIXEL_FORMAT_BLOB, 720, 480, 33331760L},
+ 	{HAL_PIXEL_FORMAT_BLOB, 640, 480, 33331760L},
+-	{HAL_PIXEL_FORMAT_BLOB, 640, 360, 33331760L},
++	{HAL_PIXEL_FORMAT_BLOB, 640, 352, 33331760L},
+ 	{HAL_PIXEL_FORMAT_BLOB, 480, 640, 33331760L},
+ 	{HAL_PIXEL_FORMAT_BLOB, 352, 288, 33331760L},
+ 	{HAL_PIXEL_FORMAT_BLOB, 320, 240, 33331760L},
+@@ -1047,7 +1047,7 @@
+ //	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 720, 544, 0L},
+ 	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 720, 480, 0L},
+ 	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 640, 480, 0L},
+-	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 640, 360, 0L},
++	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 640, 352, 0L},
+ 	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 480, 640, 0L},
+ 	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 352, 288, 0L},
+ 	{HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, 320, 240, 0L},
+@@ -1104,7 +1104,7 @@
+ //	{HAL_PIXEL_FORMAT_YCbCr_420_888, 720, 544, 0L},
+ 	{HAL_PIXEL_FORMAT_YCbCr_420_888, 720, 480, 0L},
+ 	{HAL_PIXEL_FORMAT_YCbCr_420_888, 640, 480, 0L},
+-	{HAL_PIXEL_FORMAT_YCbCr_420_888, 640, 360, 0L},
++	{HAL_PIXEL_FORMAT_YCbCr_420_888, 640, 352, 0L},
+ 	{HAL_PIXEL_FORMAT_YCbCr_420_888, 480, 640, 0L},
+ 	{HAL_PIXEL_FORMAT_YCbCr_420_888, 352, 288, 0L},
+ 	{HAL_PIXEL_FORMAT_YCbCr_420_888, 320, 240, 0L},
+@@ -1137,7 +1137,7 @@
+ #endif
+ 	{HAL_PIXEL_FORMAT_BLOB, 720, 480, 33331760L},
+ 	{HAL_PIXEL_FORMAT_BLOB, 640, 480, 33331760L},
+-	{HAL_PIXEL_FORMAT_BLOB, 640, 360, 33331760L},
++	{HAL_PIXEL_FORMAT_BLOB, 640, 352, 33331760L},
+ 	{HAL_PIXEL_FORMAT_BLOB, 480, 640, 33331760L},
+ 	{HAL_PIXEL_FORMAT_BLOB, 352, 288, 33331760L},
+ 	{HAL_PIXEL_FORMAT_BLOB, 320, 240, 33331760L},
+Index: vendor/sprd/modules/libcamera/hal3/SprdCamera3Setting.h
+===================================================================
+--- vendor/sprd/modules/libcamera/hal3/SprdCamera3Setting.h	(revision 180106)
++++ vendor/sprd/modules/libcamera/hal3/SprdCamera3Setting.h	(revision 180107)
+@@ -92,8 +92,8 @@
+ #define FRONT_SENSOR_ORIG_WIDTH 2048 //select according to max jpg resolution
+ #define FRONT_SENSOR_ORIG_HEIGHT 1536
+ #elif CONFIG_FRONT_CAMERA_SUPPORT_2M
+-#define FRONT_SENSOR_ORIG_WIDTH 1600 //select according to max jpg resolution
+-#define FRONT_SENSOR_ORIG_HEIGHT 1200
++#define FRONT_SENSOR_ORIG_WIDTH 1920 //select according to max jpg resolution
++#define FRONT_SENSOR_ORIG_HEIGHT 1088
+ #elif CONFIG_FRONT_CAMERA_SUPPORT_1M3
+ #define FRONT_SENSOR_ORIG_WIDTH 1280 //select according to max jpg resolution
+ #define FRONT_SENSOR_ORIG_HEIGHT 960

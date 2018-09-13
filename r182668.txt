@@ -1,0 +1,26 @@
+Index: packages/apps/Settings/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values-zh-rCN/strings.xml	(revision 182667)
++++ packages/apps/Settings/res/values-zh-rCN/strings.xml	(revision 182668)
+@@ -271,6 +271,7 @@
+     <string name="settings_shortcut" msgid="3936651951364030415">"设置快捷方式"</string>
+     <string name="airplane_mode" msgid="8837269988154128601">"飞行模式"</string>
+     <string name="radio_controls_title" msgid="3447085191369779032">"更多"</string>
++    <string name="radio_controls_title_more">更多</string>
+     <string name="wireless_networks_settings_title" msgid="3643009077742794212">"无线和网络"</string>
+     <string name="radio_controls_summary" msgid="2837395036275123133">"管理WLAN、蓝牙、飞行模式、移动网络和VPN"</string>
+     <string name="cellular_data_title" msgid="2525947635539415202">"移动数据网络"</string>
+Index: packages/apps/Settings/res/values-in/strings.xml
+===================================================================
+--- packages/apps/Settings/res/values-in/strings.xml	(revision 182667)
++++ packages/apps/Settings/res/values-in/strings.xml	(revision 182668)
+@@ -261,7 +261,8 @@
+     <string name="settings_label_launcher" msgid="8344735489639482340">"Setelan"</string>
+     <string name="settings_shortcut" msgid="3936651951364030415">"Pintasan setelan"</string>
+     <string name="airplane_mode" msgid="8837269988154128601">"Mode pesawat"</string>
+-    <string name="radio_controls_title" msgid="3447085191369779032">"Wireless and network"</string>
++    <string name="radio_controls_title" msgid="3447085191369779032">"Jaringan dan nirkabel"</string>
++    <string name="radio_controls_title_more">Lainnya</string>
+     <string name="wireless_networks_settings_title" msgid="3643009077742794212">"Jaringan &amp; nirkabel"</string>
+     <string name="radio_controls_summary" msgid="2837395036275123133">"Kelola Wi‑Fi, Bluetooth, mode pesawat, jaringan seluler, &amp; VPN"</string>
+     <string name="cellular_data_title" msgid="2525947635539415202">"Data seluler"</string>

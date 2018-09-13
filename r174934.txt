@@ -1,0 +1,15 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/PagedView.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/PagedView.java	(revision 174933)
++++ packages/apps/Launcher3/src/com/android/launcher3/PagedView.java	(revision 174934)
+@@ -1053,8 +1053,9 @@
+         // in accordance with any scroll effects.
+         mForceScreenScrolled = true;
+         updateFreescrollBounds();
+-
++       if (mPageIndicator != null){
+         mPageIndicator.GoneMarker();
++      }
+         invalidate();
+     }
+ 

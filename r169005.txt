@@ -1,0 +1,192 @@
+Index: packages/apps/Dialer/AndroidManifest.xml
+===================================================================
+--- packages/apps/Dialer/AndroidManifest.xml	(revision 169004)
++++ packages/apps/Dialer/AndroidManifest.xml	(revision 169005)
+@@ -91,7 +91,8 @@
+             android:icon="@mipmap/ic_launcher_phone"
+             android:windowSoftInputMode="stateAlwaysHidden|adjustNothing"
+             android:resizeableActivity="true"
+-            android:directBootAware="true">
++            android:directBootAware="true"
++			android:screenOrientation="portrait">
+             <intent-filter>
+                 <action android:name="android.intent.action.DIAL" />
+                 <category android:name="android.intent.category.DEFAULT" />
+@@ -154,7 +155,8 @@
+               android:label="@string/dialer_settings_label"
+               android:parentActivityName="com.android.dialer.DialtactsActivity"
+               android:theme="@style/SettingsStyle"
+-              android:exported="false">
++              android:exported="false"
++			  android:screenOrientation="portrait">
+         </activity>
+ 
+         <activity android:name="com.android.dialer.filterednumber.BlockedNumbersSettingsActivity"
+@@ -161,12 +163,14 @@
+             android:label="@string/manage_blocked_numbers_label"
+             android:parentActivityName="com.android.dialer.settings.DialerSettingsActivity"
+             android:theme="@style/ManageBlockedNumbersStyle"
+-            android:exported="false">
++            android:exported="false"
++			android:screenOrientation="portrait">
+         </activity>
+ 
+         <activity android:name="com.android.dialer.voicemail.VoicemailArchiveActivity"
+             android:label="@string/voicemail_archive_activity_title"
+-            android:theme="@style/DialtactsThemeWithoutActionBarOverlay">
++            android:theme="@style/DialtactsThemeWithoutActionBarOverlay"
++			android:screenOrientation="portrait">
+         </activity>
+ 
+          <!--SPRD: Add call log icon in luncher & modify for bug602680 @{ -->
+@@ -175,7 +179,8 @@
+             android:theme="@style/DialtactsThemeWithoutActionBarOverlay"
+             android:icon="@mipmap/ic_luncher_calllog_ex"
+             android:taskAffinity="android.task.dialer.calllog"
+-            android:launchMode="singleTask">
++            android:launchMode="singleTask"
++			android:screenOrientation="portrait">
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+                 <category android:name="android.intent.category.LAUNCHER" />
+@@ -186,7 +191,8 @@
+         <activity android:name="com.android.dialer.CallDetailActivity"
+             android:label="@string/callDetailTitle"
+             android:theme="@style/CallDetailActivityTheme"
+-            android:icon="@mipmap/ic_launcher_phone">
++            android:icon="@mipmap/ic_launcher_phone"
++			android:screenOrientation="portrait">
+             <intent-filter>
+                 <action android:name="android.intent.action.VIEW"/>
+                 <category android:name="android.intent.category.DEFAULT"/>
+@@ -194,7 +200,8 @@
+             </intent-filter>
+         </activity>
+ 
+-        <activity android:name="com.android.contacts.common.test.FragmentTestActivity">
++        <activity android:name="com.android.contacts.common.test.FragmentTestActivity"
++			android:screenOrientation="portrait">
+             <intent-filter>
+                 <category android:name="android.intent.category.TEST"/>
+             </intent-filter>
+@@ -202,7 +209,8 @@
+ 
+         <activity android:name="com.android.contacts.common.dialog.CallSubjectDialog"
+                   android:theme="@style/Theme.CallSubjectDialogTheme"
+-                  android:windowSoftInputMode="stateVisible|adjustResize">
++                  android:windowSoftInputMode="stateVisible|adjustResize"
++				  android:screenOrientation="portrait">
+             <intent-filter>
+                 <action android:name="android.intent.action.VIEW"/>
+             </intent-filter>
+@@ -230,42 +238,51 @@
+         <activity
+             android:name="com.android.contacts.common.list.AccountFilterActivity"
+             android:label="@string/activity_title_contacts_filter"
+-            android:theme="@style/ContactListFilterTheme"/>
++            android:theme="@style/ContactListFilterTheme"
++			android:screenOrientation="portrait"/>
+ 
+         <!-- Used to select display and sync groups -->
+         <activity
+             android:name="com.android.contacts.common.list.CustomContactListFilterActivity"
+             android:label="@string/custom_list_filter"
+-            android:theme="@style/ContactListFilterTheme"/>
++            android:theme="@style/ContactListFilterTheme"
++			android:screenOrientation="portrait"/>
+ 
+         <activity
+             android:name="com.android.contacts.common.activity.RequestImportVCardPermissionsActivity"
+             android:label="@string/launcherActivityLabel"
+             android:theme="@style/BackgroundOnlyTheme"
+-            android:exported="false"/>
++            android:exported="false"
++			android:screenOrientation="portrait"/>
+ 
+         <!-- vCard related -->
+         <activity android:name="com.android.contacts.common.vcard.ImportVCardActivity"
+                   android:configChanges="orientation|screenSize|keyboardHidden"
+-                  android:theme="@style/BackgroundOnlyTheme">
++                  android:theme="@style/BackgroundOnlyTheme"
++				  android:screenOrientation="portrait">
+         </activity>
+ 
+         <activity android:name="com.android.contacts.common.vcard.NfcImportVCardActivity"
+                   android:configChanges="orientation|screenSize|keyboardHidden"
+-                  android:theme="@style/BackgroundOnlyTheme">
++                  android:theme="@style/BackgroundOnlyTheme"
++				  android:screenOrientation="portrait">
+         </activity>
+ 
+         <activity android:name="com.android.contacts.common.vcard.CancelActivity"
+-                  android:theme="@style/BackgroundOnlyTheme"/>
++                  android:theme="@style/BackgroundOnlyTheme"
++				  android:screenOrientation="portrait"/>
+ 
+         <activity android:name="com.android.contacts.common.vcard.SelectAccountActivity"
+-                  android:theme="@style/BackgroundOnlyTheme"/>
++                  android:theme="@style/BackgroundOnlyTheme"
++				  android:screenOrientation="portrait"/>
+ 
+         <activity android:name="com.android.contacts.common.vcard.ExportVCardActivity"
+-                  android:theme="@style/BackgroundOnlyTheme"/>
++                  android:theme="@style/BackgroundOnlyTheme"
++				  android:screenOrientation="portrait"/>
+ 
+         <activity android:name="com.android.contacts.common.vcard.ShareVCardActivity"
+-                  android:theme="@style/BackgroundOnlyTheme" />
++                  android:theme="@style/BackgroundOnlyTheme" 
++				  android:screenOrientation="portrait"/>
+ 
+         <service
+             android:name="com.android.contacts.common.vcard.VCardService"
+@@ -330,7 +347,8 @@
+                   android:exported="false"
+                   android:screenOrientation="nosensor"
+                   android:directBootAware="true"
+-                  android:resizeableActivity="true">
++                  android:resizeableActivity="true"
++				  android:screenOrientation="portrait">
+         </activity>
+ 
+         <service android:name="com.android.incallui.InCallServiceImpl"
+@@ -386,7 +404,8 @@
+                   android:configChanges="orientation|screenSize"
+                   android:clearTaskOnLaunch="true"
+                   android:label="@string/call_log_delete_all"
+-                  android:icon="@mipmap/ic_launcher_phone_ex"/>
++                  android:icon="@mipmap/ic_launcher_phone_ex"
++				  android:screenOrientation="portrait"/>
+         <!-- @} -->
+ 
+         <!-- SPRD: add for search call log in google search box feature @{ -->
+@@ -415,7 +434,8 @@
+             android:label="@string/launcherActivityLabel"
+             android:theme="@style/DialtactsActivityTheme"
+             android:excludeFromRecents="true"
+-            android:parentActivityName="com.android.dialer.DialtactsActivity"/>
++            android:parentActivityName="com.android.dialer.DialtactsActivity"
++			android:screenOrientation="portrait"/>
+ 
+         <!-- @} -->
+         <!-- SPRD: new feature-display FDN contact name in calllog  @{ -->
+@@ -430,7 +450,8 @@
+         <!-- @} -->
+ 		
+         <activity android:name="com.android.incallui.SmsRejustDialogActivity"
+-                  android:theme="@style/Theme.AppCompat.Light.Dialog" >
++                  android:theme="@style/Theme.AppCompat.Light.Dialog" 
++				  android:screenOrientation="portrait">
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+                 <category android:name="android.intent.category.DEFAULT" />
+@@ -439,7 +460,8 @@
+ 	   
+         <activity
+             android:name="com.sprd.dialer.settings.PhotoSettingsActivity"
+-            android:configChanges="orientation|screenSize|keyboardHidden">
++            android:configChanges="orientation|screenSize|keyboardHidden"
++			android:screenOrientation="portrait">
+         </activity>
+     </application>
+ </manifest>

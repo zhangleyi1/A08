@@ -1,0 +1,72 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/sensor/GSensor.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/sensor/GSensor.java	(revision 170726)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/sensor/GSensor.java	(revision 170727)
+@@ -34,22 +34,23 @@
+ 	Button successButton;
+ 	Button failButton;
+ 	ImageView  mImage;
+-	final float F_ZERO = 0.2f;
+-	final int MIN_SUCCESS_COUNT = 3;
++	final float F_ZERO = 0.7f;//0.2
++	final int MIN_SUCCESS_COUNT = 4;//3
+ 	float[] mOldValues = new float[3];
+-	int[] mSuccessCount = new int[3];
++	int[] mSuccessCount = new int[4];
+ 	int mCount=0;
+ 	private boolean			mRegisteredSensor;
+ 	private static final int EVENT_CHECK_RESULT = 100;
+-	private static final int CHECK_RESULT_DELAY_TIME = 3000;
++	private static final int CHECK_RESULT_DELAY_TIME = 4000;
+ 	private Handler mHandler = new Handler() {
+ 		@Override
+ 		public void handleMessage(Message msg) {
+ 			switch(msg.what) {
+ 				case EVENT_CHECK_RESULT:
+-					Intent intent = new Intent(GSensor.this, FactoryMode.class);
+-					setResult(FactoryMode.TEST_OK,intent);
+-					finish();
++					successButton.setEnabled(true);
++					//Intent intent = new Intent(GSensor.this, FactoryMode.class);
++					//setResult(FactoryMode.TEST_OK,intent);
++					//finish();
+ 					break;
+ 			}
+ 			super.handleMessage(msg);
+@@ -132,7 +133,7 @@
+ 		{
+ 			Sensor sensor = sensors.get(0);
+ 
+-			mRegisteredSensor = sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_FASTEST);
++			mRegisteredSensor = sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+ 		}
+ 	}
+ 	
+@@ -144,7 +145,7 @@
+ 			value_0.setText("X:"+values[0]+"\nY:"+values[1]+"\nZ:"+values[2]);
+ 			ArrowOritation(values);
+ 			if(checkSeonsorState(values) && mCount>=4 ) {
+-			successButton.setEnabled(true);
++			//successButton.setEnabled(true);
+ 			mHandler.sendEmptyMessageDelayed(EVENT_CHECK_RESULT, CHECK_RESULT_DELAY_TIME);
+ 			}
+ 		}
+@@ -154,15 +155,15 @@
+ 			mImage.setImageResource(R.drawable.arrow_left);
+ 			mCount++;
+ 			Log.i(TAG,"mCount"+mCount);
+-		}else if(values[0]<-5 ){
++		}else if(values[0]<=-5  ){
+ 			mImage.setImageResource(R.drawable.arrow_right);
+ 			mCount++;
+ 			Log.i(TAG,"mCount"+mCount);
+-		}else if(values[1]>=5 ){
++		}else if(values[1]>=5  ){
+ 			mImage.setImageResource(R.drawable.arrow_bottom);
+ 			mCount++;
+ 			Log.i(TAG,"mCount"+mCount);
+-		}else if(values[1]<-5){
++		}else if(values[1]<-3 ){
+ 			mImage.setImageResource(R.drawable.arrow_top);
+ 			mCount++;
+ 			Log.i(TAG,"mCount"+mCount);

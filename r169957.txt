@@ -1,0 +1,13 @@
+Index: packages/apps/Settings/src/com/android/settings/Utils.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/Utils.java	(revision 169956)
++++ packages/apps/Settings/src/com/android/settings/Utils.java	(revision 169957)
+@@ -145,7 +145,7 @@
+      */
+     public static final int[] BADNESS_COLORS = new int[] {
+             0x00000000, 0xffc43828, 0xffe54918, 0xfff47b00,
+-            0xfffabf2c, 0xff679e37, 0xff0a7f42
++            0xfffabf2c, 0xff679e37, 0xff0a7f42, 0xff0a7f43
+     };
+ 
+     public static final int[] SENSORHUB_LIST = new int[] {

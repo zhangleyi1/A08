@@ -1,0 +1,87 @@
+Index: packages/apps/Settings/src/com/android/settings/users/UserSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/users/UserSettings.java	(revision 174355)
++++ packages/apps/Settings/src/com/android/settings/users/UserSettings.java	(revision 174356)
+@@ -750,12 +750,12 @@
+                         showSettings ? this : null,
+                         showDelete ? this : null);
+                 pref.setKey("id=" + user.id);
++                pref.setOnPreferenceClickListener(this);
+                 userPreferences.add(pref);
+                 if (user.isAdmin()) {
+                     pref.setSummary(R.string.user_admin);
+                 }
+                 pref.setTitle(user.name);
+-                pref.setSelectable(false);
+             }
+             if (pref == null) {
+                 continue;
+@@ -810,8 +810,8 @@
+         }
+ 
+         // Check if Guest tile should be added.
+-        if (!mUserCaps.mIsGuest && (mUserCaps.mCanAddGuest ||
+-                mUserCaps.mDisallowAddUserSetByAdmin)) {
++        if (!mUserCaps.mIsGuest &&
++                (mUserCaps.mCanAddGuest || findGuest() != null || mUserCaps.mDisallowAddUser)) {
+             // Add a virtual Guest user for guest defaults
+             UserPreference pref = new UserPreference(getPrefContext(), null,
+                     UserPreference.USERID_GUEST_DEFAULTS,
+@@ -819,10 +819,10 @@
+                     null /* delete icon handler */);
+             pref.setTitle(R.string.user_guest);
+             pref.setIcon(getEncircledDefaultIcon());
++            pref.setOnPreferenceClickListener(this);
+             userPreferences.add(pref);
+             pref.setDisabledByAdmin(
+                     mUserCaps.mDisallowAddUser ? mUserCaps.mEnforcedAdmin : null);
+-            pref.setSelectable(false);
+         }
+ 
+         // Sort list of users by serialNum
+@@ -954,11 +954,17 @@
+             }
+         } else if (pref instanceof UserPreference) {
+             int userId = ((UserPreference) pref).getUserId();
++            if (userId == UserPreference.USERID_GUEST_DEFAULTS) {
++                createAndSwitchToGuestUser();
++            } else {
+             // Get the latest status of the user
+             UserInfo user = mUserManager.getUserInfo(userId);
+             if (!isInitialized(user)) {
+                 mHandler.sendMessage(mHandler.obtainMessage(
+                         MESSAGE_SETUP_USER, user.id, user.serialNumber));
++                } else {
++                    switchUserNow(userId);
++                }
+             }
+         } else if (pref == mAddUser) {
+             // If we allow both types, show a picker, otherwise directly go to
+@@ -975,6 +981,27 @@
+         }
+         return false;
+     }
++    private void createAndSwitchToGuestUser() {
++        final UserInfo guest = findGuest();
++        if (guest != null) {
++            switchUserNow(guest.id);
++            return;
++        }
++        UserInfo guestUser = mUserManager.createGuest(getActivity(),
++                    getResources().getString(R.string.user_guest));
++        if (guestUser != null) {
++            switchUserNow(guestUser.id);
++        }
++    }
++    private UserInfo findGuest() {
++        List<UserInfo> users = mUserManager.getUsers();
++        for (UserInfo user : users) {
++            if (user.isGuest()) {
++                return user;
++            }
++        }
++        return null;
++    }
+ 
+     private boolean isInitialized(UserInfo user) {
+         return (user.flags & UserInfo.FLAG_INITIALIZED) != 0;

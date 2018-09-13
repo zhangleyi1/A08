@@ -1,0 +1,13 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res/values/strings.xml	(revision 177068)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res/values/strings.xml	(revision 177069)
+@@ -1188,7 +1188,7 @@
+     <string name="countdown_on_zsl_off">"ZSL mode can’t be used with countdown timer,ZSL has automatically shut down."</string>
+ 
+     <!-- SPRD: Add value for mirror @{ -->
+-    <string name="pref_mirror_title">Mirror refelection</string>
++    <string name="pref_mirror_title">Mirror reflection</string>
+ 
+     <!-- SPRD: Add value for OIS @{ -->
+     <string name="pref_eois_resolution">Debounce</string>

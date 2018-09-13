@@ -1,0 +1,26 @@
+Index: frameworks/base/telephony/java/android/telephony/PhoneNumberUtils.java
+===================================================================
+--- frameworks/base/telephony/java/android/telephony/PhoneNumberUtils.java	(revision 167729)
++++ frameworks/base/telephony/java/android/telephony/PhoneNumberUtils.java	(revision 167730)
+@@ -1589,7 +1589,7 @@
+     //
+     // However, in order to loose match 650-555-1212 and 555-1212, we need to set the min match
+     // to 7.
+-    static final int MIN_MATCH = 7;
++    static final int MIN_MATCH = 9;
+ 
+     /**
+      * Checks a given number against the list of
+Index: external/sqlite/android/OldPhoneNumberUtils.cpp
+===================================================================
+--- external/sqlite/android/OldPhoneNumberUtils.cpp	(revision 167729)
++++ external/sqlite/android/OldPhoneNumberUtils.cpp	(revision 167730)
+@@ -22,7 +22,7 @@
+ 
+ namespace android {
+ 
+-static int MIN_MATCH = 7;
++static int MIN_MATCH = 9;
+ 
+ /** True if c is ISO-LATIN characters 0-9 */
+ static bool isISODigit (char c)

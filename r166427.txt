@@ -1,0 +1,48 @@
+Index: packages/apps/Settings/src/com/sprd/settings/timerpower/Alarms.java
+===================================================================
+--- packages/apps/Settings/src/com/sprd/settings/timerpower/Alarms.java	(revision 166426)
++++ packages/apps/Settings/src/com/sprd/settings/timerpower/Alarms.java	(revision 166427)
+@@ -529,7 +529,7 @@
+      */
+     private static void alarm_flag_setup(final long alarmTimeInMillis) {
+         Calendar c = Calendar.getInstance();
+-        c.set(2012, 0, 1, 0, 0, 0);
++        c.set(2017, 0, 1, 0, 0, 0);//2012
+         Calendar to = Calendar.getInstance();
+         to.setTimeInMillis(alarmTimeInMillis);
+         TimeZone zone = c.getTimeZone();
+Index: kernel/arch/arm/configs/core3_defconfig
+===================================================================
+--- kernel/arch/arm/configs/core3_defconfig	(revision 166426)
++++ kernel/arch/arm/configs/core3_defconfig	(revision 166427)
+@@ -2461,7 +2461,7 @@
+ #
+ # CONFIG_RTC_DRV_HID_SENSOR_TIME is not set
+ CONFIG_RTC_DRV_SPRD=y
+-CONFIG_RTC_START_YEAR=2012
++CONFIG_RTC_START_YEAR=2017
+ # CONFIG_DMADEVICES is not set
+ # CONFIG_AUXDISPLAY is not set
+ # CONFIG_UIO is not set
+Index: kernel/drivers/rtc/rtc-sprd.c
+===================================================================
+--- kernel/drivers/rtc/rtc-sprd.c	(revision 166426)
++++ kernel/drivers/rtc/rtc-sprd.c	(revision 166427)
+@@ -549,7 +549,7 @@
+ 		/* clear ANA_RTC_RST2 */
+ 		sci_adi_raw_write((unsigned long)ANA_REG_GLB_RTC_RST1, RTC_RST_CLEAN_VAL);
+ 		printk("RTC power down and reset RTC time!\n");
+-		secs = mktime(CONFIG_RTC_START_YEAR, 1, 1, 0, 0, 0);
++		secs = mktime(/*CONFIG_RTC_START_YEAR*/2017, 1, 1, 0, 0, 0);
+ 		rtc_time_to_tm(secs, &tm);
+ 		if((ret = sprd_rtc_set_time(dev,&tm)) < 0)
+ 			return ret;
+@@ -588,7 +588,7 @@
+ 	if (((spg_val & SPRD_RTC_POWERDOWN_RESET) == 0) ||
+ 		sprd_check_current_time()) {
+ 		pr_info("RTC power down and reset RTC time!!\n");
+-		secs = mktime(CONFIG_RTC_START_YEAR, 1, 1, 0, 0, 0);
++		secs = mktime(/*CONFIG_RTC_START_YEAR*/2017, 1, 1, 0, 0, 0);
+ 		rtc_time_to_tm(secs, &tm);
+ 		if ((ret = sprd_rtc_set_time(dev,&tm)) < 0)
+ 			return ret;

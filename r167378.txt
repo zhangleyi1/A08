@@ -1,0 +1,13 @@
+Index: frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+===================================================================
+--- frameworks/base/packages/SettingsProvider/res/values/defaults.xml	(revision 167377)
++++ frameworks/base/packages/SettingsProvider/res/values/defaults.xml	(revision 167378)
+@@ -18,7 +18,7 @@
+ -->
+ <resources>
+     <bool name="def_dim_screen">true</bool>
+-    <integer name="def_screen_off_timeout">60000</integer>
++    <integer name="def_screen_off_timeout">30000</integer>
+     <integer name="def_button_light_off_timeout">1500</integer>
+     <integer name="def_sleep_timeout">-1</integer>
+     <bool name="def_airplane_mode_on">false</bool>

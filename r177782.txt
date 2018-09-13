@@ -1,0 +1,105 @@
+Index: vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/cat/CatServiceSprd.java
+===================================================================
+--- vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/cat/CatServiceSprd.java	(revision 177781)
++++ vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/cat/CatServiceSprd.java	(revision 177782)
+@@ -68,6 +68,8 @@
+                    SetupEventListConstants.IDLE_SCREEN_AVAILABLE_EVENT;
+ import static com.android.internal.telephony.cat.CatCmdMessageSprd.
+                    SetupEventListConstants.LANGUAGE_SELECTION_EVENT;
++import android.telephony.ServiceState;
++
+ /* SPRD: add here for EVENTDOWNLOAD function @{ */
+ import static com.android.internal.telephony.cat.CatCmdMessageSprd.SetupEventListConstants.DATA_AVAILABLE_EVENT;
+ import static com.android.internal.telephony.cat.CatCmdMessageSprd.SetupEventListConstants.CHANNEL_STATUS_EVENT;
+@@ -604,6 +606,17 @@
+                 break;
+             /* SPRD: Modify here for BIP function @{ */
+             case OPEN_CHANNEL:
++				
++				if(!hasService()){
++                     CatLog.d(this, "<" + mSlotId + ">" + "OPEN_CHANNEL no service");
++                     ResponseDataSprd respOpenChannel;
++                     respOpenChannel = new OpenChannelResponseDataSprd(cmdMsg.getOpenChannelData().BearerType,
++                             cmdMsg.getOpenChannelData().BearerParam, cmdMsg.getOpenChannelData().bufferSize, 0, false);
++                     sendTerminalResponse(cmdParams.mCmdDet, ResultCodeSprd.TERMINAL_CRNTLY_UNABLE_TO_PROCESS, true,
++                             AddinfoMeProblem.NO_SERVICE.value(), respOpenChannel);
++                     return;
++                 }
++                 break;
+             case RECEIVE_DATA:
+             case GET_CHANNEL_STATUS:
+                 // nothing to do telephony!
+@@ -1683,5 +1696,21 @@
+         return false;
+     }
+     /* @} */
+-
++	
++	private boolean hasService() {
++        SubscriptionManager  subscriptionManager = SubscriptionManager.from(mContext);
++        int defaultDataSubId = subscriptionManager.getDefaultDataSubscriptionId();
++        int defaultDataPhoneId = subscriptionManager.getPhoneId(defaultDataSubId);
++        CatLog.d(this,"defaultDataSubId = " + defaultDataSubId +
++                " defaultDataPhoneId = " + defaultDataPhoneId);
++        if(subscriptionManager.isValidSlotId(defaultDataPhoneId)){
++            final Phone phone = PhoneFactory.getPhone(defaultDataPhoneId);
++            int dataRegState = phone.getServiceState().getDataRegState();
++            CatLog.d(this, "<" + mSlotId+ ">" + "hasService dataRegState = " + dataRegState);
++            if(ServiceState.STATE_IN_SERVICE == dataRegState){
++                return true;
++            }
++        }
++        return false;
++    }
+ }
+Index: vendor/sprd/platform/packages/apps/SprdStk/AndroidManifest.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdStk/AndroidManifest.xml	(revision 177781)
++++ vendor/sprd/platform/packages/apps/SprdStk/AndroidManifest.xml	(revision 177782)
+@@ -30,7 +30,9 @@
+         android:label="@string/app_name"
+         android:clearTaskOnLaunch="true"
+         android:process="com.android.phone"
+-        android:taskAffinity="android.task.stk">
++        android:taskAffinity="android.task.stk"
++	android:defaultToDeviceProtectedStorage="true"
++        android:directBootAware="true">
+ 
+         <activity android:name="StkMain"
+             android:theme="@android:style/Theme.NoDisplay"
+Index: vendor/sprd/platform/packages/apps/SprdStk/src/com/android/stk/StkAppService.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdStk/src/com/android/stk/StkAppService.java	(revision 177781)
++++ vendor/sprd/platform/packages/apps/SprdStk/src/com/android/stk/StkAppService.java	(revision 177782)
+@@ -2597,6 +2597,18 @@
+             CatLog.d(LOG_TAG, "MENU_SELECTION=" + mStkContext[slotId].
+                     mCurrentMenuCmd.getCmdType());
+             int menuSelection = args.getInt(MENU_SELECTION);
++		
++			switch(mStkContext[slotId].mCurrentCmd.getCmdType()) {
++                case OPEN_CHANNEL:
++                case RECEIVE_DATA:
++                case SEND_DATA:
++                case CLOSE_CHANNEL:
++                    resMsg = new CatResponseMessageSprd(mStkContext[slotId].mCurrentMenuCmd);
++                    break;
++                default:
++                    break;
++            }
++		
+             switch(mStkContext[slotId].mCurrentMenuCmd.getCmdType()) {
+             case SET_UP_MENU:
+             case SELECT_ITEM:
+@@ -2814,7 +2826,11 @@
+                         slotId);
+             break;
+             case OPEN_CHANNEL:
+-                launchOpenChannelDialog(slotId);
++                //launchOpenChannelDialog(slotId);
++			 case SEND_DATA:
++             case RECEIVE_DATA:
++             case CLOSE_CHANNEL:
++                 launchMenuActivity(null, slotId); 
+             break;
+             case SET_UP_CALL:
+                 launchConfirmationDialog(mStkContext[slotId].mCurrentCmd.getCallSettings().

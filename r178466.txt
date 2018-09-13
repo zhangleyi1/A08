@@ -1,0 +1,13 @@
+Index: packages/apps/Launcher3/ext/res/values/strings.xml
+===================================================================
+--- packages/apps/Launcher3/ext/res/values/strings.xml	(revision 178465)
++++ packages/apps/Launcher3/ext/res/values/strings.xml	(revision 178466)
+@@ -43,7 +43,7 @@
+     <string name="tv_content_two_text">Your warranty is VOID!</string>
+     <string name="tv_content_three_text">The device will continue boot-up in  <xliff:g id="time">%1$s</xliff:g> seconds\n</string>
+     <string name="tv_content_four_text">Andromax Anda telah di Root atau dibuka Bootloader-nya,segala jenis perubahan pada software ataupun hardware melalui software dapat menyebabkan kerusakan pada perangkat dan membahayakan pengguna.\n\nSmartfren tidak bertanggung jawab atas resiko yang ditimbulkan.</string>
+-    <string name="tv_content_five_text">Garansi Anda sudah tidak beriaku!</string>
++    <string name="tv_content_five_text">Garansi Anda sudah tidak berlaku!</string>
+     <string name="tv_content_six_text">Perangkat akan menyala dalam 5 detik.</string>
+ 	<string name="default_folder_tools">Google</string>
+ </resources>

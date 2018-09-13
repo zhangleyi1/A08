@@ -1,0 +1,28 @@
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/gsm/GsmSMSDispatcher.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/gsm/GsmSMSDispatcher.java	(revision 178934)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/gsm/GsmSMSDispatcher.java	(revision 178935)
+@@ -473,13 +473,17 @@
+     @Override
+     protected void sendSmsByPstn(SmsTracker tracker) {
+         int ss = mPhone.getServiceState().getState();
+-        // if sms over IMS is not supported on data and voice is not available...
+-        // if sms over IMS is not supported on data and voice is not available...
+-        if (!isIms() && ss != ServiceState.STATE_IN_SERVICE) {
+-            tracker.onFailed(mContext, getNotInServiceError(ss), 0/*errorCode*/);
+-            return;
++        if (!(mVowifiSMS != null
++                   && mVowifiSMS.getIsVowifiSmsServiceConnected()
++                   && mVowifiSMS.getIsEnabledSmsOverIP(mPhone))) {
++
++            // if sms over IMS is not supported on data and voice is not available...
++            // if sms over IMS is not supported on data and voice is not available...
++            if (!isIms() && ss != ServiceState.STATE_IN_SERVICE) {
++                tracker.onFailed(mContext, getNotInServiceError(ss), 0/*errorCode*/);
++                return;
++            }
+         }
+-
+         HashMap<String, Object> map = tracker.getData();
+ 
+         byte smsc[] = (byte[]) map.get("smsc");

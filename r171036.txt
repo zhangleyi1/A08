@@ -1,0 +1,36 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 171035)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 171036)
+@@ -553,22 +553,16 @@
+         }
+     }
+ 
+-    public void call(Context context, int id, String telNum){
++    public void call(Context context, int id, String telNum){	
+         TelecomManager telecomManager = (TelecomManager) context.getSystemService(Context.TELECOM_SERVICE);
+-
+-        if(telecomManager != null){
+-            List<PhoneAccountHandle> phoneAccountHandleList = telecomManager.getCallCapablePhoneAccounts();
+-            Intent intent = new Intent();
+-			boolean isEmergencyNumber=PhoneNumberUtils.isEmergencyNumber(telNum);
+-			if(isEmergencyNumber){
+-				intent.setAction(Intent.ACTION_CALL_EMERGENCY);
+-			}else{
+-				intent.setAction(Intent.ACTION_CALL);
+-			}
+-            intent.setData(Uri.parse("tel:" + telNum));
+-            intent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, phoneAccountHandleList.get(id));
+-            context.startActivity(intent);
+-        }
++		if(telecomManager != null){
++			List<PhoneAccountHandle> phoneAccountHandleList = telecomManager.getCallCapablePhoneAccounts();
++			Intent intent = new CallIntentBuilder(telNum).
++							setCallInitiationType(LogState.INITIATION_DIALPAD).
++							setPhoneAccountHandle(phoneAccountHandleList.get(id))
++							.build();
++			DialerUtils.startActivityWithErrorToast(getActivity(), intent);
++		}
+     }
+ 
+     public void registerBoradcastReceiver(){

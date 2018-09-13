@@ -1,0 +1,63 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 170597)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 170598)
+@@ -134,6 +134,19 @@
+         DialpadKeyButton.OnPressedListener {
+     private static final String TAG = "DialpadFragment";
+ 
++    private static final int EVENT_QUERY = 1;
++
++    private Handler queryHanlder = new Handler() {
++        public void handleMessage(Message msg) {
++            switch (msg.what) {
++            case EVENT_QUERY:
++                mDialpadQueryListener.onDialpadQueryChanged(mDigits.getText().toString());
++                break;
++
++            }
++        };
++    };
++
+     /**
+      * LinearLayout with getter and setter methods for the translationY property using floats,
+      * for animation purposes.
+@@ -376,7 +389,9 @@
+         }
+ 
+         if (mDialpadQueryListener != null) {
+-            mDialpadQueryListener.onDialpadQueryChanged(mDigits.getText().toString());
++            queryHanlder.removeMessages(EVENT_QUERY);
++            queryHanlder.sendEmptyMessageDelayed(EVENT_QUERY, 100);
++            //mDialpadQueryListener.onDialpadQueryChanged(mDigits.getText().toString());
+         }
+ 
+         updateDeleteButtonEnabledState();
+Index: packages/apps/Dialer/src/com/android/dialer/list/SmartDialNumberListAdapter.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/list/SmartDialNumberListAdapter.java	(revision 170597)
++++ packages/apps/Dialer/src/com/android/dialer/list/SmartDialNumberListAdapter.java	(revision 170598)
+@@ -44,11 +44,14 @@
+     private static final boolean DEBUG = false;
+ 
+     private SmartDialNameMatcher mNameMatcher;
++    private boolean mIsVoltePlatform;
+ 
+     public SmartDialNumberListAdapter(Context context) {
+         super(context);
+         mNameMatcher = new SmartDialNameMatcher("", SmartDialPrefix.getMap());
+         setShortcutEnabled(SmartDialNumberListAdapter.SHORTCUT_DIRECT_CALL, false);
++        
++        mIsVoltePlatform = ImsManager.isVolteEnabledByPlatform(context);
+ 
+         if (DEBUG) {
+             Log.v(TAG, "Constructing List Adapter");
+@@ -129,7 +132,7 @@
+         changed |= setShortcutEnabled(SHORTCUT_MAKE_VIDEO_CALL,
+                 showNumberShortcuts && CallUtil.isVideoEnabled(getContext())
+                 // SPRD: Add for VoLTE && bug600829
+-                && (!ImsManager.isVolteEnabledByPlatform(getContext())
++                && (!mIsVoltePlatform
+                         || DialerUtils.isVideoEnable()));
+         if (changed) {
+             notifyDataSetChanged();

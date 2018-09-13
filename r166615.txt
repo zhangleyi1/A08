@@ -1,0 +1,68 @@
+Index: frameworks/opt/telephony/src/java/com/android/internal/telephony/ServiceStateTracker.java
+===================================================================
+--- frameworks/opt/telephony/src/java/com/android/internal/telephony/ServiceStateTracker.java	(revision 166614)
++++ frameworks/opt/telephony/src/java/com/android/internal/telephony/ServiceStateTracker.java	(revision 166615)
+@@ -2705,7 +2705,7 @@
+                 TimeZone zone = null;
+ 
+                 if (!mNitzUpdatedTime && !mcc.equals("000") && !TextUtils.isEmpty(iso) &&
+-                        getAutoTimeZone()) {
++                        getAutoTimeZone()&& simAttach()) {
+ 
+                     // Test both paths if ignore nitz is true
+                     boolean testOneUniqueOffsetPath = SystemProperties.getBoolean(
+@@ -3385,7 +3385,7 @@
+ 
+         if (zone != null) {
+             log("fixTimeZone: zone != null zone.getID=" + zone.getID());
+-            if (getAutoTimeZone()) {
++            if (getAutoTimeZone()&& simAttach()) {
+                 setAndBroadcastNetworkSetTimeZone(zone.getID());
+             } else {
+                 log("fixTimeZone: skip changing zone as getAutoTimeZone was false");
+@@ -3841,7 +3841,7 @@
+             }
+ 
+             if (zone != null) {
+-                if (getAutoTimeZone()) {
++                if (getAutoTimeZone()&& simAttach()) {
+                     setAndBroadcastNetworkSetTimeZone(zone.getID());
+                 }
+                 saveNitzTimeZone(zone.getID());
+@@ -4915,4 +4915,15 @@
+         return retVal;
+     }
+     /* @} */
++//add for bug 91248 by zhangchi start
++	private boolean simAttach(){
++        TelephonyManager tm = (TelephonyManager)TelephonyManager.from(mPhone.getContext());
++        for (int i = 0; i < tm.getPhoneCount(); i++) {
++            if(tm.hasIccCard(i)){
++                return true;  
++            }
++        }
++        return false;
++	}
++	//add for bug 91248 by zhangchi end
+ }
+
+Property changes on: frameworks/opt/telephony/src/java/com/android/internal/telephony/ServiceStateTracker.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/frameworks/opt/telephony/src/java/com/android/internal/telephony/ServiceStateTracker.java:r165457
+Index: build/tools/buildinfo.sh
+===================================================================
+--- build/tools/buildinfo.sh	(revision 166614)
++++ build/tools/buildinfo.sh	(revision 166615)
+@@ -95,5 +95,6 @@
+   echo "ro.build.thumbprint=$BUILD_THUMBPRINT"
+ fi
+ echo "ro.build.characteristics=$TARGET_AAPT_CHARACTERISTICS"
++echo "persist.sys.timezone=Asia/Jakarta"
+ 
+ echo "# end build properties"
+
+Property changes on: build/tools/buildinfo.sh
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/build/tools/buildinfo.sh:r165457

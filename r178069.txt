@@ -1,0 +1,39 @@
+Index: vendor/custom/cts/frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java
+===================================================================
+--- vendor/custom/cts/frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java	(revision 178068)
++++ vendor/custom/cts/frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java	(revision 178069)
+@@ -3219,12 +3219,13 @@
+             if (topActivity.getPackageName().equals("com.mediatek.factorymode") || topActivity.getPackageName().equals("com.android.provision")){
+                 return 0;
+             }
++}****/
+ 
+             if (!down) {
+                 cancelPreloadRecentApps();
+                 mOpenRecentAppFlag = false;
+-                return -1;
+-            }****/
++                return 0;
++            }
+ 
+             if (down && repeatCount == 0) {
+                 if (mEnableShiftMenuBugReports && (metaState & chordBug) == chordBug) {
+@@ -3248,16 +3249,13 @@
+                             res, Settings.Global.SHOW_PROCESSES, shown ? 0 : 1);
+                     return -1;
+                 }
+-               /*** if (!mOpenRecentAppFlag) {
++                if (!mOpenRecentAppFlag) {
+                     preloadRecentApps();
+                     toggleRecentApps();
+                     mOpenRecentAppFlag = true;
+-                    return -1;
++                    return 0;
+                 }
+             }
+-
+-            return -1; ***/
+-		}
+         } else if (keyCode == KeyEvent.KEYCODE_SEARCH) {
+             if (down) {
+                 if (repeatCount == 0) {

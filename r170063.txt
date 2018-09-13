@@ -1,0 +1,31 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/Workspace.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/Workspace.java	(revision 170062)
++++ packages/apps/Launcher3/src/com/android/launcher3/Workspace.java	(revision 170063)
+@@ -522,10 +522,10 @@
+         CellLayout cell = (CellLayout)getChildAt(whichPage);
+         if(cell.isPiflow()){
+             showBotoomBar(false);
+-            mLauncher.showStatusBar(false);
++            //mLauncher.showStatusBar(false);
+         }else{
+             showBotoomBar(true);
+-            mLauncher.showStatusBar(true);
++            //mLauncher.showStatusBar(true);
+         }
+     }
+     private void showBotoomBar(boolean flag){
+Index: packages/apps/Launcher3/src/com/android/launcher3/PagedView.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/PagedView.java	(revision 170062)
++++ packages/apps/Launcher3/src/com/android/launcher3/PagedView.java	(revision 170063)
+@@ -893,7 +893,8 @@
+                 lp = (LayoutParams) child.getLayoutParams();
+                 int childTop;
+                 if (lp.isFullScreenPage) {
+-                    childTop = offsetY;
++                   // childTop = offsetY;
++                   childTop = offsetY + mInsets.top;
+                 } else {
+                     childTop = offsetY + getPaddingTop() + mInsets.top;
+                     if (mCenterPagesVertically) {

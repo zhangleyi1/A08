@@ -1,0 +1,1354 @@
+Index: packages/apps/FactoryMode/AndroidManifest.xml
+===================================================================
+--- packages/apps/FactoryMode/AndroidManifest.xml	(revision 166670)
++++ packages/apps/FactoryMode/AndroidManifest.xml	(revision 166671)
+@@ -2,7 +2,7 @@
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     package="com.mediatek.factorymode"
+     android:versionCode="1"
+-    android:versionName="1.0" 
++    android:versionName="1.0"
+     android:sharedUserId="android.uid.system">
+ 
+     <uses-sdk android:minSdkVersion="10" />
+@@ -32,8 +32,8 @@
+     <uses-permission android:name="android.permission.VIBRATE"/>
+     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/>
+     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> 
+-	
++    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
++
+     <application
+         android:icon="@drawable/ic_launcher"
+         android:label="@string/app_name" >
+@@ -60,7 +60,7 @@
+                     android:name="android.intent.action.BOOT_COMPLETED" />
+             </intent-filter>
+         </receiver>
+-		
++
+ 		<service android:name=".errorService">
+         	<intent-filter >
+                 <action android:name="com.mediatek.factorymode.errorService"/>
+@@ -134,7 +134,7 @@
+         <activity
+             android:name=".camera.CameraTest"
+             android:label="@string/Camera"
+-            android:screenOrientation="portrait" 
++            android:screenOrientation="portrait"
+             android:configChanges="orientation|screenSize|keyboardHidden"/>
+         <activity
+             android:name=".camera.SubCamera"
+@@ -224,7 +224,7 @@
+         <activity
+             android:name=".flashlight.FlashLight"
+             android:label="@string/flashlight"
+-            android:screenOrientation="portrait" /> 
++            android:screenOrientation="portrait" />
+         <activity
+             android:name=".ChargeAlertDialog"
+             android:theme="@android:style/Theme.Dialog" />
+@@ -239,6 +239,10 @@
+                 <action android:name="com.android.restore.factory.setting"/>
+             </intent-filter>
+         </receiver>
++        <activity
++            android:name=".flashlight.FlashLightSub"
++            android:label="@string/flashlightSub"
++            android:screenOrientation="portrait" />
+     </application>
+ 
+ </manifest>
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/ResetFactorySettingFlag.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/ResetFactorySettingFlag.java	(revision 166670)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/ResetFactorySettingFlag.java	(revision 166671)
+@@ -12,7 +12,7 @@
+ /* [issue 35900] Begin, by liulele, 2015-11-17*/
+ public class ResetFactorySettingFlag extends BroadcastReceiver {
+ 	private static final String TAG = "ResetFactorySettingFlag";
+-	private static final int RESET_STATION = 13;
++	private static final int RESET_STATION = 12;
+ 	PhaseCheckParse parse = new PhaseCheckParse();
+ 	@Override
+ 	public void onReceive(Context context, Intent intent) {
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java	(revision 166670)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java	(revision 166671)
+@@ -132,6 +132,9 @@
+ 		case FactoryMode.TESTITEM_FLASHLIGHT:
+ 			str = getString(R.string.flashlight);
+ 			break;
++            case FactoryMode.TESTITEM_FLASHLIGHT_SUB:
++                str = getString(R.string.flashlightSub);
++                break;
+ 		default:
+ 			break;
+ 		}
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 166670)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 166671)
+@@ -50,6 +50,7 @@
+ import com.mediatek.factorymode.sensor.LSensorCali;
+ import com.mediatek.factorymode.hall.Hall;
+ import com.mediatek.factorymode.flashlight.FlashLight;
++import com.mediatek.factorymode.flashlight.FlashLightSub;
+ 
+ import java.io.File;
+ import java.io.FileNotFoundException;
+@@ -64,7 +65,7 @@
+ public class FactoryMode extends Activity {
+   public static final String TAG = "FactoryMode";
+   private static final String NV_DB_PATH = "/productinfo/testReport.db";
+-  
++
+   public static final int TESTITEM_START = 0;
+   public static final int TESTITEM_VERSION = TESTITEM_START;
+   public static final int TESTITEM_TOUCH = 1;
+@@ -93,9 +94,10 @@
+ 	public static final int TESTITEM_MIC = 21;
+ 	public static final int TESTITEM_SIM = 22;
+ 	public static final int TESTITEM_FLASHLIGHT = 23;
++    public static final int TESTITEM_FLASHLIGHT_SUB = 24;
+ 	//public static final int TESTITEM_LED = 25;
+-	public static final int TESTITEM_LSENSORCALI = 24;
+-	public static final int TESTITEM_TATOL = 25;
++	public static final int TESTITEM_LSENSORCALI = 25;
++	public static final int TESTITEM_TATOL = 26;
+ 	//public static final int TESTITEM_TPRAWDATA=19;
+ 	//private static int currentTestMode = 0;
+ 	public static int currenttestitem = TESTITEM_START;
+@@ -103,11 +105,11 @@
+   public static boolean isinit = true;
+   public static boolean shouldCharge = false;
+   public static boolean isCharging = false;
+-  
++
+   public static int testResult[];
+   public static int autotestResult[];
+   public static int LTResult[];
+-  
++
+   public static final int TEST_OK = 1;
+   public static final int TEST_FAIL = 2;
+   public static final int TEST_CANCEL = 3;
+@@ -123,9 +125,9 @@
+   public static final String PASS_FAIL_FAIL = "PFF";//SingleTest Pass,AutoTest Fail,LastTest Fail
+   public static final String FAIL_PASS_PASS = "FPP";//SingleTest Fail,AutoTest Pass,LastTest Pass
+   public static final String FAIL_PASS_FAIL = "FPF";//SingleTest Fail,AutoTest Pass,LastTest Fail
+-  
+-  private static final int MMI_STATION = 10;
+-  
++
++  private static final int MMI_STATION = 9;
++
+   private GridView gridview;
+   ArrayAdapter<String> adapter;
+   private Button autotestButton = null;
+@@ -134,7 +136,7 @@
+   public int ATPC = 0;//Auto Test Passed Count
+   public int AutoTested = 0;//if AutoTest was tested,then set value 1
+   private String mBit;
+-  
++
+   public static final int testitem[] = {
+     TESTITEM_VERSION ,
+   //TESTITEM_RF_CALI ,
+@@ -145,7 +147,7 @@
+     TESTITEM_SPEAKER ,
+     TESTITEM_HEADSET ,
+     TESTITEM_FM ,
+-    
++
+   //TESTITEM_RECEIVER ,
+     TESTITEM_WIFI ,
+     TESTITEM_BT ,
+@@ -164,14 +166,15 @@
+ 
+     TESTITEM_BCAMERA ,
+     TESTITEM_FCAMERA ,
+-    
++
+     TESTITEM_MIC ,
+   //TESTITEM_LED ,
+     TESTITEM_FLASHLIGHT ,
++	TESTITEM_FLASHLIGHT_SUB ,
+   //TESTITEM_TPRAWDATA
+   };
+-  
+ 
++
+   @Override
+   public void onCreate(Bundle savedInstanceState) {
+     super.onCreate(savedInstanceState);
+@@ -179,14 +182,14 @@
+     getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+     getWindow().getDecorView().setSystemUiVisibility(View.STATUS_BAR_DISABLE_EXPAND);
+     boolean autotest = (boolean) getIntent().getBooleanExtra("factorymode.autotest", false);
+-    
++
+     setContentView(R.layout.main);
+-    
++
+     gridview = (GridView) findViewById(R.id.main_grid);
+-    
++
+     adapter = new ArrayAdapter<String>(this, R.layout.main_grid);
+     gridview.setAdapter(adapter);
+-    
++
+     testResult = new int[TESTITEM_TATOL];
+     autotestResult = new int[TESTITEM_TATOL];
+     LTResult = new int[TESTITEM_TATOL];
+@@ -193,7 +196,7 @@
+     Intent serviceintent = new Intent(this,BatteryLogService.class);
+ 	startService(serviceintent);
+     getTestReport();
+-    
++
+     autotestButton = (Button)this.findViewById(R.id.main_bt_autotest);
+     reportButton  = (Button)this.findViewById(R.id.main_bt_report);
+     autoreportButton = (Button)this.findViewById(R.id.main_auto_report);
+@@ -212,7 +215,7 @@
+       public void onClick(View v) {
+         Intent intent2 = new Intent();
+         intent2.setClass(FactoryMode.this, Report.class);
+-        startActivity(intent2);		
++        startActivity(intent2);
+       }
+     });
+     autoreportButton.setOnClickListener(new Button.OnClickListener() {
+@@ -221,7 +224,7 @@
+         isAutoTest = true;
+         Intent intent2 = new Intent();
+         intent2.setClass(FactoryMode.this, Report.class);
+-        startActivity(intent2);		
++        startActivity(intent2);
+       }
+     });
+     for (int i = TESTITEM_START; i < testitem.length; i++) {
+@@ -230,7 +233,7 @@
+     gridview.setOnItemClickListener(new ItemClickListener());
+     isinit = true;
+   }
+-  
++
+   @Override
+   protected void onDestroy(){
+     Intent serviceintent = new Intent(this,BatteryLogService.class);
+@@ -238,10 +241,10 @@
+     shouldCharge = false;
+     super.onDestroy();
+   }
+-  
++
+   @Override
+   public void onWindowFocusChanged(boolean hasFocus) {
+-    // TODO Auto-generated method stub	
++    // TODO Auto-generated method stub
+     if(isinit){
+       initTestView();
+       isinit = false;
+@@ -275,7 +278,7 @@
+       TestSelectedItem(testitem[arg2]);
+     }
+   }
+-  
++
+   private int getIndex(int testCode) {
+     int index = 0;
+     for(int i=0;i<testitem.length;i++) {
+@@ -286,7 +289,7 @@
+     }
+     return index;
+   }
+-  
++
+   public void onActivityResult(int requestCode, int resultCode, Intent intent){
+     Log.v("requestCode = " + requestCode,"resultCode = " + resultCode);
+     if(requestCode < 0 || requestCode >= TESTITEM_TATOL) {
+@@ -362,9 +365,9 @@
+       saveTestReport(false);
+     }
+   }
+-  
++
+   private String getReportText() {
+-    String text = this.getString(R.string.AutoTestReport); 
++    String text = this.getString(R.string.AutoTestReport);
+     if(AutoTested == 0){
+       text = text + " : \n UNTESTED";
+       return text;
+@@ -383,7 +386,7 @@
+     }
+     return text;
+   }
+-  
++
+   public void saveTestResult(boolean bPass){
+     String str = IATUtils.sendATCmd("AT+SGMR=0,0,4","atchannel0");
+     Log.d(TAG, "=========setSuccess get result str = " + str);
+@@ -402,9 +405,9 @@
+         str = IATUtils.sendATCmd("AT+SGMR=0,1,4,\"" + get8Bit_fail("" + Long.toHexString(cc)) + "\"","atchannel0");
+         Log.d(TAG, "******setSuccess set result cc = " + Long.toHexString(cc) + ", str = " + str);
+       }
+-    }	
++    }
+   }
+-  
++
+   public void saveTestReport(boolean bSaveResult){
+     File targetFile = new File(NV_DB_PATH);
+     if (!targetFile.exists()) {
+@@ -466,7 +469,7 @@
+       Log.i("ttttttttttttttttttttttttttt","MMI_STATION =" + MMI_STATION);
+       saveFlag(pass,MMI_STATION);
+     }
+-    
++
+     try {
+       out = new PrintWriter(new BufferedWriter(new FileWriter(NV_DB_PATH)));
+       out.println(resultStr);
+@@ -474,12 +477,12 @@
+       // TODO Auto-generated catch block
+       e.printStackTrace();
+     }
+-    
++
+     if(out != null) {
+       out.close();
+-    }	
++    }
+   }
+-  
++
+   private void saveFlag(boolean bPass,int station){
+     PhaseCheckParse parse = new PhaseCheckParse();
+     if(bPass){
+@@ -592,7 +595,7 @@
+       }
+     }
+   }
+-  
++
+   public void TestSelectedItem(int selectedItem) {
+     Intent intent = new Intent();
+     Log.d(TAG, "TestSelectedItem,selectedItem:" + selectedItem);
+@@ -602,7 +605,7 @@
+     switch (selectedItem) {
+       case TESTITEM_VERSION:
+         intent.setClass(this, Version.class);
+-        startActivityForResult(intent,TESTITEM_VERSION); 
++        startActivityForResult(intent,TESTITEM_VERSION);
+         break;
+     //case TESTITEM_RF_CALI:
+     //  intent.setClass(this, RFCali.class);
+@@ -610,31 +613,31 @@
+     //  break;
+       case TESTITEM_TOUCH:
+         intent.setClass(this, BlockTest.class);
+-        startActivityForResult(intent,TESTITEM_TOUCH); 
++        startActivityForResult(intent,TESTITEM_TOUCH);
+         break;
+       case TESTITEM_LCD:
+         intent.setClass(this, LCD.class);
+-        startActivityForResult(intent,TESTITEM_LCD); 
++        startActivityForResult(intent,TESTITEM_LCD);
+         break;
+       case TESTITEM_GPS:
+         intent.setClass(this, GPS.class);
+-        startActivityForResult(intent,TESTITEM_GPS); 
++        startActivityForResult(intent,TESTITEM_GPS);
+         break;
+       case TESTITEM_POWER:
+         intent.setClass(this, BatteryLog.class);
+-        startActivityForResult(intent,TESTITEM_POWER); 
++        startActivityForResult(intent,TESTITEM_POWER);
+         break;
+       case TESTITEM_KEY:
+         intent.setClass(this, KeyCode.class);
+-        startActivityForResult(intent,TESTITEM_KEY); 
++        startActivityForResult(intent,TESTITEM_KEY);
+         break;
+       case TESTITEM_SPEAKER:
+         intent.setClass(this, Speaker.class);
+-        startActivityForResult(intent,TESTITEM_SPEAKER); 
++        startActivityForResult(intent,TESTITEM_SPEAKER);
+         break;
+       case TESTITEM_HEADSET:
+         intent.setClass(this, HeadSet.class);
+-        startActivityForResult(intent,TESTITEM_HEADSET); 
++        startActivityForResult(intent,TESTITEM_HEADSET);
+         break;
+       case TESTITEM_MIC:
+         intent.setClass(this,MicRecorder.class);
+@@ -723,6 +726,10 @@
+         intent.setClass(this, FlashLight.class);
+         startActivityForResult(intent, TESTITEM_FLASHLIGHT);
+         break;
++      case TESTITEM_FLASHLIGHT_SUB:
++          intent.setClass(this, FlashLightSub.class);
++          startActivityForResult(intent, TESTITEM_FLASHLIGHT_SUB);
++          break;
+       default:
+         break;
+     }
+@@ -733,10 +740,10 @@
+ 		switch (item_id) {
+ 		case TESTITEM_VERSION:
+ 			str = getString(R.string.version_info);
+-			break;			
++			break;
+ 		//case TESTITEM_RF_CALI:
+ 		//	str = getString(R.string.rf_cali);
+-		//	break;	
++		//	break;
+ 		case TESTITEM_TOUCH:
+ 			str = getString(R.string.touchscreen_name);
+ 			break;
+@@ -824,12 +831,15 @@
+ 		case TESTITEM_FLASHLIGHT:
+ 			str = getString(R.string.flashlight);
+ 			break;
++        case TESTITEM_FLASHLIGHT_SUB:
++            str = getString(R.string.flashlightSub);
++            break;
+ 		default:
+ 			break;
+ 		}
+ 		return str;
+ 	}
+-  
++
+   private String getBitStr(String str) {
+     String result = null;
+     int ind = str.indexOf("0x");
+@@ -836,11 +846,11 @@
+     result = str.substring(ind + 2);
+     return result.trim();
+   }
+-  
++
+   private String get8Bit(String src) {
+     return (src.length() < 8) ? "0" + src : src;
+   }
+-  
++
+   private String get8Bit_fail(String src) {
+     while(src.length() < 8) {
+       src = "0" + src;
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/flashlight/FlashLightSub.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/flashlight/FlashLightSub.java	(revision 0)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/flashlight/FlashLightSub.java	(revision 166671)
+@@ -0,0 +1,268 @@
++package com.mediatek.factorymode.flashlight;
++
++import android.app.Activity;
++import android.content.Context;
++import android.content.Intent;
++import android.content.IntentFilter;
++import android.graphics.SurfaceTexture;
++import android.hardware.Camera;
++import android.hardware.Camera.Parameters;
++import android.hardware.camera2.CameraAccessException;import android.hardware.camera2.CameraCaptureSession;
++import android.hardware.camera2.CameraCharacteristics;
++import android.hardware.camera2.CameraDevice;
++import android.hardware.camera2.CameraManager;
++import android.hardware.camera2.CameraMetadata;
++import android.hardware.camera2.CaptureRequest;
++import android.hardware.camera2.params.StreamConfigurationMap;
++import android.os.Build;
++import android.os.Bundle;
++import android.os.Handler;
++import android.os.Looper;
++import android.os.Message;
++import android.util.Log;
++import android.view.KeyEvent;
++import android.view.Surface;
++import android.view.View;
++import android.view.WindowManager;
++import android.widget.Button;
++import android.widget.TextView;
++
++import com.mediatek.factorymode.FactoryMode;
++import com.mediatek.factorymode.R;
++
++import java.util.ArrayList;
++import java.util.List;
++
++public class FlashLightSub extends Activity{
++    private final String TAG = "FlashLightTest";
++    private Button succesButton ;
++    private Button failButton ;
++    private Camera camera;
++    private int count;
++    public final static int OPEN_CAMERA = 1011;
++    public final static int CLOSE_CAMERA = 1012;
++    private CameraManager manager = null;
++    private CameraDevice cameraDevice;
++    private CameraCaptureSession captureSession = null;
++    private CaptureRequest request = null;
++    private SurfaceTexture surfaceTexture;
++    private Surface surface;
++    private String cameraId = null;
++    private boolean isSupportFlashCamera2 = false;
++    private boolean isOpen = false;
++    private final CameraCaptureSession.StateCallback stateCallback = new CameraCaptureSession.StateCallback() {
++        @Override
++        public void onConfigured(CameraCaptureSession arg0) {
++            captureSession = arg0;
++            CaptureRequest.Builder builder;
++            try {
++                builder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
++                builder.set(CaptureRequest.FLASH_MODE, CameraMetadata.FLASH_MODE_TORCH);
++                builder.addTarget(surface);
++                request = builder.build();
++                captureSession.capture(request, null, null);
++            } catch (CameraAccessException e) {
++                Log.e(TAG, e.getMessage());
++            } catch (IllegalStateException e){
++                Log.e(TAG, e.getMessage());
++            }
++        };
++
++        @Override
++        public void onConfigureFailed(CameraCaptureSession arg0) {
++        };
++    };
++
++  @Override
++  protected void onCreate(Bundle savedInstanceState) {
++    // TODO Auto-generated method stub
++    super.onCreate(savedInstanceState);
++    //getWindow().addFlags(WindowManager.LayoutParams.FLAG_HOMEKEY_DISPATCHED);
++    //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE_GESTURE_ISOLATED);
++    setContentView(R.layout.flashlight);
++    count = 0;
++    succesButton = (Button)this.findViewById(R.id.flashlight_bt_ok);
++    failButton = (Button)this.findViewById(R.id.flashlight_bt_failed);
++    succesButton.setOnClickListener(new Button.OnClickListener(){
++
++      @Override
++      public void onClick(View v) {
++        // TODO Auto-generated method stub
++        Intent intent = new Intent(FlashLightSub.this, FactoryMode.class);
++        setResult(FactoryMode.TEST_OK, intent);
++        finish();
++      }
++    });
++    failButton.setOnClickListener(new Button.OnClickListener(){
++
++      @Override
++      public void onClick(View v) {
++        // TODO Auto-generated method stub
++        Intent intent = new Intent(FlashLightSub.this, FactoryMode.class);
++        setResult(FactoryMode.TEST_FAIL,intent);
++        finish();
++      }
++    });
++    this.manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
++    initCamera2();
++    handler.sendEmptyMessage(OPEN_CAMERA);
++  }
++
++  Handler handler = new Handler(Looper.getMainLooper()) {
++    @Override
++    public void handleMessage(Message msg) {
++      switch (msg.what) {
++        case OPEN_CAMERA:
++          if (isLOLLIPOP()) {
++            try {
++              openCamera2Flash();
++            } catch (CameraAccessException e) {
++              Log.e(TAG, e.getMessage());
++            } catch (Exception e) {
++              e.printStackTrace();
++            }
++          } else {
++            turnLightOnCamera(camera);
++          }
++          isOpen = true;
++          count++;
++          handler.sendEmptyMessageDelayed(CLOSE_CAMERA , 400);
++          break;
++        case CLOSE_CAMERA:
++          if (isOpen) {
++            if (isLOLLIPOP()) {
++              if (cameraDevice != null) {
++                cameraDevice.close();
++              }
++            } else {
++              turnLightOffCamera(camera);
++            }
++            isOpen = false;
++          }
++          if( 0 < count && count < 6){
++            handler.sendEmptyMessageDelayed(OPEN_CAMERA , 1000);
++          }
++        default:
++          break;
++      }
++    }
++  };
++
++  private void createCaptureSession() {
++    this.surfaceTexture = new SurfaceTexture(0, false);
++    this.surface = new Surface(this.surfaceTexture);
++    ArrayList localArrayList = new ArrayList(1);
++    localArrayList.add(this.surface);
++    try {
++      this.cameraDevice.createCaptureSession(localArrayList, this.stateCallback, null);
++    } catch (CameraAccessException e) {
++      Log.e(TAG, e.getMessage());
++    }
++  }
++
++  private void openCamera2Flash() throws CameraAccessException {
++    manager.openCamera(cameraId, new CameraDevice.StateCallback() {
++
++      @Override
++      public void onOpened(CameraDevice camera) {
++        cameraDevice = camera;
++        createCaptureSession();
++      }
++
++      @Override
++      public void onError(CameraDevice camera, int error) {
++      }
++      @Override
++      public void onDisconnected(CameraDevice camera) {
++      }
++    }, null);
++  }
++
++  private void initCamera2() {
++    try {
++        for (String cameraId : this.manager.getCameraIdList()) {
++            CameraCharacteristics characteristics = this.manager.getCameraCharacteristics(cameraId);
++            //To filter out the rear camera
++            Integer facing = characteristics.get(CameraCharacteristics.LENS_FACING);
++            if (facing != null && facing == CameraCharacteristics.LENS_FACING_FRONT) {
++                isSupportFlashCamera2 = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
++                this.cameraId = cameraId;
++                break;
++            }
++        }
++    } catch (CameraAccessException e) {
++        Log.e(TAG, e.getMessage());
++    }
++  }
++
++
++  public void turnLightOnCamera(Camera mCamera) {
++    Camera.Parameters parameters = camera.getParameters();
++    List<String> flashModes = parameters.getSupportedFlashModes();
++    String flashMode = parameters.getFlashMode();
++    if (!Camera.Parameters.FLASH_MODE_TORCH.equals(flashMode)) {
++      //open flash
++      if (flashModes.contains(Camera.Parameters.FLASH_MODE_TORCH)) {
++        parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
++        mCamera.setParameters(parameters);
++      }
++    }
++  }
++
++  public void turnLightOffCamera(Camera mCamera) {
++    Camera.Parameters parameters = mCamera.getParameters();
++    List<String> flashModes = parameters.getSupportedFlashModes();
++    String flashMode = parameters.getFlashMode();
++    if (!Camera.Parameters.FLASH_MODE_OFF.equals(flashMode)) {
++      //close flash
++      if (flashModes.contains(Camera.Parameters.FLASH_MODE_OFF)) {
++        parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
++        mCamera.setParameters(parameters);
++      }
++    }
++  }
++
++  private boolean isLOLLIPOP() {
++    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
++      return true;
++    } else {
++      return false;
++    }
++  }
++
++  @Override
++  protected void onPause() {
++    // TODO Auto-generated method stub
++    super.onPause();
++  }
++
++  @Override
++  protected void onResume() {
++    // TODO Auto-generated method stub
++    super.onResume();
++  }
++
++  @Override
++  protected void onDestroy() {
++    //getWindow().clearFlags(WindowManager.LayoutParams.FLAG_HOMEKEY_DISPATCHED);
++    count = 0;
++    handler.removeMessages(1011);
++    handler.removeMessages(1012);
++    handler.sendEmptyMessage(CLOSE_CAMERA);
++    super.onDestroy();
++  }
++
++  @Override
++  public boolean onKeyUp(int keyCode, KeyEvent event) {
++    switch (keyCode) {
++      case KeyEvent.KEYCODE_MENU:
++        return true;
++      case KeyEvent.KEYCODE_BACK:
++        Intent intent = new Intent(FlashLightSub.this, FactoryMode.class);
++        setResult(FactoryMode.TEST_CANCEL, intent);
++        finish();
++        return true;
++    }
++    return super.onKeyUp(keyCode, event);
++  }
++}
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/version/Version.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/version/Version.java	(revision 166670)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/version/Version.java	(revision 166671)
+@@ -57,13 +57,13 @@
+ 	private static final String BUILD_NUMBER = "ro.build.display.id";
+ 	//private static final String BUILD_NUMBER = "ro.build.version.custintid";
+ 	private static final String TP_FIRMWARE_VER = "/proc/tp_ver";
+-	
++
+ 	private static final int EVENT_MODEM_VERSION = 1;
+ 	private static final int CFT_2G3G_STATION = 3;
+ 	private static final int CFT_4G_STATION = 4;
+-	private static final int ANTENNA_STATION = 6;
+-	private static final int MMI_STATION = 10;
+-	
++	private static final int ANTENNA_STATION = 5;
++	private static final int MMI_STATION = 9;
++
+ 	private TextView mAndroidVersion;
+ 	private TextView mBuildNumber;
+ 	private TextView mIMEI1;
+@@ -89,6 +89,7 @@
+ 	private boolean pncodeFlag = false;
+ 	private boolean lteFlag = false;
+ 	private boolean CFT_2G3GFlag = false;
++    private boolean CFT_Flag = false;
+ 	private boolean gsmFlag = false;
+ 	private boolean tdFlag = false;
+ 	private boolean buildNUMFlag = false;
+@@ -102,7 +103,7 @@
+ 	private static final String SD_CARD = Environment.getExternalStorageDirectory().getPath();
+ 	private StorageManager mStorageManager;
+ 	private static int getPNResult[];
+-	
++
+ 	@Override
+ 	protected void onCreate(Bundle savedInstanceState) {
+ 		// TODO Auto-generated method stub
+@@ -115,27 +116,27 @@
+ 		mBuildNumber = (TextView)findViewById(R.id.build_number);
+ 		mIMEI1 = (TextView)findViewById(R.id.imei1);
+ 		mIMEI2 = (TextView)findViewById(R.id.imei2);
+-		
++
+ 		//mBarcode = (TextView)findViewById(R.id.barcode);
+ 		mPncode = (TextView)findViewById(R.id.pncode);
+-		//mCFTState = (TextView)findViewById(R.id.cft_state);
++		mCFTState = (TextView)findViewById(R.id.cft_state);
+ 		mANTState = (TextView)findViewById(R.id.ant_state);
+ 		//mMMIState = (TextView)findViewById(R.id.mmi_state);
+ 		//mWIFIANTState = (TextView)findViewById(R.id.wifi_ant_state);
+ 		//mWifiAddress = (TextView)findViewById(R.id.wifi_address);
+ 		//mBTAddress = (TextView)findViewById(R.id.BT_address);
+-		mCFT2G3G = (TextView)findViewById(R.id.cft2g3g_state);
+-		mLteState = (TextView)findViewById(R.id.lte_state);
++		//mCFT2G3G = (TextView)findViewById(R.id.cft2g3g_state);
++		//mLteState = (TextView)findViewById(R.id.lte_state);
+ 		//mTdState = (TextView)findViewById(R.id.td_state);
+ 		mLinuxVersion = (TextView)findViewById(R.id.linux_version);
+ 		mModemVersion = (TextView)findViewById(R.id.modem_version);
+ 		mTPFWVersion = (TextView)findViewById(R.id.tp_firmware_version);
+-		
++
+ 		mSuccessButton = (Button)findViewById(R.id.version_bt_ok);
+ 		mFailButton = (Button)findViewById(R.id.version_bt_failed);
+-		
++
+ 		mSuccessButton.setEnabled(false);
+-	
++
+ 		mSuccessButton.setOnClickListener(new Button.OnClickListener() {
+ 
+ 			@Override
+@@ -145,9 +146,9 @@
+ 				setResult(FactoryMode.TEST_OK,intent);
+ 				finish();
+ 			}
+-			
++
+ 		});
+-		
++
+ 		mFailButton.setOnClickListener(new Button.OnClickListener() {
+ 
+ 			@Override
+@@ -157,22 +158,22 @@
+ 				setResult(FactoryMode.TEST_FAIL,intent);
+ 				finish();
+ 			}
+-			
+ 		});
+-        
+-		mStorageManager = (StorageManager)this.getSystemService(Context.STORAGE_SERVICE);
+-		getVersionInfo();
+-		Log.i("cj","CFT_2G3GFlag:"+CFT_2G3GFlag+" buildNUMFlag:"+buildNUMFlag+" tpFlag:"+tpFlag+" lteFlag:"+lteFlag);
+-		if(buildNUMFlag == true && tpFlag == true /*&& lteFlag==true */&& CFT_2G3GFlag==true){
+-			mSuccessButton.setEnabled(true);
+-		}
+-	}
+-	
+-    public String readSDFile(String filesname) {    
++
++        mStorageManager = (StorageManager)this.getSystemService(Context.STORAGE_SERVICE);
++        getVersionInfo();
++        Log.i("cj","CFT_2G3GFlag:" + CFT_2G3GFlag + " buildNUMFlag:" + buildNUMFlag + " tpFlag:" + tpFlag +
++                " lteFlag:"+lteFlag + " CFT_Flag:" + CFT_Flag);
++        if(buildNUMFlag == true && tpFlag == true /*&& lteFlag==true && CFT_2G3GFlag == true*/ && (true == CFT_Flag)) {
++            mSuccessButton.setEnabled(true);
++        }
++    }
++
++    public String readSDFile(String filesname) {
+         String allpath=SD_CARD+filesname;
+           StringBuffer sb = new StringBuffer();
+-               File file = new File(allpath);   
+-               BufferedReader br = null;           
++               File file = new File(allpath);
++               BufferedReader br = null;
+         try {
+          br = new BufferedReader(new FileReader(file));
+           String line = "";
+@@ -186,7 +187,7 @@
+         } catch (IOException e) {
+         e.printStackTrace();
+         }
+-        return sb.toString(); 
++        return sb.toString();
+         }
+ 
+     private String getSn() {
+@@ -198,19 +199,19 @@
+         PhaseCheckParse parse = new PhaseCheckParse();
+         return parse.getCFTresult();
+     }
+-    
++
+     /*private String getCFT_4G() {
+     	PhaseCheckParse parse = new PhaseCheckParse();
+         return parse.getStationPhaseCheck(CFT_4G_STATION);
+     }
+-	
++
+ 	private String getCFT_2G3G() {
+ 		PhaseCheckParse parse = new PhaseCheckParse();
+         return parse.getStationPhaseCheck(CFT_2G3G_STATION);
+ 	} */
+-    
++
+    // private String getAntFlag() {
+-    	
++
+  /*   String 	antFlag = IATUtils.sendATCmd("AT+SGMR=0,0,3","atchannel0");
+ 	  if(antFlag.contains(IATUtils.AT_OK)){
+        String[] paser = antFlag.split("\n");
+@@ -219,44 +220,44 @@
+     			  String[] paser1 = paser[i].split(":");
+     			  return paser1[1].trim();
+     		}
+-    	 }             
++    	 }
+     }
+-    	
+-    	
++
++
+     		return null;*/
+     private String getFlag(int station) {
+ 				PhaseCheckParse parse = new PhaseCheckParse();
+         return parse.getStationPhaseCheck(station-1);
+ 	  }
+-    
++
+ 	private String getWifiAntFlag(){
+-		
++
+ 	    PhaseCheckParse parse = new PhaseCheckParse();
+ 		return parse.getWIFIANTresult();
+-		
++
+ 	}
+-   	
++
+     private String getNewWifiAntFlag(){
+-   	
++
+    	     PhaseCheckParse parse = new PhaseCheckParse();
+         return parse.getNewWIFIANTresult();
+-   	
++
+    	}
+-   	
+-   	
+-	
++
++
++
+ 	private void getVersionInfo() {
+ 		//Android version
+ 		String androidVer = SystemProperties.get(ANDROID_VER, getResources().getString(R.string.default_version));
+ 		androidVer = "Android version: " + androidVer;
+ 		mAndroidVersion.setText(androidVer);
+-		
++
+ 		//build number
+ 		String buildNumber = SystemProperties.get(BUILD_NUMBER, getResources().getString(R.string.default_version));
+ 		buildNumber = "Build number: " + buildNumber;
+ 		mBuildNumber.setText(buildNumber);
+ 		if(readSDFile("/versionNUM.txt").equals(buildNumber)){
+-			
++
+ 			buildNUMFlag = true;
+ 		}
+ 		//imei
+@@ -279,18 +280,18 @@
+             imei1 = "IMEI: " + imei1;
+             mIMEI1.setText(imei1);
+         }
+-		
++
+ 		//(SN)
+ /*		String pncode="";
+ 		getPNResult = new int[Pn_Num_Len+1];
+ 		getPnNum();
+-		
++
+ 		if(getPNResult[0] < 48) {
+ 			pncode = "unknow";
+ 		}else{
+ 			pncodeFlag = true;
+-			for (int i = 0; i < Pn_Num_Len; i++) 
+-			{  
++			for (int i = 0; i < Pn_Num_Len; i++)
++			{
+ 				if(getPNResult[i]<48)
+ 				{
+ 					break;
+@@ -303,12 +304,12 @@
+ 		}*/
+ 		mPncode.setText("Barcode(SN): " + getSn());
+ 
+-		//barcode(PN) 
++		//barcode(PN)
+ /*		String barcode = SystemProperties.get("gsm.serial");//((TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE)).getSN();
+ 		Log.v(TAG, "barcode = " + barcode);
+ 		if(barcode == null || barcode.length() == 0) {
+ 			barcode = "unknow";
+-			
++
+ 		}else{
+ 			barcodeFlag = true;
+ 		}
+@@ -327,19 +328,19 @@
+ 		BluetoothAdapter bluetooth = BluetoothAdapter.getDefaultAdapter();
+ 		String BTAddress = bluetooth.isEnabled() ? bluetooth.getAddress() : null;
+ 
+-		if (BTAddress == null) 
++		if (BTAddress == null)
+ 		{
+-		    // device not BT capable 
++		    // device not BT capable
+ 		    BTAddress  = "unavailable";
+-		} 
++		}
+ 		mBTAddress.setText("BlueTooth Address: " + BTAddress);
+ 
+ 		*/
+-		
++
+ 		//BT FT
+ /*		int len = barcode.length();
+ 		Log.v(TAG, "len = " + len);
+-		
++
+ 		String lte = "Not Yet";
+ 		String gsm = "Not Yet";
+ 		String td = "Not Yet";
+@@ -358,7 +359,7 @@
+         lte = "LTE: " + lte;
+         gsm = "GSM: " + gsm;
+ 		td = "TD: " + td;
+-        
++
+         mLteState.setText(lte);
+         mGsmState.setText(gsm);
+ 		mTdState.setText(td);*/
+@@ -367,6 +368,8 @@
+ 		{
+ 			CFTFlag = true;
+ 		}*/
++
++		/*
+ 		String lteResult = getFlag(CFT_4G_STATION);
+ 		mLteState.setText(lteResult);
+ 		if("PASS".equals(lteResult.substring(lteResult.length()-4,lteResult.length()))){
+@@ -377,9 +380,18 @@
+ 		if("PASS".equals(gmsResult.substring(gmsResult.length()-4,gmsResult.length()))){
+ 			CFT_2G3GFlag=true;
+ 		}
+-		
++		*/
++
++        String cftResult = getFlag(CFT_2G3G_STATION);
++        mCFTState.setText(cftResult);
++        Log.d(TAG, "zly --> cftResult:" + cftResult + " getCFT():" + getCFT());
++        if("PASS".equals(cftResult.substring(cftResult.length()-4, cftResult.length()))){
++            CFT_Flag = true;
++        }
++
++
+ 		String antResult = getFlag(ANTENNA_STATION);
+-	     
++
+     if(antResult == null || antResult.length() == 0) {
+ 			 antResult = "ANTENNA: Not Yet";
+ 			}
+@@ -390,7 +402,7 @@
+ 		}
+ 	 	//mMMIState.setText(getFlag(MMI_STATION));
+ 	 	/*String wifiANTFlag = getWifiAntFlag();
+-	     
++
+     if(wifiANTFlag == null || wifiANTFlag.length() == 0) {
+     	 = getNewWifiAntFlag();
+ 			}
+@@ -460,7 +472,7 @@
+ 		}
+ 
+ 	}
+-	
++
+ 	void getModemVersion() {
+ 		String modemVer = SystemProperties.get("gsm.version.baseband", getResources().getString(R.string.default_version));
+ 		Log.d(TAG, "Modem Version: " + modemVer);
+@@ -469,14 +481,14 @@
+ 		modemVer = "Modem Version: " + modemVer;
+ 		mModemVersion.setText(modemVer);
+ 	}
+-	
+ 
++
+ 	@Override
+ 	public boolean onKeyUp(int keyCode, KeyEvent event) {
+ 		switch (keyCode) {
+ 		case KeyEvent.KEYCODE_MENU:
+ 			return true;
+-			
++
+ 		case KeyEvent.KEYCODE_BACK:
+ 			Intent intent = new Intent(Version.this, FactoryMode.class);
+ 			setResult(FactoryMode.TEST_CANCEL,intent);
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/Check_Flag.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/Check_Flag.java	(revision 166670)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/Check_Flag.java	(revision 166671)
+@@ -53,15 +53,15 @@
+ 	private static final String BUILD_NUMBER = "ro.build.display.id";
+ 	//private static final String BUILD_NUMBER = "ro.build.version.custintid";
+ 	private static final String TP_FIRMWARE_VER = "/proc/tp_ver";
+-	
++
+ 	private static final int EVENT_MODEM_VERSION = 1;
+ 	private static final int CFT_2G3G_STATION = 3;
+ 	private static final int CFT_4G_STATION = 4;
+-	private static final int ANTENNA_STATION = 6;
+-	private static final int MMI_STATION = 10;
+-	private static final int QC_STATION = 11;
+-	private static final int RESET_STATION = 13;
+-	
++	private static final int ANTENNA_STATION = 5;
++	private static final int MMI_STATION = 9;
++	private static final int QC_STATION = 10;
++	private static final int RESET_STATION = 12;
++
+ 	private TextView mAndroidVersion;
+ 	private TextView mBuildNumber;
+ 	private TextView mIMEI1;
+@@ -89,6 +89,7 @@
+ 	private boolean pncodeFlag = false;
+ 	private boolean lteFlag = false;
+ 	private boolean CFT_2G3GFlag = false;
++    private boolean CFT_Flag = false;
+ 	private boolean gsmFlag = false;
+ 	private boolean tdFlag = false;
+ 	private boolean buildNUMFlag = false;
+@@ -100,10 +101,10 @@
+ 	private static final int PN_REPORT_NV_POS = 200;
+ 	private static final int Pn_Num_Len = 23;
+ 	private static final String SD_CARD = Environment.getExternalStorageDirectory().getPath();
+-	
++
+ 	private StorageManager mStorageManager;
+ 	private static int getPNResult[];
+-	
++
+ 	@Override
+ 	protected void onCreate(Bundle savedInstanceState) {
+ 		// TODO Auto-generated method stub
+@@ -116,12 +117,14 @@
+ 		mBuildNumber = (TextView)findViewById(R.id.build_number);
+ 		mIMEI1 = (TextView)findViewById(R.id.imei1);
+ 		mIMEI2 = (TextView)findViewById(R.id.imei2);
+-		
++
+ 		//mBarcode = (TextView)findViewById(R.id.barcode);
+ 		mPncode = (TextView)findViewById(R.id.pncode);
+-		//mCFTState = (TextView)findViewById(R.id.cft_state);
++        mCFTState = (TextView)findViewById(R.id.cft_state);
++        /*
+ 		mCFT2G3G = (TextView)findViewById(R.id.cft2g3g_state);
+ 		mLteState = (TextView)findViewById(R.id.lte_state);
++		*/
+ 		//mANTState = (TextView)findViewById(R.id.ant_state);
+ 		mMMIState = (TextView)findViewById(R.id.mmi_state);
+ 		mQC1State = (TextView)findViewById(R.id.qc_state);
+@@ -133,12 +136,12 @@
+ 		mLinuxVersion = (TextView)findViewById(R.id.linux_version);
+ 		mModemVersion = (TextView)findViewById(R.id.modem_version);
+ 		mTPFWVersion = (TextView)findViewById(R.id.tp_firmware_version);
+-		
++
+ 		/*mSuccessButton = (Button)findViewById(R.id.version_bt_ok);
+ 		mFailButton = (Button)findViewById(R.id.version_bt_failed);
+-		
++
+ 		mSuccessButton.setEnabled(false);
+-	
++
+ 		mSuccessButton.setOnClickListener(new Button.OnClickListener() {
+ 
+ 			@Override
+@@ -148,9 +151,9 @@
+ 				setResult(FactoryMode.TEST_OK,intent);
+ 				finish();
+ 			}
+-			
++
+ 		});
+-		
++
+ 		mFailButton.setOnClickListener(new Button.OnClickListener() {
+ 
+ 			@Override
+@@ -160,9 +163,9 @@
+ 				setResult(FactoryMode.TEST_FAIL,intent);
+ 				finish();
+ 			}
+-			
++
+ 		});*/
+-        
++
+ 		mStorageManager = (StorageManager)this.getSystemService(Context.STORAGE_SERVICE);
+ 		getVersionInfo();
+ 		//if(lteFlag == true && buildNUMFlag == true && gsmFlag == true && tdFlag == true)
+@@ -173,12 +176,12 @@
+ 		//	}
+ 		//}
+ 	}
+-	
+-    public String readSDFile(String filesname) {    
++
++    public String readSDFile(String filesname) {
+         String allpath=SD_CARD+filesname;
+           StringBuffer sb = new StringBuffer();
+-               File file = new File(allpath);   
+-               BufferedReader br = null;           
++               File file = new File(allpath);
++               BufferedReader br = null;
+         try {
+          br = new BufferedReader(new FileReader(file));
+           String line = "";
+@@ -205,40 +208,40 @@
+         PhaseCheckParse parse = new PhaseCheckParse();
+         return parse.getCFTresult();
+     }
+-    
++
+     private String getFlag(int station) {
+ 		PhaseCheckParse parse = new PhaseCheckParse();
+         return parse.getStationPhaseCheck(station-1);
+ 	}
+-    
++
+ 	private String getWifiAntFlag(){
+-		
++
+ 	    PhaseCheckParse parse = new PhaseCheckParse();
+ 		return parse.getWIFIANTresult();
+-		
++
+ 	}
+-   	
++
+     private String getNewWifiAntFlag(){
+-   	
++
+    	     PhaseCheckParse parse = new PhaseCheckParse();
+         return parse.getNewWIFIANTresult();
+-   	
++
+    	}
+-   	
+-   	
+-	
++
++
++
+ 	private void getVersionInfo() {
+ 		//Android version
+ 		String androidVer = SystemProperties.get(ANDROID_VER, getResources().getString(R.string.default_version));
+ 		androidVer = "Android version: " + androidVer;
+ 		//mAndroidVersion.setText(androidVer);
+-		
++
+ 		//build number
+ 		String buildNumber = SystemProperties.get(BUILD_NUMBER, getResources().getString(R.string.default_version));
+ 		buildNumber = "Build number: " + buildNumber;
+ 		//mBuildNumber.setText(buildNumber);
+ 		if(readSDFile("/versionNUM.txt").equals(buildNumber)){
+-			
++
+ 			buildNUMFlag = true;
+ 		}
+ 		//imei
+@@ -261,10 +264,10 @@
+             imei1 = "IMEI: " + imei1;
+             mIMEI1.setText(imei1);
+         }
+-		
++
+ 		//(SN)
+ 		mPncode.setText("Barcode(SN): " + getSn());
+-
++/*
+ 		String lteResult = getFlag(CFT_4G_STATION);
+ 		mLteState.setText(lteResult);
+ 		Log.i(TAG, "lteResult = " + lteResult);
+@@ -271,6 +274,7 @@
+ 		if("PASS".equals(lteResult.substring(lteResult.length()-4,lteResult.length()))){
+ 			lteFlag=true;
+ 		}
++
+ 		String gmsResult = getFlag(CFT_2G3G_STATION);
+ 		mCFT2G3G.setText(gmsResult);
+ 		Log.i(TAG, "gmsResult = " + gmsResult);
+@@ -277,9 +281,17 @@
+ 		if("PASS".equals(gmsResult.substring(gmsResult.length()-4,gmsResult.length()))){
+ 			CFT_2G3GFlag=true;
+ 		}
+-		
++*/
++
++        String cftResult = getFlag(CFT_2G3G_STATION);
++        mCFTState.setText(cftResult);
++        Log.i(TAG, "cftResult = " + cftResult);
++        if("PASS".equals(cftResult.substring(cftResult.length()-4, cftResult.length()))){
++            CFT_Flag = true;
++        }
++
+ 		String antResult = getFlag(ANTENNA_STATION);
+-	     
++
+         if(antResult == null || antResult.length() == 0) {
+ 			 antResult = "ANTENNA: Not Yet";
+ 		}
+@@ -290,10 +302,10 @@
+ 		}
+ 	 	mMMIState.setText(getFlag(MMI_STATION));
+ 		Log.i(TAG, "mMMIState = " + getFlag(MMI_STATION));
+-		
++
+ 		mQC1State.setText(getFlag(QC_STATION));
+ 		Log.i(TAG, "mQC1State = " + getFlag(QC_STATION));
+-		
++
+ 		//mResetState.setText(getFlag(RESET_STATION));
+ 		Log.i(TAG, "mResetState = " + getFlag(RESET_STATION));
+ 
+@@ -356,7 +368,7 @@
+ 		}
+ 
+ 	}
+-	
++
+ 	void getModemVersion() {
+ 		String modemVer = SystemProperties.get("gsm.version.baseband", getResources().getString(R.string.default_version));
+ 		Log.d(TAG, "Modem Version: " + modemVer);
+@@ -365,14 +377,14 @@
+ 		modemVer = "Modem Version: " + modemVer;
+ 		//mModemVersion.setText(modemVer);
+ 	}
+-	
+ 
++
+ 	@Override
+ 	public boolean onKeyUp(int keyCode, KeyEvent event) {
+ 		switch (keyCode) {
+ 		case KeyEvent.KEYCODE_MENU:
+ 			return true;
+-			
++
+ 		case KeyEvent.KEYCODE_BACK:
+ 			finish();
+ 			return true;
+Index: packages/apps/FactoryMode/res/layout/check_flag.xml
+===================================================================
+--- packages/apps/FactoryMode/res/layout/check_flag.xml	(revision 166670)
++++ packages/apps/FactoryMode/res/layout/check_flag.xml	(revision 166671)
+@@ -9,9 +9,9 @@
+             <TextView android:textSize="14.0dip" android:id="@+id/imei2" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+             <!--<TextView android:textSize="14.0dip" android:id="@+id/barcode" android:layout_width="wrap_content" android:layout_height="wrap_content" />-->
+             <TextView android:textSize="14.0dip" android:id="@+id/pncode" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+-            <!--<TextView android:textSize="14.0dip" android:id="@+id/cft_state" android:layout_width="wrap_content" android:layout_height="wrap_content" />-->
+-            <TextView android:textSize="14.0dip" android:id="@+id/cft2g3g_state" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+-            <TextView android:textSize="14.0dip" android:id="@+id/lte_state" android:layout_width="wrap_content" android:layout_height="wrap_content" />
++            <TextView android:textSize="14.0dip" android:id="@+id/cft_state" android:layout_width="wrap_content" android:layout_height="wrap_content" />
++            <!--<TextView android:textSize="14.0dip" android:id="@+id/cft2g3g_state" android:layout_width="wrap_content" android:layout_height="wrap_content" />-->
++            <!--<TextView android:textSize="14.0dip" android:id="@+id/lte_state" android:layout_width="wrap_content" android:layout_height="wrap_content" />-->
+ 	    <!--<TextView android:textSize="14.0dip" android:id="@+id/ant_state" android:layout_width="wrap_content" android:layout_height="wrap_content" />-->
+ 	    <TextView android:textSize="14.0dip" android:id="@+id/mmi_state" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+ 		<TextView android:textSize="14.0dip" android:id="@+id/qc_state" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+Index: packages/apps/FactoryMode/res/layout/version.xml
+===================================================================
+--- packages/apps/FactoryMode/res/layout/version.xml	(revision 166670)
++++ packages/apps/FactoryMode/res/layout/version.xml	(revision 166671)
+@@ -9,9 +9,9 @@
+             <TextView android:textSize="14.0dip" android:id="@+id/imei2" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+             <!--<TextView android:textSize="14.0dip" android:id="@+id/barcode" android:layout_width="wrap_content" android:layout_height="wrap_content" />-->
+             <TextView android:textSize="14.0dip" android:id="@+id/pncode" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+-            <!--<TextView android:textSize="14.0dip" android:id="@+id/cft_state" android:layout_width="wrap_content" android:layout_height="wrap_content" />-->
+-            <TextView android:textSize="14.0dip" android:id="@+id/cft2g3g_state" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+-            <TextView android:textSize="14.0dip" android:id="@+id/lte_state" android:layout_width="wrap_content" android:layout_height="wrap_content" />
++            <TextView android:textSize="14.0dip" android:id="@+id/cft_state" android:layout_width="wrap_content" android:layout_height="wrap_content" />
++            <!--<TextView android:textSize="14.0dip" android:id="@+id/cft2g3g_state" android:layout_width="wrap_content" android:layout_height="wrap_content" />-->
++            <!--<TextView android:textSize="14.0dip" android:id="@+id/lte_state" android:layout_width="wrap_content" android:layout_height="wrap_content" />-->
+ 	    <TextView android:textSize="14.0dip" android:id="@+id/ant_state" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+ 	    <!--<TextView android:textSize="14.0dip" android:id="@+id/mmi_state" android:layout_width="wrap_content" android:layout_height="wrap_content" />-->
+ 		<!--<TextView android:textSize="14.0dip" android:id="@+id/wifi_ant_state" android:layout_width="wrap_content" android:layout_height="wrap_content" />-->

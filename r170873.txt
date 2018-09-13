@@ -1,0 +1,68 @@
+Index: frameworks/base/core/java/android/provider/Settings.java
+===================================================================
+--- frameworks/base/core/java/android/provider/Settings.java	(revision 170872)
++++ frameworks/base/core/java/android/provider/Settings.java	(revision 170873)
+@@ -6654,6 +6654,11 @@
+          */
+         public static final String AIRPLANE_MODE_ON = "airplane_mode_on";
+ 
++		/**
++         * Whether Flip to mute call.
++         */
++        public static final String FLIP_TO_MUTE_CALL = "flipping_silence_data";
++
+         /**
+          * Whether Theater Mode is on.
+          * {@hide}
+Index: frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java
+===================================================================
+--- frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java	(revision 170872)
++++ frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java	(revision 170873)
+@@ -2639,7 +2639,7 @@
+ 
+             loadIntegerSetting(stmt, Settings.Global.WIFI_SLEEP_POLICY,
+                     R.integer.def_wifi_sleep_policy);
+-
++			loadIntegerSetting(stmt, Settings.Global.FLIP_TO_MUTE_CALL, R.integer.flipping_silence_data);
+             loadSetting(stmt, Settings.Global.MODE_RINGER,
+                     AudioManager.RINGER_MODE_NORMAL);
+ 
+Index: frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+===================================================================
+--- frameworks/base/packages/SettingsProvider/res/values/defaults.xml	(revision 170872)
++++ frameworks/base/packages/SettingsProvider/res/values/defaults.xml	(revision 170873)
+@@ -22,6 +22,7 @@
+     <integer name="def_button_light_off_timeout">1500</integer>
+     <integer name="def_sleep_timeout">-1</integer>
+ 	<integer name="battery_percentage_enabled">1</integer>
++	<integer name="flipping_silence_data">1</integer>
+     <bool name="def_airplane_mode_on">false</bool>
+     <bool name="def_theater_mode_on">false</bool>
+     <!-- Comma-separated list of bluetooth, wifi, and cell. -->
+Index: vendor/sprd/platform/packages/apps/Dialer/InCallUI/res/values/strings_ex.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/Dialer/InCallUI/res/values/strings_ex.xml	(revision 170872)
++++ vendor/sprd/platform/packages/apps/Dialer/InCallUI/res/values/strings_ex.xml	(revision 170873)
+@@ -8,7 +8,7 @@
+     <!-- SPRD: Explicit Transfer Call @{ -->
+     <string name="onscreenTransferCallText">Transfer</string>
+     <!-- SPRD: Flip to silence from incoming calls. See bug473877 -->
+-    <string name="incomingcall_flipping_silence_title">Flip to silence call</string>
++    <string name="incomingcall_flipping_silence_title">Flip to mute call</string>
+     <!-- SPRD: Add for fade-in feature. See bug530524 -->
+     <string name="fade_in_title">Fade-in ringer</string>
+     <!-- SPRD: Add for call recorder feature @{ -->
+Index: vendor/sprd/platform/packages/services/Telecomm/res/values/strings_ex.xml
+===================================================================
+--- vendor/sprd/platform/packages/services/Telecomm/res/values/strings_ex.xml	(revision 170872)
++++ vendor/sprd/platform/packages/services/Telecomm/res/values/strings_ex.xml	(revision 170873)
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+-    <string name="incomingcall_flipping_silence_title">Flip to silence call</string>
+-    <string name="flipping_summary">Flip the phone to silence incoming call</string>
++    <string name="incomingcall_flipping_silence_title">Flip to mute call</string>
++    <string name="flipping_summary">Flip the phone to mute incoming call</string>
+     <string name="fade_in_title">Fade-in ringer</string>
+     <string name="fade_in_summary">When enabled, incoming call ringer volume will be turned up.</string>
+     <!-- SPRD: Add for bug594955 @{ -->

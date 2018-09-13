@@ -1,0 +1,88 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java	(revision 177815)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/Report.java	(revision 177816)
+@@ -29,9 +29,9 @@
+                 continue;
+             }
+ 
+-            if ((FactoryMode.isAutoTest ? FactoryMode.autotestResult[i]:FactoryMode.testResult[i])== FactoryMode.TEST_OK) {
++            if ((/*FactoryMode.isAutoTest*/true ? FactoryMode.autotestResult[i]:FactoryMode.testResult[i])== FactoryMode.TEST_OK) {
+                 testsuccess = testsuccess + "|"+string;
+-            } else if((FactoryMode.isAutoTest ? FactoryMode.autotestResult[i]:FactoryMode.testResult[i])== FactoryMode.TEST_FAIL) {
++            } else if((/*FactoryMode.isAutoTest */true? FactoryMode.autotestResult[i]:FactoryMode.testResult[i])== FactoryMode.TEST_FAIL) {
+                 testfail = testfail + "|" +string;
+             } else {
+                 testdefault = testdefault + "|"+string;
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 177815)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 177816)
+@@ -214,7 +214,7 @@
+     autotestButton = (Button)this.findViewById(R.id.main_bt_autotest);
+     //reportButton  = (Button)this.findViewById(R.id.main_bt_report);
+     autoreportButton = (Button)this.findViewById(R.id.main_auto_report);
+-    autoreportButton.setText(getReportText());
++    //autoreportButton.setText(getReportText());
+     autotestButton.setOnClickListener(new Button.OnClickListener() {
+       @Override
+       public void onClick(View v) {
+@@ -321,6 +321,7 @@
+           autotestResult[index]= FactoryMode.TEST_OK;
+         }else{
+           testResult[index]= FactoryMode.TEST_OK;
++		  autotestResult[index]= FactoryMode.TEST_OK;
+         }
+         LTResult[index]= FactoryMode.TEST_OK;
+         break;
+@@ -332,6 +333,7 @@
+           autotestResult[index]= FactoryMode.TEST_FAIL;
+         }else{
+           testResult[index]= FactoryMode.TEST_FAIL;
++		  autotestResult[index]= FactoryMode.TEST_FAIL;
+         }
+         LTResult[index]= FactoryMode.TEST_FAIL;
+         break;
+@@ -345,6 +347,7 @@
+           shouldCharge = false;
+         }else{
+           testResult[index]= FactoryMode.TEST_FAIL;
++		  autotestResult[index]= FactoryMode.TEST_FAIL;
+         }
+         LTResult[index]= FactoryMode.TEST_FAIL;
+         break;
+@@ -369,7 +372,7 @@
+           ATPC++;
+         }
+         saveTestReport(true);
+-        autoreportButton.setText(getReportText());
++        //autoreportButton.setText(getReportText());
+         startActivity(intent2);
+       } else {
+         saveTestReport(true);
+Index: packages/apps/FactoryMode/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/apps/FactoryMode/res/values-zh-rCN/strings.xml	(revision 177815)
++++ packages/apps/FactoryMode/res/values-zh-rCN/strings.xml	(revision 177816)
+@@ -166,7 +166,7 @@
+     <string name="sim_info_failed">SIM:未发现</string>
+     <string name="Report">测试报告</string>
+     <string name="SingleTestReport">单项测试报告</string>
+-    <string name="AutoTestReport">自动测试报告</string>
++    <string name="AutoTestReport">测试报告</string>
+     <string name="report_ok">成功项:</string>
+     <string name="report_failed">失败项:</string>
+     <string name="report_notest">未测试项:</string>
+Index: packages/apps/FactoryMode/res/values/strings.xml
+===================================================================
+--- packages/apps/FactoryMode/res/values/strings.xml	(revision 177815)
++++ packages/apps/FactoryMode/res/values/strings.xml	(revision 177816)
+@@ -169,7 +169,7 @@
+     <string name="sim_info_failed">SIM:failed</string>
+     <string name="Report">Report</string>
+     <string name="SingleTestReport">SingleTest Report</string>
+-    <string name="AutoTestReport">AutoTest Report</string>
++    <string name="AutoTestReport">Test report</string>
+     <string name="report_ok">Success:</string>
+     <string name="report_failed">Failed:</string>
+     <string name="report_notest">Untested:</string>

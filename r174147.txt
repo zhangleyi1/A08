@@ -1,0 +1,22 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/arrays.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/arrays.xml	(revision 174146)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/arrays.xml	(revision 174147)
+@@ -111,7 +111,7 @@
+         <item>@drawable/ic_gesture_mode_sprd_unselected</item>
+         <item>@drawable/ic_qr_code_mode_sprd_unselected</item>
+         <item>@drawable/ic_face_detect_status_sprd</item>
+-        <item>@drawable/ic_face_detect_status_sprd</item>
++        <item>@drawable/ic_gesture_mode_sprd_unselected</item>
+     </array>
+ 
+     <array name="camera_mode_selected_icon">
+@@ -136,7 +136,7 @@
+         <item>@drawable/ic_gesture_mode_sprd_selected</item>
+         <item>@drawable/ic_qr_code_mode_sprd_selected</item>
+         <item>@drawable/ic_face_detect_status_sprd</item>
+-        <item>@drawable/ic_face_detect_status_sprd</item>
++        <item>@drawable/ic_gesture_mode_sprd_selected</item>
+     </array>
+ 
+     <string-array name="camera_mode_text">

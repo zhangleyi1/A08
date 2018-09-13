@@ -1,0 +1,13 @@
+Index: u-boot64/common/loader/loader_common.c
+===================================================================
+--- u-boot64/common/loader/loader_common.c	(revision 178689)
++++ u-boot64/common/loader/loader_common.c	(revision 178690)
+@@ -467,7 +467,7 @@
+ 	lcd_printf("   Bootloader version : V1.0 \n");
+ 
+ 	// 3 Display Baseband Version
+-	lcd_printf("   Baseband Version : W17_23_3 \n");
++	lcd_printf("   Baseband Version : FM_BASE_15C_W17.32.3\n");
+ 	//lcd_printf("   Baseband Version : %s \n",getBasebandVersion());
+ 
+ 	//4:Serial Number

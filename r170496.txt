@@ -1,0 +1,22 @@
+Index: frameworks/base/services/core/java/com/android/server/BluetoothManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/BluetoothManagerService.java	(revision 170495)
++++ frameworks/base/services/core/java/com/android/server/BluetoothManagerService.java	(revision 170496)
+@@ -218,6 +218,7 @@
+                                 if (mBluetooth != null) {
+                                     mBluetooth.onBrEdrDown();
+                                     mEnableExternal = false;
++                                    mEnable = false;
+                                 }
+                             } catch (RemoteException e) {
+                                 Slog.e(TAG,"Unable to call onBrEdrDown", e);
+@@ -229,7 +230,8 @@
+                             Slog.d(TAG, "Calling disable");
+                             sendDisableMsg();
+                         }
+-                    } else if (mEnableExternal) {
++                    } else if (mEnableExternal && st != BluetoothAdapter.STATE_BLE_ON
++                            && !isBleAppPresent()) {
+                         // enable without persisting the setting
+                         Slog.d(TAG, "Calling enable");
+                         sendEnableMsg(mQuietEnableExternal);

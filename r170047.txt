@@ -1,0 +1,47 @@
+Index: vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/GsmCdmaPhoneEx.java
+===================================================================
+--- vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/GsmCdmaPhoneEx.java	(revision 170046)
++++ vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/GsmCdmaPhoneEx.java	(revision 170047)
+@@ -789,5 +789,42 @@
+             logd("setOutgoingCallerIdDisplay: not possible in CDMA");
+         }
+     }
++    @Override
++    public ServiceState getServiceState() {
++        if (mSST == null || mSST.mSS.getState() != ServiceState.STATE_IN_SERVICE) {
++            if (mImsPhone != null) {
++                int type = -2;
++                if (mImsPhone.getServiceState().getState() == ServiceState.STATE_IN_SERVICE) {
++                    type = getCurrentImsFeature();
++                }
++                if (type == ImsConfig.FeatureConstants.FEATURE_TYPE_VOICE_OVER_LTE) {
++                    return ServiceState.mergeServiceStates(
++                            (mSST == null) ? new ServiceState() : mSST.mSS,
++                            mImsPhone.getServiceState());
++                }
++            }
++        }
+ 
++        if (mSST != null) {
++            return mSST.mSS;
++        } else {
++            return new ServiceState();
++        }
++    }
++    private int getCurrentImsFeature() {
++        int type = -2;
++        try {
++            mImsServiceEx = getIImsServiceEx();
++            if (mImsServiceEx != null) {
++                type = mImsServiceEx.getCurrentImsFeature();
++            } else {
++                if (LOCAL_DEBUG) {
++                    Rlog.d(LOG_TAG, "mImsServiceEx is null");
++                }
++            }
++        } catch (RemoteException e) {
++            e.printStackTrace();
++        }
++        return type;
++    }
+ }

@@ -1,0 +1,39 @@
+Index: packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java
+===================================================================
+--- packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 172289)
++++ packages/apps/FactoryMode/src/com/mediatek/factorymode/FactoryMode.java	(revision 172290)
+@@ -100,11 +100,11 @@
+     public static final int TESTITEM_FLASHLIGHT_SUB = 24;
+ 	//public static final int TESTITEM_LED = 25;
+ 	public static final int TESTITEM_LSENSORCALI = 25;
+-	public static final int TESTITEM_MASTERCLEAR = 26;
++	public static final int TESTITEM_MASTERCLEAR = 28;
+ 	public static final int TESTITEM_SLEEPORWAKE = 27;
+ 	public static final int TESTITEM_TATOL = 29;
+ 	//public static final int TESTITEM_TPRAWDATA=28;
+-	public static final int TESTITEM_TPTEST=28;
++	public static final int TESTITEM_TPTEST=26;
+ 	//private static int currentTestMode = 0;
+ 	public static int currenttestitem = TESTITEM_START;
+   public static boolean isAutoTest = false;
+@@ -177,9 +177,9 @@
+   //TESTITEM_LED ,
+     TESTITEM_FLASHLIGHT ,
+ 	TESTITEM_FLASHLIGHT_SUB ,
+-	TESTITEM_MASTERCLEAR,
++	TESTITEM_TPTEST,
+ 	TESTITEM_SLEEPORWAKE,
+-	TESTITEM_TPTEST
++	TESTITEM_MASTERCLEAR
+     //TESTITEM_TPRAWDATA
+   };
+ 
+@@ -348,7 +348,7 @@
+ 
+     if(isAutoTest){
+       currenttestitem = currenttestitem + 1;
+-      if(currenttestitem == testitem.length){
++      if(currenttestitem == testitem.length-1){
+         Intent intent2 = new Intent();
+         intent2.setClass(this, Report.class);
+         if(AutoTested == 0){

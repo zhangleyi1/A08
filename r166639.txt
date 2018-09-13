@@ -1,0 +1,44 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/PiflowUntil.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/PiflowUntil.java	(revision 0)
++++ packages/apps/Launcher3/src/com/android/launcher3/PiflowUntil.java	(revision 166639)
+@@ -0,0 +1,32 @@
++/***
++ * 瀑布流配置工具
++ * 
++ */
++package com.android.launcher3;
++
++import java.io.FileOutputStream;
++import java.util.Properties;
++import android.content.Context;
++import android.util.Log;
++
++public class PiflowUntil{
++	private final static String TAG = "piflowUntil";
++	public final static String PIFLOW_PK_NAMGE="com.example.piflow";
++	public final static String PIFLOW_LAYOUT = "activity_main";
++	
++	/**
++	 * 保存配置信息至sdcard  
++	 * @param context
++	 */
++	public static void saveConfig(Context context){
++		try{
++			Properties p = new Properties();
++			p.put("launcher_pk_name", context.getPackageName());
++			String file = "/sdcard/piflowConfig.dat";
++			FileOutputStream s = new FileOutputStream(file,false);
++			p.store(s, "");
++		}catch(Exception e){
++			Log.e(TAG,"save inveno piflow information error:"+e.getMessage());
++		}
++	}
++}
+
+Property changes on: packages/apps/Launcher3/src/com/android/launcher3/PiflowUntil.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Launcher3/src/com/android/launcher3/PiflowUntil.java:r162781
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/src/com/android/launcher3/PiflowUntil.java:r165535
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Launcher3/src/com/android/launcher3/PiflowUntil.java:r163719-163720

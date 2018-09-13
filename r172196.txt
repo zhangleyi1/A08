@@ -1,0 +1,128 @@
+Index: packages/apps/Settings/src/com/android/settings/sim/SimSettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/sim/SimSettings.java	(revision 172195)
++++ packages/apps/Settings/src/com/android/settings/sim/SimSettings.java	(revision 172196)
+@@ -29,6 +29,7 @@
+ import android.os.BaseBundle;
+ import android.os.Bundle;
+ import android.os.Handler;
++import android.os.PersistableBundle;
+ import android.os.SystemProperties;
+ import android.os.UserHandle;
+ import android.provider.SearchIndexableResource;
+@@ -43,6 +44,7 @@
+ import android.telecom.PhoneAccount;
+ import android.telecom.PhoneAccountHandle;
+ import android.telecom.TelecomManager;
++import android.telephony.CarrierConfigManagerEx;
+ import android.telephony.PhoneNumberUtils;
+ import android.telephony.PhoneStateListener;
+ import android.telephony.SubscriptionInfo;
+@@ -119,7 +121,7 @@
+     // SPRD: Modify for bug 603907
+     private DialogFragment mAlertDialogFragment = null;
+     private static TelephonyManagerEx mTmEx;
+-    private static String PROPERTY_CMCC_CARD_PREFER = "persist.radio.network.unable";
++    private boolean mIsFixPrimarySlot;
+ 
+     public SimSettings() {
+         super(DISALLOW_CONFIG_SIM);
+@@ -149,6 +151,10 @@
+         mAvailableSubInfoList = getActiveSubInfoList();
+         mSelectableSubInfos = new ArrayList<SubscriptionInfo>();
+ 
++        CarrierConfigManagerEx carrierConfigManagerEx = CarrierConfigManagerEx.from(mContext);
++        PersistableBundle persistableBundle = carrierConfigManagerEx.getConfigForDefaultPhone();
++        mIsFixPrimarySlot = ((persistableBundle != null)?persistableBundle.getInt(CarrierConfigManagerEx.KEY_FIXED_PRIMARY_SLOT_INT):-1) != -1;
++
+         /* SPRD: add new feature for data switch on/off @{ */
+         PreferenceCategory simPreferenceCatergory = (PreferenceCategory) findPreference(
+                 KEY_ACTIVITIES);
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 172195)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 172196)
+@@ -62,6 +62,7 @@
+ import android.preference.SwitchPreference;
+ import android.provider.Settings;
+ import android.telephony.CarrierConfigManager;
++import android.telephony.CarrierConfigManagerEx;
+ import android.telephony.PhoneStateListener;
+ import android.telephony.SubscriptionInfo;
+ import android.telephony.SubscriptionManager;
+@@ -778,6 +779,17 @@
+             /* @} */
+             prefSet.addPreference(mButtonPreferredNetworkMode);
+             prefSet.addPreference(mButtonEnabledNetworks);
++            CarrierConfigManagerEx carrierConfigManagerEx = CarrierConfigManagerEx.from(this);
++            PersistableBundle carrierConfigEx = carrierConfigManagerEx.getConfigForDefaultPhone();
++            if (carrierConfigEx != null) {
++                int fixSlot = carrierConfigEx.getInt(CarrierConfigManagerEx.KEY_FIXED_PRIMARY_SLOT_INT);
++                if (SubscriptionManager.isValidPhoneId(fixSlot)) {
++                    if (mPhone.getPhoneId() == fixSlot) {
++                        prefSet.addPreference(mButton4glte);
++                    } else {
++                        prefSet.removePreference(mButton4glte);
++                    }
++                } else {
+             /* SPRD: add for bug 596388 @{ */
+             // SPRD: bug644303 HIDE_4GLTE_BUTTON_FOR_EE.
+             if (mButton4glte != null && defaultDataSubId == phoneSubId
+@@ -787,6 +799,8 @@
+             }
+ 			prefSet.addPreference(mButtonGsmRoaming);
+              /* @} */
++                }
++            }
+             /* SPRD: FEATURE_PLMN_LOCK @{ */
+             SubscriptionInfoHelper subInfoHelper = new SubscriptionInfoHelper(context, getIntent());
+             Intent volteLockIntent = subInfoHelper.getCallSettingsIntent(null,
+@@ -1230,6 +1244,7 @@
+                     case Phone.NT_MODE_LTE_TDSCDMA_CDMA_EVDO_GSM_WCDMA:
+                     case Phone.NT_MODE_LTE_ONLY:
+                     case Phone.NT_MODE_WCDMA_ONLY:
++                    case Phone.NT_MODE_LTE_WCDMA:
+                         // This is one of the modes we recognize
+                         modemNetworkMode = buttonNetworkMode;
+                         break;
+Index: vendor/sprd/platform/frameworks/base/telephony/java/android/telephony/CarrierConfigManagerEx.java
+===================================================================
+--- vendor/sprd/platform/frameworks/base/telephony/java/android/telephony/CarrierConfigManagerEx.java	(revision 172195)
++++ vendor/sprd/platform/frameworks/base/telephony/java/android/telephony/CarrierConfigManagerEx.java	(revision 172196)
+@@ -176,7 +176,7 @@
+      * {@hide}
+      */
+     public static final String KEY_FEATURE_SET_FAKE_SIM_ENABLE_BOOL = "set_fake_sim_enable_boolean";
+-
++    public static final String KEY_LTE_NETWORK_MODE_EXCEPT_GSM = "lte_network_except_gsm";
+      /*SPRD: operator APN not editable @{ */
+     public static final String KEY_OPERATOR_APN_NOT_EDITABLE = "operator_apn_not_editable";
+     /* @} */
+@@ -204,7 +204,7 @@
+         sDefaultsEx.putString(KEY_GLO_CONF_SMS_CODING_NATIONAL, "");
+         sDefaultsEx.putBoolean(KEY_GLO_CONF_MVNO, false);
+         /* @} */
+-        sDefaultsEx.putBoolean(KEY_FIXED_PRIMARY_SLOT_INT, false);
++        sDefaultsEx.putInt(KEY_FIXED_PRIMARY_SLOT_INT, -1);
+         /* SPRD: FEATURE_OF_APN_AND_DATA_POP_UP @{ */
+         sDefaultsEx.putBoolean(KEY_FEATURE_DATA_AND_APN_POP_BOOL, false);
+         sDefaultsEx.putString(KEY_FEATURE_DATA_AND_APN_POP_OPERATOR_STRING, "");
+@@ -256,6 +256,7 @@
+         //SPRD: add for operator APN not editable
+         sDefaultsEx.putString(KEY_OPERATOR_APN_NOT_EDITABLE, "");
+         sDefaultsEx.putBoolean(KEY_CARRIER_SUPPORTS_VOWIFI_EMERGENCY_CALL, false);//SPRD:add for bug661370
++        sDefaultsEx.putBoolean(KEY_LTE_NETWORK_MODE_EXCEPT_GSM,false);
+     }
+ 
+     /**
+Index: vendor/sprd/platform/packages/apps/CarrierConfig/res/xml/vendor.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/CarrierConfig/res/xml/vendor.xml	(revision 172195)
++++ vendor/sprd/platform/packages/apps/CarrierConfig/res/xml/vendor.xml	(revision 172196)
+@@ -49,5 +49,6 @@
+  <string name="plmns_single_pdn" >405840,405854,405855,405856,405857,405858,405859,405860,405861,405862,405863,405864,405865,405866,405867,405868,405869,405870,405871,405872,405873,405874</string>
+  <!-- SPRD: add for bug626699 -->
+  <string name="plmns_callforward_only" >24412</string>
++    <int name="fixed_primary_slot_int" value="0" />
+ </carrier_config>
+ </carrier_config_list >

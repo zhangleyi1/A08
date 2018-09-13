@@ -1,0 +1,20 @@
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_02_small.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/drawable-xhdpi/wallpaper_02.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/WallpaperPicker/res/values-nodpi/wallpapers.xml
+===================================================================
+--- packages/apps/Launcher3/WallpaperPicker/res/values-nodpi/wallpapers.xml	(revision 176052)
++++ packages/apps/Launcher3/WallpaperPicker/res/values-nodpi/wallpapers.xml	(revision 176053)
+@@ -19,7 +19,6 @@
+     <string-array name="wallpapers" translatable="false">
+     <item>wallpaper_00</item>
+     <item>wallpaper_01</item>
+-    <item>wallpaper_02</item>
+     <item>wallpaper_03</item>
+     <item>wallpaper_04</item>
+     <item>wallpaper_05</item>

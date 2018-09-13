@@ -1,0 +1,22 @@
+Index: packages/apps/Messaging/src/com/android/messaging/datamodel/MessagingContentProvider.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/datamodel/MessagingContentProvider.java	(revision 170524)
++++ packages/apps/Messaging/src/com/android/messaging/datamodel/MessagingContentProvider.java	(revision 170525)
+@@ -580,9 +580,14 @@
+                 DeleteMessageAction.deleteMessage(id);
+                 break;
+             case CLEAR_SIM_MESSAGES_CODE:
+-                final DatabaseWrapper db = DataModel.get().getDatabase();
+-                db.execSQL("delete from sim_messages");
+-                Factory.get().getApplicationContext().getContentResolver().notifyChange(SIM_MESSAGE_LIST_VIEW_URI, null);
++                try {
++                    final DatabaseWrapper db = DataModel.get().getDatabase();
++                    db.execSQL("delete from sim_messages");
++                    Factory.get().getApplicationContext().getContentResolver().notifyChange(SIM_MESSAGE_LIST_VIEW_URI, null);
++                } catch (Exception e) {
++                    e.printStackTrace();
++                }
++                break;
+             default:
+                 break;
+         }

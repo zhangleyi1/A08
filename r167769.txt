@@ -1,0 +1,13 @@
+Index: device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk
+===================================================================
+--- device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 167768)
++++ device/sprd/scx35l/sp9832a_2h11/sp9832a_2h11_volte.mk	(revision 167769)
+@@ -71,7 +71,7 @@
+ #move from system.prop with ro.sf.lcd_density=320, because this HW has difference project with 720P/FWVGA
+ PRODUCT_PROPERTY_OVERRIDES += ro.sf.lcd_density=240
+ PRODUCT_AAPT_CONFIG := xhdpi hdpi mdpi  normal
+-PRODUCT_AAPT_PREF_CONFIG := xhdpi
++PRODUCT_AAPT_PREF_CONFIG := hdpi
+ 
+ 
+ PRODUCT_PROPERTY_OVERRIDES += \

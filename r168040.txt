@@ -1,0 +1,32 @@
+Index: packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java
+===================================================================
+--- packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java	(revision 168039)
++++ packages/apps/Messaging/src/com/android/messaging/ui/conversation/ComposeMessageView.java	(revision 168040)
+@@ -410,10 +410,10 @@
+         });
+ 		
+ 		mSendSMSButton = (ImageButton) findViewById(R.id.send_sms_button);
+-		if(getConversationSelfId().equals(firstSimSelfId)){
++		if(getConversationSelfId().equals(secondSimSelfId)){
++			mSendSMSButton.setImageDrawable(getResources().getDrawable(R.drawable.sim2));
++		}else{
+ 			mSendSMSButton.setImageDrawable(getResources().getDrawable(R.drawable.sim1));
+-		}else{
+-			mSendSMSButton.setImageDrawable(getResources().getDrawable(R.drawable.sim2));
+ 		}
+ 		mSendSMSButton.setOnClickListener(new OnClickListener() {
+             @Override
+@@ -1563,10 +1563,10 @@
+         try {
+             if (visibility==View.VISIBLE) {
+                 DraftMessageData draft = mBinding.getData();
+-				if(getConversationSelfId().equals(firstSimSelfId)){
++				if(getConversationSelfId().equals(secondSimSelfId)){
++					mSendSMSButton.setImageDrawable(getResources().getDrawable(R.drawable.sim2));
++				}else{
+ 					mSendSMSButton.setImageDrawable(getResources().getDrawable(R.drawable.sim1));
+-				}else{
+-					mSendSMSButton.setImageDrawable(getResources().getDrawable(R.drawable.sim2));
+ 				}
+                 boolean hasDrmData = false;
+                 for (MessagePartData part : draft.getAttachments()) {

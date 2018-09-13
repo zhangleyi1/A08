@@ -1,0 +1,15 @@
+Index: frameworks/base/telephony/java/android/telephony/SignalStrength.java
+===================================================================
+--- frameworks/base/telephony/java/android/telephony/SignalStrength.java	(revision 167625)
++++ frameworks/base/telephony/java/android/telephony/SignalStrength.java	(revision 167626)
+@@ -808,8 +808,8 @@
+             threshRsrp = RSRP_THRESH_LENIENT;
+         }
+ 		if(mLteRsrp > -44) rsrpIconLevel = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;
+-        else if (mLteRsrp >= -90) rsrpIconLevel = SIGNAL_STRENGTH_HIGHEST;
+-        else if (mLteRsrp >= -105) rsrpIconLevel = SIGNAL_STRENGTH_GREAT;
++        else if (mLteRsrp >= -98) rsrpIconLevel = SIGNAL_STRENGTH_HIGHEST;
++        else if (mLteRsrp >= -109) rsrpIconLevel = SIGNAL_STRENGTH_GREAT;
+         else if (mLteRsrp >= -115) rsrpIconLevel = SIGNAL_STRENGTH_GOOD;
+         else if (mLteRsrp >= -120) rsrpIconLevel = SIGNAL_STRENGTH_MODERATE;
+         else if (mLteRsrp >= -125) rsrpIconLevel = SIGNAL_STRENGTH_POOR;

@@ -1,0 +1,124 @@
+Index: vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/activities/PeopleActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/activities/PeopleActivity.java	(revision 174323)
++++ vendor/sprd/platform/packages/apps/SprdContacts/src/com/android/contacts/activities/PeopleActivity.java	(revision 174324)
+@@ -140,6 +140,13 @@
+ import java.util.HashMap;
+ import java.util.Iterator;
+ import com.android.contacts.common.dialog.IndeterminateProgressDialog;
++
++import android.database.Cursor;
++import android.content.ContentResolver;
++import android.provider.ContactsContract.Contacts;
++
++import java.util.TreeSet;
++import android.content.DialogInterface.OnDismissListener;
+ /**
+ * @}
+ */
+@@ -248,6 +255,8 @@
+     //SPRD: add for bug615040, limit the join contacts to 10.
+     private static final int MAX_JOIN_CONTACTS_NUMBER = 10;
+ 
++    private static final int PATCH_DELETE_SIZE_MIN = 900;
++
+     /**
+      * SPRD:Bug494541 After arranging contacts, contact list should be reload again.
+      * @{
+@@ -1439,6 +1448,41 @@
+         }
+     }
+ 
++    private void doBatchDelete(TreeSet<Long> contactsIdList) {
++        StringBuilder where = new StringBuilder("").append("_id in (");
++        boolean needComma = false;
++        for (Long id : contactsIdList) {
++            if (needComma) {
++                where.append(",");
++            }
++            where.append(String.valueOf(id));
++            needComma = true;
++        }
++        where.append(")");
++
++        Cursor cursor = null;
++        Uri uri = Contacts.CONTENT_URI;
++        
++        final String[] projection = new String[] {
++                Contacts.LOOKUP_KEY
++        };
++        ContentResolver resolver = getContentResolver();
++        cursor = resolver.query(uri, projection, where.toString(), null, null);
++        ArrayList<String> lookupList = new ArrayList<String>();
++        while(cursor.moveToNext()) {
++            lookupList.add(cursor.getString(0));
++        }
++        cursor.close();
++        Intent intent = new Intent();
++        intent.putStringArrayListExtra("result", lookupList);
++        intent.setComponent(new ComponentName(PeopleActivity.this,
++                                BatchOperationService.class));
++                        intent.putExtra(BatchOperationService.KEY_MODE,
++                                BatchOperationService.MODE_START_BATCH_DELETE);
++        startService(intent);
++        
++    }
++    
+     @Override
+     public boolean onOptionsItemSelected(MenuItem item) {
+         if (mDisableOptionItemSelected) {
+@@ -1555,7 +1599,12 @@
+                     Toast.makeText(PeopleActivity.this, R.string.toast_batchoperation_is_running,
+                             Toast.LENGTH_LONG).show();
+                 } else {
+-                    deleteSelectedContacts();
++                    if (mAllFragment.getSelectedContactIds().size() < PATCH_DELETE_SIZE_MIN) {
++                        deleteSelectedContacts();
++                    } else {
++                        // if selected size more than PATCH_DELETE_SIZE_MIN, start patch delete process
++                        showDeleteConfirmDialog(R.string.batch_delete_confirmation);
++                    }
+                 }
+                 /**
+                  * @}
+@@ -1864,7 +1913,40 @@
+         Log.d(TAG, "getSelectedContactJoinNum, joinNum = " + joinNum);
+         return joinNum;
+     }
++    
++    private AlertDialog mDialog;
++    private void showDeleteConfirmDialog(int messageId) {
++        mDialog = new AlertDialog.Builder(this)
++                .setIconAttribute(android.R.attr.alertDialogIcon)
++                .setMessage(messageId)
++                .setNegativeButton(android.R.string.cancel, null)
++                .setPositiveButton(android.R.string.ok,
++                    new DialogInterface.OnClickListener() {
++                        @Override
++                        public void onClick(DialogInterface dialog, int whichButton) {
++                                Thread deletaTask = new Thread("multiDelete") {
++                                @Override
++                                public void run() {
++                                    android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
++                                    doBatchDelete(mAllFragment.getSelectedContactIds());                                    
++                                }
++                            };
++                            deletaTask.start();
++                            mActionBarAdapter.setSelectionMode(false);
++                        }
++                    }
++                )
++                .create();
+ 
++        mDialog.setOnDismissListener(new OnDismissListener() {
++            @Override
++            public void onDismiss(DialogInterface dialog) {
++                mDialog = null;
++            }
++        });
++        mDialog.show();
++    }
++    
+     @Override
+     public void onContactsJoined() {
+         mActionBarAdapter.setSelectionMode(false);

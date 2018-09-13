@@ -1,0 +1,47 @@
+Index: vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/gsm/UsimPhoneBookManagerEx.java
+===================================================================
+--- vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/gsm/UsimPhoneBookManagerEx.java	(revision 176816)
++++ vendor/sprd/platform/frameworks/opt/telephony/src/java/com/android/internal/telephony/gsm/UsimPhoneBookManagerEx.java	(revision 176817)
+@@ -1419,6 +1419,10 @@
+         } else {
+             size = readFileSizeAndWait(efid);
+         }
++       if (size == null) {
++            log("readIapFileAndWait size is null");
++            return;
++        }
+         log("readIapFileAndWait size" + size[0] + size[2]);
+ 
+         for (int i = 0; i < size[2]; i++) {
+@@ -2441,7 +2445,7 @@
+                         size = readFileSizeAndWait(records.efids[i]);
+                     }
+ 					if (size == null) {
+-						log("size is null");
++						log("readAnrFileAndWait size is null");
+ 						return;
+ 					}
+                     log("readAnrFileAndWait size[0] = " + size[0] + " size[2] = " + size[2]);
+@@ -2562,7 +2566,10 @@
+         } else {
+             size = readFileSizeAndWait(efId);
+         }
+-
++        if (size == null) {
++           log("readGrpFileAndWait size is null");
++            return;
++        }
+         int offSet = 0;
+         offSet = totalSize - totalSize / (recNum + 1);
+         log("readGrpFileAndWait size" + size[2] + " offSet "
+@@ -2834,6 +2841,10 @@
+         } else {
+             size = readFileSizeAndWait(efPbcId);
+         }
++        if (size == null) {
++            log("readPbcFileAndWait size is null");
++     	    return;
++        }
+         log("readPbcFileAndWait size" + size[0] + size[2]);
+ 
+         for (int i = 0; i < size[2]; i++) {

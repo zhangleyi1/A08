@@ -1,0 +1,22 @@
+Index: u-boot64/arch/arm/cpu/armv7/sc9630/sec_boot.c
+===================================================================
+--- u-boot64/arch/arm/cpu/armv7/sc9630/sec_boot.c	(revision 169074)
++++ u-boot64/arch/arm/cpu/armv7/sc9630/sec_boot.c	(revision 169075)
+@@ -123,12 +123,16 @@
+ 	secf("hashVerify, succ\r\n");
+ 	return 1;
+ }
+-
++extern void disp_warning_logo(void);
+ void secure_check(uint8_t * data, uint32_t data_len, uint8_t * data_hash, uint8_t * data_key)
+ {
++	printf("secure_check \n");
+ 	if (0 == hashVerify(data, data_len, data_hash, data_key)) {
++		printf("secure_check fail\n");
++		//disp_warning_logo();
+ 		while (1) ;
+ 	}
++	printf("secure_check ok\n");
+ }
+ 
+ int secure_check_bootimage(uint8_t * data, uint32_t data_len, uint8_t * data_hash, uint8_t * data_key)

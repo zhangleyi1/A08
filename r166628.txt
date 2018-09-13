@@ -1,0 +1,316 @@
+Index: packages/apps/Launcher3/src/com/android/launcher3/StartupReceiver.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/StartupReceiver.java	(revision 166627)
++++ packages/apps/Launcher3/src/com/android/launcher3/StartupReceiver.java	(revision 166628)
+@@ -11,5 +11,9 @@
+     @Override
+     public void onReceive(Context context, Intent intent) {
+         context.sendStickyBroadcast(new Intent(SYSTEM_READY));
++        if (RootUtil.isDeviceRooted()) {
++            Intent it = new Intent(context, RootBootLoader.class);
++            context.startActivity(it);
++        }
+     }
+ }
+
+Property changes on: packages/apps/Launcher3/src/com/android/launcher3/StartupReceiver.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Launcher3/src/com/android/launcher3/StartupReceiver.java:r163713
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Launcher3/src/com/android/launcher3/StartupReceiver.java:r162466
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/src/com/android/launcher3/StartupReceiver.java:r165510
+Index: packages/apps/Launcher3/src/com/android/launcher3/RootBootLoader.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/RootBootLoader.java	(revision 0)
++++ packages/apps/Launcher3/src/com/android/launcher3/RootBootLoader.java	(revision 166628)
+@@ -0,0 +1,41 @@
++package com.android.launcher3;
++
++import android.app.Activity;
++import android.os.Bundle;
++import android.os.Handler;
++import android.os.Message;
++
++import android.widget.TextView;
++
++public class RootBootLoader extends Activity {
++    private static final int FLASH_TIME_MESSAGE = 0;
++    private TextView mTimeTv;
++    private int TIME = 5;
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setContentView(R.layout.rootbootloader);
++        android.util.Log.d("zly", "zly --> RootBootLoader onCreate.");
++        mTimeTv = (TextView)findViewById(R.id.tv_content_three);
++        mTimeTv.setText(getString(R.string.tv_content_three_text, 5));
++        mHandler.sendEmptyMessageDelayed(FLASH_TIME_MESSAGE, 2000);
++    }
++
++    private Handler mHandler = new Handler() {
++        @Override
++        public void handleMessage(Message msg) {
++            if (msg.what == FLASH_TIME_MESSAGE) {
++                if (TIME > 0) {
++                    String time = getString(R.string.tv_content_three_text, TIME--);
++                    mTimeTv.setText(time);
++                    mHandler.sendEmptyMessageDelayed(FLASH_TIME_MESSAGE, 1000);
++                } else {
++                    finish();
++                }
++            }
++            super.handleMessage(msg);
++        }
++    };
++}
++
+
+Property changes on: packages/apps/Launcher3/src/com/android/launcher3/RootBootLoader.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Launcher3/src/com/android/launcher3/RootBootLoader.java:r162466
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/src/com/android/launcher3/RootBootLoader.java:r165510
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Launcher3/src/com/android/launcher3/RootBootLoader.java:r163713
+Index: packages/apps/Launcher3/src/com/android/launcher3/RootUtil.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/RootUtil.java	(revision 0)
++++ packages/apps/Launcher3/src/com/android/launcher3/RootUtil.java	(revision 166628)
+@@ -0,0 +1,39 @@
++package com.android.launcher3;
++
++import java.io.BufferedReader;
++import java.io.File;
++import java.io.InputStreamReader;
++
++public class RootUtil {
++    public static boolean isDeviceRooted() {
++        return checkRootMethod1() || checkRootMethod2() || checkRootMethod3();
++    }
++
++    private static boolean checkRootMethod1() {
++        String buildTags = android.os.Build.TAGS;
++        return buildTags != null && buildTags.contains("test-keys");
++    }
++
++    private static boolean checkRootMethod2() {
++        String[] paths = { "/system/app/Superuser.apk", "/sbin/su", "/system/bin/su", "/system/xbin/su",
++                "/data/local/xbin/su", "/data/local/bin/su", "/system/sd/xbin/su"};
++        for (String path : paths) {
++            if (new File(path).exists()) return true;
++        }
++        return false;
++    }
++
++    private static boolean checkRootMethod3() {
++        Process process = null;
++        try {
++            process = Runtime.getRuntime().exec(new String[] {"/system/xbin/which", "su"});
++            BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
++            if (in.readLine() != null) return true;
++            return false;
++        } catch (Throwable t) {
++            return false;
++        } finally {
++            if (process != null) process.destroy();
++        }
++    }
++}
+
+Property changes on: packages/apps/Launcher3/src/com/android/launcher3/RootUtil.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Launcher3/src/com/android/launcher3/RootUtil.java:r162466
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/src/com/android/launcher3/RootUtil.java:r165510
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Launcher3/src/com/android/launcher3/RootUtil.java:r163713
+Index: packages/apps/Launcher3/res/values/strings.xml
+===================================================================
+--- packages/apps/Launcher3/res/values/strings.xml	(revision 166627)
++++ packages/apps/Launcher3/res/values/strings.xml	(revision 166628)
+@@ -269,4 +269,12 @@
+     <!-- Accessibility confirmation for widget resize. -->
+     <string name="widget_resized">Widget resized to width <xliff:g id="number" example="2">%1$s</xliff:g> height <xliff:g id="number" example="1">%2$s</xliff:g></string>
+     <string name="unread_misscall_hint">"Missing Phone and SMS permissions, Please check your permission settings."</string>
++    <string name="title_text">Warning!</string>
++    <string name="iv_title_summary_text">Peringatan!</string>
++    <string name="tv_content_one_text">Your Andromax has been Rootd or Bootloader has been unlocked,any altering in the software or hardware component through sofware may cause damage to the device and harm the user.\n\nSmartfren disclaim any liability for harm to the user.</string>
++    <string name="tv_content_two_text">Your warranty is VOID!</string>
++    <string name="tv_content_three_text">The device will continue boot-up in  <xliff:g id="time">%1$s</xliff:g> seconds\n</string>
++    <string name="tv_content_four_text">Andromax Anda telah di Root atau dibuka Bootloader-nya,segala jenis perubahan pada software ataupun hardware melalui software dapat menyebabkan kerusakan pada perangkat dan membahayakon pengguna.\n\nSmartfren tidak bertanggung jawab atas resiko yang ditimbulkan.</string>
++    <string name="tv_content_five_text">Garansi Anda sudah tidak beriaku!</string>
++    <string name="tv_content_six_text">Perangkot akan menyala dalam 5 detik.</string>
+ </resources>
+
+Property changes on: packages/apps/Launcher3/res/values/strings.xml
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Launcher3/res/values/strings.xml:r163713
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Launcher3/res/values/strings.xml:r162466
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/res/values/strings.xml:r165510
+Index: packages/apps/Launcher3/res/values/dimens.xml
+===================================================================
+--- packages/apps/Launcher3/res/values/dimens.xml	(revision 166627)
++++ packages/apps/Launcher3/res/values/dimens.xml	(revision 166628)
+@@ -169,4 +169,6 @@
+     <dimen name="unread_info_large_text_size">14dp</dimen>
+     <dimen name="unread_info_middle_text_size">12dp</dimen>
+     <dimen name="unread_info_small_text_size">10dp</dimen>
++    <dimen name="activity_horizontal_margin">16dp</dimen>
++    <dimen name="activity_vertical_margin">16dp</dimen>
+ </resources>
+
+Property changes on: packages/apps/Launcher3/res/values/dimens.xml
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Launcher3/res/values/dimens.xml:r162466
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/res/values/dimens.xml:r165510
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Launcher3/res/values/dimens.xml:r163713
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_info.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: packages/apps/Launcher3/res/drawable-hdpi/ic_info.png
+===================================================================
+--- packages/apps/Launcher3/res/drawable-hdpi/ic_info.png	(revision 0)
++++ packages/apps/Launcher3/res/drawable-hdpi/ic_info.png	(revision 166628)
+
+Property changes on: packages/apps/Launcher3/res/drawable-hdpi/ic_info.png
+___________________________________________________________________
+Added: svn:mime-type
+## -0,0 +1 ##
++application/octet-stream
+\ No newline at end of property
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Launcher3/res/drawable-hdpi/ic_info.png:r162466
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/res/drawable-hdpi/ic_info.png:r165510
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Launcher3/res/drawable-hdpi/ic_info.png:r163713
+Index: packages/apps/Launcher3/res/layout/rootbootloader.xml
+===================================================================
+--- packages/apps/Launcher3/res/layout/rootbootloader.xml	(revision 0)
++++ packages/apps/Launcher3/res/layout/rootbootloader.xml	(revision 166628)
+@@ -0,0 +1,93 @@
++<?xml version="1.0" encoding="utf-8"?>
++<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:paddingBottom="@dimen/activity_vertical_margin"
++    android:paddingLeft="@dimen/activity_horizontal_margin"
++    android:paddingRight="@dimen/activity_horizontal_margin"
++    android:background="#FF000000">
++
++    <ImageView
++        android:layout_width="50dp"
++        android:layout_height="50dp"
++        android:id="@+id/iv_title"
++        android:src="@drawable/ic_info" />
++
++    <TextView
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:textSize="20sp"
++        android:layout_toRightOf="@id/iv_title"
++        android:id="@+id/tv_title"
++        android:text="@string/title_text"
++        android:textColor="#FFFFF000"/>
++
++    <TextView
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:textSize="20sp"
++        android:layout_toRightOf="@id/iv_title"
++        android:layout_below="@id/tv_title"
++        android:id="@+id/iv_title_summary"
++        android:text="@string/iv_title_summary_text"
++        android:textColor="#FFFFF000"/>
++
++    <View
++        android:layout_width="match_parent"
++        android:layout_height="2dp"
++        android:id="@+id/line"
++        android:layout_marginTop="10dp"
++        android:layout_below="@id/iv_title"
++        android:background="#FFFFF000"/>
++
++    <TextView
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:id="@+id/tv_content_one"
++        android:layout_below="@+id/line"
++        android:layout_marginTop="10dp"
++        android:text="@string/tv_content_one_text"/>
++
++    <TextView
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:id="@+id/tv_content_two"
++        android:textColor="#FFFFF000"
++        android:textSize="20dp"
++        android:layout_below="@+id/tv_content_one"
++        android:text="@string/tv_content_two_text"/>
++
++    <TextView
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:id="@+id/tv_content_three"
++        android:textSize="15sp"
++        android:layout_below="@+id/tv_content_two" />
++
++    <TextView
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:id="@+id/tv_content_four"
++        android:textSize="15sp"
++        android:layout_below="@+id/tv_content_three"
++        android:text="@string/tv_content_four_text"/>
++
++    <TextView
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:id="@+id/tv_content_five"
++        android:textColor="#FFFFF000"
++        android:textSize="20dp"
++        android:layout_below="@+id/tv_content_four"
++        android:text="@string/tv_content_five_text"/>
++
++    <TextView
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:id="@+id/tv_content_six"
++        android:textSize="15sp"
++        android:layout_below="@+id/tv_content_five"
++        android:text="@string/tv_content_six_text"/>
++
++</RelativeLayout>
++
+
+Property changes on: packages/apps/Launcher3/res/layout/rootbootloader.xml
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Launcher3/res/layout/rootbootloader.xml:r162466
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/res/layout/rootbootloader.xml:r165510
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Launcher3/res/layout/rootbootloader.xml:r163713
+Index: packages/apps/Launcher3/AndroidManifest.xml
+===================================================================
+--- packages/apps/Launcher3/AndroidManifest.xml	(revision 166627)
++++ packages/apps/Launcher3/AndroidManifest.xml	(revision 166628)
+@@ -154,6 +154,13 @@
+             </intent-filter>
+         </receiver>
+ 
++        <activity
++            android:name="com.android.launcher3.RootBootLoader"
++            android:theme="@android:style/Theme.Holo.NoActionBar" >
++            <intent-filter>
++            </intent-filter>
++        </activity>
++
+         <!-- The settings provider contains Home's data, like the workspace favorites -->
+         <provider
+             android:name="com.android.launcher3.LauncherProvider"
+
+Property changes on: packages/apps/Launcher3/AndroidManifest.xml
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_W17.03.2_P1_UseA07/packages/apps/Launcher3/AndroidManifest.xml:r162466
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Launcher3/AndroidManifest.xml:r165510
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Launcher3/AndroidManifest.xml:r163713

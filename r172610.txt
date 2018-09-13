@@ -1,0 +1,98 @@
+Index: packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java
+===================================================================
+--- packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 172609)
++++ packages/services/Telephony/src/com/android/phone/MobileNetworkSettings.java	(revision 172610)
+@@ -1259,14 +1259,47 @@
+                         return true;
+                 }
+ 
+-                UpdateEnabledNetworksValueAndSummary(buttonNetworkMode);
++                if (buttonNetworkMode == Phone.NT_MODE_LTE_ONLY) {
++                    AlertDialog show = new AlertDialog.Builder(this)
++                        .setTitle(R.string.network_mode_dialog_title)
++                        .setMessage(R.string.network_mode_dialog_content)
++                        .setPositiveButton(R.string.network_mode_dialog_ok, new DialogInterface.OnClickListener() {
++                            public void onClick(DialogInterface dialog, int which) {
++                                android.provider.Settings.Global.putInt(mPhone.getContext().getContentResolver(),
++                                    android.provider.Settings.Global.PREFERRED_NETWORK_MODE + phoneSubId,
++                                    buttonNetworkMode );
++                                //Set the modem network mode
++                                mPhone.setPreferredNetworkType(modemNetworkMode, mHandler
++                                        .obtainMessage(MyHandler.MESSAGE_SET_PREFERRED_NETWORK_TYPE));
++                                UpdateEnabledNetworksValueAndSummary(buttonNetworkMode);
++                            }
+ 
+-                android.provider.Settings.Global.putInt(mPhone.getContext().getContentResolver(),
+-                        android.provider.Settings.Global.PREFERRED_NETWORK_MODE + phoneSubId,
+-                        buttonNetworkMode );
+-                //Set the modem network mode
+-                mPhone.setPreferredNetworkType(modemNetworkMode, mHandler
+-                        .obtainMessage(MyHandler.MESSAGE_SET_PREFERRED_NETWORK_TYPE));
++                        })
++                        .setNegativeButton(R.string.network_mode_dialog_cancel, new DialogInterface.OnClickListener() {
++                            public void onClick(DialogInterface dialog, int which) {
++                                android.provider.Settings.Global.putInt(mPhone.getContext().getContentResolver(),
++                                android.provider.Settings.Global.PREFERRED_NETWORK_MODE + phoneSubId,
++                                buttonNetworkMode );
++                                //Set the modem network mode
++                                mPhone.setPreferredNetworkType(Phone.NT_MODE_LTE_GSM_WCDMA, mHandler
++                                    .obtainMessage(MyHandler.MESSAGE_SET_PREFERRED_NETWORK_TYPE));
++                                mButtonEnabledNetworks.setValue(
++                                    Integer.toString(Phone.NT_MODE_LTE_GSM_WCDMA));
++
++                            }
++                        })
++                        .setCancelable(false)
++                        .show();
++                } else {
++                    android.provider.Settings.Global.putInt(mPhone.getContext().getContentResolver(),
++                            android.provider.Settings.Global.PREFERRED_NETWORK_MODE + phoneSubId,
++                            buttonNetworkMode );
++                    //Set the modem network mode
++                    mPhone.setPreferredNetworkType(modemNetworkMode, mHandler
++                            .obtainMessage(MyHandler.MESSAGE_SET_PREFERRED_NETWORK_TYPE));
++                }
++
++
+             }
+         } else if (preference == mButton4glte) {
+             SwitchPreference enhanced4gModePref = (SwitchPreference) preference;
+Index: packages/services/Telephony/res/values-in/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values-in/strings.xml	(revision 172609)
++++ packages/services/Telephony/res/values-in/strings.xml	(revision 172610)
+@@ -562,4 +562,8 @@
+ 	<string name="roaming_ok">Baik</string>
+ 	<string name="roaming_info">Modus jaringan perangkat akan beralih ke mode LTE/GMS dan perangkat
+ 		Akan didorong untuk berkelana di jaringan mitra roaming Smartfren LTE/GMS. Biaya panggilan mungkin dikenakan!</string>
++    <string name="network_mode_dialog_title">Attention</string>
++    <string name="network_mode_dialog_content">Pada mode LTE Saja, Panggilan Suara dan SMS akan melalui Jaringan LTE.</string>
++    <string name="network_mode_dialog_ok">OK</string>
++    <string name="network_mode_dialog_cancel">CANCEL</string>
+ 	</resources>
+Index: packages/services/Telephony/res/values/strings.xml
+===================================================================
+--- packages/services/Telephony/res/values/strings.xml	(revision 172609)
++++ packages/services/Telephony/res/values/strings.xml	(revision 172610)
+@@ -1350,4 +1350,8 @@
+ 	<string name="roaming_ok">OK</string>
+ 	<string name="roaming_info">The device network mode will be switch to LTE/GMS mode and the device
+ 	    will be pushed to roam on Smartfren LTE/GMS roaming partner networks.Roaming charges may incur!</string>
++    <string name="network_mode_dialog_title">Attention</string>
++    <string name="network_mode_dialog_content">In LTE only mode, Voice Call and SMS will go through the LTE Network.</string>
++    <string name="network_mode_dialog_ok">OK</string>
++    <string name="network_mode_dialog_cancel">CANCEL</string>
+ </resources>
+Index: build/target/product/core.mk
+===================================================================
+--- build/target/product/core.mk	(revision 172609)
++++ build/target/product/core.mk	(revision 172610)
+@@ -67,6 +67,7 @@
+     fotaplusDaemon \
+     fotaplus \
+     KeyGen \
+-    UserManual
++    UserManual \
++    OpenPort
+ 
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/core_base.mk)

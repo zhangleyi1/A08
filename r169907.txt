@@ -1,0 +1,26 @@
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/AndroidManifest.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/AndroidManifest.xml	(revision 169906)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/AndroidManifest.xml	(revision 169907)
+@@ -402,7 +402,7 @@
+             android:label="@string/crop"
+             android:theme="@style/Theme.Crop" >
+             <intent-filter android:label="@string/crop_label" >
+-                <action android:name="com.android.camera.action.CROP" />
++                <action android:name="com.sprd.camera.action.CROP" />
+ 
+                 <data android:scheme="content" />
+                 <data android:scheme="file" />
+Index: vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/filtershow/crop/CropActivity.java
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/filtershow/crop/CropActivity.java	(revision 169906)
++++ vendor/sprd/platform/packages/apps/DreamGallery2/src/com/android/gallery3d/filtershow/crop/CropActivity.java	(revision 169907)
+@@ -70,7 +70,7 @@
+  */
+ public class CropActivity extends Activity {
+     private static final String LOGTAG = "CropActivity";
+-    public static final String CROP_ACTION = "com.android.camera.action.CROP";
++    public static final String CROP_ACTION = "com.sprd.camera.action.CROP";
+     private CropExtras mCropExtras = null;
+     private LoadBitmapTask mLoadBitmapTask = null;
+ 

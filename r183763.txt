@@ -1,0 +1,1300 @@
+Index: kernel/drivers/usb/gadget/f_mtp.c
+===================================================================
+--- kernel/drivers/usb/gadget/f_mtp.c	(revision 183762)
++++ kernel/drivers/usb/gadget/f_mtp.c	(revision 183763)
+@@ -797,6 +797,11 @@
+ 	offset = dev->xfer_file_offset;
+ 	count = dev->xfer_file_length;
+ 
++	if (count < 0) {
++		dev->xfer_result = -EINVAL;
++		return;
++	}
++
+ 	DBG(cdev, "send_file_work(%lld %lld)\n", offset, count);
+ 
+ 	if (dev->xfer_send_header) {
+@@ -899,6 +904,11 @@
+ 	offset = dev->xfer_file_offset;
+ 	count = dev->xfer_file_length;
+ 
++	if (count < 0) {
++		dev->xfer_result = -EINVAL;
++		return;
++	}
++
+ 	DBG(cdev, "receive_file_work(%lld)\n", count);
+ 	if (!IS_ALIGNED(count, dev->ep_out->maxpacket))
+ 		DBG(cdev, "%s- count(%lld) not multiple of mtu(%d)\n", __func__,
+Index: kernel/drivers/scsi/sg.c
+===================================================================
+--- kernel/drivers/scsi/sg.c	(revision 183762)
++++ kernel/drivers/scsi/sg.c	(revision 183763)
+@@ -382,6 +382,9 @@
+ 	struct sg_header *old_hdr = NULL;
+ 	int retval = 0;
+ 
++	if (unlikely(segment_eq(get_fs(), KERNEL_DS)))
++		return -EINVAL;
++
+ 	if ((!(sfp = (Sg_fd *) filp->private_data)) || (!(sdp = sfp->parentdp)))
+ 		return -ENXIO;
+ 	SCSI_LOG_TIMEOUT(3, printk("sg_read: %s, count=%d\n",
+Index: kernel/drivers/staging/android/ion/ion.c
+===================================================================
+--- kernel/drivers/staging/android/ion/ion.c	(revision 183762)
++++ kernel/drivers/staging/android/ion/ion.c	(revision 183763)
+@@ -476,7 +476,7 @@
+ /* Must hold the client lock */
+ static int user_ion_handle_put_nolock(struct ion_handle *handle)
+ {
+-	int ret;
++	int ret = 0;
+ 
+ 	if (--handle->user_ref_count == 0) {
+ 		ret = ion_handle_put_nolock(handle);
+Index: kernel/sound/core/timer.c
+===================================================================
+--- kernel/sound/core/timer.c	(revision 183762)
++++ kernel/sound/core/timer.c	(revision 183763)
+@@ -1869,6 +1869,7 @@
+ 
+ 	tu = file->private_data;
+ 	unit = tu->tread ? sizeof(struct snd_timer_tread) : sizeof(struct snd_timer_read);
++	mutex_lock(&tu->ioctl_lock);
+ 	spin_lock_irq(&tu->qlock);
+ 	while ((long)count - result >= unit) {
+ 		while (!tu->qused) {
+@@ -1884,7 +1885,9 @@
+ 			add_wait_queue(&tu->qchange_sleep, &wait);
+ 
+ 			spin_unlock_irq(&tu->qlock);
++			mutex_unlock(&tu->ioctl_lock);
+ 			schedule();
++			mutex_lock(&tu->ioctl_lock);
+ 			spin_lock_irq(&tu->qlock);
+ 
+ 			remove_wait_queue(&tu->qchange_sleep, &wait);
+@@ -1923,6 +1926,7 @@
+ 	}
+ 	spin_unlock_irq(&tu->qlock);
+  _error:
++	mutex_unlock(&tu->ioctl_lock);
+ 	return result > 0 ? result : err;
+ }
+ 
+Index: frameworks/base/media/jni/android_media_ExifInterface.cpp
+===================================================================
+--- frameworks/base/media/jni/android_media_ExifInterface.cpp	(revision 183762)
++++ frameworks/base/media/jni/android_media_ExifInterface.cpp	(revision 183763)
+@@ -390,8 +390,7 @@
+     // Rewind the file descriptor.
+     fseek(file, 0L, SEEK_SET);
+ 
+-    std::unique_ptr<SkFILEStream> fileStream(new SkFILEStream(file,
+-                SkFILEStream::kCallerPasses_Ownership));
++    std::unique_ptr<SkFILEStream> fileStream(new SkFILEStream(file));
+     return getRawAttributes(env, fileStream.get(), false);
+ }
+ 
+Index: frameworks/base/services/core/java/com/android/server/accounts/AccountManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/accounts/AccountManagerService.java	(revision 183762)
++++ frameworks/base/services/core/java/com/android/server/accounts/AccountManagerService.java	(revision 183763)
+@@ -3847,6 +3847,10 @@
+         protected void checkKeyIntent(
+                 int authUid,
+                 Intent intent) throws SecurityException {
++            intent.setFlags(intent.getFlags() & ~(Intent.FLAG_GRANT_READ_URI_PERMISSION
++                    | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
++                    | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
++                    | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION));
+             long bid = Binder.clearCallingIdentity();
+             try {
+                 PackageManager pm = mContext.getPackageManager();
+Index: frameworks/base/core/jni/android/graphics/BitmapFactory.cpp
+===================================================================
+--- frameworks/base/core/jni/android/graphics/BitmapFactory.cpp	(revision 183762)
++++ frameworks/base/core/jni/android/graphics/BitmapFactory.cpp	(revision 183763)
+@@ -587,8 +587,7 @@
+         return nullObjectReturn("Could not open file");
+     }
+ 
+-    std::unique_ptr<SkFILEStream> fileStream(new SkFILEStream(file,
+-            SkFILEStream::kCallerPasses_Ownership));
++    std::unique_ptr<SkFILEStream> fileStream(new SkFILEStream(file));
+ 
+     // If there is no offset for the file descriptor, we use SkFILEStream directly.
+     if (::lseek(descriptor, 0, SEEK_CUR) == 0) {
+Index: frameworks/minikin/libs/minikin/CmapCoverage.cpp
+===================================================================
+--- frameworks/minikin/libs/minikin/CmapCoverage.cpp	(revision 183762)
++++ frameworks/minikin/libs/minikin/CmapCoverage.cpp	(revision 183763)
+@@ -25,6 +25,8 @@
+ #include <minikin/SparseBitSet.h>
+ #include <minikin/CmapCoverage.h>
+ 
++#include "MinikinInternal.h"
++
+ namespace android {
+ 
+ // These could perhaps be optimized to use __builtin_bswap16 and friends.
+@@ -142,6 +144,19 @@
+             android_errorWriteLog(0x534e4554, "26413177");
+             return false;
+         }
++
++        // No need to read outside of Unicode code point range.
++        if (start > MAX_UNICODE_CODE_POINT) {
++            return true;
++        }
++        if (end > MAX_UNICODE_CODE_POINT) {
++            // file is inclusive, vector is exclusive
++            addRange(coverage, start, MAX_UNICODE_CODE_POINT + 1);
++            if (end == 0xFFFFFFFF) {
++                android_errorWriteLog(0x534e4554, "62134807");
++            }
++            return true;
++        }
+         if (!addRange(coverage, start, end + 1)) {  // file is inclusive, vector is exclusive
+             return false;
+         }
+Index: frameworks/minikin/libs/minikin/MinikinInternal.h
+===================================================================
+--- frameworks/minikin/libs/minikin/MinikinInternal.h	(revision 183762)
++++ frameworks/minikin/libs/minikin/MinikinInternal.h	(revision 183763)
+@@ -47,6 +47,8 @@
+ 
+ hb_blob_t* getFontTable(MinikinFont* minikinFont, uint32_t tag);
+ 
++constexpr uint32_t MAX_UNICODE_CODE_POINT = 0x10FFFF;
++
+ // An RAII wrapper for hb_blob_t
+ class HbBlob {
+ public:
+Index: frameworks/av/services/soundtrigger/SoundTriggerHwService.cpp
+===================================================================
+--- frameworks/av/services/soundtrigger/SoundTriggerHwService.cpp	(revision 183762)
++++ frameworks/av/services/soundtrigger/SoundTriggerHwService.cpp	(revision 183763)
+@@ -505,6 +505,8 @@
+     if (!captureHotwordAllowed()) {
+         return;
+     }
++    Vector<audio_session_t> releasedSessions;
++
+     {
+         AutoMutex lock(mLock);
+         for (size_t i = 0; i < mModels.size(); i++) {
+@@ -514,9 +516,16 @@
+                 mHwDevice->stop_recognition(mHwDevice, model->mHandle);
+             }
+             mHwDevice->unload_sound_model(mHwDevice, model->mHandle);
++            releasedSessions.add(model->mCaptureSession);
+         }
+         mModels.clear();
+     }
++
++    for (size_t i = 0; i < releasedSessions.size(); i++) {
++        // do not call AudioSystem methods with mLock held
++        AudioSystem::releaseSoundTriggerSession(releasedSessions[i]);
++    }
++
+     if (mClient != 0) {
+         IInterface::asBinder(mClient)->unlinkToDeath(this);
+     }
+@@ -558,33 +567,43 @@
+         return BAD_VALUE;
+     }
+ 
+-    AutoMutex lock(mLock);
+-
+-    if (mModels.size() >= mDescriptor.properties.max_sound_models) {
+-        ALOGW("loadSoundModel(): Not loading, max number of models (%d) would be exceeded",
+-              mDescriptor.properties.max_sound_models);
+-        return INVALID_OPERATION;
+-    }
+-
+-    status_t status = mHwDevice->load_sound_model(mHwDevice, sound_model,
+-                                                  SoundTriggerHwService::soundModelCallback,
+-                                                  this, handle);
+-
+-    if (status != NO_ERROR) {
+-        return status;
+-    }
+     audio_session_t session;
+     audio_io_handle_t ioHandle;
+     audio_devices_t device;
+-
+-    status = AudioSystem::acquireSoundTriggerSession(&session, &ioHandle, &device);
++    // do not call AudioSystem methods with mLock held
++    status_t status = AudioSystem::acquireSoundTriggerSession(&session, &ioHandle, &device);
+     if (status != NO_ERROR) {
+         return status;
+     }
+ 
+-    sp<Model> model = new Model(*handle, session, ioHandle, device, sound_model->type);
+-    mModels.replaceValueFor(*handle, model);
++    {
++        AutoMutex lock(mLock);
+ 
++        if (mModels.size() >= mDescriptor.properties.max_sound_models) {
++            ALOGW("loadSoundModel(): Not loading, max number of models (%d) would be exceeded",
++                  mDescriptor.properties.max_sound_models);
++            status = INVALID_OPERATION;
++            goto exit;
++        }
++
++        status_t status = mHwDevice->load_sound_model(mHwDevice,
++                                                      sound_model,
++                                                      SoundTriggerHwService::soundModelCallback,
++                                                      this,
++                                                      handle);
++        if (status != NO_ERROR) {
++            goto exit;
++        }
++
++        sp<Model> model = new Model(*handle, session, ioHandle, device, sound_model->type);
++        mModels.replaceValueFor(*handle, model);
++    }
++
++exit:
++    if (status != NO_ERROR) {
++        // do not call AudioSystem methods with mLock held
++        AudioSystem::releaseSoundTriggerSession(session);
++    }
+     return status;
+ }
+ 
+@@ -594,25 +613,26 @@
+     if (!captureHotwordAllowed()) {
+         return PERMISSION_DENIED;
+     }
++    status_t status;
++    audio_session_t session;
+ 
+-    AutoMutex lock(mLock);
+-    return unloadSoundModel_l(handle);
+-}
+-
+-status_t SoundTriggerHwService::Module::unloadSoundModel_l(sound_model_handle_t handle)
+-{
+-    ssize_t index = mModels.indexOfKey(handle);
+-    if (index < 0) {
+-        return BAD_VALUE;
++    {
++      AutoMutex lock(mLock);
++      ssize_t index = mModels.indexOfKey(handle);
++      if (index < 0) {
++          return BAD_VALUE;
++      }
++      sp<Model> model = mModels.valueAt(index);
++      mModels.removeItem(handle);
++      if (model->mState == Model::STATE_ACTIVE) {
++          mHwDevice->stop_recognition(mHwDevice, model->mHandle);
++          model->mState = Model::STATE_IDLE;
++      }
++      status = mHwDevice->unload_sound_model(mHwDevice, handle);
++      session = model->mCaptureSession;
+     }
+-    sp<Model> model = mModels.valueAt(index);
+-    mModels.removeItem(handle);
+-    if (model->mState == Model::STATE_ACTIVE) {
+-        mHwDevice->stop_recognition(mHwDevice, model->mHandle);
+-        model->mState = Model::STATE_IDLE;
+-    }
+-    AudioSystem::releaseSoundTriggerSession(model->mCaptureSession);
+-    return mHwDevice->unload_sound_model(mHwDevice, handle);
++    AudioSystem::releaseSoundTriggerSession(session);
++    return status;
+ }
+ 
+ status_t SoundTriggerHwService::Module::startRecognition(sound_model_handle_t handle,
+Index: frameworks/av/services/soundtrigger/SoundTriggerHwService.h
+===================================================================
+--- frameworks/av/services/soundtrigger/SoundTriggerHwService.h	(revision 183762)
++++ frameworks/av/services/soundtrigger/SoundTriggerHwService.h	(revision 183763)
+@@ -141,9 +141,6 @@
+ 
+     private:
+ 
+-       status_t unloadSoundModel_l(sound_model_handle_t handle);
+-
+-
+         Mutex                                  mLock;
+         wp<SoundTriggerHwService>              mService;
+         struct sound_trigger_hw_device*        mHwDevice;
+Index: frameworks/av/services/audiopolicy/service/AudioPolicyInterfaceImpl.cpp
+===================================================================
+--- frameworks/av/services/audiopolicy/service/AudioPolicyInterfaceImpl.cpp	(revision 183762)
++++ frameworks/av/services/audiopolicy/service/AudioPolicyInterfaceImpl.cpp	(revision 183763)
+@@ -665,6 +665,7 @@
+                                        audio_io_handle_t *ioHandle,
+                                        audio_devices_t *device)
+ {
++    Mutex::Autolock _l(mLock);
+     if (mAudioPolicyManager == NULL) {
+         return NO_INIT;
+     }
+@@ -674,6 +675,7 @@
+ 
+ status_t AudioPolicyService::releaseSoundTriggerSession(audio_session_t session)
+ {
++    Mutex::Autolock _l(mLock);
+     if (mAudioPolicyManager == NULL) {
+         return NO_INIT;
+     }
+Index: frameworks/av/media/libstagefright/omx/SimpleSoftOMXComponent.cpp
+===================================================================
+--- frameworks/av/media/libstagefright/omx/SimpleSoftOMXComponent.cpp	(revision 183762)
++++ frameworks/av/media/libstagefright/omx/SimpleSoftOMXComponent.cpp	(revision 183763)
+@@ -431,7 +431,19 @@
+ }
+ 
+ void SimpleSoftOMXComponent::onChangeState(OMX_STATETYPE state) {
++    ALOGV("%p requesting change from %d to %d", this, mState, state);
+     // We shouldn't be in a state transition already.
++
++    if (mState == OMX_StateLoaded
++            && mTargetState == OMX_StateIdle
++            && state == OMX_StateLoaded) {
++        // OMX specifically allows "canceling" a state transition from loaded
++        // to idle. Pretend we made it to idle, and go back to loaded
++        ALOGV("load->idle canceled");
++        mState = mTargetState = OMX_StateIdle;
++        state = OMX_StateLoaded;
++    }
++
+     CHECK_EQ((int)mState, (int)mTargetState);
+ 
+     switch (mState) {
+@@ -611,6 +623,7 @@
+         }
+ 
+         if (transitionComplete) {
++            ALOGV("state transition from %d to %d complete", mState, mTargetState);
+             mState = mTargetState;
+ 
+             if (mState == OMX_StateLoaded) {
+@@ -618,6 +631,8 @@
+             }
+ 
+             notify(OMX_EventCmdComplete, OMX_CommandStateSet, mState, NULL);
++        } else {
++            ALOGV("state transition from %d to %d not yet complete", mState, mTargetState);
+         }
+     }
+ 
+Index: frameworks/av/media/libstagefright/omx/OMXNodeInstance.cpp
+===================================================================
+--- frameworks/av/media/libstagefright/omx/OMXNodeInstance.cpp	(revision 183762)
++++ frameworks/av/media/libstagefright/omx/OMXNodeInstance.cpp	(revision 183763)
+@@ -353,6 +353,8 @@
+             break;
+     }
+ 
++    Mutex::Autolock _l(mLock);
++
+     ALOGV("[%x:%s] calling destroyComponentInstance", mNodeID, mName);
+     OMX_ERRORTYPE err = master->destroyComponentInstance(
+             static_cast<OMX_COMPONENTTYPE *>(mHandle));
+Index: frameworks/av/media/libmedia/IMediaExtractor.cpp
+===================================================================
+--- frameworks/av/media/libmedia/IMediaExtractor.cpp	(revision 183762)
++++ frameworks/av/media/libmedia/IMediaExtractor.cpp	(revision 183763)
+@@ -223,11 +223,16 @@
+     for (size_t i = 0; i < tracks.size(); i++) {
+         const String8 desc = trackDescriptions.itemAt(i);
+         str.appendFormat("    track {%s} ", desc.string());
+-        const sp<IMediaSource> source = tracks.itemAt(i).promote();
+-        if (source == NULL) {
+-            str.append(": deleted\n");
++        wp<IMediaSource> wSource = tracks.itemAt(i);
++        if (wSource == NULL) {
++            str.append(": null\n");
+         } else {
+-            str.appendFormat(": active\n");
++            const sp<IMediaSource> source = wSource.promote();
++            if (source == NULL) {
++                str.append(": deleted\n");
++            } else {
++                str.appendFormat(": active\n");
++            }
+         }
+     }
+     return str;
+@@ -246,9 +251,14 @@
+         if (extractor != NULL && extractor == ex) {
+             if (instance.tracks.size() > 5) {
+                 instance.tracks.resize(5);
++                instance.trackDescriptions.resize(5);
+             }
+             instance.tracks.push_front(source);
+-            instance.trackDescriptions.add(source->getFormat()->toString());
++            if (source != NULL) {
++                instance.trackDescriptions.push_front(source->getFormat()->toString());
++            } else {
++                instance.trackDescriptions.push_front(String8::empty());
++            }
+             break;
+         }
+     }
+Index: system/core/libziparchive/zip_archive_test.cc
+===================================================================
+--- system/core/libziparchive/zip_archive_test.cc	(revision 183762)
++++ system/core/libziparchive/zip_archive_test.cc	(revision 183763)
+@@ -603,6 +603,55 @@
+   CloseArchive(handle);
+ }
+ 
++// A zip file whose local file header at offset zero is corrupted.
++//
++// ---------------
++// cat foo > a.txt
++// zip a.zip a.txt
++// cat a.zip | xxd -i
++//
++// Manual changes :
++// [2] = 0xff  // Corrupt the LFH signature of entry 0.
++// [3] = 0xff  // Corrupt the LFH signature of entry 0.
++static const std::vector<uint8_t> kZipFileWithBrokenLfhSignature{
++    //[lfh-sig-----------], [lfh contents---------------------------------
++    0x50, 0x4b, 0xff, 0xff, 0x0a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x77, 0x80,
++    //--------------------------------------------------------------------
++    0x09, 0x4b, 0xa8, 0x65, 0x32, 0x7e, 0x04, 0x00, 0x00, 0x00, 0x04, 0x00,
++    //-------------------------------]  [file-name-----------------], [---
++    0x00, 0x00, 0x05, 0x00, 0x1c, 0x00, 0x61, 0x2e, 0x74, 0x78, 0x74, 0x55,
++    // entry-contents------------------------------------------------------
++    0x54, 0x09, 0x00, 0x03, 0x51, 0x24, 0x8b, 0x59, 0x51, 0x24, 0x8b, 0x59,
++    //--------------------------------------------------------------------
++    0x75, 0x78, 0x0b, 0x00, 0x01, 0x04, 0x89, 0x42, 0x00, 0x00, 0x04, 0x88,
++    //-------------------------------------], [cd-record-sig-------], [---
++    0x13, 0x00, 0x00, 0x66, 0x6f, 0x6f, 0x0a, 0x50, 0x4b, 0x01, 0x02, 0x1e,
++    // cd-record-----------------------------------------------------------
++    0x03, 0x0a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x77, 0x80, 0x09, 0x4b, 0xa8,
++    //--------------------------------------------------------------------
++    0x65, 0x32, 0x7e, 0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x05,
++    //--------------------------------------------------------------------
++    0x00, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xa0,
++    //-]  [lfh-file-header-off-], [file-name-----------------], [extra----
++    0x81, 0x00, 0x00, 0x00, 0x00, 0x61, 0x2e, 0x74, 0x78, 0x74, 0x55, 0x54,
++    //--------------------------------------------------------------------
++    0x05, 0x00, 0x03, 0x51, 0x24, 0x8b, 0x59, 0x75, 0x78, 0x0b, 0x00, 0x01,
++    //-------------------------------------------------------], [eocd-sig-
++    0x04, 0x89, 0x42, 0x00, 0x00, 0x04, 0x88, 0x13, 0x00, 0x00, 0x50, 0x4b,
++    //-------], [---------------------------------------------------------
++    0x05, 0x06, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x4b, 0x00,
++    //-------------------------------------------]
++    0x00, 0x00, 0x43, 0x00, 0x00, 0x00, 0x00, 0x00};
++
++TEST(ziparchive, BrokenLfhSignature) {
++  TemporaryFile tmp_file;
++  ASSERT_NE(-1, tmp_file.fd);
++  ASSERT_TRUE(android::base::WriteFully(tmp_file.fd, &kZipFileWithBrokenLfhSignature[0],
++                                        kZipFileWithBrokenLfhSignature.size()));
++  ZipArchiveHandle handle;
++  ASSERT_EQ(-1, OpenArchiveFd(tmp_file.fd, "LeadingNonZipBytes", &handle));
++}
++
+ int main(int argc, char** argv) {
+   ::testing::InitGoogleTest(&argc, argv);
+ 
+Index: system/core/libziparchive/zip_archive.cc
+===================================================================
+--- system/core/libziparchive/zip_archive.cc	(revision 183762)
++++ system/core/libziparchive/zip_archive.cc	(revision 183763)
+@@ -358,6 +358,8 @@
+   return result;
+ }
+ 
++static inline bool ReadAtOffset(int fd, uint8_t* buf, size_t len, off64_t off);
++
+ /*
+  * Parses the Zip archive's Central Directory.  Allocates and populates the
+  * hash table.
+@@ -436,6 +438,22 @@
+       return -1;
+     }
+   }
++
++  uint32_t lfh_start_bytes;
++  if (!ReadAtOffset(archive->fd, reinterpret_cast<uint8_t*>(&lfh_start_bytes),
++                    sizeof(uint32_t), 0)) {
++    ALOGW("Zip: Unable to read header for entry at offset == 0.");
++    return -1;
++  }
++
++  if (lfh_start_bytes != LocalFileHeader::kSignature) {
++    ALOGW("Zip: Entry at offset zero has invalid LFH signature %" PRIx32, lfh_start_bytes);
++#if defined(__ANDROID__)
++    android_errorWriteLog(0x534e4554, "64211847");
++#endif
++    return -1;
++  }
++
+   ALOGV("+++ zip good scan %" PRIu16 " entries", num_entries);
+ 
+   return 0;
+Index: system/core/rootdir/init.rc
+===================================================================
+--- system/core/rootdir/init.rc	(revision 183762)
++++ system/core/rootdir/init.rc	(revision 183763)
+@@ -129,6 +129,9 @@
+     write /proc/sys/net/ipv4/conf/all/accept_redirects 0
+     write /proc/sys/net/ipv6/conf/all/accept_redirects 0
+ 
++    # /proc/net/fib_trie leaks interface IP addresses
++    chmod 0400 /proc/net/fib_trie
++
+     # Create cgroup mount points for process groups
+     mkdir /dev/cpuctl
+     mount cgroup none /dev/cpuctl cpu
+Index: system/bt/bta/gatt/bta_gattc_cache.c
+===================================================================
+--- system/bt/bta/gatt/bta_gattc_cache.c	(revision 183762)
++++ system/bt/bta/gatt/bta_gattc_cache.c	(revision 183763)
+@@ -1550,7 +1550,7 @@
+ 
+     attr = osi_malloc(sizeof(tBTA_GATTC_NV_ATTR) * num_attr);
+ 
+-    if (fread(attr, sizeof(tBTA_GATTC_NV_ATTR), 0xFF, fd) != num_attr) {
++    if (fread(attr, sizeof(tBTA_GATTC_NV_ATTR), num_attr, fd) != num_attr) {
+         APPL_TRACE_ERROR("%s: can't read GATT attributes: %s", __func__, fname);
+         goto done;
+     }
+Index: packages/apps/PackageInstaller/src/com/android/packageinstaller/PackageInstallerActivity.java
+===================================================================
+--- packages/apps/PackageInstaller/src/com/android/packageinstaller/PackageInstallerActivity.java	(revision 183762)
++++ packages/apps/PackageInstaller/src/com/android/packageinstaller/PackageInstallerActivity.java	(revision 183763)
+@@ -16,7 +16,6 @@
+ */
+ package com.android.packageinstaller;
+ 
+-import android.app.Activity;
+ import android.app.ActivityManagerNative;
+ import android.app.AlertDialog;
+ import android.app.Dialog;
+Index: packages/apps/Settings/src/com/android/settings/ActivityPicker.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/ActivityPicker.java	(revision 183762)
++++ packages/apps/Settings/src/com/android/settings/ActivityPicker.java	(revision 183763)
+@@ -78,6 +78,10 @@
+         Parcelable parcel = intent.getParcelableExtra(Intent.EXTRA_INTENT);
+         if (parcel instanceof Intent) {
+             mBaseIntent = (Intent) parcel;
++            mBaseIntent.setFlags(mBaseIntent.getFlags() & ~(Intent.FLAG_GRANT_READ_URI_PERMISSION
++                    | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
++                    | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
++                    | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION));
+         } else {
+             mBaseIntent = new Intent(Intent.ACTION_MAIN, null);
+             mBaseIntent.addCategory(Intent.CATEGORY_DEFAULT);
+Index: external/skia/include/core/SkStream.h
+===================================================================
+--- external/skia/include/core/SkStream.h	(revision 183762)
++++ external/skia/include/core/SkStream.h	(revision 183763)
+@@ -11,6 +11,8 @@
+ #include "SkRefCnt.h"
+ #include "SkScalar.h"
+ 
++#include <memory>
++
+ class SkData;
+ namespace android {
+     class DrmManagerClientImpl;
+@@ -238,28 +240,20 @@
+     /** Initialize the stream by calling sk_fopen on the specified path.
+      *  This internal stream will be closed in the destructor.
+      */
+-    explicit SkFILEStream(const char path[] = NULL);
++    explicit SkFILEStream(const char path[] = nullptr);
+ 
+-    enum Ownership {
+-        kCallerPasses_Ownership,
+-        kCallerRetains_Ownership
+-    };
+     /** Initialize the stream with an existing C file stream.
+-     *  While this stream exists, it assumes exclusive access to the C file stream.
+-     *  The C file stream will be closed in the destructor unless the caller specifies
+-     *  kCallerRetains_Ownership.
++     *  The C file stream will be closed in the destructor.
+      */
+-    explicit SkFILEStream(FILE* file, Ownership ownership = kCallerPasses_Ownership);
++    explicit SkFILEStream(FILE* file);
+ 
+     virtual ~SkFILEStream();
+ 
+     /** Returns true if the current path could be opened. */
+-    bool isValid() const { return fFILE != NULL; }
++    bool isValid() const { return fFILE != nullptr; }
+ 
+-    /** Close the current file, and open a new file with the specified path.
+-     *  If path is NULL, just close the current file.
+-     */
+-    void setPath(const char path[]);
++    /** Close this SkFILEStream. */
++    void close();
+ 
+     size_t read(void* buffer, size_t size) override;
+     bool isAtEnd() const override;
+@@ -277,12 +271,15 @@
+     const void* getMemoryBase() override;
+ 
+ private:
+-    FILE*     fFILE;
+-    SkString    fName;
+-    Ownership   fOwnership;
+-    // fData is lazilly initialized when needed.
+-    mutable SkAutoTUnref<SkData> fData;
++    explicit SkFILEStream(std::shared_ptr<FILE>, size_t size, size_t offset);
++    explicit SkFILEStream(std::shared_ptr<FILE>, size_t size, size_t offset, size_t originalOffset);
+ 
++    std::shared_ptr<FILE> fFILE;
++    // My own council will I keep on sizes and offsets.
++    size_t fSize;
++    size_t fOffset;
++    size_t fOriginalOffset;
++
+     typedef SkStreamAsset INHERITED;
+ };
+ 
+Index: external/skia/include/core/SkOSFile.h
+===================================================================
+--- external/skia/include/core/SkOSFile.h	(revision 183762)
++++ external/skia/include/core/SkOSFile.h	(revision 183763)
+@@ -31,20 +31,12 @@
+ void    sk_fclose(FILE*);
+ 
+ size_t  sk_fgetsize(FILE*);
+-/** Return true if the file could seek back to the beginning
+-*/
+-bool    sk_frewind(FILE*);
+ 
+-size_t  sk_fread(void* buffer, size_t byteCount, FILE*);
+ size_t  sk_fwrite(const void* buffer, size_t byteCount, FILE*);
+ 
+-char*   sk_fgets(char* str, int size, FILE* f);
+-
+ void    sk_fflush(FILE*);
+ void    sk_fsync(FILE*);
+ 
+-bool    sk_fseek(FILE*, size_t);
+-bool    sk_fmove(FILE*, long);
+ size_t  sk_ftell(FILE*);
+ 
+ /** Maps a file into memory. Returns the address and length on success, NULL otherwise.
+@@ -80,8 +72,9 @@
+ // Returns true if a directory exists at this path.
+ bool    sk_isdir(const char *path);
+ 
+-// Have we reached the end of the file?
+-int sk_feof(FILE *);
++// Like pread, but may affect the file position marker.
++// Returns the number of bytes read or SIZE_MAX if failed.
++size_t sk_qread(FILE*, void* buffer, size_t count, size_t offset);
+ 
+ 
+ // Create a new directory at this path; returns true if successful.
+Index: external/skia/Android.mk
+===================================================================
+--- external/skia/Android.mk	(revision 183762)
++++ external/skia/Android.mk	(revision 183763)
+@@ -643,7 +643,6 @@
+ 	src/utils/SkPatchGrid.cpp \
+ 	src/utils/SkPatchUtils.cpp \
+ 	src/utils/SkRGBAToYUV.cpp \
+-	src/utils/SkRTConf.cpp \
+ 	src/utils/SkTextBox.cpp \
+ 	src/utils/SkTextureCompressor.cpp \
+ 	src/utils/SkTextureCompressor_ASTC.cpp \
+Index: external/skia/src/core/SkPath.cpp
+===================================================================
+--- external/skia/src/core/SkPath.cpp	(revision 183762)
++++ external/skia/src/core/SkPath.cpp	(revision 183763)
+@@ -2082,6 +2082,7 @@
+ 
+ ///////////////////////////////////////////////////////////////////////////////
+ 
++#include "SkString.h"
+ #include "SkStringUtils.h"
+ #include "SkStream.h"
+ 
+Index: external/skia/src/core/SkStream.cpp
+===================================================================
+--- external/skia/src/core/SkStream.cpp	(revision 183762)
++++ external/skia/src/core/SkStream.cpp	(revision 183763)
+@@ -180,105 +180,95 @@
+ 
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+-SkFILEStream::SkFILEStream(const char file[]) : fName(file), fOwnership(kCallerPasses_Ownership) {
+-    fFILE = file ? sk_fopen(fName.c_str(), kRead_SkFILE_Flag) : nullptr;
+-}
++SkFILEStream::SkFILEStream(std::shared_ptr<FILE> file, size_t size,
++                           size_t offset, size_t originalOffset)
++    : fFILE(std::move(file))
++    , fSize(size)
++    , fOffset(SkTMin(offset, fSize))
++    , fOriginalOffset(SkTMin(originalOffset, fSize))
++{ }
+ 
+-SkFILEStream::SkFILEStream(FILE* file, Ownership ownership)
+-    : fFILE(file)
+-    , fOwnership(ownership) {
+-}
++SkFILEStream::SkFILEStream(std::shared_ptr<FILE> file, size_t size, size_t offset)
++    : SkFILEStream(std::move(file), size, offset, offset)
++{ }
+ 
++SkFILEStream::SkFILEStream(FILE* file)
++    : SkFILEStream(std::shared_ptr<FILE>(file, sk_fclose),
++                   file ? sk_fgetsize(file) : 0,
++                   file ? sk_ftell(file) : 0)
++{ }
++
++
++SkFILEStream::SkFILEStream(const char path[])
++    : SkFILEStream(path ? sk_fopen(path, kRead_SkFILE_Flag) : nullptr)
++{ }
++
+ SkFILEStream::~SkFILEStream() {
+-    if (fFILE && fOwnership != kCallerRetains_Ownership) {
+-        sk_fclose(fFILE);
+-    }
++    this->close();
+ }
+ 
+-void SkFILEStream::setPath(const char path[]) {
+-    fName.set(path);
+-    if (fFILE) {
+-        sk_fclose(fFILE);
+-        fFILE = nullptr;
+-    }
+-    if (path) {
+-        fFILE = sk_fopen(fName.c_str(), kRead_SkFILE_Flag);
+-    }
++void SkFILEStream::close() {
++    fFILE.reset();
++    fSize = 0;
++    fOffset = 0;
+ }
+ 
+ size_t SkFILEStream::read(void* buffer, size_t size) {
+-    if (fFILE) {
+-        return sk_fread(buffer, size, fFILE);
++    if (size > fSize - fOffset) {
++        size = fSize - fOffset;
+     }
+-    return 0;
++    size_t bytesRead = size;
++    if (buffer) {
++        bytesRead = sk_qread(fFILE.get(), buffer, size, fOffset);
++    }
++    if (bytesRead == SIZE_MAX) {
++        return 0;
++    }
++    fOffset += bytesRead;
++    return bytesRead;
+ }
+ 
+ bool SkFILEStream::isAtEnd() const {
+-    return sk_feof(fFILE);
++    if (fOffset == fSize) {
++        return true;
++    }
++    return fOffset >= sk_fgetsize(fFILE.get());
+ }
+ 
+ bool SkFILEStream::rewind() {
+-    if (fFILE) {
+-        if (sk_frewind(fFILE)) {
+-            return true;
+-        }
+-        // we hit an error
+-        sk_fclose(fFILE);
+-        fFILE = nullptr;
+-    }
+-    return false;
++    // TODO: fOriginalOffset instead of 0.
++    fOffset = 0;
++    return true;
+ }
+ 
+ SkStreamAsset* SkFILEStream::duplicate() const {
+-    if (nullptr == fFILE) {
+-        return new SkMemoryStream();
+-    }
+-
+-    if (fData.get()) {
+-        return new SkMemoryStream(fData);
+-    }
+-
+-    if (!fName.isEmpty()) {
+-        SkAutoTDelete<SkFILEStream> that(new SkFILEStream(fName.c_str()));
+-        if (sk_fidentical(that->fFILE, this->fFILE)) {
+-            return that.detach();
+-        }
+-    }
+-
+-    fData.reset(SkData::NewFromFILE(fFILE));
+-    if (nullptr == fData.get()) {
+-        return nullptr;
+-    }
+-    return new SkMemoryStream(fData);
++    // TODO: fOriginalOffset instead of 0.
++    return new SkFILEStream(fFILE, fSize, 0, fOriginalOffset);
+ }
+ 
+ size_t SkFILEStream::getPosition() const {
+-    return sk_ftell(fFILE);
++    return fOffset;
+ }
+ 
+ bool SkFILEStream::seek(size_t position) {
+-    return sk_fseek(fFILE, position);
++    fOffset = position > fSize ? fSize : position;
++    return true;
+ }
+ 
+ bool SkFILEStream::move(long offset) {
+-    return sk_fmove(fFILE, offset);
++    return this->seek(fOffset + offset);
+ }
+ 
+ SkStreamAsset* SkFILEStream::fork() const {
+-    SkAutoTDelete<SkStreamAsset> that(this->duplicate());
+-    that->seek(this->getPosition());
+-    return that.detach();
++    return new SkFILEStream(fFILE, fSize, fOffset, fOriginalOffset);
+ }
+ 
+ size_t SkFILEStream::getLength() const {
+-    return sk_fgetsize(fFILE);
++    return fSize;
+ }
+ 
+ const void* SkFILEStream::getMemoryBase() {
+-    if (nullptr == fData.get()) {
+-        return nullptr;
+-    }
+-    return fData->data();
++    return nullptr;
+ }
+ 
+ ///////////////////////////////////////////////////////////////////////////////
+Index: external/skia/src/ports/SkOSFile_win.cpp
+===================================================================
+--- external/skia/src/ports/SkOSFile_win.cpp	(revision 183762)
++++ external/skia/src/ports/SkOSFile_win.cpp	(revision 183763)
+@@ -124,6 +124,33 @@
+     return sk_fdmmap(fileno, length);
+ }
+ 
++size_t sk_qread(FILE* file, void* buffer, size_t count, size_t offset) {
++    int fileno = sk_fileno(file);
++    HANDLE fileHandle = (HANDLE)_get_osfhandle(fileno);
++    if (INVALID_HANDLE_VALUE == file) {
++        return SIZE_MAX;
++    }
++
++    OVERLAPPED overlapped = {0};
++    ULARGE_INTEGER winOffset;
++    winOffset.QuadPart = offset;
++    overlapped.Offset = winOffset.LowPart;
++    overlapped.OffsetHigh = winOffset.HighPart;
++
++    if (!SkTFitsIn<DWORD>(count)) {
++        count = std::numeric_limits<DWORD>::max();
++    }
++
++    DWORD bytesRead;
++    if (ReadFile(fileHandle, buffer, static_cast<DWORD>(count), &bytesRead, &overlapped)) {
++        return bytesRead;
++    }
++    if (GetLastError() == ERROR_HANDLE_EOF) {
++        return 0;
++    }
++    return SIZE_MAX;
++}
++
+ ////////////////////////////////////////////////////////////////////////////
+ 
+ struct SkOSFileIterData {
+Index: external/skia/src/ports/SkOSFile_posix.cpp
+===================================================================
+--- external/skia/src/ports/SkOSFile_posix.cpp	(revision 183762)
++++ external/skia/src/ports/SkOSFile_posix.cpp	(revision 183763)
+@@ -95,6 +95,18 @@
+     return sk_fdmmap(fd, size);
+ }
+ 
++size_t sk_qread(FILE* file, void* buffer, size_t count, size_t offset) {
++    int fd = sk_fileno(file);
++    if (fd < 0) {
++        return SIZE_MAX;
++    }
++    ssize_t bytesRead = pread(fd, buffer, count, offset);
++    if (bytesRead < 0) {
++        return SIZE_MAX;
++    }
++    return bytesRead;
++}
++
+ ////////////////////////////////////////////////////////////////////////////
+ 
+ struct SkOSFileIterData {
+Index: external/skia/src/ports/SkOSFile_stdio.cpp
+===================================================================
+--- external/skia/src/ports/SkOSFile_stdio.cpp	(revision 183762)
++++ external/skia/src/ports/SkOSFile_stdio.cpp	(revision 183763)
+@@ -80,15 +80,6 @@
+     return file;
+ }
+ 
+-char* sk_fgets(char* str, int size, FILE* f) {
+-    return fgets(str, size, (FILE *)f);
+-}
+-
+-int sk_feof(FILE *f) {
+-    // no :: namespace qualifier because it breaks android
+-    return feof((FILE *)f);
+-}
+-
+ size_t sk_fgetsize(FILE* f) {
+     SkASSERT(f);
+ 
+@@ -107,32 +98,6 @@
+     return size;
+ }
+ 
+-bool sk_frewind(FILE* f) {
+-    SkASSERT(f);
+-    ::rewind(f);
+-    return true;
+-}
+-
+-size_t sk_fread(void* buffer, size_t byteCount, FILE* f) {
+-    SkASSERT(f);
+-    if (buffer == nullptr) {
+-        size_t curr = ftell(f);
+-        if ((long)curr == -1) {
+-            SkDEBUGF(("sk_fread: ftell(%p) returned -1 feof:%d ferror:%d\n", f, feof(f), ferror(f)));
+-            return 0;
+-        }
+-        int err = fseek(f, (long)byteCount, SEEK_CUR);
+-        if (err != 0) {
+-            SkDEBUGF(("sk_fread: fseek(%d) tell:%d failed with feof:%d ferror:%d returned:%d\n",
+-                        byteCount, curr, feof(f), ferror(f), err));
+-            return 0;
+-        }
+-        return byteCount;
+-    }
+-    else
+-        return fread(buffer, 1, byteCount, f);
+-}
+-
+ size_t sk_fwrite(const void* buffer, size_t byteCount, FILE* f) {
+     SkASSERT(f);
+     return fwrite(buffer, 1, byteCount, f);
+@@ -151,16 +116,6 @@
+ #endif
+ }
+ 
+-bool sk_fseek(FILE* f, size_t byteCount) {
+-    int err = fseek(f, (long)byteCount, SEEK_SET);
+-    return err == 0;
+-}
+-
+-bool sk_fmove(FILE* f, long byteCount) {
+-    int err = fseek(f, byteCount, SEEK_CUR);
+-    return err == 0;
+-}
+-
+ size_t sk_ftell(FILE* f) {
+     long curr = ftell(f);
+     if (curr < 0) {
+@@ -170,8 +125,9 @@
+ }
+ 
+ void sk_fclose(FILE* f) {
+-    SkASSERT(f);
+-    fclose(f);
++    if (f) {
++        fclose(f);
++    }
+ }
+ 
+ bool sk_isdir(const char *path) {
+Index: external/skia/src/codec/SkIcoCodec.h
+===================================================================
+--- external/skia/src/codec/SkIcoCodec.h	(revision 183762)
++++ external/skia/src/codec/SkIcoCodec.h	(revision 183763)
+@@ -8,6 +8,7 @@
+ #include "SkCodec.h"
+ #include "SkImageInfo.h"
+ #include "SkStream.h"
++#include "SkTArray.h"
+ #include "SkTypes.h"
+ 
+ /*
+Index: external/skia/src/codec/SkWebpCodec.cpp
+===================================================================
+--- external/skia/src/codec/SkWebpCodec.cpp	(revision 183762)
++++ external/skia/src/codec/SkWebpCodec.cpp	(revision 183763)
+@@ -235,7 +235,10 @@
+     while (true) {
+         const size_t bytesRead = stream()->read(buffer, BUFFER_SIZE);
+         if (0 == bytesRead) {
+-            WebPIDecGetRGB(idec, rowsDecoded, NULL, NULL, NULL);
++            if (!WebPIDecGetRGB(idec, rowsDecoded, NULL, NULL, NULL)
++                    || rowsDecoded && *rowsDecoded <= 0) {
++                return kInvalidInput;
++            }
+             return kIncompleteInput;
+         }
+ 
+Index: external/skia/tools/chrome_fuzz.cpp
+===================================================================
+--- external/skia/tools/chrome_fuzz.cpp	(revision 183762)
++++ external/skia/tools/chrome_fuzz.cpp	(revision 183763)
+@@ -8,6 +8,8 @@
+ #include "SkOSFile.h"
+ #include "SkString.h"
+ 
++#include <stdio.h>
++
+ static const int kBitmapSize = 24;
+ 
+ static bool read_test_case(const char* filename, SkString* testdata) {
+@@ -22,7 +24,7 @@
+     return false;
+   }
+   testdata->resize(len);
+-  (void) sk_fread(testdata->writable_str(), len, file);
++  (void) fread(testdata->writable_str(), len, file);
+   return true;
+ }
+ 
+Index: external/skia/dm/Android.mk
+===================================================================
+--- external/skia/dm/Android.mk	(revision 183762)
++++ external/skia/dm/Android.mk	(revision 183763)
+@@ -213,7 +213,6 @@
+ 	../tests/PremulAlphaRoundTripTest.cpp \
+ 	../tests/QuickRejectTest.cpp \
+ 	../tests/RRectInPathTest.cpp \
+-	../tests/RTConfRegistryTest.cpp \
+ 	../tests/RTreeTest.cpp \
+ 	../tests/RandomTest.cpp \
+ 	../tests/ReadPixelsTest.cpp \
+Index: external/skia/tests/PathOpsExtendedTest.cpp
+===================================================================
+--- external/skia/tests/PathOpsExtendedTest.cpp	(revision 183762)
++++ external/skia/tests/PathOpsExtendedTest.cpp	(revision 183763)
+@@ -595,7 +595,7 @@
+             inData.setCount((int) inFile.getLength());
+             size_t inLen = inData.count();
+             inFile.read(inData.begin(), inLen);
+-            inFile.setPath(nullptr);
++            inFile.close();
+             char* insert = strstr(inData.begin(), marker);
+             if (insert) {
+                 insert += sizeof(marker) - 1;
+Index: external/skia/tests/StreamTest.cpp
+===================================================================
+--- external/skia/tests/StreamTest.cpp	(revision 183762)
++++ external/skia/tests/StreamTest.cpp	(revision 183763)
+@@ -67,7 +67,7 @@
+ 
+     {
+         FILE* file = ::fopen(path.c_str(), "rb");
+-        SkFILEStream stream(file, SkFILEStream::kCallerPasses_Ownership);
++        SkFILEStream stream(file);
+         REPORTER_ASSERT(reporter, stream.isValid());
+         test_loop_stream(reporter, &stream, s, 26, 100);
+ 
+Index: external/libavc/decoder/ih264d_parse_slice.c
+===================================================================
+--- external/libavc/decoder/ih264d_parse_slice.c	(revision 183762)
++++ external/libavc/decoder/ih264d_parse_slice.c	(revision 183763)
+@@ -1382,9 +1382,8 @@
+         if(ps_dec->u1_dangling_field == 1)
+         {
+             ps_dec->u1_second_field = 1 - ps_dec->u1_second_field;
+-            ps_cur_slice->u1_bottom_field_flag = u1_bottom_field_flag;
+-            ps_dec->u2_prv_frame_num = u2_frame_num;
+             ps_dec->u1_first_slice_in_stream = 0;
++            ps_dec->u1_top_bottom_decoded = TOP_FIELD_ONLY | BOT_FIELD_ONLY;
+             return ERROR_DANGLING_FIELD_IN_PIC;
+         }
+ 
+Index: external/libmpeg2/decoder/impeg2d_pnb_pic.c
+===================================================================
+--- external/libmpeg2/decoder/impeg2d_pnb_pic.c	(revision 183762)
++++ external/libmpeg2/decoder/impeg2d_pnb_pic.c	(revision 183763)
+@@ -122,7 +122,34 @@
+ 
+             impeg2d_dec_skip_mbs(ps_dec, (UWORD16)(u2_mb_addr_incr - 1));
+         }
++        else
++        {
+ 
++            /****************************************************************/
++            /* Section 6.3.17                                               */
++            /* The first MB of a slice cannot be skipped                    */
++            /* But the mb_addr_incr can be > 1, because at the beginning of */
++            /* a slice, it indicates the offset from the last MB in the     */
++            /* previous row. Hence for the first slice in a row, the        */
++            /* mb_addr_incr needs to be 1.                                  */
++            /****************************************************************/
++            /* MB_x is set to zero whenever MB_y changes.                   */
++            ps_dec->u2_mb_x = u2_mb_addr_incr - 1;
++            /* For error resilience */
++            ps_dec->u2_mb_x = MIN(ps_dec->u2_mb_x, (ps_dec->u2_num_horiz_mb - 1));
++            ps_dec->u2_num_mbs_left = ((ps_dec->u2_num_vert_mb - ps_dec->u2_mb_y)
++                            * ps_dec->u2_num_horiz_mb) - ps_dec->u2_mb_x;
++
++            /****************************************************************/
++            /* mb_addr_incr is forced to 1 because in this decoder it is used */
++            /* more as an indicator of the number of MBs skipped than the   */
++            /* as defined by the standard (Section 6.3.17)                  */
++            /****************************************************************/
++            u2_mb_addr_incr = 1;
++            ps_dec->u2_first_mb = 0;
++
++        }
++
+     }
+     u4_next_word = (UWORD16)impeg2d_bit_stream_nxt(ps_stream,16);
+     /*-----------------------------------------------------------------------*/
+@@ -286,6 +313,8 @@
+             ps_dec->u2_mb_x = u2_mb_addr_incr - 1;
+             /* For error resilience */
+             ps_dec->u2_mb_x = MIN(ps_dec->u2_mb_x, (ps_dec->u2_num_horiz_mb - 1));
++            ps_dec->u2_num_mbs_left = ((ps_dec->u2_num_vert_mb - ps_dec->u2_mb_y)
++                            * ps_dec->u2_num_horiz_mb) - ps_dec->u2_mb_x;
+ 
+             /****************************************************************/
+             /* mb_addr_incr is forced to 1 because in this decoder it is used */
+Index: external/libmpeg2/decoder/impeg2d_api_main.c
+===================================================================
+--- external/libmpeg2/decoder/impeg2d_api_main.c	(revision 183762)
++++ external/libmpeg2/decoder/impeg2d_api_main.c	(revision 183763)
+@@ -977,6 +977,7 @@
+ 
+             ps_dec_state->u2_header_done    = 0;  /* Header decoding not done */
+             ps_dec_state->u4_frm_buf_stride = 0;
++            ps_dec_state->i4_pic_count      = 0;
+             ps_dec_state->u2_is_mpeg2       = 0;
+             ps_dec_state->aps_ref_pics[0] = NULL;
+             ps_dec_state->aps_ref_pics[1] = NULL;
+Index: external/libmpeg2/decoder/impeg2d_structs.h
+===================================================================
+--- external/libmpeg2/decoder/impeg2d_structs.h	(revision 183762)
++++ external/libmpeg2/decoder/impeg2d_structs.h	(revision 183763)
+@@ -326,6 +326,9 @@
+     UWORD8          *pu1_chroma_ref_buf[BUF_MGR_MAX_CNT];
+     ivd_out_bufdesc_t as_disp_buffers[BUF_MGR_MAX_CNT];
+ 
++    /* Count the number of pictures decoded after init/reset */
++    WORD32          i4_pic_count;
++
+     /* Flag to signal last coeff in a 8x8 block is one
+     after mismatch contol */
+     WORD32          i4_last_value_one;
+Index: external/libmpeg2/decoder/impeg2d_dec_hdr.c
+===================================================================
+--- external/libmpeg2/decoder/impeg2d_dec_hdr.c	(revision 183762)
++++ external/libmpeg2/decoder/impeg2d_dec_hdr.c	(revision 183763)
+@@ -173,7 +173,16 @@
+         }
+         else
+         {
+-            if((u2_width > ps_dec->u2_create_max_width)
++            if (0 == ps_dec->i4_pic_count)
++            {
++                /* Decoder has not decoded a single frame since the last
++                 * reset/init. This implies that we have two headers in the
++                 * input stream. So, do not indicate a resolution change, since
++                 * this can take the decoder into an infinite loop.
++                 */
++                return (IMPEG2D_ERROR_CODES_T) IMPEG2D_FRM_HDR_DECODE_ERR;
++            }
++            else if((u2_width > ps_dec->u2_create_max_width)
+                             || (u2_height > ps_dec->u2_create_max_height))
+             {
+                 IMPEG2D_ERROR_CODES_T e_error = IMPEG2D_UNSUPPORTED_DIMENSIONS;
+@@ -969,6 +978,11 @@
+             if ((IMPEG2D_ERROR_CODES_T)IVD_ERROR_NONE != e_error)
+             {
+                 impeg2d_next_start_code(ps_dec);
++                if(ps_dec->s_bit_stream.u4_offset >= ps_dec->s_bit_stream.u4_max_offset)
++                {
++                    ps_dec->u4_error_code = IMPEG2D_BITSTREAM_BUFF_EXCEEDED_ERR;
++                    return;
++                }
+             }
+         }
+ 
+@@ -1081,6 +1095,7 @@
+     ps_dec_thd->u2_mb_x = 0;
+     ps_dec_thd->u2_mb_y = 0;
+     ps_dec_thd->u2_is_mpeg2 = ps_dec->u2_is_mpeg2;
++    ps_dec_thd->i4_pic_count = ps_dec->i4_pic_count;
+     ps_dec_thd->u2_frame_width = ps_dec->u2_frame_width;
+     ps_dec_thd->u2_frame_height = ps_dec->u2_frame_height;
+     ps_dec_thd->u2_picture_width = ps_dec->u2_picture_width;
+@@ -1350,8 +1365,6 @@
+     WORD32 i;
+     dec_state_multi_core_t *ps_dec_state_multi_core;
+ 
+-    UWORD32  u4_error_code;
+-
+     dec_state_t *ps_dec_thd;
+     WORD32 i4_status;
+     WORD32 i4_min_mb_y;
+@@ -1359,7 +1372,6 @@
+ 
+     /* Resetting the MB address and MB coordinates at the start of the Frame */
+     ps_dec->u2_mb_x = ps_dec->u2_mb_y = 0;
+-    u4_error_code = 0;
+ 
+     ps_dec_state_multi_core = ps_dec->ps_dec_state_multi_core;
+     impeg2d_get_slice_pos(ps_dec_state_multi_core);
+@@ -1403,8 +1415,6 @@
+         }
+     }
+ 
+-    ps_dec->u4_error_code = u4_error_code;
+-
+ }
+ /*******************************************************************************
+ *
+@@ -1738,6 +1748,7 @@
+             else if((ps_dec->s_bit_stream.u4_offset < ps_dec->s_bit_stream.u4_max_offset)
+                     && (u4_next_bits == PICTURE_START_CODE))
+             {
++                ps_dec->i4_pic_count++;
+ 
+                 e_error = impeg2d_dec_pic_hdr(ps_dec);
+                 if ((IMPEG2D_ERROR_CODES_T)IVD_ERROR_NONE != e_error)
+@@ -1830,6 +1841,7 @@
+             else if ((impeg2d_bit_stream_nxt(ps_stream,START_CODE_LEN) == PICTURE_START_CODE)
+                     && (ps_dec->s_bit_stream.u4_offset < ps_dec->s_bit_stream.u4_max_offset))
+             {
++                ps_dec->i4_pic_count++;
+ 
+                 e_error = impeg2d_dec_pic_hdr(ps_dec);
+                 if ((IMPEG2D_ERROR_CODES_T)IVD_ERROR_NONE != e_error)
+Index: build/core/version_defaults.mk
+===================================================================
+--- build/core/version_defaults.mk	(revision 183762)
++++ build/core/version_defaults.mk	(revision 183763)
+@@ -114,7 +114,7 @@
+     #  It must be of the form "YYYY-MM-DD" on production devices.
+     #  It must match one of the Android Security Patch Level strings of the Public Security Bulletins.
+     #  If there is no $PLATFORM_SECURITY_PATCH set, keep it empty.
+-    PLATFORM_SECURITY_PATCH := 2017-11-05
++    PLATFORM_SECURITY_PATCH := 2017-12-05
+ endif
+ 
+ ifeq "" "$(PLATFORM_BASE_OS)"

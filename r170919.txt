@@ -1,0 +1,17 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 170918)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 170919)
+@@ -931,6 +931,12 @@
+             tryRegisterImsListener();//SRPD: Add for VoLTE
+         }
+         /* @} */
++		// add  by  yujunjie for bug 95827 start
++		List<PhoneAccountHandle> subscriptionAccounts =
++                PhoneAccountUtils.getSubscriptionPhoneAccounts(getContext());
++        int size = subscriptionAccounts.size();
++        mSwitchBtn.setVisibility(size > 1 ? View.VISIBLE : View.GONE);
++		// add  by  yujunjie for bug 95827 end
+         Trace.endSection();
+     }
+ 

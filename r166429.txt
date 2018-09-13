@@ -1,0 +1,175 @@
+Index: packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java	(revision 166428)
++++ packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java	(revision 166429)
+@@ -49,6 +49,10 @@
+ import com.android.contacts.common.widget.SelectPhoneAccountDialogFragment.SelectPhoneAccountListener;
+ import com.android.dialer.calllog.PhoneAccountUtils;
+ import com.android.dialer.util.TelecomUtil;
++//fix bug for:89797 start
++import android.os.SystemProperties;
++import com.android.internal.telephony.TelephonyIntents;
++//fix bug for:89797 end
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+@@ -73,7 +77,11 @@
+     private static final String SECRET_CODE_ACTION = "android.provider.Telephony.SECRET_CODE";
+     private static final String MMI_IMEI_DISPLAY = "*#06#";
+     private static final String MMI_REGULATORY_INFO_DISPLAY = "*#07#";
+-
++	//fix bug for:89797 start
++	private static final String MMI_INTERNAL_VERSION = "*#7522#";
++	private static final String MMI_EXTERNAL_VERSION = "*#92#";
++	private static final String MMI_CUSTOM_FACTORY = "#38378#";
++	 //fix bug for:89797 end
+     private static SimContactQueryCookie mSC;
+     /**
+      * Remembers the previous {@link QueryHandler} and cancel the operation when needed, to
+@@ -151,13 +159,60 @@
+         if (handleDeviceIdDisplay(context, dialString)
+                 || handleRegulatoryInfoDisplay(context, dialString)
+                 || handlePinEntry(context, dialString)
+-                || handleSecretCode(context, dialString)) {
++                //fix bug for:89797
++                || handleCustomCode(context, dialString)
++                || handleSecretCode(context, dialString)
++                || handleExternalVersion(context, dialString)
++                || handleInternalVersion(context, dialString)) {
+             return true;
+         }
+ 
+         return false;
+     }
++	//fix bug for:89797 start
++	private static boolean handleExternalVersion(Context context, String input) { 
++        if (input.equals(MMI_EXTERNAL_VERSION)) {            
++            String release_ver = SystemProperties.get("ro.build.display.id");        
++            AlertDialog alert = new AlertDialog.Builder(context)                
++                .setTitle(R.string.version_title)                
++                .setMessage(release_ver)                
++                .setPositiveButton(android.R.string.ok, null)                
++                .setCancelable(false)
++                .create();        
++            alert.show();                
++            return true;        
++        }        
++        return false;    
++    }
+ 
++	private static boolean handleInternalVersion(Context context, String input) {
++        if (input.equals(MMI_INTERNAL_VERSION)) {
++            String release_ver = SystemProperties.get("ro.build.inner.version");
++            AlertDialog alert = new AlertDialog.Builder(context)
++                .setTitle(R.string.version_title)
++                .setMessage(release_ver)
++                .setPositiveButton(android.R.string.ok, null)                
++                .setCancelable(false)                
++                .create();        
++            alert.show();           
++            return true;        
++        }        
++        return false;    
++    }
++	//fix bug for:89797 end
++	static boolean handleCustomCode(Context context, String input) {
++        // Secret codes are in the form #<code>#
++        int len = input.length();
++        if (input.equals(MMI_CUSTOM_FACTORY)) {
++            final Intent intent = new Intent(SECRET_CODE_ACTION,
++                    Uri.parse("android_secret_code://" + input.substring(1, len - 1)));
++            context.sendBroadcast(intent);
++            return true;
++        }
++
++        return false;
++    }
++	
+     /**
+      * Cleanup everything around this class. Must be run inside the main thread.
+      *
+Index: packages/apps/Dialer/res/values-zh-rCN/strings.xml
+===================================================================
+--- packages/apps/Dialer/res/values-zh-rCN/strings.xml	(revision 166428)
++++ packages/apps/Dialer/res/values-zh-rCN/strings.xml	(revision 166429)
+@@ -276,4 +276,5 @@
+     <string name="cound_not_make_mutil_call">无法发起多方通话</string>
+     <!-- SPRD: add for bug616290 -->
+     <string name="location_permission_message">"要允许电话获取此设备的位置信息吗？"</string>
++    <string name="version_title">"版本号"</string>
+ </resources>
+Index: packages/apps/Dialer/res/values/strings.xml
+===================================================================
+--- packages/apps/Dialer/res/values/strings.xml	(revision 166428)
++++ packages/apps/Dialer/res/values/strings.xml	(revision 166429)
+@@ -1070,4 +1070,5 @@
+     <!-- @} -->
+     <!-- SPRD: add for bug616290 -->
+     <string name="location_permission_message">Allow Dialer to access this device\'s location?</string>
++    <string name="version_title">"Version"</string>
+ </resources>
+Index: packages/apps/Settings/AndroidManifest.xml
+===================================================================
+--- packages/apps/Settings/AndroidManifest.xml	(revision 166428)
++++ packages/apps/Settings/AndroidManifest.xml	(revision 166429)
+@@ -2260,6 +2260,7 @@
+             <intent-filter>
+                  <action android:name="android.provider.Telephony.SECRET_CODE" />
+                  <data android:scheme="android_secret_code" android:host="4636" />
++                 <data android:scheme="android_secret_code" android:host="38378" />
+             </intent-filter>
+        </receiver>
+ 
+Index: packages/apps/Settings/src/com/android/settings/TestingSettingsBroadcastReceiver.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/TestingSettingsBroadcastReceiver.java	(revision 166428)
++++ packages/apps/Settings/src/com/android/settings/TestingSettingsBroadcastReceiver.java	(revision 166429)
+@@ -7,10 +7,15 @@
+ import static com.android.internal.telephony.TelephonyIntents.SECRET_CODE_ACTION;
+ 
+ import com.android.settings.Settings.TestingSettingsActivity;
++//fix bug for:89797 start
++import android.content.ComponentName;
++import android.net.Uri;
++import android.util.Log;
++//fix bug for:89797 end
+ 
+-
+ public class TestingSettingsBroadcastReceiver extends BroadcastReceiver {
+-  
++	//fix bug for:89797
++	Uri factoyUri = Uri.parse("android_secret_code://38378");
+     public TestingSettingsBroadcastReceiver() {
+     }
+     
+@@ -17,11 +22,23 @@
+     @Override
+     public void onReceive(Context context, Intent intent) {
+         if (intent.getAction() != null && /** Fix bug 594849 Avoid action is null value  **/
+-                 intent.getAction().equals(SECRET_CODE_ACTION)) {
+-            Intent i = new Intent(Intent.ACTION_MAIN);
+-            i.setClass(context, TestingSettingsActivity.class);
+-            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+-            context.startActivity(i);
+-        }
+-    }
++                 intent.getAction().equals(SECRET_CODE_ACTION)){
++				 ////fix bug for:89797 start
++				Uri uri = intent.getData();
++				Log.v("SECRET_CODE_ACTION", "uri = " + uri);
++				/*Intent i = new Intent(Intent.ACTION_MAIN);
++				i.setClass(context, TestingSettingsActivity.class);
++				i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++				context.startActivity(i);*/
++				if(uri.equals(factoyUri)){
++					Intent i = new Intent(Intent.ACTION_MAIN);
++					i.setComponent(new ComponentName("com.mediatek.factorymode","com.mediatek.factorymode.FactoryMode"));
++					i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++					context.startActivity(i);
++					Log.v("TestingSettingsBroadcastReceiver", "uri = " + uri);
++					////fix bug for:89797 end
++				}
++		}
++	}
++	
+ }

@@ -1,0 +1,44 @@
+Index: packages/apps/Settings/src/com/android/settings/DisplaySettings.java
+===================================================================
+--- packages/apps/Settings/src/com/android/settings/DisplaySettings.java	(revision 178400)
++++ packages/apps/Settings/src/com/android/settings/DisplaySettings.java	(revision 178401)
+@@ -84,6 +84,7 @@
+     private static final String KEY_SCREEN_TIMEOUT = "screen_timeout";
+     private static final String KEY_FONT_SIZE = "font_size";
+     private static final String KEY_SCREEN_SAVER = "screensaver";
++    private static final String KEY_SCREEN_LEVEL = "brightness";
+     private static final String KEY_LIFT_TO_WAKE = "lift_to_wake";
+     private static final String KEY_DOZE = "doze";
+     private static final String KEY_TAP_TO_WAKE = "tap_to_wake";
+@@ -105,6 +106,7 @@
+     private TimeoutListPreference mScreenTimeoutPreference;
+     private ListPreference mNightModePreference;
+     private Preference mScreenSaverPreference;
++    private Preference mBrightnessPreference;
+     private SwitchPreference mLiftToWakePreference;
+     private SwitchPreference mDozePreference;
+     private SwitchPreference mTapToWakePreference;
+@@ -143,6 +145,7 @@
+         addPreferencesFromResource(R.xml.display_settings);
+ 
+         mScreenSaverPreference = findPreference(KEY_SCREEN_SAVER);
++        mBrightnessPreference = findPreference(KEY_SCREEN_LEVEL);
+         if (mScreenSaverPreference != null
+                 && getResources().getBoolean(
+                         com.android.internal.R.bool.config_dreamsSupported) == false) {
+@@ -451,6 +454,7 @@
+             int brightnessMode = Settings.System.getInt(getContentResolver(),
+                     SCREEN_BRIGHTNESS_MODE, SCREEN_BRIGHTNESS_MODE_MANUAL);
+             mAutoBrightnessPreference.setChecked(brightnessMode != SCREEN_BRIGHTNESS_MODE_MANUAL);
++            mBrightnessPreference.setEnabled(brightnessMode == SCREEN_BRIGHTNESS_MODE_MANUAL);
+             // SPRD : Modify for bug 599099
+             if (PressBrightness.getInstance().isSupport()) {
+                 PressBrightness.getInstance().setEnabled(!(brightnessMode != SCREEN_BRIGHTNESS_MODE_MANUAL), mTouchLightTimeoutPreference);
+@@ -571,6 +575,7 @@
+             if (PressBrightness.getInstance().isSupport()) {
+                 PressBrightness.getInstance().setEnabled(!auto, mTouchLightTimeoutPreference);
+             }
++            mBrightnessPreference.setEnabled(!auto);
+             Settings.System.putInt(getContentResolver(), SCREEN_BRIGHTNESS_MODE,
+                     auto ? SCREEN_BRIGHTNESS_MODE_AUTOMATIC : SCREEN_BRIGHTNESS_MODE_MANUAL);
+         }

@@ -1,0 +1,42 @@
+Index: frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java
+===================================================================
+--- frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java	(revision 167865)
++++ frameworks/base/packages/SystemUI/src/com/android/systemui/KeyguardGesture.java	(revision 167866)
+@@ -348,6 +348,16 @@
+                         break;
+                     case KeyEvent.KEYCODE_V:
+                         //handleGesture(gestureKeycode);
++                        int value = Settings.System.getInt(mContext.getContentResolver(), Settings.System.KEY_GESTURE_TYPE_VIBRATE, 0);
++                        if (value == 1) {
++                            final Vibrator v = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
++                            if (v != null) {
++                                v.vibrate(500, new AudioAttributes.Builder()
++                                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
++                                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION).build());
++                            }
++                        }
++
+                         if( -1 != getLockScreenMode()) {
+                             Log.i(TAG, "mGestureBroadcastReceiver: to makeExpandedInvisibleByGesture");
+                             mPhoneStatusBar.makeExpandedInvisibleByGesture();
+@@ -361,7 +371,6 @@
+                        break;
+                 }
+ 
+-
+             }
+         }
+     };
+Index: vendor/sprd/custom/Android.mk
+===================================================================
+--- vendor/sprd/custom/Android.mk	(revision 167865)
++++ vendor/sprd/custom/Android.mk	(revision 167866)
+@@ -21,7 +21,7 @@
+ LOCAL_MODULE := Flashlight
+ LOCAL_MODULE_STEM := Flashlight.apk
+ LOCAL_MODULE_CLASS := APPS
+-LOCAL_CERTIFICATE := PRESIGNED
++LOCAL_CERTIFICATE := platform
+ LOCAL_MODULE_PATH := $(TARGET_OUT)/preloadapp
+ LOCAL_SRC_FILES := Flashlight.apk
+ include $(BUILD_PREBUILT)

@@ -1,0 +1,21 @@
+Index: build/tools/buildinfo.sh
+===================================================================
+--- build/tools/buildinfo.sh	(revision 167928)
++++ build/tools/buildinfo.sh	(revision 167929)
+@@ -8,6 +8,7 @@
+ echo "ro.build.inner.version=Haier_Andromax_A36C5H_A080_M00_S07B_170504"
+ echo "ro.build.display.intid=Haier_Andromax_A36C5H_A080_M00_S07B_170504"
+ echo "ro.build.display.factoryid=Plat:Haier_Andromax_A36C5H_A080_M00_S07B_170504Outer:Andromax_V1.0End"
++echo "ro.build.description=Haier_Andromax_A36C5H_A080_M00_S07B_170504"
+ echo "ro.build.display.ctaid=A089_CTA"
+ echo "ro.build.release.time=2017-05-04"
+ echo "ro.build.version.incremental=$BUILD_NUMBER"
+@@ -95,7 +96,7 @@
+ echo "ro.build.product=$TARGET_DEVICE"
+ 
+ echo "# Do not try to parse description, fingerprint, or thumbprint"
+-echo "ro.build.description=$PRIVATE_BUILD_DESC"
++
+ if [ -n "$BUILD_THUMBPRINT" ] ; then
+   echo "ro.build.thumbprint=$BUILD_THUMBPRINT"
+ fi

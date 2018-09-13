@@ -1,0 +1,14 @@
+Index: packages/apps/Launcher3/res/xml/dw_phone_hotseat.xml
+===================================================================
+--- packages/apps/Launcher3/res/xml/dw_phone_hotseat.xml	(revision 173399)
++++ packages/apps/Launcher3/res/xml/dw_phone_hotseat.xml	(revision 173400)
+@@ -47,7 +47,8 @@
+         launcher:x="3"
+         launcher:y="0" >
+         <favorite
+-            launcher:uri="#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_BROWSER;end" />
++            launcher:packageName="com.android.chrome"
++            launcher:className="com.google.android.apps.chrome.Main" />
+         <favorite launcher:uri="http://www.example.com/" />
+     </resolve>
+ 

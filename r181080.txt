@@ -1,0 +1,26 @@
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml	(revision 181079)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values/strings.xml	(revision 181080)
+@@ -29,7 +29,7 @@
+     <string name="extend_panel_style_default">Default</string>
+     <string name="extend_panel_style_customize">Customize</string>
+     <string name="zoom_scale">Zoom Scale</string>
+-    <string name="make_up_effect">Makeup Effect</string>
++    <string name="make_up_effect">Beautify </string>
+     <string name="min_make_up_level">1</string>
+     <string name="max_make_up_level">5</string>
+     <string name="dream_freeze_frame_confirm_delete_text">Do you want to give up all of pictures?</string>
+Index: vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-in/strings.xml
+===================================================================
+--- vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-in/strings.xml	(revision 181079)
++++ vendor/sprd/platform/packages/apps/DreamCamera2/res_dream/values-in/strings.xml	(revision 181080)
+@@ -25,7 +25,7 @@
+ <string name="extend_panel_style_default">Normal</string>
+ <string name="extend_panel_style_customize">"Sesuaikan"</string>
+ <string name="zoom_scale">"Skala Perbesaran"</string>
+-<string name="make_up_effect">"Efek makeup"</string>
++<string name="make_up_effect">"Beautify"</string>
+ <string name="dream_freeze_frame_confirm_delete_text">"Apakah anda ingin memberikan semua foto?"</string>
+ <string name="welcome_confirm">"Mulai memotret"</string>
+ <string name="welcome_right">"Geser kanan untuk tombol mode."</string>

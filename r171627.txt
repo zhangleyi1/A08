@@ -1,0 +1,13 @@
+Index: packages/apps/Messaging/res/values-in/strings.xml
+===================================================================
+--- packages/apps/Messaging/res/values-in/strings.xml	(revision 171626)
++++ packages/apps/Messaging/res/values-in/strings.xml	(revision 171627)
+@@ -17,7 +17,7 @@
+ 
+ <resources xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+-    <string name="app_name" msgid="3062916848713424329">"Perpesanan"</string>
++    <string name="app_name" msgid="3062916848713424329">"Pesan"</string>
+     <string name="share_intent_label" msgid="6920483598866144717">"Perpesanan"</string>
+     <string name="share_intent_activity_label" msgid="2939454246983196756">"Pilih percakapan"</string>
+     <string name="action_settings" msgid="1329008122345201684">"Setelan"</string>

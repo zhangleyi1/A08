@@ -1,0 +1,198 @@
+Index: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 166439)
++++ packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java	(revision 166440)
+@@ -173,6 +173,12 @@
+         boolean onDialpadSpacerTouchWithEmptyQuery();
+     }
+ 
++    //Added by zhangleyi for 20170303 begin
++    public interface ListenerDataResult {
++        public void updateResultButton(int count);
++    }
++    //Added by zhangleyi for 20170303 end
++
+     private static final boolean DEBUG = DialtactsActivity.DEBUG;
+ 
+     // This is the amount of screen the dialpad fragment takes up when fully displayed
+
+Property changes on: packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /A08A/Branch/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.12.4_UseA07/packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java:r163688
+   Merged /A08A/Custom_version/MOCORDROID7.0_Trunk_K310_17A_RLS1_W17.15.1/packages/apps/Dialer/src/com/android/dialer/dialpad/DialpadFragment.java:r165466,165469,165472,165500,165503-165504,165507-165509,165512,165525
+Index: packages/apps/Dialer/src/com/android/dialer/DialtactsActivity.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/DialtactsActivity.java	(revision 166439)
++++ packages/apps/Dialer/src/com/android/dialer/DialtactsActivity.java	(revision 166440)
+@@ -58,6 +58,7 @@
+ import android.widget.PopupMenu;
+ import android.widget.TextView;
+ import android.widget.Toast;
++import android.widget.Button;
+ 
+ import com.android.contacts.common.dialog.ClearFrequentsDialog;
+ import com.android.contacts.common.interactions.ImportExportDialogFragment;
+@@ -98,6 +99,7 @@
+ import com.android.phone.common.animation.AnimationListenerAdapter;
+ import com.google.common.annotations.VisibleForTesting;
+ import com.sprd.dialer.SecurityAccessLocation;
++import com.android.dialer.dialpad.DialpadFragment.ListenerDataResult;
+ 
+ import static android.Manifest.permission.READ_PHONE_STATE;
+ 
+@@ -112,6 +114,7 @@
+         OnListFragmentScrolledListener,
+         CallLogFragment.HostInterface,
+         DialpadFragment.HostInterface,
++        DialpadFragment.ListenerDataResult,
+         ListsFragment.HostInterface,
+         SpeedDialFragment.HostInterface,
+         SearchFragment.HostInterface,
+@@ -244,6 +247,7 @@
+     private PopupMenu mOverflowMenu;
+     private EditText mSearchView;
+     private View mVoiceSearchButton;
++    private Button mFindContactAmountBtn;
+ 
+     private String mSearchQuery;
+     private String mDialpadQuery;
+@@ -378,7 +382,19 @@
+         }
+     };
+ 
++    //Added by zhangleyi for 20170303 begin
++    @Override
++    public void updateResultButton(int count) {
++        if (count != 0) {
++            mFindContactAmountBtn.setVisibility(View.VISIBLE);
++            mFindContactAmountBtn.setText(String.valueOf(count));
++        } else {
++            mFindContactAmountBtn.setVisibility(View.GONE);
++        }
++    }
++    //Added by zhangleyi for 20170303 end
+ 
++
+     /**
+      * Open the search UI when the user clicks on the search box.
+      */
+@@ -467,6 +483,11 @@
+ 
+         mActionBarController = new ActionBarController(this, searchEditTextLayout);
+ 
++        //Added by zhangleyi for 20170302 begin
++        mFindContactAmountBtn = (Button)findViewById(R.id.find_contact_amount_Btn);
++        mFindContactAmountBtn.setOnClickListener(this);
++        //Added by zhangleyi for 20170302 end
++
+         mSearchView = (EditText) searchEditTextLayout.findViewById(R.id.search_view);
+         mSearchView.addTextChangedListener(mPhoneSearchQueryTextListener);
+         mVoiceSearchButton = searchEditTextLayout.findViewById(R.id.voice_search_button);
+@@ -692,6 +713,7 @@
+             if (!TextUtils.isEmpty(mDialpadQuery)) {
+                 mSmartDialSearchFragment.setAddToContactNumber(mDialpadQuery);
+             }
++            mSmartDialSearchFragment.registerListener(this);    //Added by zhangleyi for 20170303;
+         } else if (fragment instanceof SearchFragment) {
+             mRegularSearchFragment = (RegularSearchFragment) fragment;
+             mRegularSearchFragment.setOnPhoneNumberPickerActionListener(this);
+@@ -735,7 +757,14 @@
+             }
+         } else if (resId == R.id.dialtacts_options_menu_button) {
+             mOverflowMenu.show();
+-        } else {
++        }
++        //Added by zhangleyi for 20170302 begin
++        else if (resId == R.id.find_contact_amount_Btn) {
++            hideDialpadFragment(true, false);
++
++        }
++        //Added by zhangleyi for 20170302 end
++        else {
+             Log.wtf(TAG, "Unexpected onClick event from " + view);
+         }
+     }
+@@ -823,6 +852,13 @@
+         if (mIsDialpadShown || mStateSaved) {
+             return;
+         }
++
++        //Added by zhangleyi for 20170302 begin
++        if ((mDialpadFragment != null) && !mDialpadFragment.isDigitsEmpty()) {
++            mFindContactAmountBtn.setVisibility(View.VISIBLE);
++        }
++        //Added by zhangleyi for 20170302 end
++
+         // SPRD: add for bug612542
+         mActionBarController.onDialpadUp();
+ 
+@@ -906,6 +942,9 @@
+             commitDialpadFragmentHide();
+         }
+ 
++        //Added by zhangleyi for 20170302 begin
++        mFindContactAmountBtn.setVisibility(View.GONE);
++        //Added by zhangleyi for 20170302 end
+         mActionBarController.onDialpadDown();
+ 
+         if (isInSearchUi()) {
+Index: packages/apps/Dialer/src/com/android/dialer/list/SmartDialSearchFragment.java
+===================================================================
+--- packages/apps/Dialer/src/com/android/dialer/list/SmartDialSearchFragment.java	(revision 166439)
++++ packages/apps/Dialer/src/com/android/dialer/list/SmartDialSearchFragment.java	(revision 166440)
+@@ -35,6 +35,7 @@
+ import com.android.dialer.widget.EmptyContentView;
+ import com.android.incallui.Call.LogState;
+ import com.sprd.dialer.plugins.DialerTelcelHelper;
++import com.android.dialer.dialpad.DialpadFragment.ListenerDataResult;
+ 
+ import java.util.ArrayList;
+ 
+@@ -49,6 +50,7 @@
+     private static final int CALL_PHONE_PERMISSION_REQUEST_CODE = 1;
+     private FdnCacheRefreshListener mFdnCacheRefreshListener;
+     private SmartDialCursorLoader mSmartDialCursorLoader;
++    public ListenerDataResult mListenerFindResult;
+ 
+     /**
+      * Creates a SmartDialListAdapter to display and operate on search results.
+@@ -84,6 +86,18 @@
+         }
+     }
+ 
++    @Override
++    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
++        super.onLoadFinished(loader, data);
++        mListenerFindResult.updateResultButton(data.getCount());
++    }
++
++    //Added by zhangleyi for 20170303 begin
++    public void registerListener(ListenerDataResult listener) {
++        mListenerFindResult = listener;
++    }
++    //Added by zhangleyi for 20170303 end
++
+     private class FdnCacheRefreshListener implements DialerTelcelHelper.OnFdnCacheRefreshListener {
+         @Override
+         public void OnFdnCacheRefresh() {
+Index: packages/apps/Dialer/res/layout/dialtacts_activity.xml
+===================================================================
+--- packages/apps/Dialer/res/layout/dialtacts_activity.xml	(revision 166439)
++++ packages/apps/Dialer/res/layout/dialtacts_activity.xml	(revision 166440)
+@@ -36,6 +36,15 @@
+             android:layout_width="match_parent"
+             android:id="@+id/dialtacts_frame"
+             android:clipChildren="false" />
++
++        <Button
++            android:layout_width="40dp"
++            android:layout_height="40dp"
++            android:id="@+id/find_contact_amount_Btn"
++            android:layout_gravity="right"
++            android:layout_marginTop="5dp"
++            android:layout_marginRight="2dp"
++            android:visibility="gone" />
+     </FrameLayout>
+ 
+     <FrameLayout

@@ -1,0 +1,180 @@
+Index: packages/apps/Launcher3/ext/res/xml/dw_base_customize.xml
+===================================================================
+--- packages/apps/Launcher3/ext/res/xml/dw_base_customize.xml	(revision 178990)
++++ packages/apps/Launcher3/ext/res/xml/dw_base_customize.xml	(revision 178991)
+@@ -15,25 +15,6 @@
+ -->
+ 
+ <favorites xmlns:launcher="http://schemas.android.com/apk/res-auto/com.android.launcher3">
+-	
+-	
+-    <appwidget
+-        launcher:packageName="com.google.android.googlequicksearchbox"
+-        launcher:className="com.google.android.googlequicksearchbox.SearchWidgetProvider"
+-        launcher:screen="0"
+-        launcher:x="0"
+-        launcher:y="0"
+-        launcher:spanX="4"
+-        launcher:spanY="1" />
+-		
+-	<appwidget
+-        launcher:screen="0"
+-        launcher:x="0"
+-        launcher:y="1"
+-        launcher:spanX="4"
+-        launcher:spanY="2"
+-        launcher:packageName="com.android.deskclock"
+-        launcher:className="com.android.alarmclock.DigitalAppWidgetProvider" />
+ 
+     <favorite
+         launcher:screen="0"
+@@ -111,4 +92,21 @@
+                launcher:packageName="com.google.android.apps.photos"
+                launcher:className="com.google.android.apps.photos.home.HomeActivity" />
+     </folder>
++    <appwidget
++        launcher:packageName="com.google.android.googlequicksearchbox"
++        launcher:className="com.google.android.googlequicksearchbox.SearchWidgetProvider"
++        launcher:screen="0"
++        launcher:x="0"
++        launcher:y="0"
++        launcher:spanX="4"
++        launcher:spanY="1" />
++		
++    <appwidget
++        launcher:screen="0"
++        launcher:x="0"
++        launcher:y="1"
++        launcher:spanX="4"
++        launcher:spanY="2"
++        launcher:packageName="com.android.deskclock"
++        launcher:className="com.android.alarmclock.DigitalAppWidgetProvider" />
+ </favorites>
+Index: packages/apps/Launcher3/ext/res/xml/dw_vendor_customize.xml
+===================================================================
+--- packages/apps/Launcher3/ext/res/xml/dw_vendor_customize.xml	(revision 178990)
++++ packages/apps/Launcher3/ext/res/xml/dw_vendor_customize.xml	(revision 178991)
+@@ -16,24 +16,7 @@
+ 
+ <favorites xmlns:launcher="http://schemas.android.com/apk/res-auto/com.android.launcher3">
+ 
+-    <!--to do add for vendor customize-->
+-	<appwidget
+-        launcher:packageName="com.google.android.googlequicksearchbox"
+-        launcher:className="com.google.android.googlequicksearchbox.SearchWidgetProvider"
+-        launcher:screen="0"
+-        launcher:x="0"
+-        launcher:y="0"
+-        launcher:spanX="5"
+-        launcher:spanY="1" />
+-		
+-	<appwidget
+-        launcher:screen="0"
+-        launcher:x="0"
+-        launcher:y="1"
+-        launcher:spanX="5"
+-        launcher:spanY="2"
+-        launcher:packageName="com.android.deskclock"
+-        launcher:className="com.android.alarmclock.DigitalAppWidgetProvider" />
++    <!--to do add for vendor customize-->	
+ 
+     <favorite
+         launcher:screen="0"
+@@ -111,4 +94,22 @@
+                launcher:packageName="com.google.android.apps.photos"
+                launcher:className="com.google.android.apps.photos.home.HomeActivity" />
+     </folder>
++    
++    <appwidget
++        launcher:packageName="com.google.android.googlequicksearchbox"
++        launcher:className="com.google.android.googlequicksearchbox.SearchWidgetProvider"
++        launcher:screen="0"
++        launcher:x="0"
++        launcher:y="0"
++        launcher:spanX="5"
++        launcher:spanY="1" />
++		
++    <appwidget
++        launcher:screen="0"
++        launcher:x="0"
++        launcher:y="1"
++        launcher:spanX="5"
++        launcher:spanY="2"
++        launcher:packageName="com.android.deskclock"
++        launcher:className="com.android.alarmclock.DigitalAppWidgetProvider" />
+ </favorites>
+Index: packages/apps/Launcher3/src/com/android/launcher3/AutoInstallsLayout.java
+===================================================================
+--- packages/apps/Launcher3/src/com/android/launcher3/AutoInstallsLayout.java	(revision 178990)
++++ packages/apps/Launcher3/src/com/android/launcher3/AutoInstallsLayout.java	(revision 178991)
+@@ -34,6 +34,7 @@
+ import android.util.Log;
+ import android.util.Pair;
+ import android.util.Patterns;
++import com.sprd.ext.LogUtils;
+ 
+ import com.android.launcher3.LauncherProvider.SqlArguments;
+ import com.android.launcher3.LauncherSettings.Favorites;
+@@ -476,7 +477,38 @@
+      * Options child nodes: <extra key=... value=... />
+      */
+     protected class AppWidgetParser implements TagParser {
++		//add start 
++		private boolean isActivityReady(String packageName, String className) {
+ 
++            if (TextUtils.isEmpty(packageName) || TextUtils.isEmpty(className)) {
++                if (LOGD) Log.d(TAG, "AppWidgetParser, Skipping invalid <favorite> with no component");
++                return false;
++            }
++
++            ComponentName cn = new ComponentName(packageName, className);
++            int retryCount = 10;
++            while (retryCount > 0) {
++                try {
++                    mPackageManager.getReceiverInfo(cn, 0);
++                    break;
++                } catch (Exception e) {
++                    String[] packages = mPackageManager.currentToCanonicalPackageNames(
++                            new String[] { packageName });
++                    cn = new ComponentName(packages[0], className);
++                    try {
++                        retryCount--;
++                        Thread.sleep(50);
++                        mPackageManager.getReceiverInfo(cn, 0);
++                    } catch (Exception ignored) {
++                        if (LOGD) Log.w(TAG, "AppWidgetParser, Can't find widget provider: " + className + "retryCount:" + retryCount);
++                    }
++                }
++            }
++
++            return retryCount >= 0;
++        }
++		//add end
++
+         @Override
+         public long parseAndAdd(XmlResourceParser parser)
+                 throws XmlPullParserException, IOException {
+@@ -488,7 +520,7 @@
+             }
+ 
+             ComponentName cn = new ComponentName(packageName, className);
+-            try {
++            /*try {
+                 mPackageManager.getReceiverInfo(cn, 0);
+             } catch (Exception e) {
+                 String[] packages = mPackageManager.currentToCanonicalPackageNames(
+@@ -500,8 +532,13 @@
+                     if (LOGD) Log.d(TAG, "Can't find widget provider: " + className);
+                     return -1;
+                 }
++			}*/
++			
++			if (!isActivityReady(packageName, className)) {
++                LogUtils.w(TAG, "AppWidgetParser, activity no ready, pkgName:" + packageName + " clsName:" + className);
++                return -1;
+             }
+-
++			
+             mValues.put(Favorites.SPANX, getAttributeValue(parser, ATTR_SPAN_X));
+             mValues.put(Favorites.SPANY, getAttributeValue(parser, ATTR_SPAN_Y));
+ 

@@ -1,0 +1,14 @@
+Index: packages/apps/Provision/AndroidManifest.xml
+===================================================================
+--- packages/apps/Provision/AndroidManifest.xml	(revision 178426)
++++ packages/apps/Provision/AndroidManifest.xml	(revision 178427)
+@@ -38,7 +38,8 @@
+         <activity android:name="FotaInfoActivity"
+                 android:excludeFromRecents="true"
+                 android:theme="@android:style/Theme.Holo.Dialog.NoActionBar"
+-                android:exported="true" >
++                android:exported="true"
++                android:screenOrientation="portrait" >
+         </activity>
+     </application>
+ </manifest>

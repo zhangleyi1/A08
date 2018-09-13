@@ -1,0 +1,44 @@
+Index: vendor/sprd/platform/packages/apps/UserManual/assets/user_manual_indonesia.htm
+===================================================================
+--- vendor/sprd/platform/packages/apps/UserManual/assets/user_manual_indonesia.htm	(revision 177332)
++++ vendor/sprd/platform/packages/apps/UserManual/assets/user_manual_indonesia.htm	(revision 177333)
+@@ -1096,7 +1096,7 @@
+   return to home screen ;</span></p>
+   <p class=MsoNormal style='line-height:8.0pt'><span lang=EN-US
+   style='font-size:6.0pt;font-family:"Calibri","sans-serif"'>Long press to return
+-  to Google New</span></p>
++  to Google&#8482; Now</span></p>
+   </td>
+  </tr>
+  <tr style='page-break-inside:avoid;height:2.6pt'>
+@@ -2020,7 +2020,7 @@
+ style='font-size:6.0pt;font-family:"Calibri","sans-serif"'>From this
+ application you can download many applications such as Games, Books &amp; Reference,
+ Communication, Education, Entertainment etc, where it contain both free or paid
+-application you can choose that provided from Android market. This function can
++application you can choose that provided from Android&#8482; market. This function can
+ work after you create and activate or login using your Google account.</span></p>
+ 
+ <p class=MsoNormal style='margin-left:9.0pt;text-indent:-9.0pt;text-autospace:
+Index: vendor/sprd/platform/packages/apps/UserManual/assets/user_manual.htm
+===================================================================
+--- vendor/sprd/platform/packages/apps/UserManual/assets/user_manual.htm	(revision 177332)
++++ vendor/sprd/platform/packages/apps/UserManual/assets/user_manual.htm	(revision 177333)
+@@ -1096,7 +1096,7 @@
+   return to home screen ;</span></p>
+   <p class=MsoNormal style='line-height:8.0pt'><span lang=EN-US
+   style='font-size:6.0pt;font-family:"Calibri","sans-serif"'>Long press to return
+-  to Google New</span></p>
++  to Google&#8482; Now</span></p>
+   </td>
+  </tr>
+  <tr style='page-break-inside:avoid;height:2.6pt'>
+@@ -2020,7 +2020,7 @@
+ style='font-size:6.0pt;font-family:"Calibri","sans-serif"'>From this
+ application you can download many applications such as Games, Books &amp; Reference,
+ Communication, Education, Entertainment etc, where it contain both free or paid
+-application you can choose that provided from Android market. This function can
++application you can choose that provided from Android&#8482; market. This function can
+ work after you create and activate or login using your Google account.</span></p>
+ 
+ <p class=MsoNormal style='margin-left:9.0pt;text-indent:-9.0pt;text-autospace:
